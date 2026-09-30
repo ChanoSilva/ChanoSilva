@@ -185,7 +185,7 @@ Table~\ref{tab:main} gives the mean cross-validated accuracy of every method, Ta
 \cmidrule(lr){5-10}\cmidrule(lr){11-15}
 dataset & $n$ & $d$ & $C$ & kNN & NFL & HKNN & LPH & LCD & SD & TOD & TO & TD & OD & T\\
 \midrule
-\input{table_main}
+\input{table_main}\\
 \bottomrule
 \end{tabular}
 \caption{Mean test accuracy (\%) over the \MetaFolds{} folds. The best reference on each dataset is in bold. TOD $=$ tangential $+$ orthogonal $+$ depth; TO, TD, OD drop one component; T, LPH ($=$O) and SD ($=$D) are the single components.}
@@ -198,7 +198,7 @@ dataset & $n$ & $d$ & $C$ & kNN & NFL & HKNN & LPH & LCD & SD & TOD & TO & TD & 
 \toprule
 dataset & best ref. & best ref. & TOD & TOD $-$ best ref. [95\% CI] & W/L/T & NB $p$\\
 \midrule
-\input{table_delta}
+\input{table_delta}\\
 \bottomrule
 \end{tabular}
 \caption{Primary comparison (C1). Accuracies in \%, differences in accuracy points; W/L/T counts folds won, lost and tied by TOD; NB $p$ is the corrected resampled $t$-test. Significant wins under C1: \NSigWins{} of \NDatasets{} (\NRequired{} required); significant losses: \NSigLosses{} (\SigLossesList).}
@@ -213,7 +213,7 @@ dataset & best ref. & best ref. & TOD & TOD $-$ best ref. [95\% CI] & W/L/T & NB
 \toprule
 dataset & vs kNN & vs NFL & vs HKNN & vs LPH & vs LCD & vs SD\\
 \midrule
-\input{table_each}
+\input{table_each}\\
 \bottomrule
 \end{tabular}
 \caption{TOD minus each reference, in accuracy points, mean and bootstrap 95\% interval over folds.}
@@ -228,7 +228,7 @@ dataset & vs kNN & vs NFL & vs HKNN & vs LPH & vs LCD & vs SD\\
 \toprule
 dataset & $-$ depth (vs TO) & $-$ orthogonal (vs TD) & $-$ tangential (vs OD) & vs LPH (O only) & vs SD (D only)\\
 \midrule
-\input{table_ablation}
+\input{table_ablation}\\
 \bottomrule
 \end{tabular}
 \caption{Ablations (C2): TOD minus the model with the named component removed, in accuracy points, mean and bootstrap 95\% interval. A positive value means the component helped.}
@@ -250,7 +250,7 @@ dataset & $-$ depth (vs TO) & $-$ orthogonal (vs TD) & $-$ tangential (vs OD) & 
 \toprule
 dataset & kNN $k$ & HKNN $(k,\lambda_{\rm rel})$ & LPH $(k,m)$ & SD $k$ & TOD $(k,m)$ & $w_T$ & $w_O$ & $w_D$\\
 \midrule
-\input{table_params}
+\input{table_params}\\
 \bottomrule
 \end{tabular}
 \caption{Modal hyper-parameters over the \MetaFolds{} folds and mean fitted weights of TOD on the standardised features $\log T_m$, $\log O_m$, $\log E$ (larger weight $=$ more influence; positive $=$ smaller value favours the class).}
@@ -263,7 +263,7 @@ dataset & kNN $k$ & HKNN $(k,\lambda_{\rm rel})$ & LPH $(k,m)$ & SD $k$ & TOD $(
 \toprule
 dataset & kNN & NFL & HKNN & LPH & LCD & SD & TOD & TO & OD & TOD $-$ best ref. [CI]\\
 \midrule
-\input{table_selective}
+\input{table_selective}\\
 \bottomrule
 \end{tabular}
 \caption{Selective accuracy (\%) at \MetaCoverage\% coverage (C3), each method abstaining on its own least confident 20\% of test points; last column against the best reference of Table~\ref{tab:delta}.}
@@ -278,7 +278,7 @@ dataset & kNN & NFL & HKNN & LPH & LCD & SD & TOD & TO & OD & TOD $-$ best ref. 
 \toprule
 $p$ & kNN & NFL & HKNN & LPH & LCD & SD & TOD & TO & TD & OD & best ref. & TOD $-$ best ref. [CI]\\
 \midrule
-\input{table_regime}
+\input{table_regime}\\
 \bottomrule
 \end{tabular}
 \caption{E2, regime scan: mean accuracy (\%) on the two moons (noise $0.3$, $n=600$) with $p$ appended $N(0,1)$ coordinates, same protocol as Table~\ref{tab:main}.}

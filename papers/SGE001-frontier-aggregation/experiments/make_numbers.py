@@ -41,7 +41,7 @@ def M(name, val):
 
 
 def write_table(name, rows):
-    body = " \\\\\n".join(rows) + "\n"
+    body = " \\\\\n".join(rows) + "\n"      # last row without terminator: main.tex adds it after \input
     open(os.path.join(OUT, f"table_{name}.tex"), "w").write(body)
 
 

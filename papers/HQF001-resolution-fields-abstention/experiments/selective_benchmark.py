@@ -174,7 +174,7 @@ def make_datasets(seed, fast=False):
     y = np.repeat(np.arange(2), counts)
     be = _gauss_bayes_error(rng, means, covs, priors)
     D["synth_classcov"] = dict(X=X, y=y, pca=None, kind="synthetic",
-                               note="two Gaussians in d=6 with different (rotated) covariances, same eigenvalues; mean shift calibrated so Bayes error = 10%",
+                               note="two Gaussians in d=6 with different (rotated) covariances, same eigenvalues; mean shift chosen by bisection in [0.05, 20] towards a 10% Bayes error (the bound 0.05 is reached when the covariances alone separate the classes better than that)",
                                bayes_error=be, shift=scale)
     # S4: shared covariance, three classes (LDA regime), Bayes error calibrated to 10%
     Q = _rand_rot(rng, d)
@@ -191,7 +191,7 @@ def make_datasets(seed, fast=False):
     y = np.repeat(np.arange(3), counts)
     be = _gauss_bayes_error(rng, means, covs, priors)
     D["synth_lda"] = dict(X=X, y=y, pca=None, kind="synthetic",
-                          note="three Gaussians in d=6 with one shared covariance (eigenvalues 2 to 0.05); mean shift calibrated so Bayes error = 10%",
+                          note="three Gaussians in d=6 with one shared covariance (eigenvalues 2 to 0.05); mean shift chosen by bisection in [0.05, 20] towards a 10% Bayes error",
                           bayes_error=be, shift=scale)
     if fast:
         for k in D:
@@ -672,7 +672,7 @@ def main():
         per_fold[ds] = folds
         ds_info[ds] = dict(n=int(len(y)), d_raw=int(X.shape[1]), d_used=int(d_used), n_classes=int(len(np.unique(y))),
                            kind=info["kind"], note=info.get("note", "PCA to 20 components" if info["pca"] else ""),
-                           bayes_error=info.get("bayes_error"), seconds=time.time() - tds)
+                           bayes_error=info.get("bayes_error"), shift=info.get("shift"), seconds=time.time() - tds)
         print(f"[{ds}] done in {time.time() - tds:.1f} s; mean AURC x100: " +
               ", ".join(f"{m}={100*np.mean([f[m]['aurc'] for f in folds]):.2f}" for m in methods), flush=True)
     rng = np.random.default_rng(SEED)

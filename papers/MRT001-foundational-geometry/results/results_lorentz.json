@@ -5,7 +5,7 @@
     "python": "3.11.15",
     "numpy": "2.4.6",
     "scipy": "1.17.1",
-    "seconds": 148.8
+    "seconds": 314.8
   },
   "E5a": {
     "n": 300,
@@ -60,7 +60,7 @@
       "median_rel_err_tau_hat": 0.16937081841725452,
       "median_rel_err_tau_hat_tau_gt_quarter": 0.14286418303876752,
       "median_rel_err_vs_distorted_tau_gt_quarter": 0.2293235027014628,
-      "seconds": 0.4
+      "seconds": 0.8
     },
     {
       "n": 500,
@@ -72,7 +72,7 @@
       "median_rel_err_tau_hat": 0.15960906333671115,
       "median_rel_err_tau_hat_tau_gt_quarter": 0.1378090944688301,
       "median_rel_err_vs_distorted_tau_gt_quarter": 0.2174624569011806,
-      "seconds": 0.7
+      "seconds": 1.0
     },
     {
       "n": 1000,
@@ -84,7 +84,7 @@
       "median_rel_err_tau_hat": 0.1256293124481106,
       "median_rel_err_tau_hat_tau_gt_quarter": 0.10437217820361025,
       "median_rel_err_vs_distorted_tau_gt_quarter": 0.21741655410932673,
-      "seconds": 1.1
+      "seconds": 1.5
     },
     {
       "n": 2000,
@@ -96,7 +96,7 @@
       "median_rel_err_tau_hat": 0.10562180267580967,
       "median_rel_err_tau_hat_tau_gt_quarter": 0.08168674096285898,
       "median_rel_err_vs_distorted_tau_gt_quarter": 0.16551220501340946,
-      "seconds": 2.3
+      "seconds": 2.6
     }
   ],
   "E5d": [
@@ -106,6 +106,7 @@
       "rmse_median": 0.07315233274536825,
       "rmse_max": 0.09709783940601159,
       "rmse_times_sqrt_n": 1.1566399381494092,
+      "rmse_median_unrelated_votes_only": 0.07274458733520334,
       "order_disagreement_median": 0.07622489959839357
     },
     {
@@ -114,6 +115,7 @@
       "rmse_median": 0.04940973819996282,
       "rmse_max": 0.06223271437359753,
       "rmse_times_sqrt_n": 1.1048353336558496,
+      "rmse_median_unrelated_votes_only": 0.049247051004347835,
       "order_disagreement_median": 0.05238076152304609
     },
     {
@@ -122,6 +124,7 @@
       "rmse_median": 0.04145172167318654,
       "rmse_max": 0.054442128282827164,
       "rmse_times_sqrt_n": 1.3108185342263523,
+      "rmse_median_unrelated_votes_only": 0.041820673669611605,
       "order_disagreement_median": 0.04534734734734735
     },
     {
@@ -130,7 +133,80 @@
       "rmse_median": 0.031174463248177783,
       "rmse_max": 0.03794888436354533,
       "rmse_times_sqrt_n": 1.3941643796998884,
+      "rmse_median_unrelated_votes_only": 0.03131275301808065,
       "order_disagreement_median": 0.03676388194097048
     }
-  ]
+  ],
+  "E5e": {
+    "rows": [
+      {
+        "n": 10,
+        "samples": 200,
+        "not_enumerated": 0,
+        "fraction_unique": 0.235,
+        "fraction_two": 0.325,
+        "fraction_le_eight": 0.905,
+        "median_count": 2.0,
+        "max_count": 72,
+        "median_colour_classes": 2.0
+      },
+      {
+        "n": 20,
+        "samples": 200,
+        "not_enumerated": 0,
+        "fraction_unique": 0.315,
+        "fraction_two": 0.335,
+        "fraction_le_eight": 0.975,
+        "median_count": 2.0,
+        "max_count": 64,
+        "median_colour_classes": 2.0
+      },
+      {
+        "n": 50,
+        "samples": 200,
+        "not_enumerated": 0,
+        "fraction_unique": 0.38,
+        "fraction_two": 0.355,
+        "fraction_le_eight": 0.97,
+        "median_count": 2.0,
+        "max_count": 32,
+        "median_colour_classes": 2.0
+      },
+      {
+        "n": 100,
+        "samples": 200,
+        "not_enumerated": 0,
+        "fraction_unique": 0.315,
+        "fraction_two": 0.345,
+        "fraction_le_eight": 0.985,
+        "median_count": 2.0,
+        "max_count": 48,
+        "median_colour_classes": 2.0
+      },
+      {
+        "n": 200,
+        "samples": 100,
+        "not_enumerated": 0,
+        "fraction_unique": 0.35,
+        "fraction_two": 0.43,
+        "fraction_le_eight": 0.99,
+        "median_count": 2.0,
+        "max_count": 16,
+        "median_colour_classes": 2.0
+      },
+      {
+        "n": 300,
+        "samples": 100,
+        "not_enumerated": 0,
+        "fraction_unique": 0.34,
+        "fraction_two": 0.37,
+        "fraction_le_eight": 0.98,
+        "median_count": 2.0,
+        "max_count": 16,
+        "median_colour_classes": 2.0
+      }
+    ],
+    "crosscheck_n6_agree": 30,
+    "crosscheck_n6_tested": 30
+  }
 }

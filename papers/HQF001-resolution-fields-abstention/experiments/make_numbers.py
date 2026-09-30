@@ -75,6 +75,9 @@ mac("IdCpuSeconds", f"{ide['meta']['cpu_seconds']:.1f}")
 
 # ---- datasets table
 with open(os.path.join(OUT, "table_datasets.tex"), "w") as fh:
+    # complete tabular: \input of row files does not work inside a tabular with a p{} column
+    fh.write(r"\begin{tabular}{lrrrrp{0.5\linewidth}}" + "\n" + r"\toprule" + "\n")
+    fh.write(r"dataset & $n$ & $d$ & $K$ & Bayes err.\ (\%) & description\\" + "\n" + r"\midrule" + "\n")
     for ds, info in res["datasets"].items():
         be = "--" if info.get("bayes_error") is None else pct(info["bayes_error"], 1)
         note = {"iris": "Fisher's iris", "wine": "UCI wine", "breast_cancer": "Wisconsin diagnostic",
@@ -84,9 +87,21 @@ with open(os.path.join(OUT, "table_datasets.tex"), "w") as fh:
                 "synth_classcov": "two Gaussians, $d=6$, rotated class-specific covariances",
                 "synth_lda": "three Gaussians, $d=6$, one shared covariance"}[ds]
         fh.write(f"{DS_NAME[ds]} & {info['n']} & {info['d_used']} & {info['n_classes']} & {be} & {note} \\\\\n")
+    fh.write(r"\bottomrule" + "\n" + r"\end{tabular}" + "\n")
+shifts = {ds: info.get("shift") for ds, info in res["datasets"].items()}
+if any(v is None for ds, v in shifts.items() if res["datasets"][ds].get("bayes_error") is not None):
+    # results.json produced before the shift was exported: replay the deterministic generator
+    import sys
+    sys.path.insert(0, HERE)
+    from selective_benchmark import make_datasets, SEED
+    D = make_datasets(SEED)
+    for ds in shifts:
+        if ds in D and "shift" in D[ds]:
+            shifts[ds] = D[ds]["shift"]
 for ds, info in res["datasets"].items():
     if info.get("bayes_error") is not None:
         mac(f"Bayes{DS_TAG[ds]}", pct(info["bayes_error"], 1))
+        mac(f"Shift{DS_TAG[ds]}", f"{shifts[ds]:.2f}")
     mac(f"N{DS_TAG[ds]}", info["n"])
 
 # ---- per dataset / method macros and tables

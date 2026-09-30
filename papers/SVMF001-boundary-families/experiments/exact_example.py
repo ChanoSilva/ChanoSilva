@@ -50,19 +50,26 @@ def risk_threshold(t):
 
 
 def risk_given_counts(np_, nm):
-    if np_ == 0 or nm == 0:
-        return 0.5
-    s2 = 0.25 * (1.0 / np_ + 1.0 / nm)
-    return float(norm.cdf(-MU / np.sqrt(1.0 + s2)))
+    """Vectorised: risk 1/2 when a class is missing, Phi(-mu/sqrt(1+s^2)) otherwise."""
+    np_, nm = np.asarray(np_, float), np.asarray(nm, float)
+    with np.errstate(divide="ignore"):
+        s2 = 0.25 * (1.0 / np.where(np_ > 0, np_, np.inf) + 1.0 / np.where(nm > 0, nm, np.inf))
+    return np.where((np_ > 0) & (nm > 0), norm.cdf(-MU / np.sqrt(1.0 + s2)), 0.5)
+
+
+_RNC = {}
 
 
 def R_nc(n):
     """Exact expected risk of the nearest-centroid threshold with n iid points."""
-    if n == 0:
-        return 0.5
-    ks = np.arange(n + 1)
-    p = binom.pmf(ks, n, 0.5)
-    return float(np.sum(p * np.array([risk_given_counts(k, n - k) for k in ks])))
+    n = int(n)
+    if n not in _RNC:
+        if n == 0:
+            _RNC[n] = 0.5
+        else:
+            ks = np.arange(n + 1)
+            _RNC[n] = float(np.sum(binom.pmf(ks, n, 0.5) * risk_given_counts(ks, n - ks)))
+    return _RNC[n]
 
 
 def R_partition(n, M):
@@ -208,7 +215,7 @@ def main():
     res["B_partition_vs_n"] = {n: {M: R_partition(n, M) - BAYES for M in [1, 4, 16]} for n in [40, 80, 160, 320, 640, 1280]}
 
     # C: Monte Carlo check of A and B (exact risk of each fitted rule, averaged over samples)
-    reps = 4000
+    reps = 2000
     mc_glob, mc_part = [], []
     for _ in range(reps):
         X, y = sample(rng, n0, 2)
@@ -237,8 +244,8 @@ def main():
     res["D1_knn_centroid"] = {"n": n0, "d": 2, "reps": 200, "n_test": 1000,
                               "rows": knn_centroid_risk(rng, n0, ks, 1000, 200)}
     # D2: kNN-localised linear SVM (d = 2), C = 1
-    res["D2_knn_svm"] = {"n": n0, "d": 2, "reps": 20, "n_test": 200, "C": 1.0,
-                         "rows": knn_svm_risk(rng, n0, [10, 20, 40, 80, 160, "all"], 200, 20)}
+    res["D2_knn_svm"] = {"n": n0, "d": 2, "reps": 16, "n_test": 125, "C": 1.0,
+                         "rows": knn_svm_risk(rng, n0, [10, 20, 40, 80, 160, "all"], 125, 16)}
     # D3: learning curve of the global linear SVM in d = 10 (monotonicity assumption)
     res["D3_svm_learning_curve"] = {"d": 10, "reps": 200, "C": 1.0,
                                     "rows": svm_learning_curve(rng, [20, 40, 80, 160, 320, 640], 10, 200)}

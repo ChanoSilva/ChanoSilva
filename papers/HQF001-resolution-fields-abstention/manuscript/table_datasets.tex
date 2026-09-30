@@ -1,3 +1,7 @@
+\begin{tabular}{lrrrrp{0.5\linewidth}}
+\toprule
+dataset & $n$ & $d$ & $K$ & Bayes err.\ (\%) & description\\
+\midrule
 iris & 150 & 4 & 3 & -- & Fisher's iris \\
 wine & 178 & 13 & 3 & -- & UCI wine \\
 breast-cancer & 569 & 30 & 2 & -- & Wisconsin diagnostic \\
@@ -6,3 +10,5 @@ synth-informative & 1200 & 10 & 2 & -- & \texttt{make\_classification}: 5 inf.\ 
 moons-aniso & 1200 & 5 & 2 & -- & two moons + anisotropic noise (sd $0.30\times0.06$, $30^\circ$) + 3 nuisance dims \\
 synth-classcov & 1200 & 6 & 2 & 7.7 & two Gaussians, $d=6$, rotated class-specific covariances \\
 synth-lda & 1200 & 6 & 3 & 9.8 & three Gaussians, $d=6$, one shared covariance \\
+\bottomrule
+\end{tabular}

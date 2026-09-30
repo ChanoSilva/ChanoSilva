@@ -1,0 +1,1954 @@
+{
+ "meta": {
+  "seed": 20260930,
+  "fast": false,
+  "python": "3.11.15",
+  "numpy": "2.4.6",
+  "scipy": "1.17.1",
+  "sklearn": "1.9.1",
+  "datasets": {
+   "blobs": {
+    "n": 300,
+    "k": 3,
+    "dim": 2
+   },
+   "moons": {
+    "n": 300,
+    "k": 2,
+    "dim": 2
+   },
+   "circles": {
+    "n": 300,
+    "k": 2,
+    "dim": 2
+   },
+   "digits": {
+    "n": 300,
+    "k": 10,
+    "dim": 64
+   },
+   "iris": {
+    "n": 150,
+    "k": 3,
+    "dim": 4
+   }
+  },
+  "seconds": 150.4664385318756
+ },
+ "E1": {
+  "rows": [
+   {
+    "dataset": "blobs",
+    "potential": "hooke",
+    "n": 300,
+    "k": 3,
+    "partitions": 203,
+    "max_rel_err": 3.6449113354735004e-12,
+    "sigma": 43928.49066789854,
+    "lam_min_K": -43928.49066745944
+   },
+   {
+    "dataset": "blobs",
+    "potential": "hooke_lift",
+    "n": 300,
+    "k": 3,
+    "partitions": 203,
+    "max_rel_err": 2.5997269092215675e-12,
+    "sigma": 43969.44012849029,
+    "lam_min_K": -43969.44012805117
+   },
+   {
+    "dataset": "blobs",
+    "potential": "rest",
+    "n": 300,
+    "k": 3,
+    "partitions": 203,
+    "max_rel_err": 1.1214897688200114e-11,
+    "sigma": 37371.06475467688,
+    "lam_min_K": -37371.064754284664
+   },
+   {
+    "dataset": "blobs",
+    "potential": "tension",
+    "n": 300,
+    "k": 3,
+    "partitions": 203,
+    "max_rel_err": 1.3897020498066346e-13,
+    "sigma": 3039.7741765473043,
+    "lam_min_K": -3039.7741765263495
+   },
+   {
+    "dataset": "blobs",
+    "potential": "gauss",
+    "n": 300,
+    "k": 3,
+    "partitions": 203,
+    "max_rel_err": 9.447861729373276e-14,
+    "sigma": 286.5488327871447,
+    "lam_min_K": -286.5488327861447
+   },
+   {
+    "dataset": "blobs",
+    "potential": "log",
+    "n": 300,
+    "k": 3,
+    "partitions": 203,
+    "max_rel_err": 7.42399904499991e-14,
+    "sigma": 1541.3494118944645,
+    "lam_min_K": -1541.349411887066
+   },
+   {
+    "dataset": "moons",
+    "potential": "hooke",
+    "n": 300,
+    "k": 2,
+    "partitions": 203,
+    "max_rel_err": 1.2863163476478394e-13,
+    "sigma": 675.7913587471957,
+    "lam_min_K": -675.7913587367354
+   },
+   {
+    "dataset": "moons",
+    "potential": "hooke_lift",
+    "n": 300,
+    "k": 2,
+    "partitions": 203,
+    "max_rel_err": 6.079963077233051e-14,
+    "sigma": 1513.2668095103472,
+    "lam_min_K": -1513.2668094853557
+   },
+   {
+    "dataset": "moons",
+    "potential": "rest",
+    "n": 300,
+    "k": 2,
+    "partitions": 203,
+    "max_rel_err": 2.461119209876482e-13,
+    "sigma": 448.29815017591494,
+    "lam_min_K": -448.29815016763473
+   },
+   {
+    "dataset": "moons",
+    "potential": "tension",
+    "n": 300,
+    "k": 2,
+    "partitions": 203,
+    "max_rel_err": 6.01929524192713e-14,
+    "sigma": 382.7797983986207,
+    "lam_min_K": -382.7797983953865
+   },
+   {
+    "dataset": "moons",
+    "potential": "gauss",
+    "n": 300,
+    "k": 2,
+    "partitions": 203,
+    "max_rel_err": 9.611001464142111e-14,
+    "sigma": 289.56649005597126,
+    "lam_min_K": -289.56649005497127
+   },
+   {
+    "dataset": "moons",
+    "potential": "log",
+    "n": 300,
+    "k": 2,
+    "partitions": 203,
+    "max_rel_err": 1.2195339784928845e-13,
+    "sigma": 1346.5717629515962,
+    "lam_min_K": -1346.5717629448304
+   },
+   {
+    "dataset": "circles",
+    "potential": "hooke",
+    "n": 300,
+    "k": 2,
+    "partitions": 203,
+    "max_rel_err": 5.539690036501745e-14,
+    "sigma": 394.94349087628194,
+    "lam_min_K": -394.94349087150744
+   },
+   {
+    "dataset": "circles",
+    "potential": "hooke_lift",
+    "n": 300,
+    "k": 2,
+    "partitions": 203,
+    "max_rel_err": 5.277229067766554e-14,
+    "sigma": 680.9669654505,
+    "lam_min_K": -680.9669654447706
+   },
+   {
+    "dataset": "circles",
+    "potential": "rest",
+    "n": 300,
+    "k": 2,
+    "partitions": 203,
+    "max_rel_err": 1.570572582479081e-13,
+    "sigma": 203.8800379288382,
+    "lam_min_K": -203.8800379256374
+   },
+   {
+    "dataset": "circles",
+    "potential": "tension",
+    "n": 300,
+    "k": 2,
+    "partitions": 203,
+    "max_rel_err": 8.682229306218673e-14,
+    "sigma": 304.1128635555664,
+    "lam_min_K": -304.1128635533813
+   },
+   {
+    "dataset": "circles",
+    "potential": "gauss",
+    "n": 300,
+    "k": 2,
+    "partitions": 203,
+    "max_rel_err": 4.9317263459586374e-14,
+    "sigma": 289.14539197047276,
+    "lam_min_K": -289.14539196947277
+   },
+   {
+    "dataset": "circles",
+    "potential": "log",
+    "n": 300,
+    "k": 2,
+    "partitions": 203,
+    "max_rel_err": 8.866049517772995e-14,
+    "sigma": 1176.7138039075962,
+    "lam_min_K": -1176.7138039018485
+   },
+   {
+    "dataset": "digits",
+    "potential": "hooke",
+    "n": 300,
+    "k": 10,
+    "partitions": 203,
+    "max_rel_err": 1.334004613211552e-13,
+    "sigma": 2824.380538537235,
+    "lam_min_K": -2824.380538516587
+   },
+   {
+    "dataset": "digits",
+    "potential": "hooke_lift",
+    "n": 300,
+    "k": 10,
+    "partitions": 203,
+    "max_rel_err": 1.3150478703490812e-13,
+    "sigma": 2837.948458308989,
+    "lam_min_K": -2837.9484582882446
+   },
+   {
+    "dataset": "digits",
+    "potential": "rest",
+    "n": 300,
+    "k": 10,
+    "partitions": 203,
+    "max_rel_err": 9.510009675934644e-14,
+    "sigma": 224.044352456981,
+    "lam_min_K": -224.0443524513052
+   },
+   {
+    "dataset": "digits",
+    "potential": "tension",
+    "n": 300,
+    "k": 10,
+    "partitions": 203,
+    "max_rel_err": 2.1582070337596787e-13,
+    "sigma": 904.1106675907371,
+    "lam_min_K": -904.110667586193
+   },
+   {
+    "dataset": "digits",
+    "potential": "gauss",
+    "n": 300,
+    "k": 10,
+    "partitions": 203,
+    "max_rel_err": 1.9199359975772222e-13,
+    "sigma": 216.56951286333384,
+    "lam_min_K": -216.56951286233385
+   },
+   {
+    "dataset": "digits",
+    "potential": "log",
+    "n": 300,
+    "k": 10,
+    "partitions": 203,
+    "max_rel_err": 1.3074773321156088e-13,
+    "sigma": 387.7618701203699,
+    "lam_min_K": -387.7618701184142
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke",
+    "n": 150,
+    "k": 3,
+    "partitions": 203,
+    "max_rel_err": 1.2480952395826043e-13,
+    "sigma": 1320.070414589508,
+    "lam_min_K": -1320.0704145468758
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke_lift",
+    "n": 150,
+    "k": 3,
+    "partitions": 203,
+    "max_rel_err": 6.052041707392702e-14,
+    "sigma": 1485.8180801392207,
+    "lam_min_K": -1485.818080095794
+   },
+   {
+    "dataset": "iris",
+    "potential": "rest",
+    "n": 150,
+    "k": 3,
+    "partitions": 203,
+    "max_rel_err": 1.4121976351306458e-13,
+    "sigma": 805.6505577383692,
+    "lam_min_K": -805.6505577056068
+   },
+   {
+    "dataset": "iris",
+    "potential": "tension",
+    "n": 150,
+    "k": 3,
+    "partitions": 203,
+    "max_rel_err": 4.121871687837275e-14,
+    "sigma": 384.80196863543557,
+    "lam_min_K": -384.80196862890625
+   },
+   {
+    "dataset": "iris",
+    "potential": "gauss",
+    "n": 150,
+    "k": 3,
+    "partitions": 203,
+    "max_rel_err": 7.726605323716545e-14,
+    "sigma": 136.1965279366978,
+    "lam_min_K": -136.19652793569782
+   },
+   {
+    "dataset": "iris",
+    "potential": "log",
+    "n": 150,
+    "k": 3,
+    "partitions": 203,
+    "max_rel_err": 6.691918305143937e-14,
+    "sigma": 422.63360894208773,
+    "lam_min_K": -422.6336089371524
+   }
+  ],
+  "checks": 19285,
+  "failures": 0,
+  "max_rel_err": 1.1214897688200114e-11,
+  "hooke_sse_max_rel_err": 3.83477816855597e-16,
+  "equal_size_factor_max_rel_err": 2.2144852432778906e-16,
+  "total_over_specific_ratio_min": 29.718376726481022,
+  "total_over_specific_ratio_max": 205.34853089128916,
+  "cnd_eigs": [
+   {
+    "dataset": "blobs",
+    "potential": "hooke",
+    "cnd_label": true,
+    "lam_min_K": -43928.49066745944,
+    "lam_min_cnd_kernel": -7.075796769194695e-12,
+    "lam_max_cnd_kernel": 32256.270673272847,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "blobs",
+    "potential": "hooke_lift",
+    "cnd_label": true,
+    "lam_min_K": -43969.44012805117,
+    "lam_min_cnd_kernel": -1.0448988353348924e-11,
+    "lam_max_cnd_kernel": 32257.810602551486,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "blobs",
+    "potential": "rest",
+    "cnd_label": false,
+    "lam_min_K": -37371.064754284664,
+    "lam_min_cnd_kernel": -4616.836965062918,
+    "lam_max_cnd_kernel": 28371.048895448846,
+    "cnd_kernel_psd": false
+   },
+   {
+    "dataset": "blobs",
+    "potential": "tension",
+    "cnd_label": true,
+    "lam_min_K": -3039.7741765263495,
+    "lam_min_cnd_kernel": 0.018320891470188803,
+    "lam_max_cnd_kernel": 2087.7095373313477,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "blobs",
+    "potential": "gauss",
+    "cnd_label": true,
+    "lam_min_K": -286.5488327861447,
+    "lam_min_cnd_kernel": 1.105005725325729e-10,
+    "lam_max_cnd_kernel": 313.7086164121454,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "blobs",
+    "potential": "log",
+    "cnd_label": true,
+    "lam_min_K": -1541.349411887066,
+    "lam_min_cnd_kernel": 1.108806891924056e-05,
+    "lam_max_cnd_kernel": 1800.167782650099,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "moons",
+    "potential": "hooke",
+    "cnd_label": true,
+    "lam_min_K": -675.7913587367354,
+    "lam_min_cnd_kernel": -1.5578552942039036e-13,
+    "lam_max_cnd_kernel": 607.2684895861777,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "moons",
+    "potential": "hooke_lift",
+    "cnd_label": true,
+    "lam_min_K": -1513.2668094853557,
+    "lam_min_cnd_kernel": -4.876961787272734e-13,
+    "lam_max_cnd_kernel": 2064.54113323159,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "moons",
+    "potential": "rest",
+    "cnd_label": false,
+    "lam_min_K": -448.29815016763473,
+    "lam_min_cnd_kernel": -91.82163593719295,
+    "lam_max_cnd_kernel": 433.2483116517624,
+    "cnd_kernel_psd": false
+   },
+   {
+    "dataset": "moons",
+    "potential": "tension",
+    "cnd_label": true,
+    "lam_min_K": -382.7797983953865,
+    "lam_min_cnd_kernel": 0.00406132144641255,
+    "lam_max_cnd_kernel": 317.9395441061721,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "moons",
+    "potential": "gauss",
+    "cnd_label": true,
+    "lam_min_K": -289.56649005497127,
+    "lam_min_cnd_kernel": 1.7548294168402747e-07,
+    "lam_max_cnd_kernel": 302.07608003263647,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "moons",
+    "potential": "log",
+    "cnd_label": true,
+    "lam_min_K": -1346.5717629448304,
+    "lam_min_cnd_kernel": 5.9006323487788664e-05,
+    "lam_max_cnd_kernel": 1303.7557621149258,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "circles",
+    "potential": "hooke",
+    "cnd_label": true,
+    "lam_min_K": -394.94349087150744,
+    "lam_min_cnd_kernel": -4.170333957604062e-14,
+    "lam_max_cnd_kernel": 181.07166656736237,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "circles",
+    "potential": "hooke_lift",
+    "cnd_label": true,
+    "lam_min_K": -680.9669654447706,
+    "lam_min_cnd_kernel": -2.130195119582426e-13,
+    "lam_max_cnd_kernel": 989.5488304335331,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "circles",
+    "potential": "rest",
+    "cnd_label": false,
+    "lam_min_K": -203.8800379256374,
+    "lam_min_cnd_kernel": -115.43541647134901,
+    "lam_max_cnd_kernel": 115.92306572864632,
+    "cnd_kernel_psd": false
+   },
+   {
+    "dataset": "circles",
+    "potential": "tension",
+    "cnd_label": true,
+    "lam_min_K": -304.1128635533813,
+    "lam_min_cnd_kernel": 0.002362581073013783,
+    "lam_max_cnd_kernel": 145.76368141766153,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "circles",
+    "potential": "gauss",
+    "cnd_label": true,
+    "lam_min_K": -289.14539196947277,
+    "lam_min_cnd_kernel": 2.615679751922991e-09,
+    "lam_max_cnd_kernel": 310.21949399274104,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "circles",
+    "potential": "log",
+    "cnd_label": true,
+    "lam_min_K": -1176.7138039018485,
+    "lam_min_cnd_kernel": 6.4988926645799256e-06,
+    "lam_max_cnd_kernel": 906.2865600696771,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "digits",
+    "potential": "hooke",
+    "cnd_label": true,
+    "lam_min_K": -2824.380538516587,
+    "lam_min_cnd_kernel": -1.0655255319676905e-12,
+    "lam_max_cnd_kernel": 6254.1380922607,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "digits",
+    "potential": "hooke_lift",
+    "cnd_label": true,
+    "lam_min_K": -2837.9484582882446,
+    "lam_min_cnd_kernel": -4.937239498375318e-13,
+    "lam_max_cnd_kernel": 6862.129870519668,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "digits",
+    "potential": "rest",
+    "cnd_label": false,
+    "lam_min_K": -224.0443524513052,
+    "lam_min_cnd_kernel": -656.7094401358202,
+    "lam_max_cnd_kernel": 118.88667662297557,
+    "cnd_kernel_psd": false
+   },
+   {
+    "dataset": "digits",
+    "potential": "tension",
+    "cnd_label": true,
+    "lam_min_K": -904.110667586193,
+    "lam_min_cnd_kernel": 0.5382170822038738,
+    "lam_max_cnd_kernel": 1417.5415237991933,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "digits",
+    "potential": "gauss",
+    "cnd_label": true,
+    "lam_min_K": -216.56951286233385,
+    "lam_min_cnd_kernel": 0.02260931575796219,
+    "lam_max_cnd_kernel": 314.1423243639892,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "digits",
+    "potential": "log",
+    "cnd_label": true,
+    "lam_min_K": -387.7618701184142,
+    "lam_min_cnd_kernel": 0.05769688183041288,
+    "lam_max_cnd_kernel": 622.6482670509859,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke",
+    "cnd_label": true,
+    "lam_min_K": -1320.0704145468758,
+    "lam_min_cnd_kernel": -2.077650596280522e-13,
+    "lam_max_cnd_kernel": 875.5493449595983,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke_lift",
+    "cnd_label": true,
+    "lam_min_K": -1485.818080095794,
+    "lam_min_cnd_kernel": -2.32749170282238e-13,
+    "lam_max_cnd_kernel": 898.2355037075233,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "iris",
+    "potential": "rest",
+    "cnd_label": false,
+    "lam_min_K": -805.6505577056068,
+    "lam_min_cnd_kernel": -316.4622709281718,
+    "lam_max_cnd_kernel": 620.2811617823259,
+    "cnd_kernel_psd": false
+   },
+   {
+    "dataset": "iris",
+    "potential": "tension",
+    "cnd_label": true,
+    "lam_min_K": -384.80196862890625,
+    "lam_min_cnd_kernel": -9.432016799542014e-16,
+    "lam_max_cnd_kernel": 201.90360040762792,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "iris",
+    "potential": "gauss",
+    "cnd_label": true,
+    "lam_min_K": -136.19652793569782,
+    "lam_min_cnd_kernel": 5.13102787898065e-16,
+    "lam_max_cnd_kernel": 143.59499610983642,
+    "cnd_kernel_psd": true
+   },
+   {
+    "dataset": "iris",
+    "potential": "log",
+    "cnd_label": true,
+    "lam_min_K": -422.6336089371524,
+    "lam_min_cnd_kernel": 1.3524527111809982e-15,
+    "lam_max_cnd_kernel": 320.22362756445773,
+    "cnd_kernel_psd": true
+   }
+  ],
+  "n_random_partitions": 200
+ },
+ "E2": {
+  "rows": [
+   {
+    "dataset": "blobs",
+    "potential": "hooke",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 2,
+    "identical_trajectory": true,
+    "rel_err_energy": 5.058881165380494e-16,
+    "seconds_physics": 0.11337447166442871,
+    "seconds_kernel": 0.0030984878540039062
+   },
+   {
+    "dataset": "blobs",
+    "potential": "hooke",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 2,
+    "identical_trajectory": true,
+    "rel_err_energy": 4.679465077976957e-15,
+    "seconds_physics": 0.10147380828857422,
+    "seconds_kernel": 0.003780364990234375
+   },
+   {
+    "dataset": "blobs",
+    "potential": "hooke",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 2,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.2647202913451235e-15,
+    "seconds_physics": 0.10044527053833008,
+    "seconds_kernel": 0.0027937889099121094
+   },
+   {
+    "dataset": "blobs",
+    "potential": "hooke_lift",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.133223768762646e-14,
+    "seconds_physics": 0.16668057441711426,
+    "seconds_kernel": 0.003935098648071289
+   },
+   {
+    "dataset": "blobs",
+    "potential": "hooke_lift",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 5.105733463655877e-15,
+    "seconds_physics": 0.159759521484375,
+    "seconds_kernel": 0.004045009613037109
+   },
+   {
+    "dataset": "blobs",
+    "potential": "hooke_lift",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 9.464286420435284e-15,
+    "seconds_physics": 0.19182229042053223,
+    "seconds_kernel": 0.004227399826049805
+   },
+   {
+    "dataset": "blobs",
+    "potential": "rest",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 2,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.6784228080378094e-14,
+    "seconds_physics": 0.13297438621520996,
+    "seconds_kernel": 0.0026977062225341797
+   },
+   {
+    "dataset": "blobs",
+    "potential": "rest",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 2,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.2888651106347354e-14,
+    "seconds_physics": 0.11037874221801758,
+    "seconds_kernel": 0.0028183460235595703
+   },
+   {
+    "dataset": "blobs",
+    "potential": "rest",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 2,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.3492806626957386e-14,
+    "seconds_physics": 0.12053704261779785,
+    "seconds_kernel": 0.0031630992889404297
+   },
+   {
+    "dataset": "blobs",
+    "potential": "tension",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 9.873822533213141e-16,
+    "seconds_physics": 0.13899588584899902,
+    "seconds_kernel": 0.0038938522338867188
+   },
+   {
+    "dataset": "blobs",
+    "potential": "tension",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.410546076173306e-16,
+    "seconds_physics": 0.1350555419921875,
+    "seconds_kernel": 0.004239320755004883
+   },
+   {
+    "dataset": "blobs",
+    "potential": "tension",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.16267132759094238,
+    "seconds_kernel": 0.008239507675170898
+   },
+   {
+    "dataset": "blobs",
+    "potential": "gauss",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.6318238666561439e-16,
+    "seconds_physics": 0.5732002258300781,
+    "seconds_kernel": 0.009153366088867188
+   },
+   {
+    "dataset": "blobs",
+    "potential": "gauss",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.3909037113189697,
+    "seconds_kernel": 0.011456966400146484
+   },
+   {
+    "dataset": "blobs",
+    "potential": "gauss",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 6.490062190813703e-16,
+    "seconds_physics": 0.4179551601409912,
+    "seconds_kernel": 0.006461143493652344
+   },
+   {
+    "dataset": "blobs",
+    "potential": "log",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.4999206951644276e-16,
+    "seconds_physics": 0.25903844833374023,
+    "seconds_kernel": 0.007724761962890625
+   },
+   {
+    "dataset": "blobs",
+    "potential": "log",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 4.499762085493283e-16,
+    "seconds_physics": 0.2983236312866211,
+    "seconds_kernel": 0.007219552993774414
+   },
+   {
+    "dataset": "blobs",
+    "potential": "log",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 7.499603475822138e-16,
+    "seconds_physics": 0.29689717292785645,
+    "seconds_kernel": 0.007150888442993164
+   },
+   {
+    "dataset": "moons",
+    "potential": "hooke",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 2,
+    "identical_trajectory": true,
+    "rel_err_energy": 7.607539780578087e-16,
+    "seconds_physics": 0.081451416015625,
+    "seconds_kernel": 0.005074977874755859
+   },
+   {
+    "dataset": "moons",
+    "potential": "hooke",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 2,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.5215079561156175e-15,
+    "seconds_physics": 0.07936525344848633,
+    "seconds_kernel": 0.005034685134887695
+   },
+   {
+    "dataset": "moons",
+    "potential": "hooke",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 2,
+    "identical_trajectory": true,
+    "rel_err_energy": 3.043015912231235e-16,
+    "seconds_physics": 0.07614898681640625,
+    "seconds_kernel": 0.0047647953033447266
+   },
+   {
+    "dataset": "moons",
+    "potential": "hooke_lift",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.9428721675106537e-16,
+    "seconds_physics": 0.13154029846191406,
+    "seconds_kernel": 0.004956722259521484
+   },
+   {
+    "dataset": "moons",
+    "potential": "hooke_lift",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.1771488670042615e-15,
+    "seconds_physics": 0.09975504875183105,
+    "seconds_kernel": 0.005478620529174805
+   },
+   {
+    "dataset": "moons",
+    "potential": "hooke_lift",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.2071541256329903e-15,
+    "seconds_physics": 0.11231231689453125,
+    "seconds_kernel": 0.005184650421142578
+   },
+   {
+    "dataset": "moons",
+    "potential": "rest",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.36727778335359e-15,
+    "seconds_physics": 0.08386373519897461,
+    "seconds_kernel": 0.003584623336791992
+   },
+   {
+    "dataset": "moons",
+    "potential": "rest",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 3.418194458383975e-16,
+    "seconds_physics": 0.15892267227172852,
+    "seconds_kernel": 0.009133100509643555
+   },
+   {
+    "dataset": "moons",
+    "potential": "rest",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.15629315376281738,
+    "seconds_kernel": 0.00870370864868164
+   },
+   {
+    "dataset": "moons",
+    "potential": "tension",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 6.094232576531411e-16,
+    "seconds_physics": 0.185593843460083,
+    "seconds_kernel": 0.010666131973266602
+   },
+   {
+    "dataset": "moons",
+    "potential": "tension",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 4.570674432398559e-16,
+    "seconds_physics": 0.15153789520263672,
+    "seconds_kernel": 0.008888006210327148
+   },
+   {
+    "dataset": "moons",
+    "potential": "tension",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.5235581441328528e-16,
+    "seconds_physics": 0.1341266632080078,
+    "seconds_kernel": 0.005575656890869141
+   },
+   {
+    "dataset": "moons",
+    "potential": "gauss",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.77715694201608e-16,
+    "seconds_physics": 0.12900996208190918,
+    "seconds_kernel": 0.006400585174560547
+   },
+   {
+    "dataset": "moons",
+    "potential": "gauss",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 5.588788797675853e-16,
+    "seconds_physics": 0.10746359825134277,
+    "seconds_kernel": 0.006557941436767578
+   },
+   {
+    "dataset": "moons",
+    "potential": "gauss",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.3875347520311472e-16,
+    "seconds_physics": 0.11612248420715332,
+    "seconds_kernel": 0.0037381649017333984
+   },
+   {
+    "dataset": "moons",
+    "potential": "log",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.9560193317502153e-16,
+    "seconds_physics": 0.22609448432922363,
+    "seconds_kernel": 0.010661840438842773
+   },
+   {
+    "dataset": "moons",
+    "potential": "log",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.9560193317502153e-16,
+    "seconds_physics": 0.18132972717285156,
+    "seconds_kernel": 0.008914709091186523
+   },
+   {
+    "dataset": "moons",
+    "potential": "log",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.3550708293914795,
+    "seconds_kernel": 0.01371622085571289
+   },
+   {
+    "dataset": "circles",
+    "potential": "hooke",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 6.372035983431218e-16,
+    "seconds_physics": 0.1666247844696045,
+    "seconds_kernel": 0.013599634170532227
+   },
+   {
+    "dataset": "circles",
+    "potential": "hooke",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.1126214234098288e-15,
+    "seconds_physics": 0.08967328071594238,
+    "seconds_kernel": 0.004027605056762695
+   },
+   {
+    "dataset": "circles",
+    "potential": "hooke",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.1470503807067871,
+    "seconds_kernel": 0.010059595108032227
+   },
+   {
+    "dataset": "circles",
+    "potential": "hooke_lift",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.1189570426940918,
+    "seconds_kernel": 0.006984233856201172
+   },
+   {
+    "dataset": "circles",
+    "potential": "hooke_lift",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 6.098493318308079e-16,
+    "seconds_physics": 0.22780346870422363,
+    "seconds_kernel": 0.0084686279296875
+   },
+   {
+    "dataset": "circles",
+    "potential": "hooke_lift",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 4.0656622122053857e-16,
+    "seconds_physics": 0.12441849708557129,
+    "seconds_kernel": 0.004874229431152344
+   },
+   {
+    "dataset": "circles",
+    "potential": "rest",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.1144437593145059e-16,
+    "seconds_physics": 0.0633840560913086,
+    "seconds_kernel": 0.0036296844482421875
+   },
+   {
+    "dataset": "circles",
+    "potential": "rest",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 9,
+    "identical_trajectory": true,
+    "rel_err_energy": 6.349076858533126e-16,
+    "seconds_physics": 0.24018144607543945,
+    "seconds_kernel": 0.016181230545043945
+   },
+   {
+    "dataset": "circles",
+    "potential": "rest",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 2,
+    "identical_trajectory": true,
+    "rel_err_energy": 6.343331277943517e-16,
+    "seconds_physics": 0.06569147109985352,
+    "seconds_kernel": 0.004523515701293945
+   },
+   {
+    "dataset": "circles",
+    "potential": "tension",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 3.141772030375303e-16,
+    "seconds_physics": 0.09089398384094238,
+    "seconds_kernel": 0.006024599075317383
+   },
+   {
+    "dataset": "circles",
+    "potential": "tension",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.11278963088989258,
+    "seconds_kernel": 0.0062334537506103516
+   },
+   {
+    "dataset": "circles",
+    "potential": "tension",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 3.133005560246921e-16,
+    "seconds_physics": 0.09039115905761719,
+    "seconds_kernel": 0.00478053092956543
+   },
+   {
+    "dataset": "circles",
+    "potential": "gauss",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.17151904106140137,
+    "seconds_kernel": 0.005928516387939453
+   },
+   {
+    "dataset": "circles",
+    "potential": "gauss",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.17149972915649414,
+    "seconds_kernel": 0.007997512817382812
+   },
+   {
+    "dataset": "circles",
+    "potential": "gauss",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.481349429923256e-16,
+    "seconds_physics": 0.15289664268493652,
+    "seconds_kernel": 0.011250495910644531
+   },
+   {
+    "dataset": "circles",
+    "potential": "log",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 3.7693333836007886e-16,
+    "seconds_physics": 0.14696264266967773,
+    "seconds_kernel": 0.00586247444152832
+   },
+   {
+    "dataset": "circles",
+    "potential": "log",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 3.7693333836007886e-16,
+    "seconds_physics": 0.11600875854492188,
+    "seconds_kernel": 0.007821083068847656
+   },
+   {
+    "dataset": "circles",
+    "potential": "log",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.2112098293117693e-16,
+    "seconds_physics": 0.19408774375915527,
+    "seconds_kernel": 0.006115436553955078
+   },
+   {
+    "dataset": "digits",
+    "potential": "hooke",
+    "init": 0,
+    "n": 120,
+    "k": 10,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 2.7761189937591553,
+    "seconds_kernel": 0.006185770034790039
+   },
+   {
+    "dataset": "digits",
+    "potential": "hooke",
+    "init": 1,
+    "n": 120,
+    "k": 10,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 2.6930205821990967,
+    "seconds_kernel": 0.011566638946533203
+   },
+   {
+    "dataset": "digits",
+    "potential": "hooke",
+    "init": 2,
+    "n": 120,
+    "k": 10,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 2.579148054122925,
+    "seconds_kernel": 0.006541728973388672
+   },
+   {
+    "dataset": "digits",
+    "potential": "hooke_lift",
+    "init": 0,
+    "n": 120,
+    "k": 10,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.9236907262262424e-16,
+    "seconds_physics": 3.911303997039795,
+    "seconds_kernel": 0.014577150344848633
+   },
+   {
+    "dataset": "digits",
+    "potential": "hooke_lift",
+    "init": 1,
+    "n": 120,
+    "k": 10,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.9084373381478656e-16,
+    "seconds_physics": 2.312293291091919,
+    "seconds_kernel": 0.005798816680908203
+   },
+   {
+    "dataset": "digits",
+    "potential": "hooke_lift",
+    "init": 2,
+    "n": 120,
+    "k": 10,
+    "sweeps": 10,
+    "identical_trajectory": true,
+    "rel_err_energy": 3.908623805727987e-16,
+    "seconds_physics": 5.311824560165405,
+    "seconds_kernel": 0.0117950439453125
+   },
+   {
+    "dataset": "digits",
+    "potential": "rest",
+    "init": 0,
+    "n": 120,
+    "k": 10,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.1776220671148523e-14,
+    "seconds_physics": 3.9536361694335938,
+    "seconds_kernel": 0.016836166381835938
+   },
+   {
+    "dataset": "digits",
+    "potential": "rest",
+    "init": 1,
+    "n": 120,
+    "k": 10,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.2953257077753512e-14,
+    "seconds_physics": 3.4597489833831787,
+    "seconds_kernel": 0.007444143295288086
+   },
+   {
+    "dataset": "digits",
+    "potential": "rest",
+    "init": 2,
+    "n": 120,
+    "k": 10,
+    "sweeps": 10,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.545825649818169e-14,
+    "seconds_physics": 5.791335821151733,
+    "seconds_kernel": 0.012375831604003906
+   },
+   {
+    "dataset": "digits",
+    "potential": "tension",
+    "init": 0,
+    "n": 120,
+    "k": 10,
+    "sweeps": 10,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.1602797513110282e-16,
+    "seconds_physics": 4.962292909622192,
+    "seconds_kernel": 0.011778593063354492
+   },
+   {
+    "dataset": "digits",
+    "potential": "tension",
+    "init": 1,
+    "n": 120,
+    "k": 10,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 3.424424171447754,
+    "seconds_kernel": 0.009253740310668945
+   },
+   {
+    "dataset": "digits",
+    "potential": "tension",
+    "init": 2,
+    "n": 120,
+    "k": 10,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 3.407369387065318e-16,
+    "seconds_physics": 2.7242937088012695,
+    "seconds_kernel": 0.006555795669555664
+   },
+   {
+    "dataset": "digits",
+    "potential": "gauss",
+    "init": 0,
+    "n": 120,
+    "k": 10,
+    "sweeps": 8,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.5757087483082878e-16,
+    "seconds_physics": 5.329250812530518,
+    "seconds_kernel": 0.010371685028076172
+   },
+   {
+    "dataset": "digits",
+    "potential": "gauss",
+    "init": 1,
+    "n": 120,
+    "k": 10,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.5807151146052254e-16,
+    "seconds_physics": 3.9544677734375,
+    "seconds_kernel": 0.01277470588684082
+   },
+   {
+    "dataset": "digits",
+    "potential": "gauss",
+    "init": 2,
+    "n": 120,
+    "k": 10,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 3.1167983848497996e-16,
+    "seconds_physics": 3.8470520973205566,
+    "seconds_kernel": 0.0071563720703125
+   },
+   {
+    "dataset": "digits",
+    "potential": "log",
+    "init": 0,
+    "n": 120,
+    "k": 10,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.7538381781855922e-16,
+    "seconds_physics": 5.223174095153809,
+    "seconds_kernel": 0.01592564582824707
+   },
+   {
+    "dataset": "digits",
+    "potential": "log",
+    "init": 1,
+    "n": 120,
+    "k": 10,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 4.379825592041016,
+    "seconds_kernel": 0.009171247482299805
+   },
+   {
+    "dataset": "digits",
+    "potential": "log",
+    "init": 2,
+    "n": 120,
+    "k": 10,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.75249708579453e-16,
+    "seconds_physics": 3.8575592041015625,
+    "seconds_kernel": 0.012603998184204102
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 8,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.7244119328870402e-15,
+    "seconds_physics": 0.578690767288208,
+    "seconds_kernel": 0.017078399658203125
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 8.622059664435202e-16,
+    "seconds_physics": 0.4679121971130371,
+    "seconds_kernel": 0.007793903350830078
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.4634456184100576e-16,
+    "seconds_physics": 0.32355666160583496,
+    "seconds_kernel": 0.008028507232666016
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke_lift",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 6.932893717391862e-16,
+    "seconds_physics": 0.23981213569641113,
+    "seconds_kernel": 0.005650043487548828
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke_lift",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 8,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.907632466067501e-16,
+    "seconds_physics": 0.3541104793548584,
+    "seconds_kernel": 0.008620500564575195
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke_lift",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 9,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.5261059728540007e-15,
+    "seconds_physics": 0.44114255905151367,
+    "seconds_kernel": 0.019413471221923828
+   },
+   {
+    "dataset": "iris",
+    "potential": "rest",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.6783372973006137e-15,
+    "seconds_physics": 0.44411611557006836,
+    "seconds_kernel": 0.008896350860595703
+   },
+   {
+    "dataset": "iris",
+    "potential": "rest",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 3.146882432438651e-15,
+    "seconds_physics": 0.4510347843170166,
+    "seconds_kernel": 0.012761116027832031
+   },
+   {
+    "dataset": "iris",
+    "potential": "rest",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 8,
+    "identical_trajectory": true,
+    "rel_err_energy": 4.195843243251534e-16,
+    "seconds_physics": 0.4528932571411133,
+    "seconds_kernel": 0.00924992561340332
+   },
+   {
+    "dataset": "iris",
+    "potential": "tension",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 5.795644507172523e-16,
+    "seconds_physics": 0.1810016632080078,
+    "seconds_kernel": 0.004565000534057617
+   },
+   {
+    "dataset": "iris",
+    "potential": "tension",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 10,
+    "identical_trajectory": true,
+    "rel_err_energy": 5.134573584961331e-16,
+    "seconds_physics": 0.6123487949371338,
+    "seconds_kernel": 0.011342525482177734
+   },
+   {
+    "dataset": "iris",
+    "potential": "tension",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.26656627655029297,
+    "seconds_kernel": 0.005446910858154297
+   },
+   {
+    "dataset": "iris",
+    "potential": "gauss",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 3.3700510836208906e-16,
+    "seconds_physics": 0.3650829792022705,
+    "seconds_kernel": 0.00722503662109375
+   },
+   {
+    "dataset": "iris",
+    "potential": "gauss",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 5.055076625431336e-16,
+    "seconds_physics": 0.48660969734191895,
+    "seconds_kernel": 0.013987541198730469
+   },
+   {
+    "dataset": "iris",
+    "potential": "gauss",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 8,
+    "identical_trajectory": true,
+    "rel_err_energy": 6.700781429855986e-16,
+    "seconds_physics": 0.4871706962585449,
+    "seconds_kernel": 0.014249563217163086
+   },
+   {
+    "dataset": "iris",
+    "potential": "log",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 2,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.15428781509399414,
+    "seconds_kernel": 0.0029382705688476562
+   },
+   {
+    "dataset": "iris",
+    "potential": "log",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 4.828782231149907e-16,
+    "seconds_physics": 0.20991849899291992,
+    "seconds_kernel": 0.006520748138427734
+   },
+   {
+    "dataset": "iris",
+    "potential": "log",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.607144441902985e-16,
+    "seconds_physics": 0.4623081684112549,
+    "seconds_kernel": 0.007996559143066406
+   }
+  ],
+  "runs": 90,
+  "identical": 90,
+  "max_rel_err_energy": 2.6784228080378094e-14,
+  "n_sub": 120,
+  "anchored": [
+   {
+    "dataset": "blobs",
+    "init": 0,
+    "identical_labels": true,
+    "rel_err_inertia": 3.062991161902342e-16,
+    "sklearn_iter": 4
+   },
+   {
+    "dataset": "blobs",
+    "init": 1,
+    "identical_labels": true,
+    "rel_err_inertia": 4.271046795727094e-16,
+    "sklearn_iter": 4
+   },
+   {
+    "dataset": "blobs",
+    "init": 2,
+    "identical_labels": true,
+    "rel_err_inertia": 1.530945473070527e-16,
+    "sklearn_iter": 12
+   },
+   {
+    "dataset": "moons",
+    "init": 0,
+    "identical_labels": true,
+    "rel_err_inertia": 1.1566749622704833e-16,
+    "sklearn_iter": 6
+   },
+   {
+    "dataset": "moons",
+    "init": 1,
+    "identical_labels": true,
+    "rel_err_inertia": 0.0,
+    "sklearn_iter": 2
+   },
+   {
+    "dataset": "moons",
+    "init": 2,
+    "identical_labels": true,
+    "rel_err_inertia": 0.0,
+    "sklearn_iter": 5
+   },
+   {
+    "dataset": "circles",
+    "init": 0,
+    "identical_labels": true,
+    "rel_err_inertia": 3.682203683285888e-16,
+    "sklearn_iter": 9
+   },
+   {
+    "dataset": "circles",
+    "init": 1,
+    "identical_labels": true,
+    "rel_err_inertia": 2.4501574793548994e-16,
+    "sklearn_iter": 2
+   },
+   {
+    "dataset": "circles",
+    "init": 2,
+    "identical_labels": true,
+    "rel_err_inertia": 0.0,
+    "sklearn_iter": 4
+   },
+   {
+    "dataset": "digits",
+    "init": 0,
+    "identical_labels": true,
+    "rel_err_inertia": 3.0491741898597137e-16,
+    "sklearn_iter": 7
+   },
+   {
+    "dataset": "digits",
+    "init": 1,
+    "identical_labels": true,
+    "rel_err_inertia": 1.5199524082228713e-16,
+    "sklearn_iter": 22
+   },
+   {
+    "dataset": "digits",
+    "init": 2,
+    "identical_labels": true,
+    "rel_err_inertia": 0.0,
+    "sklearn_iter": 10
+   },
+   {
+    "dataset": "iris",
+    "init": 0,
+    "identical_labels": true,
+    "rel_err_inertia": 0.0,
+    "sklearn_iter": 5
+   },
+   {
+    "dataset": "iris",
+    "init": 1,
+    "identical_labels": true,
+    "rel_err_inertia": 2.0171327497220668e-16,
+    "sklearn_iter": 10
+   },
+   {
+    "dataset": "iris",
+    "init": 2,
+    "identical_labels": true,
+    "rel_err_inertia": 0.0,
+    "sklearn_iter": 10
+   }
+  ],
+  "anchored_identical": 15,
+  "anchored_runs": 15,
+  "anchored_max_rel_err_inertia": 4.271046795727094e-16
+ },
+ "E4": {
+  "n": 7,
+  "k": 2,
+  "points": [
+   [
+    9,
+    1
+   ],
+   [
+    10,
+    2
+   ],
+   [
+    5,
+    3
+   ],
+   [
+    6,
+    2
+   ],
+   [
+    4,
+    0
+   ],
+   [
+    2,
+    4
+   ],
+   [
+    8,
+    3
+   ]
+  ],
+  "partitions": 63,
+  "unknowns": 22,
+  "results": [
+   {
+    "energy": "hooke_specific",
+    "family_w": "per_particle",
+    "rank": 21,
+    "residual_norm2_exact": "0",
+    "representable": true,
+    "relative_residual": 0.0
+   },
+   {
+    "energy": "hooke_specific",
+    "family_w": "total",
+    "rank": 22,
+    "residual_norm2_exact": "4473113/50400",
+    "representable": false,
+    "relative_residual": 0.02322601774950132
+   },
+   {
+    "energy": "hooke_total",
+    "family_w": "per_particle",
+    "rank": 21,
+    "residual_norm2_exact": "724098244/7659",
+    "representable": false,
+    "relative_residual": 0.18024785210234115
+   },
+   {
+    "energy": "hooke_total",
+    "family_w": "total",
+    "rank": 22,
+    "residual_norm2_exact": "0",
+    "representable": true,
+    "relative_residual": 0.0
+   },
+   {
+    "energy": "rest_fixed_specific",
+    "family_w": "per_particle",
+    "rank": 21,
+    "residual_norm2_exact": "0",
+    "representable": true,
+    "relative_residual": 0.0
+   },
+   {
+    "energy": "rest_fixed_specific",
+    "family_w": "total",
+    "rank": 22,
+    "residual_norm2_exact": "1727357035049/22226400",
+    "representable": false,
+    "relative_residual": 0.042420499172636295
+   },
+   {
+    "energy": "rest_adaptive_specific",
+    "family_w": "per_particle",
+    "rank": 21,
+    "residual_norm2_exact": "25453539371601511/29468002500",
+    "representable": false,
+    "relative_residual": 0.18143629593327046
+   },
+   {
+    "energy": "rest_adaptive_specific",
+    "family_w": "total",
+    "rank": 22,
+    "residual_norm2_exact": "8666537217871/27216000",
+    "representable": false,
+    "relative_residual": 0.11016308386804237
+   },
+   {
+    "energy": "threebody_specific",
+    "family_w": "per_particle",
+    "rank": 21,
+    "residual_norm2_exact": "549755771/1702",
+    "representable": false,
+    "relative_residual": 0.32706344854844077
+   },
+   {
+    "energy": "threebody_specific",
+    "family_w": "total",
+    "rank": 22,
+    "residual_norm2_exact": "26857303/2800",
+    "representable": false,
+    "relative_residual": 0.05636104991825467
+   },
+   {
+    "energy": "hooke_per_spring",
+    "family_w": "per_particle",
+    "rank": 21,
+    "residual_norm2_exact": "136708297888/32742225",
+    "representable": false,
+    "relative_residual": 0.20347095165366225
+   },
+   {
+    "energy": "hooke_per_spring",
+    "family_w": "total",
+    "rank": 22,
+    "residual_norm2_exact": "83611559/37800",
+    "representable": false,
+    "relative_residual": 0.1480970246153203
+   }
+  ]
+ }
+}

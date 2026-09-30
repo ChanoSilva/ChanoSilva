@@ -221,7 +221,8 @@ mac("RegHknnDrop", pct(RC[rn[0]]["means"]["HKNN"] - RC[rn[-1]]["means"]["HKNN"])
 
 # ------------------------------------------------------------------ tables
 def body(rows):
-    return " \\\\\n".join(rows) + " \\\\\n"
+    """Rows joined by \\\\; the last row has no terminator, main.tex supplies it after \\input."""
+    return " \\\\\n".join(rows) + "\n"
 
 
 def bold_best(c, me):

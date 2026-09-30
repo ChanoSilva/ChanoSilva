@@ -1,3 +1,23 @@
 exact fam A n=10: mean f_C 1.43, notfound 0, mean t 0.00s, elapsed 0s
 exact fam A n=14: mean f_C 2.62, notfound 0, mean t 0.00s, elapsed 1s
 exact fam A n=18: mean f_C 2.35, notfound 0, mean t 0.01s, elapsed 1s
+exact fam A n=22: mean f_C 3.48, notfound 1, mean t 0.04s, elapsed 5s
+exact fam A n=26: mean f_C 3.13, notfound 3, mean t 0.13s, elapsed 12s
+exact fam A n=30: mean f_C 3.73, notfound 2, mean t 0.40s, elapsed 33s
+exact fam A n=34: mean f_C 4.15, notfound 1, mean t 0.70s, elapsed 51s
+greedy fam A n=50: median g_onestep 6.0, median k* 1.0, elapsed 52s
+greedy fam A n=100: median g_onestep 6.5, median k* 2.0, elapsed 53s
+greedy fam A n=200: median g_onestep 9.5, median k* 3.0, elapsed 54s
+greedy fam A n=400: median g_onestep 10.5, median k* 5.0, elapsed 55s
+exact fam B n=10: mean f_C 1.00, notfound 0, mean t 0.00s, elapsed 55s
+exact fam B n=14: mean f_C 1.10, notfound 0, mean t 0.00s, elapsed 55s
+exact fam B n=18: mean f_C 1.12, notfound 0, mean t 0.00s, elapsed 56s
+exact fam B n=22: mean f_C 1.12, notfound 0, mean t 0.00s, elapsed 56s
+exact fam B n=26: mean f_C 1.50, notfound 0, mean t 0.00s, elapsed 56s
+exact fam B n=30: mean f_C 1.40, notfound 0, mean t 0.00s, elapsed 56s
+exact fam B n=34: mean f_C 1.30, notfound 0, mean t 0.00s, elapsed 57s
+greedy fam B n=50: median g_onestep 1.0, median k* 0.0, elapsed 57s
+greedy fam B n=100: median g_onestep 2.0, median k* 1.0, elapsed 57s
+greedy fam B n=200: median g_onestep 1.5, median k* 0.0, elapsed 58s
+greedy fam B n=400: median g_onestep 4.0, median k* 2.0, elapsed 58s
+done in 58.46768283843994 s
