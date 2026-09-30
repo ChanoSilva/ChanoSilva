@@ -220,7 +220,7 @@ if os.path.exists(cls_path):
                         f"{r['disjoint_extremal_pairs']}/{r['configurations']} & "
                         f"{r['perturbations_below_quarter_gap_kept']}/{r['perturbations_total']} & "
                         f"{r['quarter_gap_displacement_changed']}/{r['quarter_gap_displacement_tested']} & "
-                        f"{r['walk_steps']} & {sci(r['walk_radius_median'])}")
+                        f"{sci(r['walk_radius_median'])}")
     with open(os.path.join(out_dir, "table_e2c.tex"), "w") as fh:
         fh.write(" \\\\\n".join(rows_tex) + "\n")     # last row without terminator
     L.append(rf"\newcommand{{\EtwocSlopeGap}}{{{-cl['slope_gap']:.1f}}}")

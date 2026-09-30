@@ -76,7 +76,9 @@ def check_inradius(X, rng, trials=20):
     changed = None
     if disjoint:
         Y = X.copy()
-        e = (g / 4) * (1 + 1e-6)
+        # overshoot g/4 by a margin safely above double-precision rounding of
+        # distances of order one (relative 1e-6, or absolute 1e-12 if larger)
+        e = g / 4 + max(1e-6 * g / 4, 1e-12)
         a, b = ps                                             # grow the smaller distance
         u = (X[b] - X[a]) / np.linalg.norm(X[b] - X[a])
         Y[a] -= e * u
