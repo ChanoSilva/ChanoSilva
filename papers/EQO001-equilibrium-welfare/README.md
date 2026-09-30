@@ -12,7 +12,7 @@ La ficha pública de EQO001 dice que la formulación revisada "combina component
 
 | Ruta | Contenido |
 |---|---|
-| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés) y bibliografía (25 entradas reales). |
+| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés) y bibliografía (24 entradas reales, 23 citadas). |
 | `manuscript/main.pdf` | PDF compilado con pdflatex/bibtex vía latexmk. |
 | `manuscript/numbers.tex`, `manuscript/table_*.tex` | Macros y cuerpos de tabla **generados** desde los resultados; ningún número del texto está tipeado a mano. |
 | `experiments/vi_solver.py` | Proyecciones (caja, simplex) e iteración de gradiente proyectado $x\leftarrow\Pi_K(x-\gamma F(x))$ con paso $\gamma=\mu/L^2$ (contracción demostrada en el Teorema 3.4). |

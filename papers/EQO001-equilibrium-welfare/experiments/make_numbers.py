@@ -135,6 +135,7 @@ for key, name in (("c", "Conc"), ("n", "Nonc")):
     mac(f"Rnd{name}WitPct", pct(T["wit"] / T["nontriv"]) if T["nontriv"] else "--")
     mac(f"Rnd{name}NontrivPct", pct(T["nontriv"] / T["inst"]))
 mac("RndPgaDiff", sci(pga_diff) if pga_diff > 0 else "0")
+mac("RndPgaChecks", sum(a.get("pga_checks", 0) for a in wf["E3_E4_summary"]))
 mac("RndTotalInst", tot["c"]["inst"] + tot["n"]["inst"])
 mac("RndTotalQP", tot["c"]["tested"] + tot["c"]["gout"] + tot["c"]["gin"] + tot["n"]["tested"] + tot["n"]["gout"] + tot["n"]["gin"])
 w = wf.get("E4_witness_examples", [])
