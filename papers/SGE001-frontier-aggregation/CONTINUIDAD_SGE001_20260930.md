@@ -17,7 +17,7 @@ Pedido de la sesión (Claude Code, session_01MTmjU2K8b4sgpjjL3JTtDz, repositorio
 7. **Términos de eficiencia.** Se incluyeron como $y_i=\theta_i f(x_i)$ con $\theta_i$ independientes de los insumos (Farrell), solo en un experimento (E1b) y una observación elemental (piso de covarianza).
 
 ## Qué se produjo (todo en `papers/SGE001-frontier-aggregation/`)
-1. Manuscrito LaTeX `manuscript/main.tex` (inglés, ~14 páginas con 4 figuras y 6 tablas; el objetivo eran 5–10 y no se logró sin sacrificar demostraciones o tablas), bibliografía de 25 entradas (`refs.bib`), compilado a `main.pdf` sin errores ni referencias indefinidas.
+1. Manuscrito LaTeX `manuscript/main.tex` (inglés, 15 páginas con 4 figuras y 6 tablas; el objetivo eran 5–10 y no se logró sin sacrificar demostraciones o tablas), bibliografía de 25 entradas (`refs.bib`), compilado a `main.pdf` sin errores ni referencias indefinidas.
 2. `experiments/frontier_aggregation.py` (E0–E6, semilla 20260930, ~42 s de CPU en la corrida de referencia; `--fast` ~10 s) y `experiments/make_numbers.py` (202 macros + 7 cuerpos de tabla). Ningún número del texto está escrito a mano.
 3. README y esta nota.
 
@@ -57,7 +57,7 @@ Pedido de la sesión (Claude Code, session_01MTmjU2K8b4sgpjjL3JTtDz, repositorio
 - Los exponentes son medidos en σ ≤ 0.05 por mínimos cuadrados; el 3.78 de CD-LN es intermedio entre 3 y 4 porque el tercer momento log-normal es $O(\sigma^4)$ solo asintóticamente.
 - E5 no reproduce la calibración original (desconocida); solo muestra el mecanismo por el que un reescalado de $Q_2\propto\sigma^2$ no puede absorber un error $\propto\sigma$.
 - La ley de eficiencias es independiente de los insumos; con correlación, el término $C$ tendría media no nula y habría que modelarla.
-- Longitud del manuscrito (~14 págs.) por encima del objetivo de 5–10.
+- Longitud del manuscrito (15 págs., de las cuales 1.5 son bibliografía) por encima del objetivo de 5–10.
 
 ## Bibliografía: entradas con datos que conviene cotejar
 Todas las referencias son reales y conocidas, pero los siguientes detalles se escribieron de memoria y deben verificarse antes de cualquier envío: Nataf (1948) volumen/páginas (Econometrica 16(3), 232–244); van Garderen, Lee y Pesaran (2000) volumen/páginas (J. Econometrics 95(2), 285–331); Lewbel (1992) páginas (RES 59(3), 635–642); Houthakker (1955) a veces citado como 1955–56 (RES 23(1), 27–31); Cobb y Douglas (1928) número "1, Supplement"; Harris et al. (2020) y Virtanen et al. (2020) con listas de autores truncadas ("and others"). La caracterización de cada trabajo en la introducción es deliberadamente genérica.

@@ -1,0 +1,25 @@
+# Propuesta de actualización de la ficha TCD001 en el CV web
+
+Texto propuesto para reemplazar la ficha actual (estado "En pausa"). Cifras tomadas de la corrida de referencia (semillas 20260930 / 20260931, `results/*.json`).
+
+## Español
+
+- **Código:** TCD001
+- **Área:** Estadística y medición
+- **Título:** Fragilidad de la selección de variables con Lasso
+- **Descripción breve:** Estudio de cómo cambia el conjunto de variables seleccionadas por el Lasso al eliminar observaciones: testigos de eliminación, números de fragilidad, test exacto de eliminación, no monotonía y estatus computacional.
+- **Estado:** En desarrollo — Borrador v0.1 (manuscrito en LaTeX con experimentos reproducibles)
+- **Objetivo:** Caracterizar los testigos combinatorios de cambio del soporte (conjuntos mínimos de observaciones cuya eliminación cambia la selección) y evaluar su costo computacional, separando lo demostrado, lo medido y lo conjetural.
+- **Principales hallazgos:** Se demuestra un test exacto en forma cerrada de si eliminar un conjunto de observaciones conserva el soporte con signos (KKT + Woodbury; para una observación es la fórmula DFBETA con el residuo del Lasso), verificado contra reajustes en 9960/9960 casos y unas 400 veces más rápido que reajustar; da un certificado barato de que ninguna eliminación individual cambia la selección y un certificado polinomial, pero holgado, para k eliminaciones. La familia de testigos no es monótona: una variable puede salir al quitar R y volver al quitar R' ⊃ R (ejemplo con p=1 a mano y con p=2 en aritmética exacta, por competencia entre variables). Decidir si existe un testigo de deselección es NP-completo ya con un predictor (reducción desde Subset Sum), mientras que la dirección de selección con un predictor se resuelve en O(n log n). En diseños sintéticos con n ≤ 14 el soporte cambia al quitar una sola observación en el 52–92% de las instancias; tres heurísticas comparadas con el mínimo exacto no alcanzan el criterio de ventaja computacional fijado de antemano.
+- **Alcance actual:** Metodológico; dos familias sintéticas gaussianas, penalización fija, sin datos reales. La dureza demostrada es débil y solo para p = 1; no se afirma novedad de la fórmula ni de la reducción; no se afirma ninguna tasa de crecimiento con n.
+
+## English
+
+- **Code:** TCD001
+- **Area:** Statistics and measurement
+- **Title:** Fragility of Lasso variable selection
+- **Short description:** How the set of variables selected by the Lasso changes when observations are removed: removal witnesses, fragility numbers, an exact deletion test, non-monotonicity and computational status.
+- **Status:** In development — Working draft v0.1 (LaTeX manuscript with reproducible experiments)
+- **Objective:** Characterise the combinatorial witnesses of a change of support (minimal sets of observations whose removal changes the selection) and evaluate their computational cost, separating what is proved, what is measured and what is conjectural.
+- **Main findings:** An exact closed-form test of whether removing a set of observations preserves the signed support is proved (KKT + Woodbury; for one observation it is the DFBETA formula with the Lasso residual), verified against refits in 9960/9960 cases and about 400 times faster than refitting; it gives a cheap certificate that no single removal changes the selection and a polynomial but loose certificate for k removals. The witness family is not monotone: a variable can leave after removing R and return after removing R' ⊃ R (a hand-checkable example with p=1 and an exact-arithmetic example with p=2 driven by competition between variables). Deciding whether a deselection witness exists is NP-complete already with one predictor (reduction from Subset Sum), whereas the selection direction with one predictor is solvable in O(n log n). On synthetic designs with n ≤ 14 the support changes after removing a single observation in 52–92% of the instances; three heuristics compared with the exact minimum do not reach a computational-advantage criterion fixed in advance.
+- **Current scope:** Methodological; two synthetic Gaussian families, fixed penalty, no real data. The hardness proved is weak and only for p = 1; no novelty is claimed for the formula or the reduction; no growth rate with n is claimed.

@@ -161,7 +161,7 @@ Since $\Risk''(0)=\mu\varphi(\mu)$, the excess risk of a threshold with variance
 \toprule
 $M$ (cells) & expected risk & excess ($\times10^{-4}$) & ratio to $M=1$\\
 \midrule
-\input{table_exact_partition.tex}
+\input{table_exact_partition.tex}\\
 \bottomrule
 \end{tabular}
 \hspace{1.5em}
@@ -169,7 +169,7 @@ $M$ (cells) & expected risk & excess ($\times10^{-4}$) & ratio to $M=1$\\
 \toprule
 $n$ & $\Risk_{A_{\mathrm{nc}}}(n)$ & excess ($\times10^{-4}$)\\
 \midrule
-\input{table_exact_curve.tex}
+\input{table_exact_curve.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Exact values (finite binomial sums) for the nearest-centroid threshold in the Gaussian location model with $\mu=\ExMu$, Bayes risk $\ExBayes$. Left: partition-localised rule with $M$ equiprobable label-independent cells at $n=\ExPartN$. Right: the learning curve, \ExMonotone{} on $n=2,\dots,\ExMonotoneMax$ by direct evaluation (and for all $n\ge1$ by Proposition~\ref{prop:exact}).}
@@ -186,7 +186,7 @@ Figure~\ref{fig:exact} and Table~\ref{tab:exact_sim} report simulations in the s
 \multicolumn{3}{l}{D1: kNN nearest centroid, $d=2$}\\
 $k$ & risk & s.e.\\
 \midrule
-\input{table_exact_knn.tex}
+\input{table_exact_knn.tex}\\
 \bottomrule
 \end{tabular}
 \hspace{1em}
@@ -195,7 +195,7 @@ $k$ & risk & s.e.\\
 \multicolumn{3}{l}{D2: kNN linear SVM, $d=2$}\\
 $k$ & risk & s.e.\\
 \midrule
-\input{table_exact_knnsvm.tex}
+\input{table_exact_knnsvm.tex}\\
 \bottomrule
 \end{tabular}
 \hspace{1em}
@@ -204,7 +204,7 @@ $k$ & risk & s.e.\\
 \multicolumn{3}{l}{D3: linear SVM, $d=10$}\\
 $n$ & risk & s.e.\\
 \midrule
-\input{table_exact_svmcurve.tex}
+\input{table_exact_svmcurve.tex}\\
 \bottomrule
 \end{tabular}
 \hspace{1em}
@@ -213,7 +213,7 @@ $n$ & risk & s.e.\\
 \multicolumn{3}{l}{D4: cells, $d=10$}\\
 $M$ & risk & s.e.\\
 \midrule
-\input{table_exact_svmpart.tex}
+\input{table_exact_svmpart.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Simulations in the Gaussian location model ($\mu=\ExMu$, Bayes risk $\ExBayes$, $n=\ExPartN$ unless stated). D1: \ExDoneReps{} training samples, exact conditional risk averaged over \ExDoneTest{} test points. D2: \ExDtwoReps{} samples, \ExDtwoTest{} test points, $C=1$. D3: \ExDthreeReps{} samples per $n$, exact risk of the fitted hyperplane. D4: \ExDfourReps{} samples, cells drawn independently of the data.}
@@ -237,7 +237,7 @@ $M$ & risk & s.e.\\
 \toprule
 data set & regime & $n$ & $d$ & $n_{\mathrm{train}}$ (main) & $n_{\mathrm{train}}$ (sub\SubFrac) & positives\\
 \midrule
-\input{table_datasets.tex}
+\input{table_datasets.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Data sets. $d$ is the dimension after preprocessing (digits: 16 principal components). All inputs are standardised on the training fold.}
@@ -262,7 +262,7 @@ Table~\ref{tab:main} gives the mean accuracies and Table~\ref{tab:diff} the pair
 \toprule
 data set & linear & RBF & best global & kNN-SVM & cell-SVM & VB-RBF & LLSVM\\
 \midrule
-\input{table_acc_main.tex}
+\input{table_acc_main.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Main condition: mean test accuracy (\%) over \NMainFolds{} outer folds. ``Best global'' is the reference selected by inner cross-validation in each fold; it can be below both references' means because it is a per-fold choice.}
@@ -276,7 +276,7 @@ data set & linear & RBF & best global & kNN-SVM & cell-SVM & VB-RBF & LLSVM\\
 \toprule
 data set & kNN-SVM & cell-SVM & VB-RBF-SVM & LLSVM\\
 \midrule
-\input{table_diff_main.tex}
+\input{table_diff_main.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Main condition: mean paired difference in accuracy (percentage points, family minus best global reference) with percentile bootstrap 95\% interval over \NMainFolds{} folds; $^{+}$/$^{-}$ marks an interval entirely above/below zero.}
@@ -308,7 +308,7 @@ The three local \emph{linear} families (kNN-SVM, cell-SVM, LLSVM) are never sign
 \toprule
 data set & oracle acc.\ (\%) & kNN-SVM & cell-SVM & VB-RBF-SVM & LLSVM\\
 \midrule
-\input{table_posthoc_main.tex}
+\input{table_posthoc_main.tex}\\
 \bottomrule
 \end{tabular}
 \caption{\textbf{Post hoc} (defined after the main results were seen): paired differences against the oracle best global reference, $\max(\text{linear},\text{RBF})$ test accuracy in each fold, main condition.}
@@ -323,7 +323,7 @@ data set & oracle acc.\ (\%) & kNN-SVM & cell-SVM & VB-RBF-SVM & LLSVM\\
 \toprule
 data set & reference picks RBF & kNN-SVM & cell-SVM & VB-RBF-SVM & LLSVM\\
 \midrule
-\input{table_localfrac_main.tex}
+\input{table_localfrac_main.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Main condition: fraction of outer folds in which the inner cross-validation selected the RBF-SVM as reference, and in which it selected a local configuration ($k\ne$ all, $M>1$, $\beta>0$) for each family.}
@@ -342,7 +342,7 @@ Table~\ref{tab:robust} gives the accuracies averaged over data sets and their dr
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}
 method & acc. & acc. & drop & acc. & drop\\
 \midrule
-\input{table_drop.tex}
+\input{table_drop.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Accuracy (\%) averaged over the \NDatasets{} data sets in each condition, and drop from the main condition (percentage points). The robustness conditions use \NRobFolds{} outer folds.}
@@ -357,10 +357,10 @@ method & acc. & acc. & drop & acc. & drop\\
 data set & kNN-SVM & cell-SVM & VB-RBF-SVM & LLSVM\\
 \midrule
 \multicolumn{5}{l}{\emph{noise\NoiseRate}}\\
-\input{table_diff_noise20.tex}
+\input{table_diff_noise20.tex}\\
 \midrule
 \multicolumn{5}{l}{\emph{sub\SubFrac}}\\
-\input{table_diff_sub25.tex}
+\input{table_diff_sub25.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Robustness conditions: paired differences against the best global reference (percentage points) with bootstrap 95\% intervals over \NRobFolds{} folds.}
@@ -377,7 +377,7 @@ Table~\ref{tab:criterion} applies the criterion of Section~\ref{sec:protocol} li
 \toprule
 family & CI $>0$ & CI $<0$ & majority (A) & named regime (B) & added value\\
 \midrule
-\input{table_criterion.tex}
+\input{table_criterion.tex}\\
 \bottomrule
 \end{tabular}
 \caption{The predefined criterion applied to the main condition (\NDatasets{} data sets).}

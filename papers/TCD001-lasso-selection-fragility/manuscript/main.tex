@@ -51,7 +51,7 @@
 
 \begin{abstract}
 \noindent
-We study how the set of variables selected by the Lasso changes when observations are removed from the data. For data $D=(X,y)$, a penalty $\mu$ and a rule that fixes the penalty on subsamples, a \emph{removal witness} for a target change (a given variable leaves the selected set, a given variable enters it, or the selected set changes at all) is a set $R$ of observations such that the Lasso on $D\setminus R$ exhibits the change; the \emph{fragility number} is the minimal $|R|$. Four things are established. (i)~An exact test, in closed form, of whether removing a set $R$ preserves the signed support: it follows from the KKT conditions and a Woodbury update, costs $O(|R|^3+p|R|)$ per set after an $O(nps)$ precomputation, and reduces for $|R|=1$ to a case-deletion formula of the Cook--Belsley type with the Lasso residual in place of the least-squares residual. It yields a cheap certificate that no single removal changes the support, and a polynomial-time (but loose) certificate for $k$ removals. (ii)~The witness family is not monotone: a variable can leave the support after removing $R$ and re-enter after removing a superset of $R$. We give a one-variable example that can be checked by hand and a two-variable example, verified in exact rational arithmetic, in which the exclusion is caused by a competing variable. (iii)~Deciding whether a deselection witness exists at all is NP-complete already for one predictor, by a direct reduction from \textsc{Subset Sum}; the selection direction is solvable in $O(n\log n)$ for one predictor; the hardness is weak (pseudo-polynomial algorithms exist) and nothing is proved for $p\ge2$. (iv)~On synthetic Gaussian designs with fixed seeds, exhaustive search made feasible by the exact test (up to $n=\EfourNmaxExact$, $|R|\le\EfourKmax$) gives exact fragility numbers: in a noisy regime the selected set changes after removing a single observation in \EtwoBFracOne\% of the instances with $n\le14$, in a strong-signal regime in \EtwoAFracOne\%; minimal witnesses are predominantly single events (one variable leaves or one enters) and one-element supersets of minimal witnesses restore the original support in a measurable fraction of cases. Three heuristics (one-step greedy by exact deletion effect, sorted scores in the style of the approximate maximum influence perturbation, Cook's distance) are compared with the exact minimum under a criterion fixed in advance; none meets it on these instances, mainly because exhaustive search with the closed-form test is itself cheap at these sizes. No novelty is claimed for the algebra; the contribution is to make the objects of the research line precise and to report what can and cannot be certified.
+We study how the set of variables selected by the Lasso changes when observations are removed from the data. For data $D=(X,y)$, a penalty $\mu$ and a rule that fixes the penalty on subsamples, a \emph{removal witness} for a target change (a given variable leaves the selected set, a given variable enters it, or the selected set changes at all) is a set $R$ of observations such that the Lasso on $D\setminus R$ exhibits the change; the \emph{fragility number} is the minimal $|R|$. Four things are established. (i)~An exact test, in closed form, of whether removing a set $R$ preserves the signed support: it follows from the KKT conditions and a Woodbury update, costs $O(|R|^3+p|R|)$ per set after an $O(nps)$ precomputation, and reduces for $|R|=1$ to a case-deletion formula of the Cook--Belsley type with the Lasso residual in place of the least-squares residual. It yields a cheap certificate that no single removal changes the support, and a polynomial-time (but loose) certificate for $k$ removals. (ii)~The witness family is not monotone: a variable can leave the support after removing $R$ and re-enter after removing a superset of $R$. We give a one-variable example that can be checked by hand and a two-variable example, verified in exact rational arithmetic, in which the exclusion is caused by a competing variable. (iii)~Deciding whether a deselection witness exists at all is NP-complete already for one predictor, by a direct reduction from \textsc{Subset Sum}; the selection direction is solvable in $O(n\log n)$ for one predictor; the hardness is weak (pseudo-polynomial algorithms exist) and nothing is proved for $p\ge2$. (iv)~On synthetic Gaussian designs with fixed seeds, exhaustive search made feasible by the exact test (up to $n=\EfourNmaxExact$, $|R|\le\EfourKmax$) gives exact fragility numbers: in a noisy regime the selected set changes after removing a single observation in \EtwoBFracOne\% of the instances with $n\le14$, in a strong-signal regime in \EtwoAFracOne\%; minimal witnesses are predominantly single events (one variable leaves or one enters) and one-element supersets of minimal witnesses restore the original support in a measurable fraction of cases. Three heuristics (one-step greedy by exact deletion effect, sorted scores in the style of the approximate maximum influence perturbation, Cook's distance) are compared with the exact minimum under a criterion fixed in advance; none meets it on these instances: the one-step greedy reaches the accuracy part for two of the three targets, but no heuristic is cheaper than one tenth of the exhaustive search, which the closed-form test makes fast at these sizes. No novelty is claimed for the algebra; the contribution is to make the objects of the research line precise and to report what can and cannot be certified.
 \end{abstract}
 
 \section{Introduction}\label{sec:intro}
@@ -108,9 +108,10 @@ If $X_S\eta=0$ with $\eta\neq0$, extend $\eta$ by zeros. For $|t|$ small, $\hat\
 \section{An exact deletion test and two certificates}\label{sec:exact}
 
 Throughout this section $\hat\beta$ is the unique minimiser on $D$ with signed support $(S,s)$, $|S|=s_0\ge0$ (we write $s_0$ for the size to avoid a clash with the sign vector), $X_S$ has full column rank, and
-\[
-A=X_S^{\top}X_S,\quad r=y-X\hat\beta,\quad c=X^{\top}r,\quad V=X_SA^{-1}\ (\text{rows }v_i^{\top}),\quad h_i=x_{iS}^{\top}A^{-1}x_{iS},\quad \tilde X=(I-X_SA^{-1}X_S^{\top})X_{\Sc},
-\]
+\begin{gather*}
+A=X_S^{\top}X_S,\qquad r=y-X\hat\beta,\qquad c=X^{\top}r,\qquad V=X_SA^{-1}\ (\text{rows }v_i^{\top}),\\
+h_i=x_{iS}^{\top}A^{-1}x_{iS},\qquad \tilde X=(I-X_SA^{-1}X_S^{\top})X_{\Sc},
+\end{gather*}
 so that $c_S=\mu s$, $|c_j|\le\mu$ for $j\notin S$, $h_i\in[0,1]$ are the leverages of the active-set regression and $\tilde X_j$ is the residual of $X_j$ regressed on $X_S$. For $R\subseteq[n]$ with $|R|=k$ let $U=X_{R,S}\in\R^{k\times s_0}$ and $H_R=UA^{-1}U^{\top}$, the $R\times R$ block of the projection $X_SA^{-1}X_S^{\top}$.
 
 \begin{proposition}[Exact removal test]\label{prop:exact}\status{proved here}
@@ -137,13 +138,15 @@ The matrix of the linear system is $A'=X_{S,-R}^{\top}X_{S,-R}=A-U^{\top}U$, and
 (a) If $I-H_R$ is singular then $X_{S,-R}$ is rank deficient, and by Lemma~\ref{lem:rank} no unique minimiser on $\Dm$ has support $S$.
 
 (b) If $I-H_R$ is nonsingular, the Woodbury identity~\citep{sherman1950,hager1989} gives $A'^{-1}=A^{-1}+A^{-1}U^{\top}(I-H_R)^{-1}UA^{-1}$, and the unique solution of the linear system is $\beta_S=A'^{-1}(X_S^{\top}y-U^{\top}y_R-\mu's)$. Write $X_S^{\top}y-\mu s=A\hat\beta_S$ (the KKT equation on $D$) so that $X_S^{\top}y-U^{\top}y_R-\mu' s=A\hat\beta_S-U^{\top}y_R+\delta s$. Then
-\[
-A'^{-1}(A\hat\beta_S-U^{\top}y_R)=\hat\beta_S+A^{-1}U^{\top}\bigl[(I-H_R)^{-1}U\hat\beta_S-y_R-(I-H_R)^{-1}H_Ry_R\bigr]=\hat\beta_S-A^{-1}U^{\top}(I-H_R)^{-1}\bigl(y_R-U\hat\beta_S\bigr),
-\]
+\begin{align*}
+A'^{-1}(A\hat\beta_S-U^{\top}y_R)&=\hat\beta_S+A^{-1}U^{\top}\bigl[(I-H_R)^{-1}U\hat\beta_S-y_R-(I-H_R)^{-1}H_Ry_R\bigr]\\
+&=\hat\beta_S-A^{-1}U^{\top}(I-H_R)^{-1}\bigl(y_R-U\hat\beta_S\bigr),
+\end{align*}
 using $y_R+(I-H_R)^{-1}H_Ry_R=(I-H_R)^{-1}y_R$; since $y_R-U\hat\beta_S=r_R$ and $A^{-1}U^{\top}=V_R^{\top}$, this is $\hat\beta_S-V_R^{\top}e_R$. The remaining term $\delta A'^{-1}s=\delta z$ by the same identity, which proves \eqref{eq:betatilde}. For $j\notin S$, with $\beta_S=\hat\beta_S-V_R^{\top}e_R$ the full-length residual is $\tilde r=r+X_SV_R^{\top}e_R$, whose $R$-block is $r_R+H_Re_R=(I-H_R)^{-1}r_R=e_R$; hence
-\[
-X_{j,-R}^{\top}\tilde r_{-R}=X_j^{\top}\tilde r-X_{R,j}^{\top}e_R=c_j+X_j^{\top}X_SA^{-1}U^{\top}e_R-X_{R,j}^{\top}e_R=c_j-\bigl(X_{R,j}-UA^{-1}X_S^{\top}X_j\bigr)^{\top}e_R=c_j-\tilde X_{R,j}^{\top}e_R ,
-\]
+\begin{align*}
+X_{j,-R}^{\top}\tilde r_{-R}&=X_j^{\top}\tilde r-X_{R,j}^{\top}e_R=c_j+X_j^{\top}X_SA^{-1}U^{\top}e_R-X_{R,j}^{\top}e_R\\
+&=c_j-\bigl(X_{R,j}-UA^{-1}X_S^{\top}X_j\bigr)^{\top}e_R=c_j-\tilde X_{R,j}^{\top}e_R ,
+\end{align*}
 and the additional coefficient $\delta z$ contributes $-\delta X_{j,-R}^{\top}X_{S,-R}z=-\delta(X_j^{\top}X_S-X_{R,j}^{\top}U)z$, which proves \eqref{eq:ctilde}. The equivalence is now \eqref{eq:kkt}. If the inactive inequalities are strict, the equicorrelation set on $\Dm$ is $S$ and $X_{S,-R}$ has full column rank, so the minimiser is unique~\citep{tibshirani2013}.
 \end{proof}
 
@@ -207,7 +210,7 @@ Let $n=5$, $p=2$, $\mu=\ExTwoMu$ and
 \[
 \bigl[\,X\ \big|\ y\,\bigr]=\begin{bmatrix}\ExTwoRows\end{bmatrix}\quad\text{(rows are observations; last column is $y$)},
 \]
-with rule C, $R=\{\ExTwoR\}$ and $R'=\{\ExTwoRp\}$. Table~\ref{tab:ex2} lists, for $D$, $\Dm$ and $D\setminus R'$, the signed support returned by the homotopy solver and the exact rational solution of the KKT system on that support, with all inequalities checked strictly in exact arithmetic (so the support is that of the unique minimiser). Variable~1 is selected on $D$, leaves on $\Dm$ while variable~2 enters, and returns on $D\setminus R'$. The exclusion is due to competition: on $\Dm$ the marginal correlation $|x_1^{\top}y|=\ExTwoDRMargOne$ exceeds $\mu=\ExTwoMu$, so with $p=1$ variable~1 would be selected, but the residual correlation after fitting variable~2 is $|c_1|=\ExTwoDRC$ which is below $\mu$. The instance was found by a seeded search over integer data in $\{-2,\dots,2\}^{5\times2}\times\{-3,\dots,3\}^5$ and rational $\mu$ (\ExTwoTrials{} trials); all \ExTwoSubsets{} proper removal sets of this instance are exactly verifiable (no KKT ties), and among them there are \ExTwoPairs{} non-monotone pairs for \textsc{leave}$(1)$.
+with rule C, $R=\{\ExTwoR\}$ and $R'=\{\ExTwoRp\}$. Table~\ref{tab:ex2} lists, for $D$, $\Dm$ and $D\setminus R'$, the signed support returned by the homotopy solver and the exact rational solution of the KKT system on that support, with all inequalities checked strictly in exact arithmetic (so the support is that of the unique minimiser). Variable~1 is selected on $D$, leaves on $\Dm$ while variable~2 enters, and returns on $D\setminus R'$. The exclusion is due to competition: on $\Dm$ the marginal correlation $|x_1^{\top}y|=\ExTwoDRMargOne$ exceeds $\mu=\ExTwoMu$, so with $p=1$ variable~1 would be selected, but the residual correlation after fitting variable~2 is $c_1=\ExTwoDRCValOne$, below $\mu$. The instance was found by a seeded search over integer data in $\{-2,\dots,2\}^{5\times2}\times\{-3,\dots,3\}^5$ and rational $\mu$ (\ExTwoTrials{} trials); all \ExTwoSubsets{} proper removal sets of this instance are exactly verifiable (no KKT ties), and among them there are \ExTwoPairs{} non-monotone pairs for \textsc{leave}$(1)$.
 \end{example}
 
 \begin{table}[t]
@@ -259,80 +262,72 @@ For $p\ge2$, \textsc{Selection-Witness} (existence of a proper $R$ such that a g
 \paragraph{Criterion for ``computational advantage'' (fixed before the runs).} A heuristic has computational advantage on a family if (i) it returns a witness of exactly minimal size in at least \EthreeCritExact\% of the instances whose exact fragility number is finite within the cap, and (ii) its median wall-clock cost is at most \EthreeCritCost\% of that of the exhaustive search on the same instances and machine.
 
 \subsection{E1: validation of Proposition~\ref{prop:exact} and of the certificates}
-On four $(n,p)$ cells, \EoneReps{} instances each ($b=2$, $\rho=0.3$, $c=1$), Proposition~\ref{prop:exact} was compared with a refit for every single removal and for random sets of $2$, $3$ and $5$ observations, under both rules. Agreement was \EoneSingleAgree/\EoneSingleTests{} for single removals and \EoneMultiAgree/\EoneMultiTests{} for sets, and whenever the signed support was preserved the closed-form coefficients \eqref{eq:betatilde} matched the refit to $\EoneSingleMaxDiff$ (single) and $\EoneMultiMaxDiff$ (sets) (Table~\ref{tab:e1}). The sufficient condition of Corollary~\ref{cor:single} certified \EoneCorCertified{} of the \EoneCorStable{} single removals that are in fact stable (\EoneCorCoverage\%), and never a removal that is not. On $n=\EoneThroughputN$, $p=\EoneThroughputP$, all \EoneThroughputSubsets{} subsets of size $4$ were tested at \EoneOracleUs~$\mu$s per subset against \EoneRefitUs~$\mu$s per refit, a factor of \EoneSpeedup. Table~\ref{tab:e1b} reports the certificate of Proposition~\ref{prop:cert}: the fraction of instances with $f\ge2$ in which $k^\ast\ge1$ and the mean gap $f-1-k^\ast$.
+On four $(n,p)$ cells, \EoneReps{} instances each ($b=2$, $\rho=0.3$, $c=1$), Proposition~\ref{prop:exact} was compared with a refit for every single removal and for random sets of $2$, $3$ and $5$ observations, under both rules. Agreement was \EoneSingleAgree/\EoneSingleTests{} for single removals and \EoneMultiAgree/\EoneMultiTests{} for sets, and whenever the signed support was preserved the closed-form coefficients \eqref{eq:betatilde} matched the refit to $\EoneSingleMaxDiff$ (single) and $\EoneMultiMaxDiff$ (sets); the per-cell counts are in \path{results/validation.md}. The sufficient condition of Corollary~\ref{cor:single} certified \EoneCorCertified{} of the \EoneCorStable{} single removals that are in fact stable (\EoneCorCoverage\%), and never a removal that is not. On $n=\EoneThroughputN$, $p=\EoneThroughputP$, all \EoneThroughputSubsets{} subsets of size $4$ were tested at \EoneOracleUs~$\mu$s per subset against \EoneRefitUs~$\mu$s per refit, a factor of \EoneSpeedup. Table~\ref{tab:e1b} reports the certificate of Proposition~\ref{prop:cert}: the fraction of instances with $f\ge2$ in which $k^\ast\ge1$ and the mean gap $f-1-k^\ast$.
+
 
 \begin{table}[t]
 \centering\small
-\begin{tabular}{rrlrrrl}
-\toprule
-$n$ & $p$ & rule & tests & agreements & preserved & max coef.\ diff.\\
-\midrule
-\input{table_e1.tex}\\
-\bottomrule
-\end{tabular}
-\caption{E1. Single removals: Proposition~\ref{prop:exact} against a refit, for every observation of \EoneReps{} instances per cell. ``Preserved'' counts removals that keep the signed support; the last column is the maximal difference between the closed-form coefficients and the refit over those cases.}
-\label{tab:e1}
-\end{table}
-
-\begin{table}[t]
-\centering\small
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{rrrrrrrrr}
 \toprule
 $n$ & $p$ & instances & stable single removals & certified (Cor.~\ref{cor:single}) & coverage & $P(f=1)$ & $P(k^\ast\ge1\mid f\ge2)$ & mean $f-1-k^\ast$\\
 \midrule
 \input{table_e1b.tex}\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \caption{E1. Coverage of the sufficient condition of Corollary~\ref{cor:single} among removals that are exactly stable, and tightness of the certificate of Proposition~\ref{prop:cert} against the exact signed fragility number $f$ (rule C; exact search capped at $|R|\le6$, and $f$ counted as $7$ when not found).}
 \label{tab:e1b}
 \end{table}
 
 \subsection{E2: exact fragility numbers for $n\le14$}
-Table~\ref{tab:e2} gives, for \EtwoReps{} instances per cell, the distribution of the exact signed fragility number for \textsc{any} under both rules, the type of change realised by the minimal witnesses, and the mean targeted fragility numbers for the weakest selected variable (smallest $|\hat\beta_j|$) and for the strongest inactive variable (largest $|c_j|$). In family B the selected set changes after a single removal in \EtwoBFracOne\% of the \EtwoBN{} instances (maximal $f=\EtwoBMax$); in family A in \EtwoAFracOne\% (maximal $f=\EtwoAMax$). Signed and unsigned \textsc{any} differed in \EtwoASignedNeUnsignedCount{} instance(s) of family A and \EtwoBSignedNeUnsignedCount{} of family B. Among the minimal witnesses examined, the change is a single variable leaving in \EtwoATypesLeave\% (A) and \EtwoBTypesLeave\% (B) of the cases, a single variable entering in \EtwoATypesEnter\% and \EtwoBTypesEnter\%, and a simultaneous leave and enter in \EtwoATypesSwap\% and \EtwoBTypesSwap\%; sign-only changes occurred \EtwoATypesSign{} and \EtwoBTypesSign{} times. Targeted searches were not concluded within the cap in \EtwoALeaveNotFound/\EtwoALeaveN{} (A, \textsc{leave}) and \EtwoAEnterNotFound/\EtwoAEnterN{} (A, \textsc{enter}) instances; the most expensive \textsc{leave} search in family A took \EtwoATimeLeaveMaxS~s with \EtwoARefitsLeaveMax{} refits after \EtwoAOracleLeaveMax{} closed-form tests. The certificate of Proposition~\ref{prop:cert} gave $k^\ast\ge1$ in \EtwoAKstarGeOne\% of the \EtwoANGeTwo{} family-A instances with $f\ge2$ (mean gap \EtwoAKstarGap).
+Table~\ref{tab:e2} gives, for \EtwoReps{} instances per cell, the distribution of the exact signed fragility number for \textsc{any} under both rules, the type of change realised by the minimal witnesses, and the mean targeted fragility numbers for the weakest selected variable (smallest $|\hat\beta_j|$) and for the strongest inactive variable (largest $|c_j|$). In family B the selected set changes after a single removal in \EtwoBFracOne\% of the \EtwoBN{} instances (maximal $f=\EtwoBMax$); in family A in \EtwoAFracOne\% (maximal $f=\EtwoAMax$). Family B produced \EtwoBEmptySupport{} instances with an empty support, \EtwoBNotFound{} of which had no witness within $|R|\le n-2$ under rule C (a variable must enter, which removing data rarely achieves under a constant penalty); they are counted as not found. Signed and unsigned \textsc{any} differed in \EtwoASignedNeUnsignedCount{} instance(s) of family A and \EtwoBSignedNeUnsignedCount{} of family B. Among the minimal witnesses examined, the change is a single variable leaving in \EtwoATypesLeave\% (A) and \EtwoBTypesLeave\% (B) of the cases, a single variable entering in \EtwoATypesEnter\% and \EtwoBTypesEnter\%, and a simultaneous leave and enter in \EtwoATypesSwap\% and \EtwoBTypesSwap\%; sign-only changes occurred \EtwoATypesSign{} and \EtwoBTypesSign{} times. Targeted searches were not concluded within the cap in \EtwoALeaveNotFound/\EtwoALeaveN{} (A, \textsc{leave}) and \EtwoAEnterNotFound/\EtwoAEnterN{} (A, \textsc{enter}) instances; the most expensive \textsc{leave} search in family A took \EtwoATimeLeaveMaxS~s with \EtwoARefitsLeaveMax{} refits after \EtwoAOracleLeaveMax{} closed-form tests. The certificate of Proposition~\ref{prop:cert} gave $k^\ast\ge1$ in \EtwoAKstarGeOne\% of the \EtwoANGeTwo{} family-A instances with $f\ge2$ (mean gap \EtwoAKstarGap).
 
 \begin{table}[t]
 \centering\scriptsize
 \setlength{\tabcolsep}{3.5pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{llrrlrrrrlll}
 \toprule
 fam. & $n$ & mean $|S|$ & $S=S^\ast$ & $f$ dist.\ C ($1/2/3/4/5/{\ge}6$) & mean C & $P(f{=}1)$ C & mean P & $P(f{=}1)$ P & types C & $f_{\textsc{leave}}$ (n.f.) & $f_{\textsc{enter}}$ (n.f.)\\
 \midrule
 \input{table_e2.tex}\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \caption{E2. Exact signed fragility number for \textsc{any} (rules C and P), \EtwoReps{} instances per cell. ``Types'' counts leave/enter/swap/sign-only among up to 20 minimal witnesses per instance (rule C). The last two columns are mean targeted fragility numbers under rule C with the number of instances not concluded within $|R|\le\EtwoKmax$ in parentheses.}
 \label{tab:e2}
 \end{table}
 
 \subsection{E3: heuristics against the exact minimum}
-Three heuristics were run on the same instances (rule C): \emph{one-step greedy}, which at every step removes the observation whose exact single-removal effect (Corollary~\ref{cor:single} on the current fit) brings the target closest, refits, and repeats; \emph{sorted scores}, in the style of the approximate maximum influence perturbation~\citep{broderick2020}, which scores every observation once on the full data by its exact single-removal effect on each margin, predicts the number of removals $k_{\mathrm{pred}}$ from cumulative sums, and then removes observations in that fixed order with a refit after each until the target holds; and \emph{Cook's distance}, target-agnostic. Table~\ref{tab:e3} pools the results over $n\le14$ against the predefined criterion. \EthreeNumAdvantage{} of the \EthreeNumVerdicts{} (family, target, heuristic) combinations met it. The one-step greedy is the most accurate (family A: \EthreeAAnyOnestepExact\% exact for \textsc{any}, \EthreeALeaveOnestepExact\% for \textsc{leave}, \EthreeAEnterOnestepExact\% for \textsc{enter}, falling to \EthreeAAnyOnestepExactNT\%, \EthreeALeaveOnestepExactNT\% and \EthreeAEnterOnestepExactNT\% on the instances with $f\ge2$; maximal excess over the minimum \EthreeAOnestepMaxGap), but at these sizes it is not cheaper than the exhaustive search that uses Proposition~\ref{prop:exact}: median cost ratios are \EthreeAAnyOnestepCost{} (\textsc{any}), \EthreeALeaveOnestepCost{} (\textsc{leave}) and \EthreeAEnterOnestepCost{} (\textsc{enter}) in family A. The linear prediction $k_{\mathrm{pred}}$ of the sorted-scores heuristic equals the exact fragility number in \EthreeAAnyKpredExact\% (A, \textsc{any}) and \EthreeBAnyKpredExact\% (B, \textsc{any}) of the instances, underestimates it in \EthreeAAnyKpredUnder\% and \EthreeBAnyKpredUnder\%, and overestimates it in \EthreeAAnyKpredOver\% and \EthreeBAnyKpredOver\%.
+Three heuristics were run on the same instances (rule C): \emph{one-step greedy}, which at every step removes the observation whose exact single-removal effect (Corollary~\ref{cor:single} on the current fit) brings the target closest, refits, and repeats; \emph{sorted scores}, in the style of the approximate maximum influence perturbation~\citep{broderick2020}, which scores every observation once on the full data by its exact single-removal effect on each margin, predicts the number of removals $k_{\mathrm{pred}}$ from cumulative sums, and then removes observations in that fixed order with a refit after each until the target holds; and \emph{Cook's distance}, target-agnostic. Table~\ref{tab:e3} pools the results over $n\le14$ against the predefined criterion. \EthreeNumAdvantage{} of the \EthreeNumVerdicts{} (family, target, heuristic) combinations met it. The one-step greedy is the most accurate: it returns a minimal witness in \EthreeAAnyOnestepExact\%/\EthreeBAnyOnestepExact\% of the instances for \textsc{any} (families A/B), \EthreeALeaveOnestepExact\%/\EthreeBLeaveOnestepExact\% for \textsc{leave} and \EthreeAEnterOnestepExact\%/\EthreeBEnterOnestepExact\% for \textsc{enter}, which falls to \EthreeAAnyOnestepExactNT\%/\EthreeBAnyOnestepExactNT\%, \EthreeALeaveOnestepExactNT\%/\EthreeBLeaveOnestepExactNT\% and \EthreeAEnterOnestepExactNT\%/\EthreeBEnterOnestepExactNT\% on the instances with $f\ge2$ (maximal excess over the minimum in family A: \EthreeAOnestepMaxGap). It thus meets the accuracy part of the criterion for \textsc{any} and \textsc{leave} but not for \textsc{enter}; the sorted-scores heuristic is less accurate (\EthreeAAnyAmipExact\%/\EthreeBAnyAmipExact\%, \EthreeALeaveAmipExact\%/\EthreeBLeaveAmipExact\%, \EthreeAEnterAmipExact\%/\EthreeBEnterAmipExact\%) and Cook's distance is the worst for the targeted changes. No heuristic meets the cost part: at these sizes none is cheaper than the exhaustive search that uses Proposition~\ref{prop:exact}, with median cost ratios of the one-step greedy of \EthreeAAnyOnestepCost{}/\EthreeBAnyOnestepCost{} (\textsc{any}), \EthreeALeaveOnestepCost{}/\EthreeBLeaveOnestepCost{} (\textsc{leave}) and \EthreeAEnterOnestepCost{}/\EthreeBEnterOnestepCost{} (\textsc{enter}). The linear prediction $k_{\mathrm{pred}}$ of the sorted-scores heuristic equals the exact fragility number in \EthreeAAnyKpredExact\% (A, \textsc{any}) and \EthreeBAnyKpredExact\% (B, \textsc{any}) of the instances, underestimates it in \EthreeAAnyKpredUnder\% and \EthreeBAnyKpredUnder\%, and overestimates it in \EthreeAAnyKpredOver\% and \EthreeBAnyKpredOver\%.
 
 \begin{table}[t]
 \centering\small
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lllrrrrrl}
 \toprule
 fam. & target & heuristic & $n$ & exact & $n$ ($f\ge2$) & exact ($f\ge2$) & median cost ratio & advantage\\
 \midrule
 \input{table_e3.tex}\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \caption{E3. Heuristics against the exact minimum, pooled over $n\in\{8,10,12,14\}$, rule C. ``Exact'' is the fraction of instances (with finite exact $f$ within the cap) in which the heuristic's witness has minimal size; ``cost ratio'' is heuristic time over exhaustive-search time. The verdict applies the criterion fixed before the run (exact $\ge\EthreeCritExact\%$ and median cost ratio $\le\EthreeCritCost\%$).}
 \label{tab:e3}
 \end{table}
 
 \subsection{E4: scaling with $n$}
-With the closed-form test the exhaustive search for signed \textsc{any} extends to $n=\EfourNmaxExact$ at $|R|\le\EfourKmax$ (Table~\ref{tab:e4}, Figure~\ref{fig:dist}). In family A the mean fragility number grows slowly with $n$ (\EfourATenMean{} at $n=10$, \EfourAThirtyfourMean{} at $n=34$, with \EfourAThirtyfourNotFound{} of \EfourAThirtyfourInstances{} instances above the cap), while in family B it stays close to one (\EfourBThirtyfourFracOne\% of the instances have $f=1$ at $n=34$). Over the \EfourANAll{} family-A instances with finite $f$, the one-step greedy returned the exact minimum in \EfourAOnestepExactAll\% of the cases (\EfourAOnestepExactNT\% of the \EfourANT{} instances with $f\ge2$, maximal excess \EfourAOnestepMaxGap); for $n\ge22$ its median cost was \EfourACostOnestepMedianBig{} of the exhaustive search and it was exact in \EfourAOnestepExactBig\% of \EfourANBig{} instances, so at these sizes the heuristic becomes cheap but does not reach the accuracy part of the criterion. Beyond exhaustive reach, Table~\ref{tab:e4b} brackets the fragility number between the certificate of Proposition~\ref{prop:cert} ($k^\ast+1$) and the greedy upper bound: at $n=400$ in family A the median greedy witness has \EfourAFourhundredMedian{} observations (mean $f/n\approx\EfourAFourhundredMeanOverN$), the median certified lower bound is $k^\ast+1$ with $k^\ast=\EfourAFourhundredKstar$, and the mean ratio $(k^\ast+1)/g$ is \EfourAFourhundredBracket; the bracket is wide, and the observed decrease of $g/n$ with $n$ is an empirical statement about these families only.
+With the closed-form test the exhaustive search for signed \textsc{any} extends to $n=\EfourNmaxExact$ at $|R|\le\EfourKmax$ (Table~\ref{tab:e4}, Figure~\ref{fig:dist}). In family A the mean fragility number grows slowly with $n$ (\EfourATenMean{} at $n=10$, \EfourAThirtyfourMean{} at $n=34$, with \EfourAThirtyfourNotFound{} of \EfourAThirtyfourInstances{} instances above the cap), while in family B it stays close to one (\EfourBThirtyfourFracOne\% of the instances have $f=1$ at $n=34$). Over the \EfourANAll{} family-A instances with finite $f$, the one-step greedy returned the exact minimum in \EfourAOnestepExactAll\% of the cases (\EfourAOnestepExactNT\% of the \EfourANT{} instances with $f\ge2$, maximal excess \EfourAOnestepMaxGap); at $n=34$ its median cost fell to \EfourAThirtyfourCostOnestep{} of the exhaustive search (\EfourAThirtyfourTime~s on average, \EfourAThirtyfourInstances{} instances) while it was exact in \EfourAThirtyfourOnestepExact\% of them, so the heuristic becomes cheap at the sizes where its accuracy drops below the criterion; over all family-A instances with $n\ge22$ the median cost ratio is \EfourACostOnestepMedianBig{} and the exactness \EfourAOnestepExactBig\%. Beyond exhaustive reach, Table~\ref{tab:e4b} brackets the fragility number between the certificate of Proposition~\ref{prop:cert} ($k^\ast+1$) and the greedy upper bound: at $n=400$ in family A the median greedy witness has \EfourAFourhundredMedian{} observations (mean $f/n\approx\EfourAFourhundredMeanOverN$), the median certified lower bound is $k^\ast+1$ with $k^\ast=\EfourAFourhundredKstar$, and the mean ratio $(k^\ast+1)/g$ is \EfourAFourhundredBracket; the bracket is wide, and the observed decrease of $g/n$ with $n$ is an empirical statement about these families only.
 
 \begin{table}[t]
 \centering\scriptsize
 \setlength{\tabcolsep}{3.5pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{llrrlrrrrrrrrr}
 \toprule
 fam. & $n$ & inst. & $S=S^\ast$ & $f$ dist.\ ($1/\dots/6/$n.f.) & median & mean & $P(f{=}1)$ & median P & one-step exact & sorted exact & $k^\ast$ mean & time (s) & cost ratio\\
 \midrule
 \input{table_e4.tex}\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \caption{E4. Exact signed fragility number for \textsc{any} by exhaustive search with Proposition~\ref{prop:exact}, $|R|\le\EfourKmax$ (rule C unless marked P). ``One-step exact'' and ``sorted exact'' are the fractions of instances in which the heuristic matches the exact minimum; ``time'' is the mean exhaustive-search time and ``cost ratio'' the median one-step-greedy time over it.}
 \label{tab:e4}
 \end{table}
@@ -340,27 +335,28 @@ fam. & $n$ & inst. & $S=S^\ast$ & $f$ dist.\ ($1/\dots/6/$n.f.) & median & mean 
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{llrrlrrrrrrr}
 \toprule
 fam. & $n$ & inst. & $S=S^\ast$ & one-step median [q1, q3] & mean $g/n$ & sorted median & one-step P median & $k^\ast$ median & $P(k^\ast\ge1)$ & mean $(k^\ast{+}1)/g$ & time (s)\\
 \midrule
 \input{table_e4b.tex}\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \caption{E4. Beyond exhaustive reach: greedy upper bounds $g$ on the signed \textsc{any} fragility number and certified lower bounds $k^\ast+1$ (Proposition~\ref{prop:cert}), 40 instances per cell.}
 \label{tab:e4b}
 \end{table}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{../figures/fig_fragility_distribution.pdf}
+\includegraphics[width=0.92\linewidth]{../figures/fig_fragility_distribution.pdf}
 \caption{Distribution of the exact signed fragility number for \textsc{any} (rule C) as a function of $n$, families A and B, from E2 ($n\le14$) and E4 ($n\ge18$; search capped at $|R|\le\EfourKmax$, the top segment collects $f\ge6$ and not found).}
 \label{fig:dist}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{../figures/fig_bracket.pdf}
+\includegraphics[width=0.92\linewidth]{../figures/fig_bracket.pdf}
 \caption{Bracketing the fragility number at large $n$ (rule C): median one-step greedy witness size (upper bound, with interquartile range) and median certified lower bound $k^\ast+1$ from Proposition~\ref{prop:cert}, per family; exact medians from E4 where available.}
 \label{fig:bracket}
 \end{figure}
@@ -370,13 +366,14 @@ For every instance of E2 with a finite targeted fragility number, all one-elemen
 
 \begin{table}[t]
 \centering\small
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{llrrrrrr}
 \toprule
 fam. & $n$ & \textsc{leave}: instances & re-entry (instances) & re-entry (pairs) & \textsc{any}: instances & restored (instances) & restored (pairs)\\
 \midrule
 \input{table_e5.tex}\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \caption{E5. One-element supersets of minimal witnesses (rule C): fraction of instances with at least one non-monotone pair and fraction of superset pairs that are non-monotone.}
 \label{tab:e5}
 \end{table}

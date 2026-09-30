@@ -13,6 +13,7 @@
 \usepackage{enumitem}
 \usepackage{array}
 \usepackage{caption}
+\usepackage{float}
 \captionsetup{font=small,labelfont=bf}
 
 \IfFileExists{numbers.tex}{\input{numbers.tex}}{}
@@ -153,7 +154,7 @@ so $E_\spec(C)=\tfrac12J_K(C)+\tfrac12(n-k)\phi(0)$. The shifted form follows fr
 \end{enumerate}
 \end{proposition}
 \begin{proof}[Proof sketch]
-(i) Expand $\lVert x_i-x_j\rVert^2=\lVert x_i\rVert^2+\lVert x_j\rVert^2-2\langle x_i,x_j\rangle$; the first two terms vanish against $\sum c_i=0$. (ii) is Theorem~2.2 in \citet[Ch.~3, \S3]{bcr1984} in substance (we do not vouch for the numbering; see also \citet{ssv2012}); the argument is: by Schoenberg's theorem~\citep{schoenberg1938} $N$ is CND iff $e^{-tN}$ is PD for all $t>0$, so $1-e^{-tN}$ is CND (a constant kernel is CND-neutral and the negative of a PD kernel is CND); write $\psi(N)=a+bN+\int(1-e^{-tN})\mu(\dd t)$ and note that non-negative combinations and pointwise limits of CND kernels are CND. (iii) The listed $\psi$ are Bernstein: $s^\alpha$ ($0<\alpha\le1$), $\log(1+s/\ell^2)$, $1-e^{-s/2\ell^2}$, $s/(1+s/\ell^2)$ all have completely monotone derivatives.
+(i) Expand $\lVert x_i-x_j\rVert^2=\lVert x_i\rVert^2+\lVert x_j\rVert^2-2\langle x_i,x_j\rangle$; the first two terms vanish against $\sum c_i=0$. (ii) is proved in \citet[Chapter~3]{bcr1984}, see also \citet{ssv2012}; we do not vouch for the exact theorem number. The argument is: by Schoenberg's theorem~\citep{schoenberg1938} $N$ is CND iff $e^{-tN}$ is PD for all $t>0$, so $1-e^{-tN}$ is CND (a constant kernel is CND-neutral and the negative of a PD kernel is CND); write $\psi(N)=a+bN+\int(1-e^{-tN})\mu(\dd t)$ and note that non-negative combinations and pointwise limits of CND kernels are CND. (iii) The listed $\psi$ are Bernstein: $s^\alpha$ ($0<\alpha\le1$), $\log(1+s/\ell^2)$, $1-e^{-s/2\ell^2}$, $s/(1+s/\ell^2)$ all have completely monotone derivatives.
 \end{proof}
 
 \begin{remark}[Rest length]
@@ -193,7 +194,7 @@ Write $S_{ic}=(K'\one_c)_i$ and $Q_c=\one_c^{\!\top}K'\one_c$. Removing $i$ from
 \noindent Item (ii) generalises the observation of \citet{telgarsky2010} for Euclidean $k$-means; item (iii) is the standard type of example. The consequence for the research line is that ``spring relaxation'' cannot converge to anything outside the set of kernel $k$-means fixed points.
 
 \begin{proposition}[Lloyd's rule is representation-dependent]\label{prop:shift}
-For $K'=K+\sigma I$, $\delta_{K'}(i,c)=\delta_K(i,c)+\sigma\bigl(1+\tfrac{1-2\cdot[i\in C_c]}{n_c}\bigr)$. Hence the Voronoi rule ``assign $i$ to $\arg\min_c\delta_{K'}(i,c)$'' favours the current cluster by $2\sigma/n_a$ relative to the unshifted rule, and as $\sigma\to\infty$ every partition becomes Voronoi-stable, while $E_\spec$ and the single-move dynamics are unchanged. \status{proved here}
+For $K'=K+\sigma I$, $\delta_{K'}(i,c)=\delta_K(i,c)+\sigma\bigl(1+\tfrac{1-2\cdot[i\in C_c]}{n_c}\bigr)$: the shift adds $\sigma(1+1/n_c)$ to the squared distance from $i$ to every other cluster $c$ and only $\sigma(1-1/n_a)$ to the distance to its own cluster $a$. Hence the Voronoi rule ``assign $i$ to $\arg\min_c\delta_{K'}(i,c)$'' favours staying, and as $\sigma\to\infty$ every partition becomes Voronoi-stable, while $E_\spec$ and the single-move dynamics are unchanged. \status{proved here}
 \end{proposition}
 \begin{proof}
 $(\sigma I\one_c)_i=\sigma[i\in C_c]$ and $\one_c^{\!\top}\sigma I\one_c=\sigma n_c$; substitute in $\delta$.
@@ -267,7 +268,7 @@ potential & negative type & partitions & max rel.\ error & $\min\lambda_{\min}(\
 
 \paragraph{E2: same optimiser, same initialisation, same trajectory.} \emph{Criterion:} a brute-force spring relaxation that recomputes the total energy from scratch for every candidate move (it sees only springs) and the kernel implementation of Hartigan's method via~\eqref{eq:delta} (it sees only $K$), started from the same random labels with the same sweep order, must produce identical label vectors after every sweep and final energies equal to $10^{-9}$ relative, in all runs. Subsets of $\EtwoNsub$ points, three initialisations per configuration. \emph{Result:} \EtwoIdentical/\EtwoRuns{} identical trajectories (mean \EtwoMeanSweeps{} sweeps, at most \EtwoMaxSweeps), worst final-energy discrepancy $\EtwoMaxRelErr$; the brute-force runs took \EtwoSecondsPhysics{} s in total against \EtwoSecondsKernel{} s for the kernel runs. In addition, hub-anchored Hooke springs equilibrated alternately (Proposition~\ref{prop:anchored}) reproduced scikit-learn's Lloyd $k$-means from the same initial centroids in \EtwoAnchoredIdentical/\EtwoAnchoredRuns{} runs, with inertia equal to the spring energy to $\EtwoAnchoredMaxErr$.
 
-\paragraph{E3: relaxation versus kernel $k$-means on the same energy.} Four optimisers see the same kernel: \emph{lloyd} (batch Lloyd on $\widetilde K$, minimally shifted only when indefinite, which happened in \EthreeShiftedConfigs{} configurations), \emph{lloyd+relax} (Lloyd followed by single-move polish), \emph{relax} (single-particle relaxation from the initial labels) and \emph{anneal} (Metropolis on the spring energy, \EthreeAnnealSweeps{} sweeps of geometric cooling from the median $|\Delta E|$ of random moves down by $10^{-3}$, then relaxation~\citep{kirkpatrick1983}); a fifth, \emph{lloyd (naive)}, runs Lloyd on $-A+\sigma I$ as the control for Proposition~\ref{prop:shift}. Initialisations are shared: $\EthreeR$ random labelings and $\EthreeR$ kernel $k$-means++ seedings~\citep{arthur2007} per configuration; annealing uses the first $\EthreeRanneal$ random ones. Let $E^*$ be the best energy found by any method in a configuration. \emph{Criteria (predefined):} (C3a) every relaxation and annealing fixed point is Voronoi-stable for the kernel used (Proposition~\ref{prop:hartigan} predicts $100\%$); (C3b) the relaxation is called distinguishable from the kernel family only if its best-of-restarts energy differs from that of lloyd+relax by more than $10^{-6}$ relative; either sign is reported, since it would be a statement about optimisers of one function; (C3c) the fraction of Lloyd fixed points that are not single-move stable is reported. \emph{Results} (Table~\ref{tab:e3}, Figure~\ref{fig:energies}, full table in Appendix~\ref{app:table}): all \EthreeVoronoiRelax/\EthreeRunsRelax{} relaxation and \EthreeVoronoiAnneal/\EthreeRunsAnneal{} annealing fixed points are Voronoi-stable (C3a). Under C3b, \EthreeDistinguishable{} of \EthreeConfigs{} configurations are distinguishable: in \EthreeRelaxBetter{} the relaxation found a lower best energy than lloyd+relax and in \EthreeLloydRelaxBetter{} the reverse, with largest relative difference $\EthreeMaxAbsDiff$; in the configurations where the two best energies agree, the best partitions coincide (ARI $=1$) in all but \EthreeAgreeButDifferent{}, and overall ARI $=1$ in \EthreeAriOne/\EthreeConfigs. The relaxation reaches $E^*$ in \EthreeReachRelax{} configurations, lloyd+relax in \EthreeReachLloydRelax, Lloyd alone in \EthreeReachLloyd, and Lloyd on the naive shift in \EthreeReachNaive; the median relative excess over restarts (median across configurations) is $\EthreeMedianExcessRelax$, $\EthreeMedianExcessLloydRelax$, $\EthreeMedianExcessLloyd$ and $\EthreeMedianExcessNaive$ respectively. Only \EthreeLloydHartiganPct\% of Lloyd fixed points on the canonical kernel are single-move stable, and \EthreeNaiveHartiganPct\% on the naive shift (C3c). The best energies were recomputed spring by spring with a worst discrepancy of $\EthreeDirectCheck$.
+\paragraph{E3: relaxation versus kernel $k$-means on the same energy.} Four optimisers see the same kernel: \emph{lloyd} (batch Lloyd on $\widetilde K$, minimally shifted only when indefinite, which happened in \EthreeShiftedConfigs{} configurations), \emph{lloyd+relax} (Lloyd followed by single-move polish), \emph{relax} (single-particle relaxation from the initial labels) and \emph{anneal} (Metropolis on the spring energy, \EthreeAnnealSweeps{} sweeps of geometric cooling from the median $|\Delta E|$ of random moves down by $10^{-3}$, then relaxation~\citep{kirkpatrick1983}); a fifth, \emph{lloyd (naive)}, runs Lloyd on $-A+\sigma I$ as the control for Proposition~\ref{prop:shift}. Initialisations are shared: $\EthreeR$ random labelings and $\EthreeR$ kernel $k$-means++ seedings~\citep{arthur2007} per configuration; annealing uses the first $\EthreeRanneal$ random ones. Let $E^*$ be the best energy found by any method in a configuration. \emph{Criteria (predefined):} (C3a) every relaxation and annealing fixed point is Voronoi-stable for the kernel used (Proposition~\ref{prop:hartigan} predicts $100\%$); (C3b) the relaxation is called distinguishable from the kernel family only if its best-of-restarts energy differs from that of lloyd+relax by more than $10^{-6}$ relative; either sign is reported, since it would be a statement about optimisers of one function; (C3c) the fraction of Lloyd fixed points that are not single-move stable is reported. \emph{Results} (Table~\ref{tab:e3}, Figure~\ref{fig:energies}, full table in Appendix~\ref{app:table}): all \EthreeVoronoiRelax/\EthreeRunsRelax{} relaxation and \EthreeVoronoiAnneal/\EthreeRunsAnneal{} annealing fixed points are Voronoi-stable (C3a). Under C3b, \EthreeDistinguishable{} of \EthreeConfigs{} configurations are distinguishable: in \EthreeRelaxBetter{} the relaxation found a lower best energy than lloyd+relax and in \EthreeLloydRelaxBetter{} the reverse, with largest relative difference $\EthreeMaxAbsDiff$; whenever the two best energies agree the best partitions coincide (ARI $=1$; \EthreeAgreeButDifferent{} exceptions), and overall ARI $=1$ in \EthreeAriOne/\EthreeConfigs. The relaxation reaches $E^*$ in \EthreeReachRelax{} configurations, lloyd+relax in \EthreeReachLloydRelax, Lloyd alone in \EthreeReachLloyd, and Lloyd on the naive shift in \EthreeReachNaive; the median relative excess over restarts (median across configurations) is $\EthreeMedianExcessRelax$, $\EthreeMedianExcessLloydRelax$, $\EthreeMedianExcessLloyd$ and $\EthreeMedianExcessNaive$ respectively. Only \EthreeLloydHartiganPct\% of Lloyd fixed points on the canonical kernel are single-move stable, and \EthreeNaiveHartiganPct\% on the naive shift (C3c). The best energies were recomputed spring by spring with a worst discrepancy of $\EthreeDirectCheck$.
 
 \begin{table}[t]
 \centering\scriptsize
@@ -295,7 +296,7 @@ potential & relax & lloyd+relax & lloyd & naive & relax & lloyd+relax & lloyd & 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.9\linewidth]{../figures/partitions.pdf}
-\caption{Best partitions found by spring relaxation on the synthetic sets for Hooke and saturating springs. Each is, by Theorem~\ref{thm:main}, a kernel $k$-means optimum of the linear and Gaussian kernels respectively, with the same value; the figure illustrates the family, it does not evaluate it.}
+\caption{Best partitions found by spring relaxation on the synthetic sets for Hooke and saturating springs. Each is, by Theorem~\ref{thm:main}, a kernel $k$-means fixed point of the linear and Gaussian kernels respectively, with the same value; the figure illustrates the family, it does not evaluate it. On blobs the saturating spring isolates a dense core of one blob: with the data-derived scale $\ell$ (seventh-neighbour distance) that is what the Gaussian-kernel objective rewards, and it is a property of the objective at that scale, not of the mechanical formulation or of the optimiser.}
 \label{fig:partitions}
 \end{figure}
 
@@ -303,9 +304,11 @@ potential & relax & lloyd+relax & lloyd & naive & relax & lloyd+relax & lloyd & 
 
 \section{What can be claimed}\label{sec:claims}
 
-\begin{table}[h]
+Table~\ref{tab:claims} collects the claims of the note with their status; it is the deliverable the research line asked for, since it separates what closes the screening by proof from what was only measured.
+
+\begin{table}[H]
 \centering\small
-\begin{tabular}{p{0.70\linewidth}l}
+\begin{tabular}{p{0.66\linewidth}p{0.29\linewidth}}
 \toprule
 claim & status\\
 \midrule
@@ -348,7 +351,7 @@ Any statement about clustering quality on real data & not addressed\\
 \paragraph{E4.} Integer coordinates drawn uniformly in $\{0,\dots,10\}^2$ with the master seed (repeated until distinct); the design matrix has one column per pair and one for the constant; the normal equations are solved by exact Gaussian elimination over $\Q$.
 
 \section{E3 per configuration}\label{app:table}
-\begin{table}[h]
+\begin{table}[H]
 \centering\scriptsize
 \setlength{\tabcolsep}{3pt}
 \begin{tabular}{llrrrrrrrrrrr}

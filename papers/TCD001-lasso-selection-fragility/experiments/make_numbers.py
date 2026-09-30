@@ -77,6 +77,8 @@ for key, tag in [("D", "D"), ("D\\R", "DR"), ("D\\R'", "DRp")]:
     c = a["inactive_c"]
     mac(f"ExTwo{tag}C", ", ".join(rf"c_{{{int(k)+1}}}={frac_tex(v)}" for k, v in c.items()) if c else "--")
     mg = a["marginal_xy"]
+    for k, v in c.items():
+        mac(f"ExTwo{tag}CVal{'One' if int(k) == 0 else 'Two'}", frac_tex(v))
     mac(f"ExTwo{tag}MargOne", frac_tex(mg["0"]))
     mac(f"ExTwo{tag}MargTwo", frac_tex(mg["1"]))
 # matrix rows for the example

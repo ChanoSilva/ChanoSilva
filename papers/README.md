@@ -8,7 +8,7 @@ Avances de líneas de investigación de Luciano Silva Alarco (PUCP) producidos e
 | `SPD001-support-geometry-knn/` | SPD001 | Geometría del soporte y vecinos cercanos | Borrador v0.1 (12 pp.): comparación aislante con criterio predefinido, **resultado negativo** (0/8 victorias); propuesta de cierre |
 | `LMI001-mechanical-clustering/` | LMI001 | Analogías mecánicas para agrupamiento | Teorema de equivalencia (ver su README) |
 | `TCD001-lasso-selection-fragility/` | TCD001 | Fragilidad de la selección con Lasso | Testigos de remoción y estabilidad (ver su README) |
-| `SGE001-frontier-aggregation/` | SGE001 | Agregación dinámica de fronteras productivas | Cotas de agregación y simulación (ver su README) |
+| `SGE001-frontier-aggregation/` | SGE001 | Agregación dinámica de fronteras productivas | Borrador v0.1 (15 pp.): identidades y cotas de resto en régimen suave, fallo demostrado del segundo orden en cruces de capacidad (E₂ = −N·T_u), condición de margen para comparaciones; criterio predefinido de mejora 5× no se cumple en general |
 | `RTK001-recursive-knots/` | RTK001 | Geometría de nudos recursivos | Cotas de longitud de cuerda (ver su README) |
 | `HQF001-resolution-fields-abstention/` | HQF001 | Resolución local e incertidumbre | Comparación controlada (ver su README) |
 | `EQO001-equilibrium-welfare/` | EQO001 | Operadores de equilibrio y bienestar | Nota v0.1 (13 pp.): qué es y qué no es teorema; problemas abiertos |

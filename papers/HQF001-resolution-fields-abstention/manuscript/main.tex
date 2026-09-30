@@ -13,6 +13,7 @@
 \usepackage{enumitem}
 \usepackage{array}
 \usepackage{caption}
+\usepackage{placeins}
 \captionsetup{font=small,labelfont=bf}
 
 \IfFileExists{numbers.tex}{\input{numbers.tex}}{}
@@ -82,7 +83,14 @@ s_{\mathrm{anis}}(x)=-\log\frac{\lambda_{\max}(S(x))}{\lambda_{\min}(S(x))}.
 \]
 \end{definition}
 
-The margin is the distance to the local decision boundary between the two nearest prototypes, measured in resolution units. The log-volume is a pure density proxy (a large ellipsoid means sparse data, hence low resolution); the anisotropy score ranks elongated neighbourhoods as less certain. Two ablations isolate the geometry: the \emph{isotropic field} sets $\alpha=1$, so $A(x)=\tau(x)^{-1}I$ and the margin is the Euclidean margin in units of the local scale; the \emph{Euclidean field} sets $A(x)=I$, which is nearest-local-centroid classification. A further variant keeps $A(x)$ but uses the global class means as prototypes. The shrinkage towards a scaled identity is the standard device for neighbourhood covariances in moderate dimension~\citep{ledoit2004}; $\alpha$ and $K_m$ are tuned.
+The margin is the distance to the local decision boundary between the two nearest prototypes, measured in resolution units. The log-volume is a pure density proxy (a large ellipsoid means sparse data, hence low resolution); the anisotropy score ranks elongated neighbourhoods as less certain. Two ablations isolate the geometry: the \emph{isotropic field} sets $\alpha=1$, so $A(x)=\tau(x)^{-1}I$ and the margin is the Euclidean margin in units of the local scale; the \emph{Euclidean field} sets $A(x)=I$, which is nearest-local-centroid classification. A further variant keeps $A(x)$ but uses the global class means as prototypes. The shrinkage towards a scaled identity is the standard device for neighbourhood covariances in moderate dimension~\citep{ledoit2004}; $\alpha$ and $K_m$ are tuned. Figure~\ref{fig:moons} shows the estimated ellipsoids on one of the synthetic problems of Section~\ref{sec:protocol}.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.46\linewidth]{../figures/fig_field_moons.pdf}
+\caption{Resolution ellipsoids ($K_m=40$, $\alpha=0.2$, drawn at $0.6$ standard deviations, projected on the two informative coordinates) on a grid of query points of moons-aniso. Along the moons the ellipses follow the local orientation of the data; away from them they inflate.}
+\label{fig:moons}
+\end{figure}
 
 \subsection{References}
 
@@ -288,20 +296,14 @@ dataset & best ref. & 100 & 90 & 80 & 100 & 90 & 80 & 100 & 90 & 80\\
 \label{tab:acc}
 \end{table}
 
-Figure~\ref{fig:rc} and Table~\ref{tab:acc} show the same picture at fixed coverage. On \AccGapBigN{} datasets (\AccGapBigList) the field's classifier is already less accurate than the best reference at full coverage, by \AccGapIris{} (iris), \AccGapBc{} (breast-cancer), \AccGapSinfo{} (synth-informative), \AccGapMoons{} (moons-aniso) and \AccGapSlda{} (synth-lda) percentage points, so part of the AURC gap is a weaker classifier rather than a weaker ranking. On digits the field is slightly \emph{more} accurate than DANN at full coverage (\AccDigitsFaniso\% against \AccDigitsDann\%) yet behind at 90\% coverage (\AccNinetyDigitsFaniso\% against \AccNinetyDigitsDann\%), so there the ranking is the weaker part; the two effects cancel in the AURC. The hyper-parameters selected for the anisotropic field over all \AlphaTotal{} dataset--fold pairs were $\alpha=0.05$ in \AlphaFracLow\% of the cases, $\alpha=0.2$ in \AlphaFracMid\% and $\alpha=0.5$ in \AlphaFracHigh\%; $K_m=20$ in \KmFracTwenty\%, $40$ in \KmFracForty\% and $80$ in \KmFracEighty\%: the tuning prefers the strongest shrinkage on offer, i.e.\ a mildly anisotropic field. Figure~\ref{fig:moons} illustrates the estimated ellipsoids on moons-aniso.
+Figure~\ref{fig:rc} and Table~\ref{tab:acc} show the same picture at fixed coverage. On \AccGapBigN{} datasets (\AccGapBigList) the field's classifier is already less accurate than the best reference at full coverage, by \AccGapIris{} (iris), \AccGapBc{} (breast-cancer), \AccGapSinfo{} (synth-informative), \AccGapMoons{} (moons-aniso) and \AccGapSlda{} (synth-lda) percentage points, so part of the AURC gap is a weaker classifier rather than a weaker ranking. On digits the field is slightly \emph{more} accurate than DANN at full coverage (\AccDigitsFaniso\% against \AccDigitsDann\%) yet behind at 90\% coverage (\AccNinetyDigitsFaniso\% against \AccNinetyDigitsDann\%), so there the ranking is the weaker part; the two effects cancel in the AURC. The hyper-parameters selected for the anisotropic field over all \AlphaTotal{} dataset--fold pairs were $\alpha=0.05$ in \AlphaFracLow\% of the cases, $\alpha=0.2$ in \AlphaFracMid\% and $\alpha=0.5$ in \AlphaFracHigh\%; $K_m=20$ in \KmFracTwenty\%, $40$ in \KmFracForty\% and $80$ in \KmFracEighty\%: the tuning prefers the strongest shrinkage on offer, i.e.\ a mildly anisotropic field.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.5\linewidth]{../figures/fig_field_moons.pdf}
-\caption{Resolution ellipsoids ($K_m=40$, $\alpha=0.2$, drawn at $0.6$ standard deviations, projected on the two informative coordinates) on a grid of query points of moons-aniso. Along the moons the ellipses follow the local orientation of the data; away from them they inflate.}
-\label{fig:moons}
-\end{figure}
 
 \section{What can be claimed}\label{sec:claims}
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering\small
-\begin{tabular}{p{0.66\linewidth}p{0.28\linewidth}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.66\linewidth}>{\raggedright\arraybackslash}p{0.28\linewidth}}
 \toprule
 claim & status\\
 \midrule
@@ -339,6 +341,7 @@ Table~\ref{tab:claims} lists the claims with their status. The main one is negat
 
 \paragraph{Datasets.} Standardisation is fitted on each training fold; digits is projected on 20 principal components fitted on the training fold. Synthetic generators are in \path{make_datasets}; the class-mean separation of synth-classcov and synth-lda is found by 40 bisection steps on a Monte-Carlo estimate ($40\,000$ points) of the Bayes error.
 
+\FloatBarrier
 \bibliographystyle{plainnat}
 \bibliography{refs}
 \end{document}
