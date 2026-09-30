@@ -23,15 +23,15 @@ No se encontró ningún manuscrito previo titulado "Foundational Geometry". Se a
 2. Dos scripts de experimentos con semilla fija y salida JSON/Markdown, más `make_numbers.py`, que inyecta cada número del texto como macro LaTeX. Ningún número del paper está escrito a mano.
 3. Este README y esta nota.
 
-## Resultados de referencia (corrida completa, semilla 20260930)
+## Resultados de referencia (corrida completa v0.2, semilla 20260930; E1–E4 en 1201 s, E5 en 149 s con contención de CPU)
 - E1 (aritmética exacta int64, rejilla 2^30): 0 instancias de betweenness y 0 de congruencia en 4000 configuraciones aleatorias (n ∈ {5,10,20,50}, d ∈ {2,3}); rejillas enteras 3×3/4×4/5×5: 8/44/152 betweenness y 138/976/4242 congruencias.
-- E2 (MDS no métrico sobre rangos + Procrustes): disparidad mediana en el plano 8.6e-3 (n=8) → 2.7e-8 (n=256); en el espacio 4.3e-2 (n=8) → 2.2e-7 (n=128). E2b: distorsión monótona D^p deja idéntica la reconstrucción ordinal y cambia la métrica (disparidad mediana 0.045).
+- E2 (MDS no métrico sobre rangos, tolerancia 1e-13, + Procrustes): disparidad mediana en el plano 8.2e-3 (n=8) → 2.1e-10 (n=256), 7.6 órdenes de magnitud; en el espacio 4.2e-2 (n=8) → 4.1e-9 (n=128). Exponentes locales entre duplicaciones: 6.7 → 3.0 (no hay una ley de potencia única). Discordancia de Kendall entre el orden de entrada y el de la salida: 2.1e-2 (n=8) → 4.3e-6 (n=256): la reconstrucción está solo aproximadamente en la clase. E2b: la identidad de las reconstrucciones ordinales bajo D^p es tautológica (mismo rango de entrada); la métrica cambia (disparidad mediana 0.045).
 - E3: en la recta, 4 puntos realizan 120 de los 720 órdenes de sus 6 distancias; en el plano y el espacio, los 720. Ejemplos: {0,1,3} vs {0,1,2.5}; triángulos (3,4,5) vs (3,4,6).
-- E4 (300 ensayos, n=30): MST, grafo k-NN, grafo de vecindad relativa y par diametral invariantes bajo distorsión monótona (fracción 1.00); diámetro (0.00), dimensión afín (0.35) y grafo de Gabriel (0.03) no.
+- E4 (300 ensayos, n=30): MST, grafo k-NN, grafo de vecindad relativa y par diametral invariantes bajo distorsión monótona de la matriz de distancias (fracción 1.00); diámetro (0.00), dimensión afín (0.35, esencialmente la probabilidad de que p∈(1,2)) y grafo de Gabriel (0.03) no. E4b: testigos exactos de no ordinalidad sobre Coord (colineal perturbado: mismo patrón, dimensiones 1 y 2; triángulo rectángulo perturbado: mismo patrón, arista de Gabriel presente/ausente).
 - E5a: 200/200 reparametrizaciones conformes (que cambian los tiempos propios en una mediana del 23%) y 200/200 boosts preservan el orden; la rotación euclidiana cambia la relación de ~20% de los pares.
 - E5b: fracción de pares comparables 0.499/0.230/0.101 frente a 0.500/0.229/0.100 esperado (D=2,3,4); estimación de dimensión 2.00±0.05, 3.00±0.09, 4.00±0.14.
 - E5c: correlación L–τ 0.967 (n=250) → 0.990 (n=2000); pendiente L/(√n τ) 1.73 → 1.85 (límite 2); error relativo mediano de τ̂ (τ>1/4) 14% → 8% frente a τ, pero 23% → 17% frente al τ' de la configuración reparametrizada (el conteo fija el factor conforme).
-- E5d: RMSE de coordenadas 0.073 (n=250) → 0.031 (n=2000); RMSE·√n entre 1.15 y 1.40; desacuerdo de orden 7.7% → 3.7%.
+- E5d: RMSE de coordenadas 0.073 (n=250) → 0.031 (n=2000), aproximadamente n^-0.39 (más lento que n^-1/2 por el mal condicionamiento de las raíces cerca de u=v); desacuerdo de comparabilidad 7.6% → 3.7%.
 
 ## Revisión arbitral interna (30/09/2026, misma sesión)
 Un subagente revisor independiente leyó el borrador v0.1 completo (texto, código y resultados) y produjo 18 hallazgos. Todos se atendieron en la revisión v0.2:
