@@ -29,7 +29,7 @@ Línea RTK001, "Geometría de nudos recursivos" / "Geometry of recursive knots",
 - **Paso de gradiente opcional.** No se hizo (presupuesto de tiempo); queda como pendiente explícito.
 - **Idioma.** Manuscrito en inglés; README, nota de continuidad y ficha en español.
 
-## Resultados de referencia (corrida completa, 281 s de pared en núcleos compartidos)
+## Resultados de referencia (corrida completa, 278 s de pared en núcleos compartidos)
 - (2,3), f = 1/2: L = 15.949 / 32.349 / 64.730, τ = 0.4158 / 0.2079 / 0.1040, L/τ = 38.4 / 155.6 / 622.7 en d = 1 / 2 / 3; cociente por nivel 4.06 y 4.00.
 - (2,3), f = 0.25: L/τ = 53.8 / 430.6 / 3444.6; f = 0.35: 40.8 / 233.5 / 1334.6; f = 0.6 (fuera de la hipótesis r ≤ τ/2): 50.9 / 255.6 / 852.1.
 - (3,2), f = 1/2: 47.7 / 331.4 / 2296.5; (2,5), f = 1/2: 72.4 / 291.4 / 1166.2.
