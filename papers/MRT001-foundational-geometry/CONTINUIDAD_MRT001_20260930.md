@@ -54,6 +54,11 @@ Un subagente revisor independiente leyó el borrador v0.1 completo (texto, códi
 17. Fórmula de Myrheim–Meyer escrita como Γ(D+1)Γ(D/2)/(2Γ(3D/2)) y explicada como el doble del cociente ⟨R⟩/N².
 18. Bibliografía: Klein citado como 1872 (con nota de la reimpresión de 1893); eslogan "orden + número" atribuido a Sorkin; Kronheimer–Penrose y Dushnik–Miller ahora citados.
 
+## Añadido tras la revisión (v0.3): medición directa de la clase ordinal (E2c)
+- Nueva Proposición (radio inscrito de la clase ordinal): si g(X) es la brecha mínima entre distancias consecutivas ordenadas, toda perturbación de cada punto menor que g/4 conserva el patrón; con pares extremos disjuntos, un desplazamiento explícito de g/4 produce un empate. Radio inscrito en [g/4, g/2], igual a g/4 en el caso disjunto. Demostración elemental (desigualdad triangular).
+- Script `experiments/ordinal_class.py`: verifica ambas partes numéricamente, mide g(X) frente a n (escala ~n^-3.7, coherente con el espaciamiento mínimo entre ~n²/2 valores: ~n^-4) y corre un paseo aleatorio restringido a la clase que da una cota inferior del radio en disparidad de Procrustes (~n^-8). En n=64 esa cota es dos órdenes de magnitud menor que la disparidad a la que se detuvo el solver de E2: el residuo del solver es pertenencia aproximada, no tamaño de clase.
+- Pendiente teórico: demostrar la ley n^-4 de la brecha mínima y una cota superior del diámetro de la clase.
+
 ## Decisiones tomadas
 - Objetos etiquetados en todos los formalismos (sin cociente por reetiquetado), para mantener las demostraciones elementales.
 - E1 con aritmética exacta y no con tolerancia flotante: la tolerancia 1e-9 produce ~1 triple espurio por configuración en n=50 (la brecha de betweenness es cuadrática en la distancia a la recta). Se menciona en el texto como advertencia metodológica.
