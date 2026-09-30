@@ -8,8 +8,8 @@ Criterio de triaje: una línea es **tractable aquí** si su siguiente paso es un
 
 | Código | Línea | Avance | Carpeta |
 |---|---|---|---|
-| MRT001 | Invariantes y fundamentos geométricos | Manuscrito v0.3 (17 pp.), 3 proposiciones nuevas, 6 familias de experimentos, dos rondas de revisión interna | `MRT001-foundational-geometry/` |
-| SPD001 | Geometría del soporte y vecinos cercanos | Comparación aislante pendiente, con criterio predefinido | `SPD001-support-geometry-knn/` |
+| MRT001 | Invariantes y fundamentos geométricos | Manuscrito v0.4 (18 pp.), 5 proposiciones nuevas, 6 familias de experimentos (E1–E5e), dos rondas de revisión interna aplicadas | `MRT001-foundational-geometry/` |
+| SPD001 | Geometría del soporte y vecinos cercanos | **Hecho:** comparación aislante con criterio predefinido (5/8 exigidas), resultado negativo 0/8; HKNN = combinación exacta de ortogonal + tangencial (demostrado); propuesta de cierre de la línea | `SPD001-support-geometry-knn/` |
 | LMI001 | Analogías mecánicas para agrupamiento | Teorema de equivalencia con k-means kernelizado que explica el cribado nulo | `LMI001-mechanical-clustering/` |
 | TCD001 | Fragilidad de la selección con Lasso | Definición de testigos de remoción, condición de estabilidad, cómputo exacto en instancias pequeñas | `TCD001-lasso-selection-fragility/` |
 | SGE001 | Agregación dinámica de fronteras productivas | Cota de error de segundo orden, contraejemplo en umbrales, simulación jerárquica | `SGE001-frontier-aggregation/` |
