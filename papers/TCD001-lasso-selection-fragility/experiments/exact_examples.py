@@ -131,6 +131,19 @@ def main():
     res["example1"] = dict(X=X1.astype(int).tolist(), y=y1.astype(int).tolist(), mu="3/2", R=[0], Rp=[0, 1], analysis=ex1)
     print("Example 1 verified exactly under both rules.")
 
+    # ---------------- Example 1b: p = 1, non-monotone pair for the 'enter' target ----------------
+    # x = (1,1,1,1), y = (2,-2,2,-2), mu = 3/2: not selected on D (x^T y = 0); enters after removing
+    # observation 2 (x^T y = 2); not selected after removing {2,3} (x^T y = 0). Both rules.
+    X1b = np.ones((4, 1))
+    y1b = np.array([2.0, -2.0, 2.0, -2.0])
+    ex1b = {}
+    for rule in ["C", "P"]:
+        ex1b[rule] = analyse_example(X1b, y1b, F(3, 2), (1,), (1, 2), rule)
+        assert ex1b[rule][0]["support"] == [] and ex1b[rule][1]["support"] == [0] and ex1b[rule][2]["support"] == []
+        assert all(e["exact_ok"] for e in ex1b[rule])
+    res["example1b"] = dict(X=X1b.astype(int).tolist(), y=y1b.astype(int).tolist(), mu="3/2", R=[1], Rp=[1, 2], analysis=ex1b)
+    print("Example 1b (enter) verified exactly under both rules.")
+
     # ---------------- Example 2: p = 2, seeded search ----------------
     rng = np.random.default_rng(SEED)
     n, p = 5, 2
@@ -234,6 +247,9 @@ def main():
          "## Example 1 (p = 1)", "", f"x = {X1[:,0].astype(int).tolist()}, y = {y1.astype(int).tolist()}, mu = 3/2, R = {{1}}, R' = {{1,2}} (1-based).", ""]
     for rule in ["C", "P"]:
         L.append(f"Rule {rule}: " + "; ".join(f"{e['name']}: mu={e['mu']}, support={e['support']}, exact={e['exact_ok']}" for e in ex1[rule]))
+    L += ["", "## Example 1b (p = 1, enter target)", "", f"x = {X1b[:,0].astype(int).tolist()}, y = {y1b.astype(int).tolist()}, mu = 3/2, R = {{2}}, R' = {{2,3}} (1-based).", ""]
+    for rule in ["C", "P"]:
+        L.append(f"Rule {rule}: " + "; ".join(f"{e['name']}: mu={e['mu']}, support={e['support']}, exact={e['exact_ok']}" for e in ex1b[rule]))
     f2 = res["example2"]
     L += ["", "## Example 2 (p = 2, integer data, found by seeded search)", "",
           f"X = {f2['X']}, y = {f2['y']}, mu = {f2['mu']}, R = {[i+1 for i in f2['R']]}, R' = {[i+1 for i in f2['Rp']]} (1-based).", "",

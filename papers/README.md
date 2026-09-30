@@ -10,7 +10,7 @@ Avances de líneas de investigación de Luciano Silva Alarco (PUCP) producidos e
 | `TCD001-lasso-selection-fragility/` | TCD001 | Fragilidad de la selección con Lasso | Testigos de remoción y estabilidad (ver su README) |
 | `SGE001-frontier-aggregation/` | SGE001 | Agregación dinámica de fronteras productivas | Borrador v0.1 (15 pp.): identidades y cotas de resto en régimen suave, fallo demostrado del segundo orden en cruces de capacidad (E₂ = −N·T_u), condición de margen para comparaciones; criterio predefinido de mejora 5× no se cumple en general |
 | `RTK001-recursive-knots/` | RTK001 | Geometría de nudos recursivos | Cotas de longitud de cuerda (ver su README) |
-| `HQF001-resolution-fields-abstention/` | HQF001 | Resolución local e incertidumbre | Comparación controlada (ver su README) |
+| `HQF001-resolution-fields-abstention/` | HQF001 | Resolución local e incertidumbre | Borrador v0.1 (11 pp.): comparación controlada de clasificación selectiva con criterio predefinido, **resultado negativo** (0/8 mejor, 6/8 peor); proposición exacta que aísla qué podría aportar la anisotropía; propuesta de cierre |
 | `EQO001-equilibrium-welfare/` | EQO001 | Operadores de equilibrio y bienestar | Nota v0.1 (13 pp.): qué es y qué no es teorema; problemas abiertos |
 | `SVMF001-boundary-families/` | SVMF001 | Familias de fronteras de clasificación | Comparación controlada (ver su README) |
 | `OMR001-transferable-corrections/` | OMR001 | Correcciones transferibles | Nota v0.1 (14 pp.): qué puede y qué no puede garantizarse; cota explícita de no-daño para la reversión validada (es una garantía de selección, no del operador); simulación con 345 configuraciones |

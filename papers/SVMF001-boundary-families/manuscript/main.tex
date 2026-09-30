@@ -272,13 +272,15 @@ data set & linear & RBF & best global & kNN-SVM & cell-SVM & VB-RBF & LLSVM\\
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lllll}
 \toprule
 data set & kNN-SVM & cell-SVM & VB-RBF-SVM & LLSVM\\
 \midrule
 \input{table_diff_main.tex}\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
+
 \caption{Main condition: mean paired difference in accuracy (percentage points, family minus best global reference) with percentile bootstrap 95\% interval over \NMainFolds{} folds; $^{+}$/$^{-}$ marks an interval entirely above/below zero.}
 \label{tab:diff}
 \end{table}
@@ -304,13 +306,15 @@ The three local \emph{linear} families (kNN-SVM, cell-SVM, LLSVM) are never sign
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lrllll}
 \toprule
 data set & oracle acc.\ (\%) & kNN-SVM & cell-SVM & VB-RBF-SVM & LLSVM\\
 \midrule
 \input{table_posthoc_main.tex}\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
+
 \caption{\textbf{Post hoc} (defined after the main results were seen): paired differences against the oracle best global reference, $\max(\text{linear},\text{RBF})$ test accuracy in each fold, main condition.}
 \label{tab:posthoc}
 \end{table}
@@ -352,6 +356,7 @@ method & acc. & acc. & drop & acc. & drop\\
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lllll}
 \toprule
 data set & kNN-SVM & cell-SVM & VB-RBF-SVM & LLSVM\\
@@ -362,7 +367,8 @@ data set & kNN-SVM & cell-SVM & VB-RBF-SVM & LLSVM\\
 \multicolumn{5}{l}{\emph{sub\SubFrac}}\\
 \input{table_diff_sub25.tex}\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
+
 \caption{Robustness conditions: paired differences against the best global reference (percentage points) with bootstrap 95\% intervals over \NRobFolds{} folds.}
 \label{tab:diffrobust}
 \end{table}

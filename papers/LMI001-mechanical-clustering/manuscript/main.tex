@@ -254,7 +254,8 @@ dataset & $n$ & dimension & $k$\\
 \paragraph{E1: identical objective values.} \emph{Criterion (predefined):} for every tested partition and every potential, $|E_\spec-(\tfrac12J_{K'}+\mathrm{const})|\le10^{-9}\max(1,|E_\spec|)$ with the constant of Theorem~\ref{thm:main}, for the three representatives $K'\in\{-A,\;-A+\sigma I,\;\widetilde K\}$; pass means $100\%$. The partitions are \EoneRandomPartitions{} uniformly random ones per configuration, the outputs of kernel $k$-means and of the relaxation, and the ground-truth labels. \emph{Result:} \EonePassed/\EoneChecks{} checks passed, worst relative error $\EoneMaxRelErr$ (the largest errors occur with the shifted representative, where $\sigma$ is up to $10^4$ and the identity involves cancellation); the Hooke energy equals the $k$-means SSE to $\EoneHookeSSEErr$. On equal-size partitions $E_\tot=(n/k)E_\spec$ to $\EoneEqualSizeErr$, while on random partitions the ratio $E_\tot/E_\spec$ ranges over $[\EoneRatioMin,\EoneRatioMax]$: the normalisation is a genuine choice. Table~\ref{tab:e1} also reports the spectrum of $\widetilde K$: for the \EoneCndConfigs{} configurations with a potential of negative type it is PSD in \EoneCndPsd{} (numerically, $\lambda_{\min}/\lambda_{\max}\ge-\EoneCndWorstRatio$), and for the rest-length potential it is indefinite in \EoneRestIndefinite/\EoneRestConfigs.
 
 \begin{table}[t]
-\centering\small
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lcrrcc}
 \toprule
 potential & negative type & partitions & max rel.\ error & $\min\lambda_{\min}(\widetilde K)/\lambda_{\max}(\widetilde K)$ & $\widetilde K$ PSD\\
@@ -272,7 +273,7 @@ potential & negative type & partitions & max rel.\ error & $\min\lambda_{\min}(\
 
 \begin{table}[t]
 \centering\scriptsize
-\setlength{\tabcolsep}{3.5pt}
+\setlength{\tabcolsep}{2.4pt}
 \begin{tabular}{lcccccccccc}
 \toprule
  & \multicolumn{4}{c}{configurations reaching $E^*$ (of 5)} & \multicolumn{3}{c}{restarts reaching $E^*$ (\%)} & Voronoi- & Lloyd f.p. & best\\
@@ -353,7 +354,7 @@ Any statement about clustering quality on real data & not addressed\\
 \section{E3 per configuration}\label{app:table}
 \begin{table}[H]
 \centering\scriptsize
-\setlength{\tabcolsep}{3pt}
+\setlength{\tabcolsep}{1.8pt}
 \begin{tabular}{llrrrrrrrrrrr}
 \toprule
  & & & \multicolumn{4}{c}{best relative excess over $E^*$} & \multicolumn{3}{c}{fraction reaching $E^*$} & Vor. & 1-move & ARI\\
