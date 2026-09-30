@@ -80,8 +80,10 @@ with open(os.path.join(OUT, "table_e1.tex"), "w") as fh:
         ratio = [c["lam_min_cnd_kernel"] / c["lam_max_cnd_kernel"] for c in cc]
         psd = sum(c["cnd_kernel_psd"] for c in cc)
         lam_naive = min(r["lam_min_K"] for r in rr)
+        GE = r"$\ge 0$"
+        ratio_cell = sci(min(ratio)) if min(ratio) < 0 else GE
         rows.append(f"{POT_TEX[p]} & {'yes' if cc[0]['cnd_label'] else 'no'} & {sum(r['partitions'] for r in rr)} & "
-                    f"{sci(worst)} & {sci(min(ratio)) if min(ratio) < 0 else '$\\ge 0$'} & {psd}/{len(cc)}")
+                    f"{sci(worst)} & {ratio_cell} & {psd}/{len(cc)}")
     fh.write(" \\\\\n".join(rows) + "\n")
 
 # ---- E2 ----

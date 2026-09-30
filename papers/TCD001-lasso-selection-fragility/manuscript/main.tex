@@ -267,7 +267,7 @@ On four $(n,p)$ cells, \EoneReps{} instances each ($b=2$, $\rho=0.3$, $c=1$), Pr
 \toprule
 $n$ & $p$ & rule & tests & agreements & preserved & max coef.\ diff.\\
 \midrule
-\input{table_e1.tex}
+\input{table_e1.tex}\\
 \bottomrule
 \end{tabular}
 \caption{E1. Single removals: Proposition~\ref{prop:exact} against a refit, for every observation of \EoneReps{} instances per cell. ``Preserved'' counts removals that keep the signed support; the last column is the maximal difference between the closed-form coefficients and the refit over those cases.}
@@ -280,7 +280,7 @@ $n$ & $p$ & rule & tests & agreements & preserved & max coef.\ diff.\\
 \toprule
 $n$ & $p$ & instances & stable single removals & certified (Cor.~\ref{cor:single}) & coverage & $P(f=1)$ & $P(k^\ast\ge1\mid f\ge2)$ & mean $f-1-k^\ast$\\
 \midrule
-\input{table_e1b.tex}
+\input{table_e1b.tex}\\
 \bottomrule
 \end{tabular}
 \caption{E1. Coverage of the sufficient condition of Corollary~\ref{cor:single} among removals that are exactly stable, and tightness of the certificate of Proposition~\ref{prop:cert} against the exact signed fragility number $f$ (rule C; exact search capped at $|R|\le6$, and $f$ counted as $7$ when not found).}
@@ -297,7 +297,7 @@ Table~\ref{tab:e2} gives, for \EtwoReps{} instances per cell, the distribution o
 \toprule
 fam. & $n$ & mean $|S|$ & $S=S^\ast$ & $f$ dist.\ C ($1/2/3/4/5/{\ge}6$) & mean C & $P(f{=}1)$ C & mean P & $P(f{=}1)$ P & types C & $f_{\textsc{leave}}$ (n.f.) & $f_{\textsc{enter}}$ (n.f.)\\
 \midrule
-\input{table_e2.tex}
+\input{table_e2.tex}\\
 \bottomrule
 \end{tabular}
 \caption{E2. Exact signed fragility number for \textsc{any} (rules C and P), \EtwoReps{} instances per cell. ``Types'' counts leave/enter/swap/sign-only among up to 20 minimal witnesses per instance (rule C). The last two columns are mean targeted fragility numbers under rule C with the number of instances not concluded within $|R|\le\EtwoKmax$ in parentheses.}
@@ -313,7 +313,7 @@ Three heuristics were run on the same instances (rule C): \emph{one-step greedy}
 \toprule
 fam. & target & heuristic & $n$ & exact & $n$ ($f\ge2$) & exact ($f\ge2$) & median cost ratio & advantage\\
 \midrule
-\input{table_e3.tex}
+\input{table_e3.tex}\\
 \bottomrule
 \end{tabular}
 \caption{E3. Heuristics against the exact minimum, pooled over $n\in\{8,10,12,14\}$, rule C. ``Exact'' is the fraction of instances (with finite exact $f$ within the cap) in which the heuristic's witness has minimal size; ``cost ratio'' is heuristic time over exhaustive-search time. The verdict applies the criterion fixed before the run (exact $\ge\EthreeCritExact\%$ and median cost ratio $\le\EthreeCritCost\%$).}
@@ -330,7 +330,7 @@ With the closed-form test the exhaustive search for signed \textsc{any} extends 
 \toprule
 fam. & $n$ & inst. & $S=S^\ast$ & $f$ dist.\ ($1/\dots/6/$n.f.) & median & mean & $P(f{=}1)$ & median P & one-step exact & sorted exact & $k^\ast$ mean & time (s) & cost ratio\\
 \midrule
-\input{table_e4.tex}
+\input{table_e4.tex}\\
 \bottomrule
 \end{tabular}
 \caption{E4. Exact signed fragility number for \textsc{any} by exhaustive search with Proposition~\ref{prop:exact}, $|R|\le\EfourKmax$ (rule C unless marked P). ``One-step exact'' and ``sorted exact'' are the fractions of instances in which the heuristic matches the exact minimum; ``time'' is the mean exhaustive-search time and ``cost ratio'' the median one-step-greedy time over it.}
@@ -344,7 +344,7 @@ fam. & $n$ & inst. & $S=S^\ast$ & $f$ dist.\ ($1/\dots/6/$n.f.) & median & mean 
 \toprule
 fam. & $n$ & inst. & $S=S^\ast$ & one-step median [q1, q3] & mean $g/n$ & sorted median & one-step P median & $k^\ast$ median & $P(k^\ast\ge1)$ & mean $(k^\ast{+}1)/g$ & time (s)\\
 \midrule
-\input{table_e4b.tex}
+\input{table_e4b.tex}\\
 \bottomrule
 \end{tabular}
 \caption{E4. Beyond exhaustive reach: greedy upper bounds $g$ on the signed \textsc{any} fragility number and certified lower bounds $k^\ast+1$ (Proposition~\ref{prop:cert}), 40 instances per cell.}
@@ -374,7 +374,7 @@ For every instance of E2 with a finite targeted fragility number, all one-elemen
 \toprule
 fam. & $n$ & \textsc{leave}: instances & re-entry (instances) & re-entry (pairs) & \textsc{any}: instances & restored (instances) & restored (pairs)\\
 \midrule
-\input{table_e5.tex}
+\input{table_e5.tex}\\
 \bottomrule
 \end{tabular}
 \caption{E5. One-element supersets of minimal witnesses (rule C): fraction of instances with at least one non-monotone pair and fraction of superset pairs that are non-monotone.}

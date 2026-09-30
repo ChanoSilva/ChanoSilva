@@ -51,7 +51,6 @@ for row, d in enumerate(["moons_2scale", "checker_2scale"]):
         Z = pred(G).reshape(xx.shape)
         ax.contourf(xx, yy, Z, levels=[-2, 0, 2], colors=["#f4d6d6", "#d6e4f4"], alpha=0.9)
         ax.scatter(Xtr[:, 0], Xtr[:, 1], c=np.where(ytr == 1, "#1b6ca8", "#c0392b"), s=6)
-        acc = f0[mname.lower().replace("-svm", "_svm").replace("vb_rbf_svm", "vb_rbf").replace("rbf_svm", "rbf").replace("knn_svm", "knn_svm")]["acc"] if False else None
         ax.set_title(f"{d} / {mname}\n{lab}", fontsize=8)
         ax.set_xticks([]); ax.set_yticks([])
 fig.tight_layout()

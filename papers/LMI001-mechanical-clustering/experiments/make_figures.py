@@ -70,7 +70,7 @@ def fig_energies():
         ax.set_title(d, loc="left", fontsize=9)
     axes[0].set_ylabel("relative excess energy over $E^*$\n(median: filled; best of restarts: hollow)")
     axes[0].set_yticks([1e-12, 1e-9, 1e-6, 1e-3, 1])
-    axes[0].set_yticklabels([r"$\le 10^{-12}$", r"$10^{-9}$", r"$10^{-6}$", r"$10^{-3}$", "1"])
+    axes[0].set_yticklabels([r"$\leq 10^{-12}$", r"$10^{-9}$", r"$10^{-6}$", r"$10^{-3}$", "1"])
     fig.legend(loc="upper center", ncol=2, bbox_to_anchor=(0.5, 1.02), fontsize=7.5)
     fig.tight_layout(rect=(0, 0, 1, 0.9))
     for ext in ("png", "pdf"):

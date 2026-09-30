@@ -499,8 +499,9 @@ def paired_bootstrap(diff, B, rng):
     return float(diff.mean()), float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
 
 
-def summarise(per_fold, methods, rng, B=2000):
-    """per_fold: dict dataset -> list of fold dicts (method -> metrics)."""
+def summarise(per_fold, methods, rng, B=2000, curves_from=None):
+    """per_fold: dict dataset -> list of fold dicts (method -> metrics).
+    curves_from: an earlier summary whose mean curves are reused when per-fold curves are absent."""
     refs = [m for m, v in methods.items() if v[3] == "reference"]
     summary = {}
     for ds, folds in per_fold.items():
@@ -511,7 +512,10 @@ def summarise(per_fold, methods, rng, B=2000):
             acc = np.array([f[m]["acc"] for f in folds])
             a90 = np.array([f[m]["acc90"] for f in folds])
             a80 = np.array([f[m]["acc80"] for f in folds])
-            curves = np.array([f[m]["curve"] for f in folds])
+            if curves_from is None:
+                curve_mean = np.array([f[m]["curve"] for f in folds]).mean(0).tolist()
+            else:
+                curve_mean = curves_from[ds]["methods"][m]["curve_mean"]
             params = [json.dumps(f[m]["params"], sort_keys=True) for f in folds]
             uniq, cnt = np.unique(params, return_counts=True)
             S["methods"][m] = dict(
@@ -519,7 +523,7 @@ def summarise(per_fold, methods, rng, B=2000):
                 acc_mean=float(acc.mean()), acc_sd=float(acc.std(ddof=1)),
                 acc90_mean=float(a90.mean()), acc80_mean=float(a80.mean()),
                 error_rate=float(1 - acc.mean()),
-                curve_mean=curves.mean(0).tolist(),
+                curve_mean=curve_mean,
                 selected_params={str(u): int(c) for u, c in zip(uniq, cnt)},
             )
             means[m] = float(a.mean())
@@ -542,13 +546,19 @@ def summarise(per_fold, methods, rng, B=2000):
                                wins=int((diff < 0).sum()), losses=int((diff > 0).sum()),
                                verdict=("field better" if hi < 0 else "field worse" if lo > 0 else "inconclusive"))
             S["comparisons"][m] = comp
-        # ablation: aniso vs iso, aniso vs euclid, iso vs euclid
+        # ablation: aniso vs iso, aniso vs euclid, iso vs euclid, ... ; a pair whose second member is a
+        # reference reuses the comparison above (same folds, same bootstrap draw) so that no number is
+        # reported twice with different Monte-Carlo noise
         abl = {}
         for a_, b_ in [("Field-aniso", "Field-iso"), ("Field-aniso", "Field-euclid"), ("Field-iso", "Field-euclid"),
                        ("Field-aniso", "Field-vol"), ("Field-aniso", "Field-anis"), ("Field-aniso", "Field-aniso-gproto"),
                        ("Field-euclid", "NCM"), ("Field-aniso", "LDA"), ("Field-aniso", "kNN"), ("Field-aniso", "DANN")]:
-            diff = np.array([f[a_]["aurc"] - f[b_]["aurc"] for f in folds])
-            mean, lo, hi = paired_bootstrap(diff, B, rng)
+            if b_ in refs:
+                c = S["comparisons"][a_][b_]
+                mean, lo, hi = c["mean_diff"], c["ci_lo"], c["ci_hi"]
+            else:
+                diff = np.array([f[a_]["aurc"] - f[b_]["aurc"] for f in folds])
+                mean, lo, hi = paired_bootstrap(diff, B, rng)
             abl[f"{a_} - {b_}"] = dict(mean_diff=mean, ci_lo=lo, ci_hi=hi,
                                        verdict=("first better" if hi < 0 else "second better" if lo > 0 else "inconclusive"))
         S["ablations"] = abl
@@ -647,7 +657,23 @@ def write_markdown(res, path):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--fast", action="store_true")
+    ap.add_argument("--resummarise", action="store_true",
+                    help="recompute summary/criterion from the per-fold results already in results/results.json")
     args = ap.parse_args()
+    if args.resummarise:
+        path = os.path.join(ROOT, "results", "results.json")
+        old = json.load(open(path))
+        methods = build_methods(False)
+        per_fold = {ds: [{m: dict(f[m]) for m in f} for f in folds] for ds, folds in old["per_fold"].items()}
+        summary, crit = summarise(per_fold, methods, np.random.default_rng(SEED), curves_from=old["summary"])
+        old["summary"], old["criterion"] = summary, crit
+        old["meta"]["resummarised"] = "summary and criterion recomputed from the stored per-fold results with the same seed"
+        with open(path, "w") as fh:
+            json.dump(old, fh, indent=1)
+        write_markdown(old, os.path.join(ROOT, "results", "tables.md"))
+        for f, c in crit.items():
+            print(f"criterion {f}: better {c['better']} worse {c['worse']} inconclusive {c['inconclusive']} -> met={c['criterion_met']}")
+        return
     t0w, t0c = time.time(), time.process_time()
     n_repeats = 2 if args.fast else 3
     n_splits = 5

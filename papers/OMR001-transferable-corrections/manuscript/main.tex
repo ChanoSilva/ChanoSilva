@@ -13,6 +13,10 @@
 \usepackage{enumitem}
 \usepackage{array}
 \usepackage{caption}
+\usepackage[section]{placeins}
+\setcounter{topnumber}{3}\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.95}\renewcommand{\bottomfraction}{0.7}
+\renewcommand{\textfraction}{0.05}\renewcommand{\floatpagefraction}{0.7}
 \captionsetup{font=small,labelfont=bf}
 
 \IfFileExists{numbers.tex}{\input{numbers.tex}}{}
@@ -81,7 +85,7 @@ A task is a parameter $\theta\in\R^d$ together with observations whose law depen
 
 \begin{definition}[Reference, correction, reversion]\label{def:main}
 \begin{enumerate}[leftmargin=2em,label=(\alph*)]
-\item The \emph{reference} estimator is the task-specific mean $R=\bar X_e$; it is unbiased and minimax for $\theta\in\R^d$ (Theorem~\ref{thm:nfl}(a)).
+\item The \emph{reference} estimator is the task-specific mean $R=\bar X_e$; it is unbiased and minimax for $\theta\in\R^d$ (Theorem~\ref{thm:nfl}, part~(a)).
 \item A \emph{correction operator} is an $\mathcal F$-measurable map producing a corrected estimate $C=C(R;D)\in\R^d$. Three instances are used below: the affine shrinkage $C=\hat\mu+\lambda(R-\hat\mu)$ toward a centre $\hat\mu$ estimated from the sources, with $\lambda$ either estimated from the sources (the empirical Bayes rule of \citet{efronmorris1973,efronmorris1975,morris1983}), fixed in advance, or equal to zero (full pooling).
 \item The \emph{held-out check} compares the held-out losses of the two candidates,
 \[
@@ -220,7 +224,7 @@ Limited-translation rules \citep{efronmorris1972} & the reference, coordinate-wi
 SURE selection \citep{stein1981} & either candidate & sign of an unbiased risk-difference estimate; no split & unbiased estimate, no finite-sample selection bound in general\\
 Hold-out / cross-validated selection \citep{devroye1996,arlotcelisse2010} & either candidate & held-out loss difference & regret $O(\text{range}/\sqrt m)$\\
 Source detection in transfer learning \citep{licaili2022} & target-only estimator & data-splitting aggregation on the target & rates under informative sources; protection against non-informative ones\\
-\textbf{Reverting estimator (this note)} & the reference $R$ & one-sided test at level $\alpha$ on $\Dh$ & Theorem~\ref{thm:safe}: harm $\le\min\{\alpha\E\Delta^+,\ \varphi(z)\,2\sigma\E\norm{C-R}/\sqrt m\}$\\
+\textbf{Reverting estimator (this note)} & the reference $R$ & one-sided test at level $\alpha$ on $\Dh$ & Theorem~\ref{thm:safe}: harm $\le\alpha\E\Delta^+$ and $\le\varphi(z)\,2\sigma\E\norm{C-R}/\sqrt m$; harmful event $\le\alpha$\\
 \bottomrule
 \end{tabular}
 \caption{The reverting estimator next to constructs it coincides with or resembles. The first two revert in a different direction or by a different mechanism; the third and fourth are the same construct with a different check; ``negative transfer'' is the name given to $\Delta>0$ in the transfer-learning literature \citep{panyang2010}.}
@@ -249,7 +253,7 @@ $\snr$ & $\lambda^\ast$ & $\bar X_n$ & all data & $\alpha{=}0.5$ & $\alpha{=}0.2
 \input{table_structure.tex}\\
 \bottomrule
 \end{tabular}
-\caption{Structure sweep, EB operator, target drawn from the hierarchy, $m=\Cm$. Risks (mean squared error over $d=\Cd$ coordinates; Monte Carlo standard errors are below $0.001$). $^{\mathrm U}$ marks configurations meeting the predefined criterion U (gain $\ge\CuseThr$ over the full-data reference with 95\% confidence). The reference on the estimation sample has risk $\approx\RefRiskE$ against $\RefRiskN$ for $\bar X_n$.}
+\caption{Structure sweep, EB operator, target drawn from the hierarchy, $m=\Cm$. Risks (mean squared error over $d=\Cd$ coordinates; Monte Carlo standard errors are below \MaxSEStructure). $^{\mathrm U}$ marks configurations meeting the predefined criterion U (gain $\ge\CuseThr$ over the full-data reference with 95\% confidence). The reference on the estimation sample has risk $\approx\RefRiskE$ against $\RefRiskN$ for $\bar X_n$.}
 \label{tab:structure}
 \end{table}
 
@@ -277,7 +281,7 @@ $\kappa$ & $\bar X_n$ & all data & $\alpha{=}0.5$ & $\alpha{=}0.2$ & $\alpha{=}0
 \input{table_departure.tex}\\
 \bottomrule
 \end{tabular}
-\caption{Departure sweep, EB operator, $\snr=\CsnrDep$, target centre shifted by $\kappa\tau$, $m=\Cm$. Risks as in Table~\ref{tab:structure}.}
+\caption{Departure sweep, EB operator, $\snr=\CsnrDep$, target centre shifted by $\kappa\tau$, $m=\Cm$. Risks as in Table~\ref{tab:structure}; Monte Carlo standard errors are below \MaxSEDeparture.}
 \label{tab:departure}
 \end{table}
 
@@ -303,7 +307,7 @@ $m$ & $n_e$ & $\kappa$ & $R$ & $\bar X_n$ & always & rev $0.1$ & gain & excess &
 \input{table_m.tex}\\
 \bottomrule
 \end{tabular}
-\caption{Held-out size, EB operator, $\snr=\CsnrDep$, $\alpha=0.1$, $n=\Cn$ fixed. ``gain'' is relative to $\bar X_n$.}
+\caption{Held-out size, EB operator, $\snr=\CsnrDep$, $\alpha=0.1$, $n=\Cn$ fixed. ``gain'' is relative to $\bar X_n$; Monte Carlo standard errors are below \MaxSEm.}
 \label{tab:m}
 \end{table}
 
@@ -355,20 +359,20 @@ $\alpha$ & $z_{1-\alpha}$ & $\varphi(z_{1-\alpha})$ & $\kappa(\alpha)$ & $u^\ast
 \end{figure}
 
 \paragraph{Results: safety (S).}
-Across all \CnConfigs{} (configuration, operator, $\alpha$) combinations the three bounds hold with the two-standard-error allowance: \SafeAll; the harmful-event frequency bound holds: \SafeHarmAll. The largest ratio of the Monte Carlo excess to the closed-form bound $\varphi(z)\E[s]$ is \MaxExcessOverPhi, and to the regret bound of Theorem~\ref{thm:safe}(iv) it is \MaxRegretOverBound. The identity of Theorem~\ref{thm:safe}(i) was checked replicate by replicate: where acceptance is frequent (\NIdentityCLT{} combinations) the paired $z$-statistic has maximum modulus \MaxIdentityZ; where it is rare (\NIdentityPoisson{} combinations) the acceptance count is compared with $\sum\pi$ through a Poisson 99\% interval, and \NIdentityFail{} combinations fall outside it, both from the same random batch (\RecheckConfig, \RecheckMainCount{} acceptances against \RecheckMainExpected{} expected). Re-simulating that configuration with \RecheckSeeds{} independent seeds gives \RecheckCount{} acceptances against \RecheckExpected{} expected ($z=\RecheckZ$), and a direct conditional check with one fixed triple $(R,C,\theta)$ and fresh held-out draws agrees with $\Phi(-(\Delta+zs)/s)$ at every $\alpha$ (largest $|z|$ \CondCheckMaxZ). The harmful-event frequency of the EB operator never exceeds \HarmMaxHalf{} at $\alpha=0.5$, \HarmMaxTen{} at $\alpha=0.1$ and \HarmMaxOne{} at $\alpha=0.01$, against \SFourAlwaysEHarm--\DSixteenAlwaysEHarm{} for always correcting on the split sample (Tables~\ref{tab:structurecheck}--\ref{tab:departurecheck}). Table~\ref{tab:operators} shows the same cap for full pooling, whose unreverted risk reaches \SSixteenPoolAlways{} at $\snr=16$ against \SSixteenPoolRevTen{} after reversion.
+Across all \CnConfigs{} (configuration, operator, $\alpha$) combinations the three bounds hold with the two-standard-error allowance: \SafeAll; the harmful-event frequency bound holds: \SafeHarmAll. The largest ratio of the Monte Carlo excess to the closed-form bound $\varphi(z)\E[s]$ is \MaxExcessOverPhi, and to the regret bound of Theorem~\ref{thm:safe}(iv) it is \MaxRegretOverBound. The identity of Theorem~\ref{thm:safe}(i) was checked replicate by replicate: where acceptance is frequent (\NIdentityCLT{} combinations) the paired $z$-statistic has maximum modulus \MaxIdentityZ; where it is rare (\NIdentityPoisson{} combinations) the acceptance count is compared with $\sum\pi$ through a Poisson 99\% interval, and \NIdentityFail{} combinations fall outside it, both from the same random batch (the larger deficit: \RecheckConfig, \RecheckMainCount{} acceptances against \RecheckMainExpected{} expected). Re-simulating that configuration with \RecheckSeeds{} independent seeds gives \RecheckCount{} acceptances against \RecheckExpected{} expected ($z=\RecheckZ$), and a direct conditional check with one fixed triple $(R,C,\theta)$ and fresh held-out draws agrees with $\Phi(-(\Delta+zs)/s)$ at every $\alpha$ (largest $|z|$ \CondCheckMaxZ). The harmful-event frequency of the EB operator never exceeds \HarmMaxHalf{} at $\alpha=0.5$, \HarmMaxTen{} at $\alpha=0.1$ and \HarmMaxOne{} at $\alpha=0.01$, against up to \DSixteenAlwaysEHarm{} for always correcting on the split sample (Tables~\ref{tab:structurecheck}--\ref{tab:departurecheck}). Table~\ref{tab:operators} shows the same cap for full pooling, whose unreverted risk reaches \SSixteenPoolAlways{} at $\snr=16$ against \SSixteenPoolRevTen{} after reversion.
 
 \paragraph{Results: usefulness (U).}
-Always correcting with all the data is useful at $\snr\in\{$\UsefulAlways$\}$ and, in the hierarchy, never harmful in the criterion's sense; its relative gain over $\bar X_n$ is \SOneAlwaysGain{} at $\snr=1$. The reverting estimator \emph{with} the guarantee is useful at $\snr\in\{$\UsefulRevHalf$\}$ for $\alpha=0.5$, $\{\UsefulRevTwenty\}$ for $\alpha=0.2$, $\{\UsefulRevTen\}$ for $\alpha=0.1$, and nowhere for $\alpha\le0.05$: at $\snr=1$ its gain over $\bar X_n$ is \SOneRevHalfGain{} ($\alpha=0.5$), \SOneRevTenGain{} ($\alpha=0.1$) and \SOneRevOneGain{} ($\alpha=0.01$), while its gain over the reference on the same estimation sample is \SOneRevHalfGainE, \SOneRevTenGainE{} and \SOneRevOneGainE. The difference is the \SplitCost{} split cost of Corollary~\ref{cor:split}, which the guarantee does not cover, plus the gain forfeited by the test (Remark~\ref{rem:power}): at $\snr=1$ and $\alpha=0.1$ the correction is used in \SOneRevTenAcc{} of the replicates although it helps in $1-\SOneAlwaysEHarm$ of them. Table~\ref{tab:m} shows the trade-off in $m$: with $m=3$ (a $5\%$ split) the guaranteed estimator gains \MThreeZeroRevGain{} at $\kappa=0$ and loses \MThreeEightRevGain{} at $\kappa=8$ with excess \MThreeEightExcess{} over $R$ (bound \MThreeEightBoundPhi); with $m=24$ it loses \MTwentyFourZeroRevGain{} and \MTwentyFourEightRevGain. The two variants without guarantee are useful over a wider range: refit at $\snr\in\{$\UsefulRefitTen$\}$ ($\alpha=0.1$) and SURE reversion at $\snr\in\{$\UsefulSure$\}$, the latter within a few points of always correcting in the hierarchy.
+Always correcting with all the data is useful at $\snr\in\{$\UsefulAlways$\}$ and, in the hierarchy, never harmful in the criterion's sense; its relative gain over $\bar X_n$ is \SOneAlwaysGain{} at $\snr=1$. The reverting estimator \emph{with} the guarantee is useful at $\snr\in\{$\UsefulRevHalf$\}$ for $\alpha=0.5$, $\{\UsefulRevTwenty\}$ for $\alpha=0.2$, $\{\UsefulRevTen\}$ for $\alpha=0.1$, and nowhere for $\alpha\le0.05$: at $\snr=1$ its gain over $\bar X_n$ is \SOneRevHalfGain{} ($\alpha=0.5$), \SOneRevTenGain{} ($\alpha=0.1$) and \SOneRevOneGain{} ($\alpha=0.01$), while its gain over the reference on the same estimation sample is \SOneRevHalfGainE, \SOneRevTenGainE{} and \SOneRevOneGainE. The difference is the \SplitCost{} split cost of Corollary~\ref{cor:split}, which the guarantee does not cover, plus the gain forfeited by the test (Remark~\ref{rem:power}): at $\snr=1$ and $\alpha=0.1$ the correction is used in \SOneRevTenAcc{} of the replicates although it helps in \SOneAlwaysEHelp{} of them. Table~\ref{tab:m} shows the trade-off in $m$: with $m=3$ (a $5\%$ split) the guaranteed estimator gains \MThreeZeroRevGain{} at $\kappa=0$ and loses \MThreeEightRevGain{} at $\kappa=8$ with excess \MThreeEightExcess{} over $R$ (bound \MThreeEightBoundPhi); with $m=24$ it loses \MTwentyFourZeroRevGain{} and \MTwentyFourEightRevGain. The two variants without guarantee are useful over a wider range: refit at $\snr\in\{$\UsefulRefitTen$\}$ ($\alpha=0.1$) and SURE reversion at $\snr\in\{$\UsefulSure$\}$, the latter within a few points of always correcting in the hierarchy.
 
 \paragraph{Results: negative transfer.}
 On the departure sweep always correcting with all the data becomes harmful (upper end of the 95\% interval of the gain below zero) at $\kappa\in\{$\HarmfulAlwaysDep$\}$ and reaches \WorstRatioAlways{} times the reference risk at $\kappa=\WorstDep$. The guaranteed reverting estimator at $\alpha=0.1$ stays between \DZeroRevTenRatio{} and \DEightRevTenRatio{} times the full-data reference over the whole sweep; its excess over $R$ is \DEightRevTenExcess{} at $\kappa=8$ against the bounds \DEightRevTenBoundTight{} (identity), \DEightRevTenBoundPhi{} ($\varphi$) and \DEightRevTenBoundAlpha{} ($\alpha$), and \WorstExcessTen{} at $\kappa=\WorstDep$ against \WorstBoundPhiTen{} and \WorstBoundAlphaTen. The unguaranteed variants are also capped in this design (SURE reversion is harmful only at $\kappa\in\{$\HarmfulSureDep$\}$, by at most \DFourSureRatio{} times the reference), but nothing proved here says they must be.
 
 \paragraph{Verdict under the predefined criterion.}
-Safety holds everywhere, as the theorem says it must. Useful transfer with the guaranteed construction occurs only when the tasks are nearly identical ($\snr\le2$ with plain hold-out, $\snr=0$ at $\alpha=0.1$) because the held-out split costs more than the transfer gains elsewhere. The constructions that avoid the split and are useful over a wide range are the classical ones (empirical Bayes shrinkage with SURE selection; cross-validated selection followed by a refit), for which no finite-sample ``do no harm'' bound is proved here.
+Safety holds everywhere, as the theorem says it must. Useful transfer with the guaranteed construction occurs only when the tasks are nearly identical ($\snr\in\{$\UsefulRevHalf$\}$ with plain hold-out, $\snr\in\{$\UsefulRevTen$\}$ at $\alpha=0.1$) because the held-out split costs more than the transfer gains elsewhere. The constructions that avoid the split and are useful over a wide range are the classical ones (empirical Bayes shrinkage with SURE selection; cross-validated selection followed by a refit), for which no finite-sample ``do no harm'' bound is proved here.
 
 \section{Claims and their status}\label{sec:claims}
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering\small
 \begin{tabular}{p{0.68\linewidth}p{0.24\linewidth}}
 \toprule
@@ -390,7 +394,7 @@ Total cost relative to full-data reference = split cost + controlled term (Cor.~
 Constant sharp up to $\varphi(z)/\kappa(\alpha)$; harm not $o(m^{-1/2})$ uniformly (Prop.~\ref{prop:sharp}) & proved here; constants verified\\
 Reverting estimator = penalised hold-out selection between two candidates (Prop.~\ref{prop:select}) & proved here\\
 The line's closing statement (no differentiation from existing constructs) & supported by Sec.~\ref{sec:related}\\
-Useful transfer (criterion U) only at $\snr\le2$ (plain hold-out) or $\snr=0$ ($\alpha=0.1$) in this design & verified, design-specific\\
+Useful transfer (criterion U) only at $\snr\in\{$\UsefulRevHalf$\}$ ($\alpha=0.5$), $\{$\UsefulRevTwenty$\}$ ($0.2$), $\{$\UsefulRevTen$\}$ ($0.1$), never for $\alpha\le0.05$, in this design & verified, design-specific\\
 Refit and SURE reversion are useful over a wider range and capped in this design & empirical only; no guarantee here\\
 General accuracy improvement, transfer guarantee, statements about real populations & not claimed\\
 \bottomrule
@@ -400,7 +404,7 @@ General accuracy improvement, transfer guarantee, statements about real populati
 \end{table}
 
 \paragraph{Limitations.}
-The model is Gaussian location with known variance; the identity and the $\varphi$-bound use Gaussian held-out observations, the Hoeffding version needs bounded ones, and the $t$-test variant is only remarked on. The reference is the sample mean; for a biased reference (a shared instrument bias, say) the held-out sample of the target carries the same bias and the check cannot see the correction, so that setting needs unbiased calibration data and is not covered. The simulation has one design ($d=\Cd$, $n=\Cn$, $S=\CS$) and one structural family; the ``useful'' region depends on the split fraction and on the dimension through the ratio of the bound to the reference risk, $\sqrt{n_e/m}/d$ up to constants, and would move in another design. The unguaranteed variants are reported, not analysed. Nothing is said about real data.
+The model is Gaussian location with known variance; the identity and the $\varphi$-bound use Gaussian held-out observations, the Hoeffding version needs bounded ones, and the $t$-test variant is only remarked on. The reference is the sample mean; for a biased reference (a shared instrument bias, say) the held-out sample of the target carries the same bias and the check cannot see the correction, so that setting needs unbiased calibration data and is not covered. The simulation has one design ($d=\Cd$, $n=\Cn$, $S=\CS$) and one structural family; the ``useful'' region depends on the split fraction and on the dimension through the ratio of the $\varphi$-bound to the reference risk, of order $\sqrt{n_e/m}/\sqrt d$ for the shrinkage operator, and would move in another design. The unguaranteed variants are reported, not analysed. Nothing is said about real data.
 
 \paragraph{Next steps for the research line.}
 (a)~A finite-sample bound for the refit variant, in which the held-out sample enters both the check and the final estimate, or for a cross-fitted version; this is where the split cost could be recovered with a guarantee. (b)~A selection bound for SURE reversion with the affine operator, whose selection region is a ball around $\hat\mu$ and whose risk is not given by SURE because of the discontinuity on the sphere. (c)~If the original operator definitions of OMR001 are recovered, place each in Table~\ref{tab:constructs} and compute $\E\norm{C-R}$ for it; by Theorem~\ref{thm:safe} that is all the safety analysis needs. (d)~Decide whether the line should be closed with this note or continued only along (a)--(b).

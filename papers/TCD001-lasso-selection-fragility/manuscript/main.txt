@@ -1,0 +1,907 @@
+                 Fragility of Lasso Variable Selection:
+Removal Witnesses, Exact Deletion Tests, Non-Monotonicity and Computational Status
+
+                                         Luciano Silva Alarco
+                                 Pontificia Universidad Católica del Perú
+                                      ORCID 0000-0002-3395-3129
+
+                  Working draft v0.1 — research line TCD001 — September 30, 2026
+
+
+
+                                                 Abstract
+      We study how the set of variables selected by the Lasso changes when observations are
+      removed from the data. For data D = (X, y), a penalty µ and a rule that fixes the penalty
+      on subsamples, a removal witness for a target change (a given variable leaves the selected
+      set, a given variable enters it, or the selected set changes at all) is a set R of observations
+      such that the Lasso on D \ R exhibits the change; the fragility number is the minimal
+      |R|. Four things are established. (i) An exact test, in closed form, of whether removing a
+      set R preserves the signed support: it follows from the KKT conditions and a Woodbury
+      update, costs O(|R|3 + p|R|) per set after an O(nps) precomputation, and reduces for |R| = 1
+      to a case-deletion formula of the Cook–Belsley type with the Lasso residual in place of
+      the least-squares residual. It yields a cheap certificate that no single removal changes the
+      support, and a polynomial-time (but loose) certificate for k removals. (ii) The witness
+      family is not monotone: a variable can leave the support after removing R and re-enter after
+      removing a superset of R. We give a one-variable example that can be checked by hand
+      and a two-variable example, verified in exact rational arithmetic, in which the exclusion is
+      caused by a competing variable. (iii) Deciding whether a deselection witness exists at all is
+      NP-complete already for one predictor, by a direct reduction from Subset Sum; the selection
+      direction is solvable in O(n log n) for one predictor; the hardness is weak (pseudo-polynomial
+      algorithms exist) and nothing is proved for p ≥ 2. (iv) On synthetic Gaussian designs with
+      fixed seeds, exhaustive search made feasible by the exact test (up to n = 34, |R| ≤ 6) gives
+      exact fragility numbers: in a noisy regime the selected set changes after removing a single
+      observation in 92% of the instances with n ≤ 14, in a strong-signal regime in 52%; minimal
+      witnesses are predominantly single events (one variable leaves or one enters) and one-element
+      supersets of minimal witnesses restore the original support in a measurable fraction of cases.
+      Three heuristics (one-step greedy by exact deletion effect, sorted scores in the style of the
+      approximate maximum influence perturbation, Cook’s distance) are compared with the exact
+      minimum under a criterion fixed in advance; none meets it on these instances, mainly because
+      exhaustive search with the closed-form test is itself cheap at these sizes. No novelty is claimed
+      for the algebra; the contribution is to make the objects of the research line precise and to
+      report what can and cannot be certified.
+
+
+1    Introduction
+Variable selection with the Lasso [? ] is known to be unstable: small changes of the data can
+change the selected set. This instability has been addressed statistically, by aggregating selections
+over random subsamples [stability selection, ? ], and asymptotically, by conditions under which
+the selected set is the true one with high probability [? ? ? ]. A different, finite-sample and
+combinatorial question is the subject of the research line to which this draft belongs (TCD001):
+how many observations must be removed, and which, for the selected set to change? The question
+has a long history for the coefficients of least squares, where case-deletion diagnostics [? ? ] and
+the influence curve [? ] measure the effect of dropping one observation, and where the worst-case
+
+                                                     1
+effect of dropping a small fraction of the data has recently been studied under the name of
+approximate maximum influence perturbation [? ] and through exact or certified algorithms for
+the sign of a regression coefficient [? ? ? ]. For a selection, the quantity of interest is discrete,
+so the influence function does not apply directly, and the natural object is a set of observations,
+a witness, together with its minimal size.
+    The public record of the line states that non-monotone changes and connections to known
+combinatorial problems were identified, and that novelty, computational advantage and some
+certificates were not sufficiently established. This draft gives the line a precise core and settles,
+in the negative where that is the honest answer, the three points that were left open.
+
+ 1. Definitions (Section ??): penalty rules on subsamples, removal witnesses, fragility numbers,
+    monotonicity.
+
+ 2. Exact deletion test and certificates (Section ??): a closed-form test of whether removing
+    a set of observations preserves the signed support (Proposition ??); its single-removal form,
+    which is a Cook–Belsley deletion formula with the Lasso residual (Corollary ??); and a
+    polynomial-time certificate that no k removals change the support (Proposition ??). All
+    are proved and verified numerically against refits.
+
+ 3. Non-monotonicity (Section ??): the witness family is not closed under supersets; a
+    hand-checkable example with p = 1 and an exactly verified example with p = 2 in which
+    the mechanism is competition between variables.
+
+ 4. Computational status (Section ??): existence of a deselection witness is NP-complete for
+    p = 1 by a reduction from Subset Sum; selection witnesses for p = 1 are easy; the general
+    case is open and stated as such.
+
+ 5. Experiments (Section ??): exact fragility numbers by exhaustive search, the distribution
+    of witness types, the frequency of non-monotone pairs, scaling with n, and a comparison of
+    three heuristics with the exact minimum under a criterion fixed before the run.
+
+Scope. The paper is methodological. It makes no claim about any real data set, and it does
+not propose the fragility number as a replacement for stability selection or for asymptotic theory;
+Remark ?? states the one implication between the two that follows from the definitions. Every
+number in the text is produced by the scripts of Appendix ?? with fixed seeds. Section ?? lists
+all claims with their status: proved here, classical, from the literature, computationally verified,
+or conjectural.
+
+
+2    Setting and definitions
+Let D = (X, y) with X ∈ Rn×p , y ∈ Rn , no intercept and columns as given. For µ > 0 the Lasso
+objective in sum form is
+                            LD (β; µ) = 21 ∥y − Xβ∥22 + µ∥β∥1 ,                            (1)
+which is the objective of scikit-learn’s Lasso with alpha= µ/n [? ]. We write β̂(D; µ) for its
+minimiser when it is unique, S(D) = supp β̂ for the support (the selected set) and (S, s) with
+s = sgn β̂S ∈ {±1}S for the signed support. Two facts from ? ] are used throughout: if the
+columns of X are in general position the minimiser is unique for every y and µ > 0; and if the
+equicorrelation set E = {j : |Xj⊤ (y − X β̂)| = µ} has XE of full column rank, the minimiser is
+unique and is determined by the linear system of the KKT conditions on E. Conversely a unique
+minimiser has XS of full column rank (Lemma ??). [literature]
+
+
+
+
+                                                 2
+Definition 2.1 (Penalty rule). A penalty rule assigns to the subsample D \ R of size n − k a
+penalty µk . Two rules are used: the constant rule (C), µk = µ, and the proportional rule (P),
+µk = µ(n − k)/n, which keeps scikit-learn’s alpha fixed and is what a practitioner does who
+refits “with the same λ” in the mean-squared-error parametrisation.
+Definition 2.2 (Removal witness, fragility number). Fix D, µ, a rule, and let (S, s) be the
+signed support on D. A target Π is a property of the signed support of the Lasso on a subsample,
+relative to (S, s); the targets used here are
+ • any: S(D \ R) ̸= S (unsigned), or (S(D \ R), s(D \ R)) ̸= (S, s) (signed);
+ • leave(j), j ∈ S: j ∈
+                      / S(D \ R);
+ • enter(j), j ∈
+               / S: j ∈ S(D \ R).
+A removal witness for Π is a proper subset R ⊊ [n] such that the Lasso on D \ R with penalty
+µ|R| has a unique minimiser and Π holds. The witness family is WΠ (D) = {R : R is a witness}
+and the fragility number is fΠ (D) = min{|R| : R ∈ WΠ (D)}, with fΠ (D) = ∞ if WΠ (D) = ∅.
+    The signed and unsigned versions of any differ only when a coefficient changes sign without
+                      signed
+leaving the support; fany    ≤ fany and the experiments report how often the two differ. Witnesses
+for the signed target are decided without refitting by Proposition ??.
+Definition 2.3 (Monotonicity). The target Π is monotone on D if R ∈ WΠ (D) and R ⊆ R′ ⊊ [n]
+imply R′ ∈ WΠ (D). A non-monotone pair is a pair R ⊊ R′ with R ∈ WΠ (D) and R′ ∈      / WΠ (D);
+for leave(j) this means that j leaves the support after removing R and re-enters after removing
+R′ .
+Lemma 2.4. If the minimiser of (??) is unique with support S, then XS has full column rank.
+Proof. If XS η = 0 with η ̸= 0, extend η by zeros. For |t| small, β̂ + tη has the same fit and
+the same signs on S, so LD (β̂ + tη) = LD (β̂) + tµ s⊤ η. If s⊤ η =
+                                                                  ̸ 0 one sign of t decreases the
+objective, contradicting optimality; if s⊤ η = 0 every such β̂ + tη is a minimiser, contradicting
+uniqueness. (This is part of the characterisation in ? .)
+
+
+3    An exact deletion test and two certificates
+Throughout this section β̂ is the unique minimiser on D with signed support (S, s), |S| = s0 ≥ 0
+(we write s0 for the size to avoid a clash with the sign vector), XS has full column rank, and
+A = XS⊤ XS ,   r = y−X β̂,    c = X ⊤ r,   V = XS A−1 (rows vi⊤ ),    hi = x⊤   −1
+                                                                            iS A xiS ,   X̃ = (I−XS A−1 XS⊤ )XS c
+so that cS = µs, |cj | ≤ µ for j ∈
+                                 / S, hi ∈ [0, 1] are the leverages of the active-set regression and
+X̃j is the residual of Xj regressed on XS . For R ⊆ [n] with |R| = k let U = XR,S ∈ Rk×s0 and
+HR = U A−1 U ⊤ , the R × R block of the projection XS A−1 XS⊤ .
+Proposition 3.1 (Exact removal test). [proved here] Let R ⊊ [n], |R| = k, and let µ′ be the
+penalty on D \ R, δ = µ − µ′ .
+(a) If I − HR is singular, (S, s) is not the signed support of a unique minimiser on D \ R.
+(b) If I − HR is nonsingular, put eR = (I − HR )−1 rR , w = A−1 s, z = w + VR⊤ (I − HR )−1 U w,
+    and
+                        β̃S = β̂S − VR⊤ eR + δz,                                                 (2)
+                                      ⊤
+                         c̃j = cj − X̃R,j eR − δ Xj⊤ XS − XR,j
+                                                           ⊤
+                                                                                                 (3)
+                                                                 
+                                                               U z,      j∈
+                                                                          / S.
+
+    Then (S, s) is the signed support of a minimiser on D \ R if and only if sj β̃j > 0 for all
+    j ∈ S and |c̃j | ≤ µ′ for all j ∈
+                                    / S. If moreover |c̃j | < µ′ for all j ∈
+                                                                           / S, the minimiser on
+    D \ R is unique and equals β̃ (extended by zeros).
+
+                                                   3
+Under the constant rule δ = 0 and the last terms of (??)–(??) vanish.
+
+Proof. A vector β with signed support (S, s) minimises the objective on D \ R if and only if it
+satisfies the KKT conditions
+ ⊤
+      y−R − XS,−R βS = µ′ s,               ⊤
+                                                (y−R − XS,−R βS ) ≤ µ′ (j ∈   sj βj > 0 (j ∈ S).
+                        
+XS,−R                                     Xj,−R                           / S),
+                                                                                             (4)
+The matrix of the linear system is A′ = XS,−R
+                                          ⊤   XS,−R = A − U ⊤ U , and by the matrix determinant
+lemma det A′ = det A · det(I − U A−1 U ⊤ ) = det A · det(I − HR ).
+   (a) If I − HR is singular then XS,−R is rank deficient, and by Lemma ?? no unique minimiser
+on D \ R has support S.
+   (b) If I − HR is nonsingular, the Woodbury identity [? ? ] gives A′−1 = A−1 + A−1 U ⊤ (I −
+HR )−1 U A−1 , and the unique solution of the linear system is βS = A′−1 (XS⊤ y − U ⊤ yR − µ′ s).
+Write XS⊤ y −µs = Aβ̂S (the KKT equation on D) so that XS⊤ y −U ⊤ yR −µ′ s = Aβ̂S −U ⊤ yR +δs.
+Then
+
+A′−1 (Aβ̂S −U ⊤ yR ) = β̂S +A−1 U ⊤ (I−HR )−1 U β̂S −yR −(I−HR )−1 HR yR = β̂S −A−1 U ⊤ (I−HR )−1 yR −U β̂S ,
+                                                                                                                    
+
+
+using yR + (I − HR )−1 HR yR = (I − HR )−1 yR ; since yR − U β̂S = rR and A−1 U ⊤ = VR⊤ , this
+is β̂S − VR⊤ eR . The remaining term δA′−1 s = δz by the same identity, which proves (??). For
+j ∈/ S, with βS = β̂S − VR⊤ eR the full-length residual is r̃ = r + XS VR⊤ eR , whose R-block is
+rR + HR eR = (I − HR )−1 rR = eR ; hence
+
+ ⊤                                                                                         ⊤
+Xj,−R r̃−R = Xj⊤ r̃−XR,j
+                     ⊤
+                         eR = cj +Xj⊤ XS A−1 U ⊤ eR −XR,j
+                                                      ⊤
+                                                          eR = cj − XR,j −U A−1 XS⊤ Xj                     ⊤
+                                                                                                eR = cj −X̃R,j eR ,
+
+and the additional coefficient δz contributes −δXj,−R⊤ X
+                                                            S,−R z = −δ(Xj XS − XR,j U )z, which
+                                                                            ⊤           ⊤
+
+proves (??). The equivalence is now (??). If the inactive inequalities are strict, the equicorrelation
+set on D \ R is S and XS,−R has full column rank, so the minimiser is unique [? ].
+
+   The test costs O(k 3 + pk) per set R after the O(nps0 + s30 ) precomputation of V , h, X̃
+and c; it is vectorised over all subsets of a given size in the code, and Section ?? measures its
+throughput against refits. Boundary cases (sj β̃j = 0 or |c̃j | = µ′ ) have probability zero for
+continuous designs and are counted, not hidden, in the validation.
+
+Corollary 3.2 (Single removal; a stability margin). [proved here] Under the constant rule, for
+R = {i} one has hi < 1, ei = ri /(1 − hi ),
+
+                            β̃S = β̂S − vi ei ,      c̃j = cj − x̃ij ei     (j ∈
+                                                                               / S),
+
+so removing observation i preserves (S, s) if and only if sj (β̂j − vij ei ) > 0 for j ∈ S and
+|cj − x̃ij ei | < µ for j ∈   / S (boundary cases aside). In particular, with m = minj∈S |β̂j | and
+γ = minj ∈S /   (µ − |cj |), the instability index
+                                                  n ∥v ∥
+                                                      i ∞       maxj ∈S
+                                                                     / |x̃ij |
+                                                                               o
+                                 ιi = |ei | max             ,
+                                                     m               γ
+                                                                                     signed
+satisfies: ιi < 1 implies that removing i preserves (S, s), and maxi ιi < 1 implies fany    (D) ≥ 2.
+Both statements are checkable in O(np) time after the precomputation.
+
+Proof. Specialise Proposition ?? to k = 1: HR = hi , I − HR is nonsingular because hi < 1 when
+XS,−i has full column rank (and hi = 1 is excluded by part (a) only in the rank-deficient case,
+which the code treats as a change). The sufficient condition is the triangle inequality applied to
+(??)–(??).
+
+
+
+                                                       4
+Remark 3.3 (Relation to case-deletion diagnostics). vi ei = A−1 xiS ri /(1 − hi ) is the DFBETA
+formula of ? ] for the regression of y on XS , with the Lasso residual ri in place of the least-squares
+residual, and ei is the corresponding leave-one-out residual; c̃j − cj = −x̃ij ei has no least-squares
+counterpart and is what decides entries. Cook’s distance [? ] of the active-set regression is
+proportional to hi e2i and is used below as a target-agnostic heuristic. [classical]
+
+Proposition 3.4 (Polynomial certificate for k removals, constant rule). [proved here] For a vector
+a ≥ 0 let Tk (a) be the sum of its k largest entries. Suppose Tk (h) < 1. Then for every R with
+|R| ≤ k the matrix I − HR is nonsingular and, with β̃ as in (??) and δ = 0,
+                                                       q                     Tk (h)
+          |β̃j − β̂j | ≤ Bj (k) := Tk |v·j | ⊙ |r| +       Tk (v·j2 ) Tk (r2 )          (j ∈ S),
+                                                 
+                                                                           1 − Tk (h)
+                                                    q                       Tk (h)
+           |c̃j − cj | ≤ Cj (k) := Tk |x̃·j | ⊙ |r| + Tk (x̃2·j ) Tk (r2 )              (j ∈
+                                                                                           / S).
+                                                                           1 − Tk (h)
+
+Consequently, if Bj (k) < |β̂j | for all j ∈ S and Cj (k) < µ − |cj | for all j ∈
+                                                                                / S, then no removal
+                                                            signed
+of at most k observations changes the signed support: fany (D) ≥ k + 1. The certificate costs
+O(nps0 + n log n) and is monotone in k; we write k ∗ (D) for the largest certified k (k ∗ = 0 if
+none).
+
+Proof. HR is a principal submatrix of a projection, so 0 ⪯ HR ⪯ I and λmax (HR ) ≤ tr HR =
+  i∈R hi ≤ Tk (h) < 1; hence I − Hp   R is nonsingular with ∥(I − HR ) ∥2 ≤ (1 − Tk (h))
+P                                                                        −1              −1
+
+and ∥eR ∥2 ≤ ∥rR ∥2 /(1 − Tk (h)) ≤ Tk (r2 )/(1 − Tk (h)). From (I − HR )eR = rR we have
+eR = rR + HR eR , so
+                                      ⊤                      ⊤
+                        β̃j − β̂j = −vR,j eR = −
+                                                 X
+                                                   vij ri − vR,j HR eR ,
+                                                           i∈R
+
+whose
+q
+       first term is bounded by Tk (|v·j |⊙|r|) and whose second is bounded by ∥vR,j ∥2 ∥HR ∥2 ∥eR ∥2 ≤
+  Tk (v·j2 ) Tk (h) Tk (r2 )/(1 − Tk (h)). The bound for c̃j is identical with x̃·j in place of v·j . Under
+                   p
+
+the hypotheses, every R with |R| ≤ k satisfies the conditions of Proposition ??(b) strictly, so
+the signed support is preserved.
+
+    The first term of Bj (k) is the additive, “sum of single-deletion effects” approximation on
+which sorted-influence heuristics rest [? ]; the second term controls the interaction between
+removed observations. Since i hi = s0 , the hypothesis Tk (h) < 1 restricts the certificate to
+                               P
+
+k < n/s0 roughly, and the experiments show that it is loose: it certifies k ∗ ≥ 1 in only a fraction
+of the instances whose true fragility number is at least 2 (Table ??).
+Remark 3.5 (Stability selection). [proved here] Stability selection [? ] refits on subsamples of size
+⌊n/2⌋ with the same per-observation penalty (rule P) and reports the selection frequency Πj of
+variable j. A subsample of size ⌊n/2⌋ is D \ R with |R| = ⌈n/2⌉, so fleave(j) (D) > ⌈n/2⌉ implies
+Πj = 1. The converse cannot be obtained from the definitions: fleave(j) ≤ ⌈n/2⌉ produces a
+witness R of that size or smaller, but by Section ?? a superset of R of size exactly ⌈n/2⌉ need
+not be a witness. We did not search for an instance in which the converse actually fails.
+
+
+4    Non-monotonicity
+Proposition 4.1. For each of the targets leave, enter and any there exist data D and µ for
+which the target is not monotone, under both penalty rules.
+
+Example 4.2 (p = 1, by hand). [proved here] Let x = (1, 1, 1)⊤ , y = (2, −2, 2)⊤ , µ = 32 . For
+p = 1 the minimiser is β̂ = sgn(x⊤ y)(|x⊤ y| − µ)+ /∥x∥2 , so the variable is selected iff |x⊤ y| > µ.
+On D, x⊤ y = 2 > 32 : selected. On D \ {1}, x⊤ y = 0: not selected under rule C (µ′ = 32 ) and
+under rule P (µ′ = 1). On D \ {1, 2}, x⊤ y = 2: selected under rule C (2 > 32 ) and under rule P
+
+                                                       5
+ data set                  support    exact coefficients    exact inactive correlations   marginal x⊤     ⊤
+                                                                                                    1 y, x2 y
+
+ D                         {1}        β̂1 = 20
+                                             3
+                                                            c2 = − 10
+                                                                    1
+                                                                                          5, −1
+ D \ R, R = {3, 4}         {2}        β̂2 = − 12
+                                               5
+                                                            c1 = 11
+                                                                 4                        4, −6
+ D \ R′ , R′ = {2, 3, 4}   {1}        β̂1 = 10
+                                             1
+                                                            c2 = − 10
+                                                                   17
+                                                                                          4, −2
+
+Table 1: Example ?? in exact arithmetic (µ = 72 , rule C). Coefficients solve the KKT system on the
+listed support; inactive correlations cj = Xj⊤ (y − X β̂) satisfy |cj | < µ strictly, which certifies the unique
+minimiser.
+
+
+(µ′′ = 12 ). Thus {1} is a leave witness and its superset {1, 2} is not, and R = {1}, R′ = {1, 2}
+is a non-monotone pair for leave, for any, and, read from D \ {1}, for enter.
+
+   The one-variable example only says that a sum can leave an interval and come back. The
+next example shows the mechanism specific to selection: a variable is excluded not because its
+own correlation with the response drops below the penalty, but because a competing variable
+absorbs it.
+
+Example 4.3 (p = 2, competition; exact arithmetic). [computationally verified (exact arithmetic)]
+Let n = 5, p = 2, µ = 72 and
+
+                           2 −1 2
+                                           
+                          0 2 −2
+                                 
+                      y = 1 1  3                 (rows are observations; last column is y),
+                       
+                  X
+                                  
+                          2 −2 −1
+                                 
+
+                          −1 1  0
+
+with rule C, R = {3, 4} and R′ = {2, 3, 4}. Table ?? lists, for D, D \ R and D \ R′ , the signed
+support returned by the homotopy solver and the exact rational solution of the KKT system on
+that support, with all inequalities checked strictly in exact arithmetic (so the support is that
+of the unique minimiser). Variable 1 is selected on D, leaves on D \ R while variable 2 enters,
+and returns on D \ R′ . The exclusion is due to competition: on D \ R the marginal correlation
+  1 y| = 4 exceeds µ = 2 , so with p = 1 variable 1 would be selected, but the residual correlation
+|x⊤                      7
+
+after fitting variable 2 is |c1 | = c1 = 114 which is below µ. The instance was found by a seeded
+search over integer data in {−2, . . . , 2}5×2 × {−3, . . . , 3}5 and rational µ (11 trials); all 26 proper
+removal sets of this instance are exactly verifiable (no KKT ties), and among them there are 3
+non-monotone pairs for leave(1).
+
+    Non-monotonicity has two consequences for the search for witnesses. A minimal witness
+cannot be found by growing a set until the target holds and then pruning, because pruning
+can pass through non-witnesses and growing can leave the witness family; exhaustive search by
+increasing size, or a heuristic followed by verification, are the honest options at small n. And a
+bound on the fragility number does not translate into a bound on subsample frequencies except
+in the direction of Remark ??.
+
+
+5     Computational status
+For p = 1, with ai = xi yi and T = i ai , the variable is selected on D \ R iff     / ai > µ|R| .
+                                         P                                                   P
+                                                                                   i∈R
+The problem is therefore about the sums of subfamilies of the numbers ai , and the two directions
+of change behave very differently.
+
+Theorem 5.1 (p = 1). [proved here] Consider instances with p = 1, rational data and rational
+µ > 0, under either penalty rule.
+
+
+                                                        6
+(a) Deselection-Witness: given (x, y, µ) with the variable selected on D, decide whether
+    some proper R ⊊ [n] deselects it. This problem is NP-complete. Consequently computing
+    fleave (equivalently fany , since for p = 1 every change is a deselection) is NP-hard, already
+    for p = 1, hence for the general problem.
+
+(b) Selection-Witness: given (x, y, µ) with the variable not selected on D, the minimal |R|
+    such that it is selected on D \ R can be computed in O(n log n) time.
+
+Proof. (a) Membership in NP: given R, compute i∈R          / ai and compare with µ|R| . Hardness:
+                                                       P
+
+reduce from Subset Sum [? ? ]: given positive integers b1 , . . . , bm and a target t ≥ 1, decide
+whether some subfamily sums to t; without loss of generality t < i bi (otherwise the answer is
+                                                                       P
+
+immediate). Set n = m + 1, xi = 1 for all i, yi = bi for i ≤ m, ym+1 = −t and µ = 12 . Then
+a = (b1 , . . . , bm , −t) and T = i bi − t ≥ 1 > µ ≥ µk for every k, so the variable is selected on D.
+                                  P
+
+For a proper R with K = [n] \ R ̸= ∅, the variable is deselected on D \ R iff | i∈K ai | ≤ µ|R| ≤ 12 ,
+                                                                                 P
+
+iff i∈K ai = 0 because the sum is an integer. If m + 1 ∈        / K the sum is a nonempty sum of
+   P
+
+positive integers; hence m + 1 ∈ K and i∈K\{m+1} bi = t, which is a solution of the Subset
+                                              P
+
+Sum instance, and conversely every solution K ′ gives the witness R = [n] \ (K ′ ∪ {m + 1}),
+proper because t < i bi forces K ′ ̸= [m]. The reduction is polynomial and works verbatim for
+                          P
+
+rule P, since µk = 12 (n − k)/n < 1.
+   (b) Suppose |T | ≤ µ. For k fixed, over all R with |R| = k the sum i∈R           / ai ranges over
+                                                                                 P
+                      −                 −
+[T − σk , T − σk ] where σk and σk are the sums of the k largest and of the k smallest ai , and
+       +                        +
+
+both endpoints are attained. Hence a witness of size k exists iff T − σk− > µk or T − σk+ < −µk .
+After sorting the ai once, all σk± are prefix sums and the smallest feasible k ≤ n − 1 is found in
+O(n).
+
+Remark 5.2 (What the theorem does and does not say). (i) The hardness is inherited from
+Subset Sum and is therefore weak: for integer data a dynamic programme over partial sums
+computes fleave in time polynomial in n and in i |ai | (with the cardinality as a second state
+                                                  P
+
+under rule P). The difficult instances are those in which the deselection window [−µk , µk ] is
+narrow relative to the granularity of the data. (ii) For p ≥ 2 the theorem gives NP-hardness of
+the general leave and any problems only because p = 1 instances are instances of the general
+problem; we have no hardness proof for enter with p ≥ 2 and no polynomial algorithm for any
+target with p ≥ 2. (iii) The analogous question for the sign of a least-squares coefficient is the
+subject of ? ] and ? ], and the problems of maximising the number of satisfied linear relations
+are treated by ? ? ]; we do not rely on any hardness statement from those papers, and we do
+not claim that the reduction above is new. [literature / not claimed]
+
+Conjecture 5.3. [conjectural] For p ≥ 2, Selection-Witness (existence of a proper R such
+that a given inactive variable enters S(D \ R)) is NP-complete.
+
+
+6    Experiments
+Protocol. All experiments use Gaussian designs with √       rows xi ∼ N (0, Σ), Σjk = ρ|j−k| , β ∗
+with s0 = 2 nonzero entries ±b, noise N (0, 1), and µ = c 2n log p (the universal threshold in
+sum form, scaled by c). Two families are fixed: A (“strong signal”), p = 4, b = 4, ρ = 0.0,
+c = 1.5; B (“noisy”), p = 8, b = 2, ρ = 0.5, c = 1.0. The Lasso is solved by the homotopy
+algorithm [? ? ] as implemented in sklearn.linear_model.lars_path, whose output satisfies
+the KKT equalities to 10−14 and agrees in support with coordinate descent at tolerance 10−13
+on all 104 refits checked (maximal coefficient difference 2 × 10−13 ). Rule C is the default; rule
+P is reported where stated. Seeds are 20260930 (E0–E3, E5) and 20260931 (E4). Exhaustive
+searches enumerate removal sets by increasing size, decide the signed target with Proposition ??
+and refit only the flagged sets when the target requires the new support; targeted searches are
+
+
+                                                  7
+                       n     p   rule   tests   agreements    preserved    max coef. diff.
+                    10       5   C       150           150          104    2e−15
+                    10       5   P       150           150          118    4e−15
+                    20      10   C       300           300          238    2e−15
+                    20      10   P       300           300          234    2e−15
+                    50      20   C       750           750          653    2e−15
+                    50      20   P       750           750          608    2e−15
+                    12      24   C       180           180           87    2e−15
+                    12      24   P       180           180           80    2e−15
+
+Table 2: E1. Single removals: Proposition ?? against a refit, for every observation of 15 instances per
+cell. “Preserved” counts removals that keep the signed support; the last column is the maximal difference
+between the closed-form coefficients and the refit over those cases.
+
+  n    p   instances       stable single removals   certified (Cor. ??)   coverage   P (f = 1)   P (k ∗ ≥ 1 | f ≥ 2)   mean f −
+ 10    5          30                         213                   141        66%         87%                   0%
+ 20   10          30                         466                   254        55%         87%                   0%
+ 50   20          30                        1269                   775        61%         77%                  29%
+ 12   24          30                         166                    46        28%        100%                   –%
+
+Table 3: E1. Coverage of the sufficient condition of Corollary ?? among removals that are exactly stable,
+and tightness of the certificate of Proposition ?? against the exact signed fragility number f (rule C;
+exact search capped at |R| ≤ 6, and f counted as 7 when not found).
+
+
+capped at |R| ≤ 5 and the any search at |R| ≤ n − 2 (|R| ≤ 6 in E4), and a capped search that
+finds nothing is reported as “not found”, never as a value.
+
+Criterion for “computational advantage” (fixed before the runs). A heuristic has
+computational advantage on a family if (i) it returns a witness of exactly minimal size in at
+least 90% of the instances whose exact fragility number is finite within the cap, and (ii) its
+median wall-clock cost is at most 10% of that of the exhaustive search on the same instances
+and machine.
+
+6.1    E1: validation of Proposition ?? and of the certificates
+On four (n, p) cells, 15 instances each (b = 2, ρ = 0.3, c = 1), Proposition ?? was compared with
+a refit for every single removal and for random sets of 2, 3 and 5 observations, under both rules.
+Agreement was 2760/2760 for single removals and 7200/7200 for sets, and whenever the signed
+support was preserved the closed-form coefficients (??) matched the refit to 4 × 10−15 (single)
+and 6 × 10−15 (sets) (Table ??). The sufficient condition of Corollary ?? certified 1216 of the
+2114 single removals that are in fact stable (58%), and never a removal that is not. On n = 14,
+p = 6, all 1001 subsets of size 4 were tested at 1.4 µs per subset against 569 µs per refit, a factor
+of 395. Table ?? reports the certificate of Proposition ??: the fraction of instances with f ≥ 2
+in which k ∗ ≥ 1 and the mean gap f − 1 − k ∗ .
+
+6.2    E2: exact fragility numbers for n ≤ 14
+Table ?? gives, for 60 instances per cell, the distribution of the exact signed fragility number
+for any under both rules, the type of change realised by the minimal witnesses, and the mean
+targeted fragility numbers for the weakest selected variable (smallest |β̂j |) and for the strongest
+inactive variable (largest |cj |). In family B the selected set changes after a single removal in 92%
+of the 240 instances (maximal f = 3); in family A in 52% (maximal f = 4). Signed and unsigned
+any differed in 0 instance(s) of family A and 0 of family B. Among the minimal witnesses
+
+                                                       8
+ fam. n    mean |S| S = S ∗ f dist. C (1/2/3/4/5/≥6) mean C P (f =1) C mean P P (f =1) P types C        fleave (n.f.) fenter (n.f.)
+ A    8         2.3   65%   43/15/2/0/0/0                1.32    72%     1.32       72%   97/34/22/0    1.6 (0)       1.8 (11)
+ A    10        2.2   73%   34/15/8/3/0/0                1.67    57%     1.72       55%   109/61/19/0   2.3 (0)       2.3 (7)
+ A    12        2.1   90%   25/20/12/3/0/0               1.88    42%     1.90       40%   64/108/6/0    3.0 (1)       2.2 (5)
+ A    14        2.2   82%   23/19/9/9/0/0                2.07    38%     1.97       38%   114/122/1/0   3.0 (11)      2.5 (8)
+ B    8         2.0   13%   54/5/1/0/0/0                 1.12    90%     1.07       93%   133/42/60/0   1.1 (0)       1.5 (12)
+ B    10        2.2   17%   57/0/1/0/0/2                 1.03    95%     1.08       95%   137/50/63/0   1.2 (0)       1.4 (13)
+ B    12        2.5   28%   54/6/0/0/0/0                 1.10    90%     1.08       92%   146/78/56/0   1.3 (0)       1.4 (4)
+ B    14        2.4   25%   56/4/0/0/0/0                 1.07    93%     1.07       93%   150/95/30/0   1.5 (0)       1.7 (2)
+
+
+Table 4: E2. Exact signed fragility number for any (rules C and P), 60 instances per cell. “Types”
+counts leave/enter/swap/sign-only among up to 20 minimal witnesses per instance (rule C). The last two
+columns are mean targeted fragility numbers under rule C with the number of instances not concluded
+within |R| ≤ 5 in parentheses.
+
+
+examined, the change is a single variable leaving in 51% (A) and 54% (B) of the cases, a single
+variable entering in 43% and 25%, and a simultaneous leave and enter in 6% and 20%; sign-only
+changes occurred 0 and 0 times. Targeted searches were not concluded within the cap in 12/240
+(A, leave) and 31/237 (A, enter) instances; the most expensive leave search in family A took
+0.6 s with 902 refits after 3472 closed-form tests. The certificate of Proposition ?? gave k ∗ ≥ 1
+in 30% of the 115 family-A instances with f ≥ 2 (mean gap 1.2).
+
+6.3   E3: heuristics against the exact minimum
+Three heuristics were run on the same instances (rule C): one-step greedy, which at every step
+removes the observation whose exact single-removal effect (Corollary ?? on the current fit) brings
+the target closest, refits, and repeats; sorted scores, in the style of the approximate maximum
+influence perturbation [? ], which scores every observation once on the full data by its exact
+single-removal effect on each margin, predicts the number of removals kpred from cumulative
+sums, and then removes observations in that fixed order with a refit after each until the target
+holds; and Cook’s distance, target-agnostic. Table ?? pools the results over n ≤ 14 against the
+predefined criterion. 0 of the 18 (family, target, heuristic) combinations met it. The one-step
+greedy is the most accurate (family A: 97% exact for any, 95% for leave, 86% for enter,
+falling to 93%, 93% and 78% on the instances with f ≥ 2; maximal excess over the minimum 4),
+but at these sizes it is not cheaper than the exhaustive search that uses Proposition ??: median
+cost ratios are 1.44 (any), 0.52 (leave) and 0.78 (enter) in family A. The linear prediction
+kpred of the sorted-scores heuristic equals the exact fragility number in 70% (A, any) and 99%
+(B, any) of the instances, underestimates it in 0% and 0%, and overestimates it in 30% and 1%.
+
+6.4   E4: scaling with n
+With the closed-form test the exhaustive search for signed any extends to n = 34 at |R| ≤ 6
+(Table ??, Figure ??). In family A the mean fragility number grows slowly with n (1.43 at
+n = 10, 4.00 at n = 34, with 1 of 20 instances above the cap), while in family B it stays close to
+one (75% of the instances have f = 1 at n = 34). Over the 233 family-A instances with finite f ,
+the one-step greedy returned the exact minimum in 88% of the cases (83% of the 174 instances
+with f ≥ 2, maximal excess 6); for n ≥ 22 its median cost was 0.690 of the exhaustive search
+and it was exact in 84% of 113 instances, so at these sizes the heuristic becomes cheap but does
+not reach the accuracy part of the criterion. Beyond exhaustive reach, Table ?? brackets the
+fragility number between the certificate of Proposition ?? (k ∗ + 1) and the greedy upper bound:
+at n = 400 in family A the median greedy witness has 10 observations (mean f /n ≈ 0.028), the
+median certified lower bound is k ∗ + 1 with k ∗ = 5, and the mean ratio (k ∗ + 1)/g is 0.57; the
+bracket is wide, and the observed decrease of g/n with n is an empirical statement about these
+families only.
+
+
+                                                     9
+ fam.    target   heuristic                       n    exact   n (f ≥ 2)   exact (f ≥ 2)    median cost ratio    advantage
+ A       any      one-step greedy               240     97%          115             93%                  1.44   no
+ A       any      sorted scores (AMIP-style)    240     82%          115             63%                  1.25   no
+ A       any      Cook’s distance               240     66%          115             57%                  1.26   no
+ A       leave    one-step greedy               228     95%          167             93%                  0.52   no
+ A       leave    sorted scores (AMIP-style)    228     75%          167             65%                  0.50   no
+ A       leave    Cook’s distance               228     67%          167             66%                  0.48   no
+ A       enter    one-step greedy               206     86%          133             78%                  0.78   no
+ A       enter    sorted scores (AMIP-style)    206     71%          133             56%                  0.71   no
+ A       enter    Cook’s distance               206     27%          133             11%                  1.01   no
+ B       any      one-step greedy               238    100%           17            100%                  0.77   no
+ B       any      sorted scores (AMIP-style)    238    100%           17             94%                  0.84   no
+ B       any      Cook’s distance               238     87%           17             76%                  0.65   no
+ B       leave    one-step greedy               232     98%           48             96%                  0.59   no
+ B       leave    sorted scores (AMIP-style)    232     95%           48             79%                  0.57   no
+ B       leave    Cook’s distance               232     78%           48             65%                  0.52   no
+ B       enter    one-step greedy               209     88%           69             80%                  0.51   no
+ B       enter    sorted scores (AMIP-style)    209     85%           69             72%                  0.53   no
+ B       enter    Cook’s distance               209     23%           69              1%                  0.80   no
+
+Table 5: E3. Heuristics against the exact minimum, pooled over n ∈ {8, 10, 12, 14}, rule C. “Exact” is
+the fraction of instances (with finite exact f within the cap) in which the heuristic’s witness has minimal
+size; “cost ratio” is heuristic time over exhaustive-search time. The verdict applies the criterion fixed
+before the run (exact ≥ 90% and median cost ratio ≤ 10%).
+
+
+6.5     E5: frequency of non-monotone pairs
+For every instance of E2 with a finite targeted fragility number, all one-element supersets R ∪ {i}
+of up to 20 minimal witnesses R were refitted. For leave of the weakest variable, the variable
+had re-entered the support in 7.1% of the 6960 superset pairs of family A (at least one re-entry
+in 51% of the 228 instances) and in 10.5% of 8092 pairs of family B (72% of 232 instances).
+For any, the original support was restored by adding one observation to a minimal witness in
+14.9% (A) and 9.3% (B) of the pairs (Table ??). Non-monotonicity is thus not a curiosity of
+constructed examples but a regular feature of minimal witnesses on these designs.
+
+
+7     What can be claimed
+Limitations. The exact test presupposes a unique minimiser and full column rank on the
+support; ties are measure-zero for continuous designs but real in integer data, and the code
+counts them rather than resolving them. The certificate of Proposition ?? is loose and restricted
+to k < n/s0 . The hardness statement is for p = 1 and is weak in the technical sense; it says
+nothing about the difficulty of typical instances, on which exhaustive search with the closed-form
+test was fast. The experiments use two synthetic families, one solver, and a cap on the size of
+removal sets; the fragility numbers reported are exact under that cap and are not estimates of
+anything beyond the families. The comparison with heuristics is on a single machine and the
+cost ratios depend on the implementation (a vectorised test against a Python-level loop of refits).
+
+Next steps for the research line. (a) Prove or refute Conjecture ??, and settle the complexity
+of leave for fixed p ≥ 2 in the strong sense (the p = 1 argument only gives weak hardness). (b)
+Tighten Proposition ?? by exploiting the sign structure of the interaction term or by a small
+semidefinite relaxation, and measure the gap to f on E4. (c) Replace the fixed-µ setting by a
+data-driven rule (cross-validation), for which the witness must account for the change of µ itself.
+(d) Extend the exact test to the elastic net and to the square-root Lasso, whose KKT systems
+
+
+                                                      10
+ fam. n    inst. S = S ∗ f dist. (1/ . . . /6/n.f.) median mean P (f =1) median P one-step exact sorted exact k∗ mean time (s) cost
+ A    10     40     82%   26/11/3/0/0/0/0         1.0   1.43    65%         1.0           98%          95%      0.05     0.00
+ A    14     40     85%   11/8/9/9/3/0/0          3.0   2.62    28%         2.0           82%          68%      0.25     0.00
+ A    18     40     78%   11/15/8/1/5/0/0         2.0   2.35    28%         2.0           92%          70%      0.28     0.01
+ A    22     40     98%   3/5/13/11/6/1/1         3.0   3.38     8%         3.0           77%          59%      0.47     0.04
+ A    26     30     90%   7/5/8/4/2/1/3           3.0   2.70    23%         3.0           93%          78%      0.47     0.13
+ A    30     30     90%   1/10/5/3/4/5/2          3.0   3.50     3%         3.0           82%          71%      0.60     0.40
+ A    34     20    100%   0/3/3/6/5/2/1           4.0   4.00     0%         4.0           89%          68%      0.75     0.70
+ B    10     40     20%   40/0/0/0/0/0/0          1.0   1.00   100%         1.0          100%         100%      0.00     0.00
+ B    14     40     35%   36/4/0/0/0/0/0          1.0   1.10    90%         1.0          100%         100%      0.00     0.00
+ B    18     40     38%   35/5/0/0/0/0/0          1.0   1.12    88%         1.0          100%          95%      0.00     0.00
+ B    22     40     45%   36/3/1/0/0/0/0          1.0   1.12    90%         1.0          100%          98%      0.00     0.00
+ B    26     30     47%   20/7/2/0/1/0/0          1.0   1.50    67%         1.0           97%          97%      0.13     0.00
+ B    30     30     67%   20/8/2/0/0/0/0          1.0   1.40    67%         1.0          100%         100%      0.10     0.00
+ B    34     20     45%   15/4/1/0/0/0/0          1.0   1.30    75%         1.0           95%         100%      0.05     0.00
+
+
+Table 6: E4. Exact signed fragility number for any by exhaustive search with Proposition ??, |R| ≤ 6
+(rule C unless marked P). “One-step exact” and “sorted exact” are the fractions of instances in which the
+heuristic matches the exact minimum; “time” is the mean exhaustive-search time and “cost ratio” the
+median one-step-greedy time over it.
+
+ fam. n       inst. S = S ∗ one-step median [q1, q3] mean g/n sorted median one-step P median k ∗ median P (k ∗ ≥
+ A     50         40    92%   6 [4, 8]                         0.129                 6                     5            1        8
+ A     100        40    92%   6 [4, 9]                         0.069                 6                     6            2        9
+ A     200        40    98%   10 [6, 13]                       0.049                 9                     8            3        9
+ A     400        40   100%   10 [8, 14]                       0.028                10                    10            5       10
+ B     50         40    60%   1 [1, 2]                         0.036                 1                     2            0        1
+ B     100        40    65%   2 [1, 4]                         0.028                 2                     2            1        5
+ B     200        40    65%   2 [1, 3]                         0.012                 2                     2            0        3
+ B     400        40    80%   4 [2, 6]                         0.011                 4                     4            2        7
+
+Table 7: E4. Beyond exhaustive reach: greedy upper bounds g on the signed any fragility number and
+certified lower bounds k ∗ + 1 (Proposition ??), 40 instances per cell.
+
+
+are also linear on a fixed signed support.
+
+
+A     Reproducibility
+The directory contains experiments/lasso_fragility.py (library: solver wrappers, Propo-
+sition ?? vectorised over subsets, Corollary ??, Proposition ??, exhaustive search, the
+three heuristics, instance generator), experiments/exact_examples.py (E0), experiments/
+run_validation.py (E1), experiments/run_fragility.py (E2, E3, E5), experiments/run_
+scaling.py (E4), experiments/make_figures.py and experiments/make_numbers.py, which
+converts results/*.json into the macros and table bodies of this document, so that no number
+in the text is typed. The run scripts accept –fast. The reference run used Python 3.11.15,
+NumPy 2.4.6, SciPy 1.17.1, scikit-learn 1.9.1 [? ], seeds 20260930 and 20260931, and took 12 s
+(E1), 56 s (E2/E3/E5) and 58 s (E4) on one core of a shared four-core machine, 2.1 minutes in
+all.
+
+Solver. lars_path(X, y, method="lasso", alpha_min=µ/n′ ) on the reduced data with n′
+rows; the last column of the path is the minimiser of (??) at penalty µ. Supports are read off
+exact zeros of the homotopy output (threshold 10−10 ).
+
+Exact test. For a batch of subsets of equal size k: HR by one batched matrix product, eR by
+a batched solve, det(I − HR ) ≤ 10−12 treated as rank deficient (a change), conditions (i)–(ii) of
+
+
+                                                        11
+                                         family A                                            family B
+                                   1.0
+                                                                                                                                       f=1
+                                                                                                                                       f=2
+                                   0.8
+  fraction of instances
+
+
+
+                                                                                                                                       f=3
+                                                                                                                                       f=4
+                                   0.6                                                                                                 f=5
+                                                                                                                                       f ≥ 6 / not found
+
+                                   0.4
+
+
+                                   0.2
+
+
+                                   0.0
+                                            8   10 12 14 18 22 26 30 34                        8   10 12 14 18 22 26 30 34
+                                                         n                                                  n
+
+
+Figure 1: Distribution of the exact signed fragility number for any (rule C) as a function of n, families
+A and B, from E2 (n ≤ 14) and E4 (n ≥ 18; search capped at |R| ≤ 6, the top segment collects f ≥ 6
+and not found).
+
+
+                                         family A                                                       family B
+  number of removed observations
+
+
+
+
+                                   14           one-step greedy (upper bound), median and IQR
+                                                certificate k ∗ + 1 (lower bound), median
+                                   12           exact f (search capped at |R| ≤ 6), median
+
+                                   10
+
+                                    8
+
+                                    6
+
+                                    4
+
+                                    2
+
+
+                                         10         20          50       100       200       400        10         20   50       100     200       400
+                                                                     n                                                       n
+
+
+Figure 2: Bracketing the fragility number at large n (rule C): median one-step greedy witness size
+(upper bound, with interquartile range) and median certified lower bound k ∗ + 1 from Proposition ??,
+per family; exact medians from E4 where available.
+
+
+Proposition ?? with strict inequalities.
+
+Exhaustive search. Sizes k = 1, 2, . . . in order; for the signed any target no refit is needed;
+for the other targets flagged subsets are refitted and the target read from the new support; all
+minimal witnesses of the minimal size (up to 50) are collected.
+
+Heuristics. One-step greedy: score = normalised remaining margin (for any) or the target
+coefficient/correlation after the candidate removal, computed by Corollary ?? on the current
+fit; budget n − 2 removals. Sorted scores: one scoring pass on the full data per direction (each
+active coefficient towards zero; each inactive correlation towards +µ and −µ), kpred from the
+cumulative sums, direction with the smallest kpred , then refits along the fixed order from k = 1.
+Cook: largest hi e2i on the current active-set regression.
+
+Exact arithmetic. Example ??: the KKT system on the candidate support is solved with
+Python fractions, signs and inactive inequalities are checked strictly, and the stability-selection
+
+
+                                                                                                12
+ fam.   n    leave: instances   re-entry (instances)   re-entry (pairs)   any: instances   restored (instances)   restore
+ A      8                  60                  48%               8.9%                60                   60%
+ A      10                 60                  48%               6.6%                60                   73%
+ A      12                 59                  49%               4.9%                60                   82%
+ A      14                 49                  59%               8.4%                60                   83%
+ B      8                  60                  62%               8.4%                60                   55%
+ B      10                 57                  75%              10.3%                58                   72%
+ B      12                 58                  74%               8.9%                60                   83%
+ B      14                 57                  77%              12.3%                60                   77%
+
+Table 8: E5. One-element supersets of minimal witnesses (rule C): fraction of instances with at least
+one non-monotone pair and fraction of superset pairs that are non-monotone.
+
+
+frequency is computed by enumerating all      2 subsamples.
+                                              5
+
+
+
+References
+  [] Edoardo Amaldi and Viggo Kann. The complexity and approximability of finding maximum
+     feasible subsystems of linear relations. Theoretical Computer Science, 147(1–2):181–210,
+     1995.
+
+  [] Edoardo Amaldi and Viggo Kann. On the approximability of minimizing nonzero variables
+     or unsatisfied relations in linear systems. Theoretical Computer Science, 209(1–2):237–260,
+     1998.
+
+  [] David A. Belsley, Edwin Kuh, and Roy E. Welsch. Regression Diagnostics: Identifying
+     Influential Data and Sources of Collinearity. Wiley, New York, 1980.
+
+  [] Tamara Broderick, Ryan Giordano, and Rachael Meager. An automatic finite-sample robust-
+     ness metric: when can dropping a little data make a big difference?, 2020. arXiv:2011.14999.
+
+  [] Peter Bühlmann and Sara van de Geer. Statistics for High-Dimensional Data: Methods,
+     Theory and Applications. Springer, Berlin, 2011.
+
+  [] R. Dennis Cook. Detection of influential observation in linear regression. Technometrics, 19
+     (1):15–18, 1977.
+
+  [] Bradley Efron, Trevor Hastie, Iain Johnstone, and Robert Tibshirani. Least angle regression.
+     The Annals of Statistics, 32(2):407–499, 2004.
+
+  [] Daniel Freund and Samuel B. Hopkins. Towards practical robustness auditing for linear
+     regression, 2023. arXiv:2307.16315.
+
+  [] Michael R. Garey and David S. Johnson. Computers and Intractability: A Guide to the
+     Theory of NP-Completeness. W. H. Freeman, San Francisco, 1979.
+
+  [] William W. Hager. Updating the inverse of a matrix. SIAM Review, 31(2):221–239, 1989.
+
+  [] Frank R. Hampel. The influence curve and its role in robust estimation. Journal of the
+     American Statistical Association, 69(346):383–393, 1974.
+
+  [] Richard M. Karp. Reducibility among combinatorial problems. In Raymond E. Miller and
+     James W. Thatcher, editors, Complexity of Computer Computations, pages 85–103. Plenum
+     Press, New York, 1972.
+
+
+
+                                                 13
+ claim                                                                         status
+ Unique Lasso minimiser has XS of full column rank; uniqueness under           literature
+ full rank of XE (Lemma ??)
+ Exact closed-form test of whether removing R preserves the signed support,    proved here
+ both rules (Prop. ??)
+    agreement with refits in 2760/2760 single and 7200/7200 multiple re-       verified
+ movals (E1)
+ Single removal reduces to a DFBETA-type formula with the Lasso residual;      proved here
+ O(np) certificate for f ≥ 2 (Cor. ??)
+ Polynomial certificate for f ≥ k + 1 (Prop. ??)                               proved here
+    certifies k ∗ ≥ 1 in 30% of family-A instances with f ≥ 2, n ≤ 14; loose   verified
+ (E1, E2, E4)
+ Witness families are not monotone: hand-checkable example with p = 1          proved here
+ (Ex. ??)
+ Competition example with p = 2, exact rational KKT certificate (Ex. ??)       verified (exact arithmetic)
+ fleave(j) > ⌈n/2⌉ implies stability-selection frequency 1; converse not       proved here
+ implied (Rem. ??)
+ Existence of a deselection witness is NP-complete for p = 1; fragility        proved here
+ number NP-hard in general (Thm. ??a)
+ Selection witnesses for p = 1 in O(n log n) (Thm. ??b)                        proved here
+ NP-completeness of selection witnesses for p ≥ 2 (Conj. ??)                   conjectural
+ Single-removal fragility (f = 1) in 92% (B) and 52% (A) of instances with     verified, these designs only
+ n ≤ 14; minimal witnesses mostly single events (E2)
+ No heuristic meets the predefined advantage criterion at n ≤ 14; one-step     verified, these designs only
+ greedy most accurate, cheap only for n ≥ 22 (E3, E4)
+ Non-monotone pairs among one-element supersets of minimal witnesses           verified, these designs only
+ in a measurable fraction of cases (E5)
+ Rates of f /n with n; behaviour on real data; novelty of the algebra          not claimed
+
+Table 9: Claims and their status. “Verified” means reproduced by the scripts of Appendix ?? with the
+fixed seeds; it is not a proof and it is specific to the two synthetic families.
+
+
+  [] Nikolas Kuschnig, Gregor Zens, and Jesús Crespo Cuaresma. Hidden in plain sight:
+     influential sets in linear models, 2021. arXiv preprint.
+  [] Nicolai Meinshausen and Peter Bühlmann. Stability selection. Journal of the Royal
+     Statistical Society: Series B, 72(4):417–473, 2010.
+  [] Ankur Moitra and Dhruv Rohatgi. Provably auditing ordinary least squares in low di-
+     mensions, 2022. arXiv:2205.14284; International Conference on Learning Representations
+     2023.
+  [] Michael R. Osborne, Brett Presnell, and Berwin A. Turlach. On the LASSO and its dual.
+     Journal of Computational and Graphical Statistics, 9(2):319–337, 2000.
+  [] Fabian Pedregosa, Gaël Varoquaux, Alexandre Gramfort, Vincent Michel, Bertrand Thirion,
+     Olivier Grisel, Mathieu Blondel, Peter Prettenhofer, Ron Weiss, Vincent Dubourg, Jake
+     Vanderplas, Alexandre Passos, David Cournapeau, Matthieu Brucher, Matthieu Perrot,
+     and Édouard Duchesnay. Scikit-learn: machine learning in Python. Journal of Machine
+     Learning Research, 12:2825–2830, 2011.
+  [] Jack Sherman and Winifred J. Morrison. Adjustment of an inverse matrix corresponding to
+     a change in one element of a given matrix. The Annals of Mathematical Statistics, 21(1):
+     124–127, 1950.
+  [] Robert Tibshirani. Regression shrinkage and selection via the lasso. Journal of the Royal
+     Statistical Society: Series B, 58(1):267–288, 1996.
+
+                                                   14
+[] Ryan J. Tibshirani. The lasso problem and uniqueness. Electronic Journal of Statistics, 7:
+   1456–1490, 2013.
+
+[] Martin J. Wainwright. Sharp thresholds for high-dimensional and noisy sparsity recovery
+   using ℓ1 -constrained quadratic programming (Lasso). IEEE Transactions on Information
+   Theory, 55(5):2183–2202, 2009.
+
+[] Peng Zhao and Bin Yu. On model selection consistency of lasso. Journal of Machine
+   Learning Research, 7:2541–2563, 2006.
+
+
+
+
+                                            15
+

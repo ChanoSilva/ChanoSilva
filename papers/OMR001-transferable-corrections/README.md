@@ -8,7 +8,7 @@
 
 | Ruta | Contenido |
 |---|---|
-| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés, 13 pp. con 7 tablas y 3 figuras) y bibliografía (18 entradas reales). |
+| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés, 14 pp. con 9 tablas y 3 figuras) y bibliografía (18 entradas reales). |
 | `manuscript/main.pdf` | PDF compilado con pdflatex/bibtex (sin errores ni referencias indefinidas). |
 | `manuscript/numbers.tex`, `manuscript/table_*.tex` | Macros y cuerpos de tabla **generados** desde `results/results.json`; ningún número del texto está tipeado a mano. |
 | `experiments/safe_reversion.py` | Simulación completa (barridos de estructura, de desviación del objetivo, de tamaño de la muestra retenida; tres operadores; constantes del teorema; verificaciones de la identidad). `--fast` para una corrida reducida. |
@@ -25,6 +25,8 @@
 3. **Se concluye** que el estimador con reversión **es** selección por muestra retenida entre dos candidatos con penalización de cambio (una línea de demostración): la garantía es de selección, no del operador, y la ganancia depende solo de la estructura compartida. Eso hace precisa la conclusión de la ficha ("no se ha demostrado diferenciación suficiente").
 
 ## Resultados de la corrida de referencia (semilla 20260930, 20 000 réplicas por configuración, 17 s)
+
+Los números de este README y de la nota de continuidad están copiados a mano de `results/tables.md` y `results/results.json`; los del manuscrito son macros generadas por `experiments/make_numbers.py`.
 
 - **Seguridad:** en las 345 combinaciones (configuración × operador × $\alpha$) el exceso de riesgo Monte Carlo respeta las tres cotas del Teorema B y la cota de frecuencia de eventos dañinos; el cociente máximo exceso/cota cerrada es 0.42. La identidad exacta $E[\Delta\,\pi]$ se verificó réplica a réplica (273 combinaciones con test $z$ pareado, $|z|_{\max}=2.96$; 72 con conteo de Poisson, 2 fuera del intervalo del 99 %, ambas del mismo lote; re-simuladas con 50 semillas independientes: $z=+1.27$).
 - **Transferencia dañina:** al desplazar el objetivo $16\tau$ del centro común, corregir siempre multiplica el riesgo de la referencia por 13.8; el estimador con reversión ($\alpha=0.1$) queda en 1.26× la referencia con todos los datos, con exceso sobre la referencia de la muestra de estimación 0.0012 frente a cotas 0.120 ($\varphi$) y 0.133 ($\alpha$). La frecuencia de eventos dañinos nunca supera 3.4 % con $\alpha=0.1$ (25.3 % con $\alpha=0.5$, 0.25 % con $\alpha=0.01$).

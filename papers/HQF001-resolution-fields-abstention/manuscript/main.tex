@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -16,6 +16,7 @@
 \captionsetup{font=small,labelfont=bf}
 
 \IfFileExists{numbers.tex}{\input{numbers.tex}}{}
+\renewcommand{\bibfont}{\small}
 
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[section]
@@ -110,7 +111,7 @@ $m(x)=\tanh\!\big(s(x)/4\big)$. Hence $s$ and $m$ induce the same ordering of ev
 \end{proof}
 
 \begin{proposition}[Departure from LDA under an arbitrary field]\label{prop:departure} \status{proved here}
-Let $A(x)\succ0$ be any field, $d^{2}_{A,c}(x)=(x-\mu_c)^{\top}A(x)(x-\mu_c)$, and suppose the two nearest prototypes at $x$ under $A(x)$ and under $\Sig^{-1}$ are the same pair, with difference $\delta=\mu_{(1)}-\mu_{(2)}$ and midpoint $\bar m=(\mu_{(1)}+\mu_{(2)})/2$. Then
+Let $A(x)\succ0$ be any field, $d^{2}_{A,c}(x)=(x-\mu_c)^{\top}A(x)(x-\mu_c)$, and suppose the two nearest prototypes at $x$ under $A(x)$ and under $\Sig^{-1}$ are the same pair in the same order, with difference $\delta=\mu_{(1)}-\mu_{(2)}$ and midpoint $\bar m=(\mu_{(1)}+\mu_{(2)})/2$. Then
 \[
 s_A(x)-s(x)=2\,(x-\bar m)^{\top}\big(A(x)-\Sig^{-1}\big)\,\delta .
 \]
@@ -133,7 +134,7 @@ The numerical verification (\path{experiments/lda_identity.py}, true parameters,
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.95\linewidth]{../figures/fig_identity.pdf}
+\includegraphics[width=0.82\linewidth]{../figures/fig_identity.pdf}
 \caption{Proposition~\ref{prop:lda} on samples from the true model. Left: $K=2$, equal priors, the posterior margin is exactly $\tanh(s/4)$. Right: $K=3$, neither the posterior difference nor the maximum posterior is a function of $s$.}
 \label{fig:identity}
 \end{figure}
@@ -151,7 +152,7 @@ The numerical verification (\path{experiments/lda_identity.py}, true parameters,
 
 \paragraph{Evaluation.} Repeated stratified $\MetaSplits$-fold cross-validation with $\MetaRepeats$ repeats ($\MetaFolds$ outer folds, identical for all methods). Inside each training fold, features are standardised and every method's hyper-parameters are chosen by $\MetaInner$-fold inner cross-validation minimising AURC; the chosen configuration is refitted on the whole training fold and scored on the test fold. Paired per-fold differences of AURC are summarised by the mean and a percentile bootstrap 95\% interval over folds ($B=\MetaBootB$)~\citep{efron1993}, with a two-sided Wilcoxon signed-rank $p$-value as a secondary check~\citep{demsar2006}. Folds of a repeated cross-validation are not independent, so the intervals are somewhat optimistic~\citep{dietterich1998,nadeau2003}; this works \emph{against} a negative conclusion, not for it.
 
-\paragraph{Predefined criterion.} Fixed before the run: the field score shows a \emph{residual gain} if its AURC is lower than that of the best reference (the reference with the lowest mean AURC on that dataset, among the $\MetaNRefs$ references) on a majority ($\ge\MetaMajority$ of $\MetaNDatasets$) of datasets, with the paired 95\% interval excluding zero. Choosing the best reference per dataset on the same folds favours the references slightly; we therefore also report the field against each reference separately. Total compute: $\MetaCpuSeconds$~s of CPU ($\MetaCpuMinutes$~min) for the benchmark, single-threaded, plus \IdCpuSeconds~s for the verification of Section~\ref{sec:exact}.
+\paragraph{Predefined criterion.} Fixed before the run: the field score shows a \emph{residual gain} if its AURC is lower than that of the best reference (the reference with the lowest mean AURC on that dataset, among the $\MetaNRefs$ references) on a majority ($\ge\MetaMajority$ of $\MetaNDatasets$) of datasets, with the paired 95\% interval excluding zero. Choosing the best reference per dataset on the same folds favours the references slightly; we therefore also report the field against each reference separately. Total compute: $\MetaCpuSeconds$~s of CPU ($\MetaCpuMinutes$~min) for the benchmark, single-threaded, plus \IdCpuSeconds~s for the verification of Section~\ref{sec:exact}; smoke tests and figure generation add about three minutes.
 
 \section{Results}\label{sec:results}
 
@@ -203,12 +204,12 @@ dataset & best ref. & $\Delta$ [95\% CI] & wins & $\Delta$ [95\% CI] & wins & $\
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.9\linewidth]{../figures/fig_diff_forest.pdf}
+\includegraphics[width=0.8\linewidth]{../figures/fig_diff_forest.pdf}
 \caption{Paired AURC differences (field minus best reference, ${}\times100$) with 95\% bootstrap intervals; negative favours the field. The horizontal axis is symmetric-log to accommodate the large losses of the ablations.}
 \label{fig:forest}
 \end{figure}
 
-Tables~\ref{tab:refs}--\ref{tab:diff} and Figure~\ref{fig:forest} give the main result. Against the best reference, the anisotropic field is significantly better on \CritFanisoBetter{} of \MetaNDatasets{} datasets (\CritFanisoBetterList), significantly worse on \CritFanisoWorse{} (\CritFanisoWorseList) and inconclusive on \CritFanisoIncon{} (\CritFanisoInconList). The predefined criterion is therefore \textbf{\CritFanisoMet}. The closest the field comes to the best reference is on \GapClosestDs{} ($\Delta=\GapClosest$); the largest loss is on \GapWorstDs{} ($\Delta=\GapWorst$). The isotropic and Euclidean ablations meet the criterion on \CritFisoBetter{} and \CritFeuclidBetter{} datasets respectively, and the geometry-only scores on \CritFvolBetter{} and \CritFanisBetter.
+Tables~\ref{tab:refs}--\ref{tab:diff} and Figure~\ref{fig:forest} give the main result. Against the best reference, the anisotropic field is significantly better on \CritFanisoBetter{} of \MetaNDatasets{} datasets (\CritFanisoBetterList), significantly worse on \CritFanisoWorse{} (\CritFanisoWorseList) and inconclusive on \CritFanisoIncon{} (\CritFanisoInconList). The predefined criterion is therefore \textbf{\CritFanisoMet}. The closest the field comes to the best reference is on \GapClosestDs{} ($\Delta=\GapClosest$); the largest loss is on \GapWorstDs{} ($\Delta=\GapWorst$). The isotropic and Euclidean ablations are significantly better than the best reference on \CritFisoBetter{} and \CritFeuclidBetter{} datasets and significantly worse on \CritFisoWorse{} and \CritFeuclidWorse; the geometry-only scores are significantly worse on \CritFvolWorse{} and \CritFanisWorse.
 
 \begin{table}[t]
 \centering\small
@@ -231,18 +232,18 @@ Table~\ref{tab:vsrefs} removes the best-reference selection. Counting datasets o
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{lrrrrrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
-dataset & aniso$-$iso & aniso$-$Eucl. & Eucl.$-$NCM & aniso$-$vol. & aniso$-$glob.\ prot. & aniso$-k$-NN & aniso$-$LDA & aniso$-$DANN\\
+dataset & aniso$-$iso & aniso$-$Eucl. & Eucl.$-$NCM & aniso$-$vol. & aniso$-$anis. & aniso$-$glob.\ prot.\\
 \midrule
 \input{table_ablation.tex}\\
 \bottomrule
 \end{tabular}
-\caption{Ablations and direct comparisons: mean paired difference of AURC${}\times100$ (first minus second; negative favours the first). Bold: first significantly better; italic: second significantly better.}
+\caption{Ablations: mean paired difference of AURC${}\times100$ (first minus second; negative favours the first). Bold: first significantly better; italic: second significantly better. Direct comparisons with the references are in Table~\ref{tab:vsrefs}.}
 \label{tab:ablation}
 \end{table}
 
-Table~\ref{tab:ablation} answers the line's question in its narrow form. Allowing anisotropy improves on the isotropic field (same neighbourhoods, same prototypes, scalar metric) with an interval excluding zero on \AblAnisoIsoFirst{} datasets (\AblAnisoIsoFirstList) and hurts on \AblAnisoIsoSecond{} (\AblAnisoIsoSecondList); against the Euclidean field the counts are \AblAnisoEuclidFirst{} and \AblAnisoEuclidSecond. So the anisotropic metric does carry information about correctness that a local scale alone does not. Replacing the local prototypes by the global class means while keeping $A(x)$ is significantly worse on \AblAnisoGprotoFirst{} datasets: the local metric is meaningful only at the scale of the neighbourhood from which it was estimated. Finally, the field is significantly worse than $k$-NN on \AblAnisoKnnSecond{} datasets and better on \AblAnisoKnnFirst; worse than DANN on \AblAnisoDannSecond{} and better on \AblAnisoDannFirst; worse than LDA on \AblAnisoLdaSecond{} and better on \AblAnisoLdaFirst.
+Table~\ref{tab:ablation} answers the line's question in its narrow form. Allowing anisotropy improves on the isotropic field (same neighbourhoods, same prototypes, scalar metric) with an interval excluding zero on \AblAnisoIsoFirst{} datasets (\AblAnisoIsoFirstList) and hurts on \AblAnisoIsoSecond{} (\AblAnisoIsoSecondList); against the Euclidean field the counts are \AblAnisoEuclidFirst{} and \AblAnisoEuclidSecond. So the anisotropic metric does carry information about correctness that a local scale alone does not. Replacing the local prototypes by the global class means while keeping $A(x)$ is significantly worse on \AblAnisoGprotoFirst{} datasets: the local metric is meaningful only at the scale of the neighbourhood from which it was estimated.
 
 \begin{table}[t]
 \centering\small
@@ -266,7 +267,7 @@ Table~\ref{tab:geom} shows that the two purely geometric scores are far from the
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{../figures/fig_rc_curves.pdf}
+\includegraphics[width=0.92\linewidth]{../figures/fig_rc_curves.pdf}
 \caption{Mean risk--coverage curves over folds on three datasets, for the anisotropic field, its isotropic ablation and the best reference.}
 \label{fig:rc}
 \end{figure}
@@ -274,11 +275,11 @@ Table~\ref{tab:geom} shows that the two purely geometric scores are far from the
 \begin{table}[t]
 \centering\small
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{llrrrrrrrrrrrr}
+\begin{tabular}{llrrrrrrrrr}
 \toprule
-& & \multicolumn{3}{c}{best ref.} & \multicolumn{3}{c}{$k$-NN} & \multicolumn{3}{c}{Field (aniso)} & \multicolumn{3}{c}{Field (iso)}\\
-\cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}\cmidrule(lr){12-14}
-dataset & best ref. & 100 & 90 & 80 & 100 & 90 & 80 & 100 & 90 & 80 & 100 & 90 & 80\\
+& & \multicolumn{3}{c}{best ref.} & \multicolumn{3}{c}{Field (aniso)} & \multicolumn{3}{c}{Field (iso)}\\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}
+dataset & best ref. & 100 & 90 & 80 & 100 & 90 & 80 & 100 & 90 & 80\\
 \midrule
 \input{table_acc.tex}\\
 \bottomrule
@@ -291,7 +292,7 @@ Figure~\ref{fig:rc} and Table~\ref{tab:acc} show the same picture at fixed cover
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.62\linewidth]{../figures/fig_field_moons.pdf}
+\includegraphics[width=0.5\linewidth]{../figures/fig_field_moons.pdf}
 \caption{Resolution ellipsoids ($K_m=40$, $\alpha=0.2$, drawn at $0.6$ standard deviations, projected on the two informative coordinates) on a grid of query points of moons-aniso. Along the moons the ellipses follow the local orientation of the data; away from them they inflate.}
 \label{fig:moons}
 \end{figure}
@@ -300,12 +301,12 @@ Figure~\ref{fig:rc} and Table~\ref{tab:acc} show the same picture at fixed cover
 
 \begin{table}[t]
 \centering\small
-\begin{tabular}{p{0.72\linewidth}l}
+\begin{tabular}{p{0.66\linewidth}p{0.28\linewidth}}
 \toprule
 claim & status\\
 \midrule
 LDA posterior and Bayes optimality for shared-covariance Gaussians & classical\\
-$K=2$, equal priors: resolution margin under $\Sig^{-1}$ is $\tanh^{-1}$-related to the posterior margin; identical risk--coverage curves (Prop.~\ref{prop:lda}(i)) & proved here\\
+$K=2$, equal priors: the LDA posterior margin equals $\tanh(s/4)$ of the resolution margin under $\Sig^{-1}$; identical risk--coverage curves (Prop.~\ref{prop:lda}(i)) & proved here\\
 Unequal priors: identity fails for the unsigned margin; restored by the prior-corrected signed margin (Prop.~\ref{prop:lda}(ii)) & proved here\\
 $K\ge3$: margin equals twice the top-two posterior log-ratio, not a function of the posterior difference or of the maximum posterior (Prop.~\ref{prop:lda}(iii)) & proved here, example verified\\
 Departure from LDA under any field is $2(x-\bar m)^{\top}(A-\Sig^{-1})\delta$; only the component along $\delta$ matters (Prop.~\ref{prop:departure}) & proved here\\
@@ -322,7 +323,7 @@ Any statement about physical or quantum phenomena & not made\\
 \label{tab:claims}
 \end{table}
 
-Table~\ref{tab:claims} lists the claims with their status. The main one is negative and is stated as such: under a criterion fixed in advance, on \MetaNDatasets{} datasets chosen to include the regimes where a local anisotropic metric could help, the resolution-field score does not deliver a residual gain over tuned local-metric, prototype and softmax references. The one regime in which the field is competitive, class-dependent covariance, is exactly the regime in which a parametric reference (QDA) is available and better. The positive finding is narrow: the anisotropic metric ranks correctness better than an isotropic local scale on \AblAnisoIsoFirst{} datasets, so the representation is not empty; it is redundant given the references.
+Table~\ref{tab:claims} lists the claims with their status. The main one is negative and is stated as such: under a criterion fixed in advance, on \MetaNDatasets{} datasets chosen to include the regimes where a local anisotropic metric could help, the resolution-field score does not deliver a residual gain over tuned local-metric, prototype and softmax references. The field is statistically indistinguishable from the best reference only on wine and digits, and the one regime in which it beats the non-parametric local references, class-dependent covariance, is exactly the regime in which a parametric reference (QDA) is available and better. The positive finding is narrow: the anisotropic metric ranks correctness better than an isotropic local scale on \AblAnisoIsoFirst{} datasets (and worse on \AblAnisoIsoSecond), so the representation is not empty; it is redundant given the references.
 
 \paragraph{Limitations.} The field is one specific reconstruction of an idea for which no manuscript existed; other formulations (a supervised field from the Fisher information of a local probabilistic model, a field learned end-to-end, or a combination of the margin with the log-volume) were not run, and the second and third could in principle change the outcome. The datasets are small to moderate ($n\le\NDigits$, $d\le30$) and low-dimensional after preprocessing; neighbourhood covariances in higher dimension would need stronger regularisation and the comparison could shift either way. Inner tuning on AURC with $\MetaInner$ folds is noisy on the smallest datasets. Bootstrap intervals over repeated folds are optimistic, and the best reference is selected on the same folds; both caveats make the negative result conservative in the sense that they favour finding a gain. DANN was run for one iteration with $\varepsilon=1$ as in the original paper and not tuned further. QDA at $\mathrm{reg\_param}=0$ was excluded because it fails on rank-deficient inner folds. The synth-classcov problem ended with coinciding class means (Section~\ref{sec:protocol}); a version with both a mean shift and different covariances was not run.
 
@@ -330,7 +331,7 @@ Table~\ref{tab:claims} lists the claims with their status. The main one is negat
 
 \appendix
 \section{Reproducibility}\label{app:repro}
-{\sloppy The directory contains \path{experiments/selective_benchmark.py} (benchmark; \texttt{--fast} for a reduced run), \path{experiments/lda_identity.py} (verification of Section~\ref{sec:exact}), \path{experiments/make_figures.py} and \path{experiments/make_numbers.py}, which converts \path{results/results.json} and \path{results/results_identity.json} into the macros and table bodies of this document. Seed \MetaSeed; Python \MetaPython, NumPy \MetaNumpy, SciPy \MetaScipy~\citep{virtanen2020}, scikit-learn \MetaSklearn, Matplotlib~\citep{hunter2007}; BLAS threads limited to one; \MetaCpuSeconds~s of CPU for the benchmark (wall \MetaWallSeconds~s).\par}
+{\sloppy The directory contains \path{experiments/selective_benchmark.py} (benchmark; \texttt{-{}-fast} for a reduced run, \texttt{-{}-resummarise} to recompute the statistics from stored per-fold results), \path{experiments/lda_identity.py} (verification of Section~\ref{sec:exact}), \path{experiments/make_figures.py} and \path{experiments/make_numbers.py}, which converts \path{results/results.json} and \path{results/results_identity.json} into the macros and table bodies of this document. Seed \MetaSeed; Python \MetaPython, NumPy \MetaNumpy, SciPy \MetaScipy~\citep{virtanen2020}, scikit-learn \MetaSklearn, Matplotlib~\citep{hunter2007}; BLAS threads limited to one; \MetaCpuSeconds~s of CPU for the benchmark (wall \MetaWallSeconds~s).\par}
 
 \paragraph{Tie handling.} Sort by decreasing score, group tied scores into blocks; within a block of size $b$ with $e$ errors, the expected cumulative error after accepting $j\le b$ of its points is $e j/b$, and $r_i$ is the expected cumulative error divided by $i$. This gives the exact expectation of the risk--coverage curve under uniform random tie-breaking; the AURC is its mean over $i$ and the accuracy at coverage $c$ is $1-r_{\lceil cn\rceil}$.
 

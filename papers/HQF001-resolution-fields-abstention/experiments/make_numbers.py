@@ -71,12 +71,12 @@ mac("MetaNDatasets", len(S))
 mac("MetaMajority", len(S) // 2 + 1)
 mac("MetaNRefs", len(REFS))
 mac("MetaNFields", len(FIELDS))
-mac("IdCpuSeconds", f"{ide['meta']['cpu_seconds']:.1f}")
+mac("IdCpuSeconds", f"{ide['meta']['cpu_seconds']:.2f}")
 
 # ---- datasets table
 with open(os.path.join(OUT, "table_datasets.tex"), "w") as fh:
     # complete tabular: \input of row files does not work inside a tabular with a p{} column
-    fh.write(r"\begin{tabular}{lrrrrp{0.5\linewidth}}" + "\n" + r"\toprule" + "\n")
+    fh.write(r"\begin{tabular}{lrrrrp{0.46\linewidth}}" + "\n" + r"\toprule" + "\n")
     fh.write(r"dataset & $n$ & $d$ & $K$ & Bayes err.\ (\%) & description\\" + "\n" + r"\midrule" + "\n")
     for ds, info in res["datasets"].items():
         be = "--" if info.get("bayes_error") is None else pct(info["bayes_error"], 1)
@@ -156,7 +156,7 @@ with open(os.path.join(OUT, "table_diff.tex"), "w") as fh:
         fh.write(f"{DS_NAME[ds]} & {M_NAME[best]} & " + " & ".join(cells) + " \\\\\n")
 
 ABL_KEYS = ["Field-aniso - Field-iso", "Field-aniso - Field-euclid", "Field-euclid - NCM",
-            "Field-aniso - Field-vol", "Field-aniso - Field-aniso-gproto", "Field-aniso - kNN", "Field-aniso - LDA", "Field-aniso - DANN"]
+            "Field-aniso - Field-vol", "Field-aniso - Field-anis", "Field-aniso - Field-aniso-gproto"]
 with open(os.path.join(OUT, "table_ablation.tex"), "w") as fh:
     for ds in S:
         cells = []
@@ -184,7 +184,7 @@ with open(os.path.join(OUT, "table_acc.tex"), "w") as fh:
     for ds in S:
         best = S[ds]["best_reference"]
         cells = []
-        for m in [best, "kNN", "Field-aniso", "Field-iso"]:
+        for m in [best, "Field-aniso", "Field-iso"]:
             v = S[ds]["methods"][m]
             cells.append(f"{pct(v['acc_mean'], 1)} & {pct(v['acc90_mean'], 1)} & {pct(v['acc80_mean'], 1)}")
         fh.write(f"{DS_NAME[ds]} & {M_NAME[best]} & " + " & ".join(cells) + " \\\\\n")
@@ -240,7 +240,7 @@ with open(os.path.join(OUT, "table_vsrefs.tex"), "w") as fh:
 for ds in S:
     best = S[ds]["best_reference"]
     gap = S[ds]["methods"][best]["acc_mean"] - S[ds]["methods"]["Field-aniso"]["acc_mean"]
-    mac(f"AccGap{DS_TAG[ds]}", f"{100 * gap:+.1f}")
+    mac(f"AccGap{DS_TAG[ds]}", f"{100 * gap:.1f}")
 acc_worse = [ds for ds in S if S[ds]["methods"][S[ds]["best_reference"]]["acc_mean"] - S[ds]["methods"]["Field-aniso"]["acc_mean"] >= 0.01]
 mac("AccGapBigList", ", ".join(DS_NAME[d] for d in acc_worse) if acc_worse else "none")
 mac("AccGapBigN", len(acc_worse))

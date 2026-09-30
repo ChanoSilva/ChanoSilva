@@ -128,7 +128,7 @@ Taylor's formula along the segment $t\mapsto\bar x+th_i$, which lies in $U$ \cit
 f(x_i)&=f(\bar x)+Df(\bar x)[h_i]+\int_0^1(1-t)\,D^2\!f(\bar x+th_i)[h_i,h_i]\,\dd t,\\
 f(x_i)&=f(\bar x)+Df(\bar x)[h_i]+\tfrac12D^2\!f(\bar x)[h_i,h_i]+\int_0^1\tfrac{(1-t)^2}{2}\,D^3\!f(\bar x+th_i)[h_i,h_i,h_i]\,\dd t .
 \end{align*}
-Summing over $i$, the linear terms vanish because $\sum_ih_i=0$, and $\sum_i\frac12D^2\!f(\bar x)[h_i,h_i]=\frac N2\tr(\Hf(\bar x)\Sigma)=Q_2$. This gives the identities in (a) and (c); (b) follows from the first integral form by subtracting $\frac12D^2\!f(\bar x)[h_i,h_i]$, written as $\int_0^1(1-t)\,D^2\!f(\bar x)[h_i,h_i]\,\dd t$. The bounds use $|T[h,\dots,h]|\le\|T\|\|h\|^k$, $\int_0^1(1-t)\,\dd t=\frac12$ and $\int_0^1\frac{(1-t)^2}{2}\,\dd t=\frac16$; $\|h_i\|^3\le\rho\|h_i\|^2$ gives $m_3\le\rho s^2$. Concavity gives $D^2\!f(\xi_i)[h_i,h_i]\le0$ in (a), and $D^2\!f\preceq-\lambda I$ gives $-D^2\!f(\xi_i)[h_i,h_i]\ge\lambda\|h_i\|^2$ in (d).
+Summing over $i$, the linear terms vanish because $\sum_ih_i=0$, and the quadratic terms $\sum_i\frac12D^2\!f(\bar x)[h_i,h_i]$ add up to $\frac N2\tr(\Hf(\bar x)\Sigma)=Q_2$. This gives the identities in (a) and (c); (b) follows from the first integral form by subtracting $\frac12D^2\!f(\bar x)[h_i,h_i]$, written as $\int_0^1(1-t)\,D^2\!f(\bar x)[h_i,h_i]\,\dd t$. The bounds use $|T[h,\dots,h]|\le\|T\|\|h\|^k$, $\int_0^1(1-t)\,\dd t=\frac12$ and $\int_0^1\frac{(1-t)^2}{2}\,\dd t=\frac16$; $\|h_i\|^3\le\rho\|h_i\|^2$ gives $m_3\le\rho s^2$. Concavity gives $D^2\!f(\xi_i)[h_i,h_i]\le0$ in (a), and $D^2\!f\preceq-\lambda I$ gives $-D^2\!f(\xi_i)[h_i,h_i]\ge\lambda\|h_i\|^2$ in (d).
 \end{proof}
 
 \begin{remark}[Orders in the dispersion]\label{rem:orders}
@@ -234,7 +234,7 @@ With Definition~\ref{def:eff}, $Y^\theta-\bar\theta\Yh_k=\bar\theta E_k+C$ with 
 $N=\EoneN$ units, $\EoneReps$ replications. Figure~\ref{fig:sweep} and Table~\ref{tab:e1} report the results; Table~\ref{tab:e1} lists five dispersions per case. The small-dispersion exponents (least squares on $\sigma\le0.05$) are: order~1, $\EoneSlopeOneCDLN$ (CD--LN), $\EoneSlopeOneCDSU$ (CD--SU), $\EoneSlopeOneCESLN$, $\EoneSlopeOneCESSU$ (CES); order~2, $\EoneSlopeTwoCDLN$, $\EoneSlopeTwoCDSU$, $\EoneSlopeTwoCESLN$, $\EoneSlopeTwoCESSU$; order~3, $\EoneSlopeThreeCDLN$, $\EoneSlopeThreeCDSU$, $\EoneSlopeThreeCESLN$, $\EoneSlopeThreeCESSU$. These are the exponents of Remark~\ref{rem:orders}: $2$ for the first order, $4$ for the second order on symmetric inputs, between $3$ and $4$ on log-normal inputs, and $4$ for the third order.
 
 \begin{table}[t]
-\centering\small
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
 \begin{tabular}{llrrrrrrr}
 \toprule
 frontier & law & $\sigma$ & $|e_1|$ & $|e_2|$ & $|e_3|$ & $\min|E_1|/|E_2|$ & $\mathrm{med}\,|E_2|/|E_3|$ & $B_2/Y$\\
@@ -248,7 +248,7 @@ frontier & law & $\sigma$ & $|e_1|$ & $|e_2|$ & $|e_3|$ & $\min|E_1|/|E_2|$ & $\
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.9\linewidth]{../figures/dispersion_sweep.pdf}
+\includegraphics[width=0.82\linewidth]{../figures/dispersion_sweep.pdf}
 \caption{E1. Median relative aggregation error against dispersion for the three orders and, for Cobb--Douglas, the certified bound on the second-order error. Slopes $2$, $4$ ($3$--$4$ on skewed inputs) and $4$.}
 \label{fig:sweep}
 \end{figure}
@@ -261,27 +261,14 @@ frontier & law & $\sigma$ & $|e_1|$ & $|e_2|$ & $|e_3|$ & $\min|E_1|/|E_2|$ & $\
 
 \subsection{E1b: efficiency terms}
 
-Same design as E1 (Cobb--Douglas, LN, $N=\EonebN$) with independent efficiencies $\theta_i\sim U(0.5,1)$, $\mathrm{sd}(\theta)/\bar\theta=\EonebSdTheta$. Table~\ref{tab:e1b}: the covariance term $C/Y^\theta$ of Remark~\ref{rem:eff} exceeds the second-order remainder up to $\sigma=\EonebSigmaCov$ and is $\EonebRatioSmallest$ times larger than it at $\sigma=0.01$; its median is $\EonebPredMin$--$\EonebPredMax$ of the predicted standard deviation $\mathrm{sd}(\theta)\mathrm{CV}_u/(\bar\theta\sqrt N)$ (the median of $|Z|$ for a standard normal $Z$ is $0.67$). With unobserved idiosyncratic efficiency the refinement from the first to the second order is below the sampling floor unless the input dispersion is large or the population is very large.
-
-\begin{table}[t]
-\centering\small
-\begin{tabular}{rrrrr}
-\toprule
-$\sigma$ & $|e_2|$ (no $\theta$) & $|C|/Y^\theta$ & $|Y^\theta-\bar\theta\Yh_2|/Y^\theta$ & predicted sd of $C/Y^\theta$\\
-\midrule
-\input{table_e1b.tex}\\
-\bottomrule
-\end{tabular}
-\caption{E1b. Medians over \EonebReps{} replications. The covariance floor decays like $\sigma$, the second-order remainder like $\sigma^4$.}
-\label{tab:e1b}
-\end{table}
+Same design as E1 (Cobb--Douglas, LN, $N=\EonebN$, \EonebReps{} replications) with independent efficiencies $\theta_i\sim U(0.5,1)$, $\mathrm{sd}(\theta)/\bar\theta=\EonebSdTheta$. The covariance term $C/Y^\theta$ of Remark~\ref{rem:eff} exceeds the second-order remainder up to $\sigma=\EonebSigmaCov$ and is $\EonebRatioSmallest$ times larger than it at $\sigma=0.01$; its median is $\EonebPredMin$--$\EonebPredMax$ of the predicted standard deviation $\mathrm{sd}(\theta)\mathrm{CV}_u/(\bar\theta\sqrt N)$ (the median of $|Z|$ for a standard normal $Z$ is $0.67$). With unobserved idiosyncratic efficiency the refinement from the first to the second order is below the sampling floor unless the input dispersion is large or the population is very large.
 
 \subsection{E2: capacity thresholds}
 
 Cobb--Douglas frontier, $N=\EtwoN$, $\EtwoReps$ replications, both input laws, capacity $c=f(\bar x)/(1+\delta)$ with $\delta\in\{\EtwoDeltas\}$ (negative: the representative unit is below capacity) and $\sigma$ from $\EtwoSigmaMin$ to $1$. Figure~\ref{fig:threshold} and Table~\ref{tab:e2}.
 
 \begin{table}[t]
-\centering\footnotesize
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
 \begin{tabular}{rrrrrrrrr}
 \toprule
 $\delta$ & $\sigma$ & $|e_1|$ & $|e_2|$ & $|e_2|$ (smooth) & $\min|E_1|/|E_2|$ & $N\Tu/Y$ & $-E_2/(N\Tu)$ & above\\
@@ -295,7 +282,7 @@ $\delta$ & $\sigma$ & $|e_1|$ & $|e_2|$ & $|e_2|$ (smooth) & $\min|E_1|/|E_2|$ &
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{../figures/threshold.pdf}
+\includegraphics[width=0.92\linewidth]{../figures/threshold.pdf}
 \caption{E2. Left: second-order relative error against dispersion for the capped frontier at four threshold proximities, and for the uncapped frontier. Right: the ratio $-E_2/(N\Tu)$ predicted to be $1+O(\sigma)$ by Proposition~\ref{prop:cap}.}
 \label{fig:threshold}
 \end{figure}
@@ -307,7 +294,7 @@ With the mean on the capacity ($\delta=0$) the small-dispersion exponent of the 
 $G=\EthreeG$ firms of $n=\Ethreen$ units ($N=\EthreeN$), firm means log-normal around the sector mean with between-firm dispersion $\sigma_B$, units log-normal around their firm mean with within-firm dispersion $\sigma_W$, both in $\{0.05,0.1,0.2,0.4\}$, $\EthreeReps$ replications; smooth Cobb--Douglas frontier and the same frontier capped at the sector mean output. Table~\ref{tab:e3} and Figure~\ref{fig:hier}.
 
 \begin{table}[t]
-\centering\footnotesize
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
 \begin{tabular}{rrrrrrrrr}
 \toprule
 & & \multicolumn{4}{c}{smooth} & \multicolumn{3}{c}{capacity at sector mean output}\\
@@ -323,7 +310,7 @@ $\sigma_B$ & $\sigma_W$ & pooled $|e_1|$ & pooled $|e_2|$ & b.-up $|e_2|$ & gain
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{../figures/hierarchy.pdf}
+\includegraphics[width=0.92\linewidth]{../figures/hierarchy.pdf}
 \caption{E3. Pooled (solid) and bottom-up (dotted) second-order errors against within-firm dispersion, one shade per between-firm dispersion. Left: smooth frontier. Right: capacity at the sector mean output.}
 \label{fig:hier}
 \end{figure}
@@ -335,7 +322,7 @@ The identity $\Yh_2^{\mathrm{TD}}=\Yh_2$ of Lemma~\ref{lem:hier}(i) holds to a r
 Two sectors of $N=\EfourN$ units each. Sector $A$ has mean $\bar x$ and dispersion $\sigma$; sector $B$ has mean $\bar x(1+\gamma)^{1/0.8}$, so that $f(\bar x_B)=(1+\gamma)f(\bar x_A)$ with $\gamma$ uniform on $\pm\EfourGammaMax\%$, and dispersion $\sigma/2$. Inputs log-normal; $\EfourTrials$ trials per cell; $\sigma\in\{\EfourSigmaMin,\dots,\EfourSigmaMax\}$; capacity at $+50,+20,+10,+5,+0\%$ of $f(\bar x_A)$ or absent. A trial is a reversal at order $k$ when $\operatorname{sign}(\Yh_k^A-\Yh_k^B)\ne\operatorname{sign}(Y^A-Y^B)$. In the smooth cells a comparison is \emph{certified} when the margin condition of Proposition~\ref{prop:margin} holds with the bounds $B_2$ of the two samples. Table~\ref{tab:e4} and Figure~\ref{fig:decision}.
 
 \begin{table}[t]
-\centering\small
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
 \begin{tabular}{rrrrrrrrrrr}
 \toprule
 & \multicolumn{5}{c}{no capacity} & \multicolumn{2}{c}{capacity $+10\%$} & \multicolumn{3}{c}{capacity $+0\%$}\\
@@ -351,7 +338,7 @@ $\sigma$ & rev.~1 & rev.~2 & rev.~3 & certified & cert.\ rev. & rev.~1 & rev.~2 
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.9\linewidth]{../figures/decision.pdf}
+\includegraphics[width=0.84\linewidth]{../figures/decision.pdf}
 \caption{E4. Rank-reversal rates against the dispersion of sector $A$ for six capacity positions.}
 \label{fig:decision}
 \end{figure}
@@ -383,7 +370,7 @@ No variant meets C1 (order 2: \EfiveOtwoConeAll; global: \EfiveGlobConeAll; by r
 
 \begin{table}[t]
 \centering\footnotesize
-\begin{tabular}{p{0.74\linewidth}l}
+\begin{tabular}{p{0.72\linewidth}l}
 \toprule
 claim & status\\
 \midrule
@@ -396,11 +383,11 @@ Top-down two-stage second order equals pooled second order (Lem.~\ref{lem:hier})
 Bottom-up error is the sum of within-firm errors; gain $\EthreeGainMin$--$\EthreeGainMax$ (E3) & proved here; verified\\
 Hinge identity; $E_2(f_c)=-N\Tu+O(\text{smooth terms})$ (Lem.~\ref{lem:hinge}, Prop.~\ref{prop:cap}) & proved here\\
 \quad two-sided bound holds in all $\EtwoCells$ cells; $-E_2/(N\Tu)=\EtwoRatioSmallest$ at $\sigma=\EtwoSigmaMin$ (E2) & verified\\
-At a crossing the error is $\Theta(\sigma)$ and $|E_1|/|E_2|\to1$ (Cor.~\ref{cor:cross}) & proved here; verified (slope $\EtwoSlopeCappedLN$)\\
+At a crossing the error is $\Theta(\sigma)$ and $|E_1|/|E_2|\to1$ (Cor.~\ref{cor:cross}); observed slope $\EtwoSlopeCappedLN$ & proved here; verified\\
 Populations with equal first and second moments and aggregates differing at order $\sigma$ (Ex.~\ref{ex:moments}) & proved here\\
 Margin condition preserves the ordering (Prop.~\ref{prop:margin}); $\EfourCertifiedReversals$ reversals among certified pairs (E4) & proved here; verified\\
 Certificate available only at small dispersion ($\EfourCertFracPointFour\%$ of pairs at $\sigma=0.4$) & verified\\
-Covariance floor $O(\sigma/\sqrt N)$ with independent efficiencies (Rem.~\ref{rem:eff}); dominates up to $\sigma=\EonebSigmaCov$ & elementary; verified\\
+Covariance floor $O(\sigma/\sqrt N)$ with independent efficiencies (Rem.~\ref{rem:eff}); dominates up to $\sigma=\EonebSigmaCov$ & proved here; verified\\
 Predefined C1 holds on the SU sweep; fails on the LN sweep above $\sigma=\EoneConeLargestCDLN$; fails at crossings & verified\\
 Predefined C2 fails in $\EfourFailing$ of $\EfourEligible$ eligible cells, all with a capacity & verified\\
 A scalar recalibration of $Q_2$, global or by regime, does not meet C1 (E5) & verified\\

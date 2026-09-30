@@ -199,6 +199,20 @@ for r in msweep:
     mac(f"M{tag}Excess", f"{q['excess_vs_Re'][0]:+.4f}")
     mac(f"M{tag}BoundPhi", f"{q['bound_phi']:.4f}")
 
+def max_se(rows):
+    v = []
+    for r in rows:
+        e = r["ops"]["eb"]
+        v += [r["risk_Rn"][1], r["risk_Re"][1], e["always_full"]["risk"][1], e["always"]["risk"][1], e["sure"]["risk"][1]]
+        v += [e["rev"][a]["risk"][1] for a in A] + [e["rev"]["0.1"]["risk_refit"][1]]
+    return max(v)
+
+
+mac("MaxSEStructure", f"{max_se(structure):.4f}"); mac("MaxSEDeparture", f"{max_se(departure):.4f}")
+mac("MaxSEm", f"{max_se(msweep):.4f}")
+for snr, tag in ((0.0, "Zero"), (1.0, "One"), (4.0, "Four"), (16.0, "Sixteen")):
+    mac(f"S{tag}AlwaysEHelp", pct(1 - S(snr)["ops"]["eb"]["always"]["harm_freq"], signed=False))
+
 rc = summ["identity_recheck"]
 mac("CondCheckMaxZ", f"{rc['conditional_max_abs_z']:.2f}")
 wr = rc["worst_rare_config"]
