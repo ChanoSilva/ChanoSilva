@@ -253,6 +253,18 @@ def main():
     res["D4_svm_partition"] = {"d": 10, "n": n0, "reps": 200, "C": 1.0,
                                "rows": svm_partition_curve(rng, n0, [1, 2, 4, 8], 10, 200)}
 
+    # E: the prefactor in Lemma 2.2 is needed -- a five-point witness (no randomness) for which the
+    # prefactor-free matrix exp(-|x_i-x_j|^2/(a_i+a_j)) has a negative eigenvalue while K_a does not
+    Xw = np.array([[0.841], [-0.144], [1.31], [-1.189], [-0.159]])
+    aw = np.array([65.85, 0.0658, 0.0789, 0.0897, 153.0])
+    D2 = (Xw - Xw.T) ** 2
+    S = aw[:, None] + aw[None, :]
+    prefree = np.exp(-D2 / S)
+    full = (2 * np.sqrt(np.outer(aw, aw)) / S) ** 0.5 * prefree
+    res["E_prefactor_witness"] = {"x": Xw.ravel().tolist(), "a": aw.tolist(), "d": 1,
+                                  "min_eig_prefactor_free": float(np.linalg.eigvalsh(prefree).min()),
+                                  "min_eig_full_kernel": float(np.linalg.eigvalsh(full).min())}
+
     res["meta"]["seconds"] = time.time() - t0
     os.makedirs(os.path.join(ROOT, "results"), exist_ok=True)
     with open(os.path.join(ROOT, "results", "exact_example.json"), "w") as fh:
@@ -282,6 +294,8 @@ def main():
     L.append("\n## D4. Partition-localised linear SVM (independent cells), d = 10, n = 320 (simulation)\n\n| M | risk | se |\n|---|---|---|")
     for M, r in res["D4_svm_partition"]["rows"].items():
         L.append(f"| {M} | {r['mean']:.5f} | {r['se']:.5f} |")
+    w = res["E_prefactor_witness"]
+    L.append(f"\n## E. Prefactor witness (d = 1, five points)\n\nx = {w['x']}, a = {w['a']}: min eigenvalue of the prefactor-free matrix {w['min_eig_prefactor_free']:.3f}; of K_a {w['min_eig_full_kernel']:.3f}\n")
     with open(os.path.join(ROOT, "results", "exact_example.md"), "w") as fh:
         fh.write("\n".join(L) + "\n")
 

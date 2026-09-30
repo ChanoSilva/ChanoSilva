@@ -237,10 +237,10 @@ with open(os.path.join(OUT, "table_e4.tex"), "w") as fh:
     for a in sca["exact"]:
         d = a["f_C_dist"]
         dist = "/".join(str(d[str(k)]) for k in range(1, sm["kmax"] + 1)) + f"/{d['notfound']}"
-        fh.write(f"{a['family']} & {a['n']} & {a['instances']} & {pct(a['frac_true_support'])}\\% & {dist} & {num(a['f_C_median'],1)} & {num(a['f_C_mean'])} & {pct(a['f_C_frac1'])}\\% & {num(a['f_P_median'],1)} & {pct(a['greedy_onestep_exact_C'])}\\% & {pct(a['greedy_sorted_exact_C'])}\\% & {num(a['kstar_mean'])} & {num(a['t_C_mean'])} & {num(a['cost_ratio_onestep_median'],2)} \\\\\n")
+        fh.write(f"{a['family']} & {a['n']} & {pct(a['frac_true_support'])}\\% & {dist} & {num(a['f_C_median'],1)} & {pct(a['f_C_frac1'])}\\% & {num(a['f_P_median'],1)} & {pct(a['greedy_onestep_exact_C'])}\\% & {pct(a['greedy_sorted_exact_C'])}\\% & {num(a['kstar_mean'])} & {num(a['t_C_mean'])} & {num(a['cost_ratio_onestep_median'],2)} \\\\\n")
 with open(os.path.join(OUT, "table_e4b.tex"), "w") as fh:
     for a in sca["greedy"]:
-        fh.write(f"{a['family']} & {a['n']} & {a['instances']} & {pct(a['frac_true_support'])}\\% & {a['g_onestep_C_median']:.0f} [{a['g_onestep_C_q1']:.0f}, {a['g_onestep_C_q3']:.0f}] & {num(a['g_onestep_C_mean_over_n'],3)} & {a['g_sorted_C_median']:.0f} & {a['g_onestep_P_median']:.0f} & {a['kstar_median']:.0f} & {pct(a['frac_kstar_ge1'])}\\% & {num(a['mean_bracket_ratio'])} & {num(a['t_onestep_mean'],3)} \\\\\n")
+        fh.write(f"{a['family']} & {a['n']} & {pct(a['frac_true_support'])}\\% & {a['g_onestep_C_median']:.0f} [{a['g_onestep_C_q1']:.0f}, {a['g_onestep_C_q3']:.0f}] & {num(a['g_onestep_C_mean_over_n'],3)} & {a['g_sorted_C_median']:.0f} & {a['g_onestep_P_median']:.0f} & {a['kstar_median']:.0f} & {pct(a['frac_kstar_ge1'])}\\% & {num(a['mean_bracket_ratio'])} & {num(a['t_onestep_mean'],3)} \\\\\n")
 for a in sca["exact"]:
     tag = a["family"] + word(a["n"])
     mac(f"Efour{tag}Mean", num(a["f_C_mean"]))

@@ -8,7 +8,7 @@
 
 | Ruta | Contenido |
 |---|---|
-| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés, 14 páginas con apéndices y bibliografía) y 29 referencias. |
+| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés, 15 páginas con apéndices y bibliografía) y 29 referencias. |
 | `manuscript/main.pdf` | PDF compilado (pdflatex + bibtex vía latexmk; sin referencias indefinidas). |
 | `manuscript/numbers.tex`, `manuscript/table_*.tex` | Macros y cuerpos de tabla **generados** desde los resultados; ningún número del texto está tipeado a mano. |
 | `experiments/mechanical.py` | Biblioteca: potenciales (resortes), energías elásticas, forma de traza del objetivo de kernel k-means, optimizadores (Lloyd en espacio de características, relajación partícula a partícula = método de Hartigan, recocido Metropolis) e implementación "física" por fuerza bruta de la relajación. |

@@ -14,7 +14,7 @@ No existe manuscrito previo ni código de la línea en el repositorio; todo lo q
 3. **Normalización.** La identidad exacta con k-means exige la normalización 1/n_c; se decidió tratar la normalización como parte de la definición de la familia y demostrar por separado que la energía total es min-sum k-clustering / max-k-cut. E4 certifica que ambas normalizaciones son objetivos distintos.
 
 ## Qué se produjo (todo en `papers/LMI001-mechanical-clustering/`)
-1. Manuscrito LaTeX `manuscript/main.tex` (inglés, 14 páginas con apéndices y 29 referencias), compilado a `main.pdf` con latexmk (pdflatex + bibtex) sin errores ni referencias indefinidas; quedan 6 cajas horizontales desbordadas menores en tablas (revisar tras la edición final).
+1. Manuscrito LaTeX `manuscript/main.tex` (inglés, 15 páginas con apéndices y 29 referencias), compilado a `main.pdf` con latexmk (pdflatex + bibtex) sin errores ni referencias indefinidas; quedan 4 cajas horizontales desbordadas menores (≤ 8 pt) (revisar tras la edición final).
 2. Biblioteca `experiments/mechanical.py` y dos scripts de experimentos con semilla fija, salida JSON/Markdown, más `make_numbers.py` (macros) y `make_figures.py`. Ningún número del manuscrito está escrito a mano.
 3. README, esta nota y una propuesta de ficha.
 
@@ -49,7 +49,7 @@ No existe manuscrito previo ni código de la línea en el repositorio; todo lo q
 - No se prueba la no representabilidad de los objetivos anclados no cuadráticos (k-median); solo se señala que son clásicos.
 - E3 es una comparación de optimizadores con presupuestos modestos; no es un benchmark.
 - La conjetura sobre la dinámica de posiciones no se testeó, por diseño (el encargo pedía formularla, no probarla).
-- Extensión: 14 páginas frente a las 5–10 pedidas; 4 de ellas son apéndice de reproducibilidad, tabla por configuración y bibliografía. Si hace falta recortar, la Tabla 5 puede pasar solo a `results/tables_relaxation.md`.
+- Extensión: 15 páginas frente a las 5–10 pedidas; 5 de ellas son apéndice de reproducibilidad, tabla por configuración y bibliografía. Si hace falta recortar, la Tabla 5 puede pasar solo a `results/tables_relaxation.md`.
 
 ## Dudas bibliográficas (todas las referencias son reales; las dudas son de atribución o de dato menor)
 - Sahni & Gonzalez (1976, J. ACM 23(3), 555–565) se cita como origen del problema min-sum k-clustering; el artículo es real y trata problemas de aproximación P-completos incluidos los de agrupamiento, pero la atribución específica del "min-sum k-clustering" a ese trabajo se hace de memoria: cotejar.

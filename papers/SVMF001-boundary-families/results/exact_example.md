@@ -73,3 +73,8 @@ Strictly decreasing on n = 2..1000: True
 | 2 | 0.06577 | 0.00037 |
 | 4 | 0.08030 | 0.00053 |
 | 8 | 0.09852 | 0.00066 |
+
+## E. Prefactor witness (d = 1, five points)
+
+x = [0.841, -0.144, 1.31, -1.189, -0.159], a = [65.85, 0.0658, 0.0789, 0.0897, 153.0]: min eigenvalue of the prefactor-free matrix -0.962; of K_a 0.043
+

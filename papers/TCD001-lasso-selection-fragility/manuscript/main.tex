@@ -13,6 +13,7 @@
 \usepackage{enumitem}
 \usepackage{array}
 \usepackage{caption}
+\usepackage{float}
 \captionsetup{font=small,labelfont=bf}
 
 \IfFileExists{numbers.tex}{\input{numbers.tex}}{}
@@ -321,14 +322,14 @@ With the closed-form test the exhaustive search for signed \textsc{any} extends 
 \centering\scriptsize
 \setlength{\tabcolsep}{3.5pt}
 \resizebox{\linewidth}{!}{%
-\begin{tabular}{llrrlrrrrrrrrr}
+\begin{tabular}{llrlrrrrrrrr}
 \toprule
-fam. & $n$ & inst. & $S=S^\ast$ & $f$ dist.\ ($1/\dots/6/$n.f.) & median & mean & $P(f{=}1)$ & median P & one-step exact & sorted exact & $k^\ast$ mean & time (s) & cost ratio\\
+fam. & $n$ & $S=S^\ast$ & $f$ dist.\ ($1/\dots/6/$n.f.) & median & $P(f{=}1)$ & median P & one-step exact & sorted exact & $k^\ast$ mean & time (s) & cost ratio\\
 \midrule
 \input{table_e4.tex}\\
 \bottomrule
 \end{tabular}}
-\caption{E4. Exact signed fragility number for \textsc{any} by exhaustive search with Proposition~\ref{prop:exact}, $|R|\le\EfourKmax$ (rule C unless marked P). ``One-step exact'' and ``sorted exact'' are the fractions of instances in which the heuristic matches the exact minimum; ``time'' is the mean exhaustive-search time and ``cost ratio'' the median one-step-greedy time over it.}
+\caption{E4. Exact signed fragility number for \textsc{any} by exhaustive search with Proposition~\ref{prop:exact}, $|R|\le\EfourKmax$ (rule C unless marked P); 40 instances per cell for $n\le22$, 30 for $n\in\{26,30\}$, 20 for $n=34$. ``One-step exact'' and ``sorted exact'' are the fractions of instances in which the heuristic matches the exact minimum; ``time'' is the mean exhaustive-search time and ``cost ratio'' the median one-step-greedy time over it.}
 \label{tab:e4}
 \end{table}
 
@@ -336,9 +337,9 @@ fam. & $n$ & inst. & $S=S^\ast$ & $f$ dist.\ ($1/\dots/6/$n.f.) & median & mean 
 \centering\small
 \setlength{\tabcolsep}{4pt}
 \resizebox{\linewidth}{!}{%
-\begin{tabular}{llrrlrrrrrrr}
+\begin{tabular}{llrlrrrrrrr}
 \toprule
-fam. & $n$ & inst. & $S=S^\ast$ & one-step median [q1, q3] & mean $g/n$ & sorted median & one-step P median & $k^\ast$ median & $P(k^\ast\ge1)$ & mean $(k^\ast{+}1)/g$ & time (s)\\
+fam. & $n$ & $S=S^\ast$ & one-step median [q1, q3] & mean $g/n$ & sorted median & one-step P median & $k^\ast$ median & $P(k^\ast\ge1)$ & mean $(k^\ast{+}1)/g$ & time (s)\\
 \midrule
 \input{table_e4b.tex}\\
 \bottomrule
@@ -380,7 +381,7 @@ fam. & $n$ & \textsc{leave}: instances & re-entry (instances) & re-entry (pairs)
 
 \section{What can be claimed}\label{sec:claims}
 
-\begin{table}[h]
+\begin{table}[H]
 \centering\small
 \begin{tabular}{p{0.70\linewidth}l}
 \toprule

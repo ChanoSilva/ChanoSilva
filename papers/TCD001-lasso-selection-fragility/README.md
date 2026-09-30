@@ -9,10 +9,10 @@
 | Ruta | Contenido |
 |---|---|
 | `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés) y bibliografía (22 entradas reales). |
-| `manuscript/main.pdf` | PDF compilado (15 páginas). |
+| `manuscript/main.pdf` | PDF compilado (15 páginas; 0 errores, sin referencias ni citas indefinidas). |
 | `manuscript/numbers.tex`, `manuscript/table_*.tex` | Macros y cuerpos de tabla **generados** por `experiments/make_numbers.py` desde `results/*.json`; ningún número del texto está tipeado a mano. |
 | `experiments/lasso_fragility.py` | Biblioteca: solver (homotopía LARS de scikit-learn), test exacto de eliminación (Prop. 3.2) vectorizado sobre subconjuntos, índice de inestabilidad (Cor. 3.3), certificado para k eliminaciones (Prop. 3.5), búsqueda exhaustiva de testigos mínimos, tres heurísticas, generador de instancias. |
-| `experiments/exact_examples.py` | E0: ejemplos de no monotonía con p=1 (a mano) y p=2 (búsqueda sembrada) verificados en aritmética racional exacta. |
+| `experiments/exact_examples.py` | E0: ejemplos de no monotonía con p=1 (a mano; objetivos "sale" y "entra") y p=2 (búsqueda sembrada, competencia entre variables) verificados en aritmética racional exacta. |
 | `experiments/run_validation.py` | E1: validación del test exacto y de los certificados contra reajustes. |
 | `experiments/run_fragility.py` | E2/E3/E5: números de fragilidad exactos (n ≤ 14), heurísticas vs exacto con criterio predefinido, frecuencia de pares no monótonos. |
 | `experiments/run_scaling.py` | E4: escalamiento con n (exacto hasta n=34 con \|R\| ≤ 6; cotas greedy y certificadas hasta n=400). |

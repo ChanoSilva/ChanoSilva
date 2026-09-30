@@ -6,8 +6,8 @@ Avances de líneas de investigación de Luciano Silva Alarco (PUCP) producidos e
 |---|---|---|---|
 | `MRT001-foundational-geometry/` | MRT001 | Invariantes y fundamentos geométricos | Borrador v0.4 (18 pp.), dos rondas de revisión interna aplicadas |
 | `SPD001-support-geometry-knn/` | SPD001 | Geometría del soporte y vecinos cercanos | Borrador v0.1 (12 pp.): comparación aislante con criterio predefinido, **resultado negativo** (0/8 victorias); propuesta de cierre |
-| `LMI001-mechanical-clustering/` | LMI001 | Analogías mecánicas para agrupamiento | Teorema de equivalencia (ver su README) |
-| `TCD001-lasso-selection-fragility/` | TCD001 | Fragilidad de la selección con Lasso | Testigos de remoción y estabilidad (ver su README) |
+| `LMI001-mechanical-clustering/` | LMI001 | Analogías mecánicas para agrupamiento | Borrador v0.1 (15 pp.): teorema "agrupamiento mecánico = agrupamiento por kernels" (energías de pares, levantamiento, tensión, relajación = Hartigan); el cribado nulo de la ficha es consecuencia del teorema; queda abierta la vía dinámica |
+| `TCD001-lasso-selection-fragility/` | TCD001 | Fragilidad de la selección con Lasso | Borrador v0.1 (15 pp.): test exacto de eliminación en forma cerrada, no monotonía de los testigos, NP-completitud de la deselección con p=1 (Subset Sum), números de fragilidad exactos hasta n=34; ninguna heurística cumple el criterio predefinido |
 | `SGE001-frontier-aggregation/` | SGE001 | Agregación dinámica de fronteras productivas | Borrador v0.1 (15 pp.): identidades y cotas de resto en régimen suave, fallo demostrado del segundo orden en cruces de capacidad (E₂ = −N·T_u), condición de margen para comparaciones; criterio predefinido de mejora 5× no se cumple en general |
 | `RTK001-recursive-knots/` | RTK001 | Geometría de nudos recursivos | Cotas de longitud de cuerda (ver su README) |
 | `HQF001-resolution-fields-abstention/` | HQF001 | Resolución local e incertidumbre | Borrador v0.1 (11 pp.): comparación controlada de clasificación selectiva con criterio predefinido, **resultado negativo** (0/8 mejor, 6/8 peor); proposición exacta que aísla qué podría aportar la anisotropía; propuesta de cierre |
