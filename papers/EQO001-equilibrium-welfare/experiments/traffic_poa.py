@@ -107,6 +107,42 @@ def run_affine_instances(rng, n_instances=200):
     return rows
 
 
+def make_figure(out):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    BLUE, ORANGE, INK, MUTED = "#2a78d6", "#eb6834", "#0b0b0b", "#52514e"
+    plt.rcParams.update({"font.size": 9, "axes.edgecolor": MUTED, "axes.labelcolor": INK,
+                         "xtick.color": MUTED, "ytick.color": MUTED, "axes.spines.top": False,
+                         "axes.spines.right": False})
+    fig, axes = plt.subplots(1, 2, figsize=(6.4, 2.6))
+    ax = axes[0]
+    ds = [r["d"] for r in out["E1a_pigou"]]
+    poa = [r["price_of_anarchy"] for r in out["E1a_pigou"]]
+    ax.plot(ds, poa, color=BLUE, lw=2, marker="o", ms=5)
+    for d, p in zip(ds, poa):
+        ax.annotate(f"{p:.2f}", (d, p), textcoords="offset points", xytext=(4, -10), fontsize=7, color=INK)
+    ax.axhline(4 / 3, color=ORANGE, lw=1.2, ls="--")
+    ax.text(5.2, 4 / 3 + 0.1, "4/3 (affine bound)", color=INK, fontsize=7)
+    ax.set_xscale("log", base=2); ax.set_xticks(ds); ax.set_xticklabels([str(d) for d in ds])
+    ax.set_xlabel(r"degree $d$ of $c_2(x)=x^d$"); ax.set_ylabel("price of anarchy")
+    ax.set_title("Pigou's example", fontsize=9, color=INK)
+    ax.grid(True, color="#e6e5e0", lw=0.5); ax.set_axisbelow(True)
+    ax = axes[1]
+    vals = [r["price_of_anarchy"] for r in out["E1b_affine"]["rows"]]
+    ax.hist(vals, bins=np.linspace(1.0, 4 / 3, 21), color=BLUE, edgecolor="#fcfcfb", lw=0.8)
+    ax.axvline(4 / 3, color=ORANGE, lw=1.2, ls="--")
+    ax.text(4 / 3 - 0.005, ax.get_ylim()[1] * 0.9, "4/3", color=INK, fontsize=8, ha="right")
+    ax.set_xlabel("price of anarchy (affine parallel links)"); ax.set_ylabel("instances")
+    ax.set_title(f"{len(vals)} random instances, max {max(vals):.3f}", fontsize=9, color=INK)
+    ax.grid(True, axis="y", color="#e6e5e0", lw=0.5); ax.set_axisbelow(True)
+    fig.tight_layout()
+    os.makedirs(os.path.join(ROOT, "figures"), exist_ok=True)
+    fig.savefig(os.path.join(ROOT, "figures", "fig_poa.png"), dpi=200)
+    fig.savefig(os.path.join(ROOT, "figures", "fig_poa.pdf"))
+    plt.close(fig)
+
+
 def main():
     rng = np.random.default_rng(SEED)
     out = {"meta": {"seed": SEED, "python": platform.python_version(), "numpy": np.__version__}}
@@ -134,6 +170,7 @@ def main():
     os.makedirs(os.path.join(ROOT, "results"), exist_ok=True)
     with open(os.path.join(ROOT, "results", "results_traffic.json"), "w") as fh:
         json.dump(out, fh, indent=1)
+    make_figure(out)
 
     # Markdown summary
     L = ["# E1: traffic (Pigou, affine price of anarchy, marginal-cost tolls)", "",

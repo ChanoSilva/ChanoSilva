@@ -45,6 +45,10 @@ import platform
 import sys
 import time
 
+# Single-threaded BLAS: the matrices are tiny and multi-threading only adds CPU time.
+for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
+    os.environ.setdefault(_v, "1")
+
 import numpy as np
 import scipy
 import sklearn
@@ -59,10 +63,10 @@ RESULTS = os.path.join(ROOT, "results")
 
 SEED = 20260930
 EPS = 1e-6                       # floor inside logarithms (standardised units)
-K_GRID = [5, 10, 20]             # per-class neighbourhood sizes
+K_GRID = [5, 10, 20, 30]         # per-class neighbourhood sizes
 M_GRID = [1, 2, 3, 5, 8]         # tangent dimensions (restricted to m <= min(k-1, d-1))
-KNN_GRID = [1, 3, 5, 7, 9, 11, 15, 21]
-LAMBDA_GRID = [0.0, 0.1, 1.0, 10.0]   # HKNN ridge, relative to the local scatter scale
+KNN_GRID = [1, 3, 5, 7, 9, 11, 15, 21, 31, 41]
+LAMBDA_GRID = [0.0, 0.1, 1.0, 10.0, 100.0]   # HKNN ridge, relative to the local scatter scale
 COVERAGE = 0.8                   # coverage for selective accuracy
 N_BOOT = 10000
 RIDGE = 1e-3                     # L2 penalty on the conditional-logit weights

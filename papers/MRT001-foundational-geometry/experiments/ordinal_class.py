@@ -63,15 +63,21 @@ def min_gap(X):
 
 
 def check_inradius(X, rng, trials=20):
-    """(i) random sup-norm perturbations below g/4 keep the pattern;
+    """(i) random Euclidean perturbations of every point below g/4 keep the pattern;
     (ii) for disjoint extremal pairs, the explicit displacement by g/4 (times
     1 + 1e-6) along the pair directions changes it."""
     g, ps, pl, disjoint = min_gap(X)
     P = pattern(X)
     eps = 0.999 * g / 4
     kept = 0
+    n, d = X.shape
     for _ in range(trials):
-        step = rng.uniform(-eps, eps, size=X.shape)          # sup norm <= eps
+        # displacement of every point by a vector of Euclidean norm < eps,
+        # uniform in the ball (direction uniform on the sphere, radius eps*U^(1/d))
+        direc = rng.standard_normal((n, d))
+        direc /= np.linalg.norm(direc, axis=1, keepdims=True)
+        radius = eps * rng.random(n) ** (1.0 / d)
+        step = direc * radius[:, None]
         kept += int(np.array_equal(pattern(X + step), P))
     changed = None
     if disjoint:

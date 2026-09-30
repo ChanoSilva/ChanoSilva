@@ -1,0 +1,3 @@
+exact fam A n=10: mean f_C 1.43, notfound 0, mean t 0.00s, elapsed 0s
+exact fam A n=14: mean f_C 2.62, notfound 0, mean t 0.00s, elapsed 1s
+exact fam A n=18: mean f_C 2.35, notfound 0, mean t 0.01s, elapsed 1s

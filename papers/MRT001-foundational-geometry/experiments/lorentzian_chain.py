@@ -273,7 +273,7 @@ def experiment_E5c(rng, fast):
 # --------------------------------------------------------------------------
 # E5d  order + number -> coordinates
 # --------------------------------------------------------------------------
-def reconstruct_from_counts(R):
+def reconstruct_from_counts(R, use_comparable=True):
     """Estimate (u, v) for every point from |past|, |future| and the order.
 
     Uniform density gives |past| ~ (n-1) u v and |future| ~ (n-1)(1-u)(1-v),
@@ -304,6 +304,9 @@ def reconstruct_from_counts(R):
     diff_prod = (big[:, None] - small[None, :]) * (small[:, None] - big[None, :])
     same_ok = np.where(rel, same_prod > 0, same_prod < 0)
     diff_ok = np.where(rel, diff_prod > 0, diff_prod < 0)
+    if not use_comparable:                       # ablation: unrelated pairs only
+        same_ok &= inc
+        diff_ok &= inc
     off = ~np.eye(n, dtype=bool)
     W = np.zeros((n, n))
     W[off & same_ok & ~diff_ok] = 1.0
@@ -320,7 +323,7 @@ def experiment_E5d(rng, fast):
     plan = [(250, 10), (500, 10), (1000, 6), (2000, 4)] if not fast else [(250, 3), (500, 3), (1000, 2)]
     rows = []
     for n, reps in plan:
-        rmse, viol = [], []
+        rmse, viol, rmse_inc = [], [], []
         for _ in range(reps):
             UV = sprinkle_diamond_2d(rng, n)
             R = causal_order_2d(UV)
@@ -328,16 +331,154 @@ def experiment_E5d(rng, fast):
             e1 = np.sqrt(((est - UV) ** 2).sum(1).mean())
             e2 = np.sqrt(((est[:, ::-1] - UV) ** 2).sum(1).mean())
             rmse.append(float(min(e1, e2)))
+            est_i = reconstruct_from_counts(R, use_comparable=False)   # ablation
+            rmse_inc.append(float(min(np.sqrt(((est_i - UV) ** 2).sum(1).mean()),
+                                      np.sqrt(((est_i[:, ::-1] - UV) ** 2).sum(1).mean()))))
             R_est = causal_order_2d(est)
             pairs = n * (n - 1) / 2
             viol.append(float(np.count_nonzero((R | R.T) != (R_est | R_est.T)) / 2 / pairs))
         rows.append({"n": n, "repetitions": reps,
                      "rmse_median": float(np.median(rmse)), "rmse_max": float(np.max(rmse)),
                      "rmse_times_sqrt_n": float(np.median(rmse) * np.sqrt(n)),
+                     "rmse_median_unrelated_votes_only": float(np.median(rmse_inc)),
                      "order_disagreement_median": float(np.median(viol))})
         print(f"  E5d n={n}: median RMSE {np.median(rmse):.4f} (x sqrt n = {np.median(rmse)*np.sqrt(n):.3f}), "
               f"order disagreement {np.median(viol):.4f}", file=sys.stderr)
     return rows
+
+
+# --------------------------------------------------------------------------
+# E5e  how many realizers does the order of a uniform sample have?
+# --------------------------------------------------------------------------
+def implication_colour_classes(R):
+    """Colour classes (implication classes up to reversal) of the
+    incomparability graph of the order R, following Golumbic's Gamma relation:
+    (a,b) ~ (a,c) iff b and c are comparable, and (a,b) ~ (c,b) iff a and c are
+    comparable.  Returns a list of colour classes, each as a list of directed
+    incomparable pairs (a,b) (one orientation per class)."""
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    n = R.shape[0]
+    comp = R | R.T
+    inc = ~comp
+    np.fill_diagonal(inc, False)
+    a_idx, b_idx = np.nonzero(inc)                      # all directed incomparable pairs
+    m = len(a_idx)
+    eid = -np.ones((n, n), dtype=np.int64)
+    eid[a_idx, b_idx] = np.arange(m)
+    rows, cols = [], []
+    for v in range(n):
+        nb = np.nonzero(inc[v])[0]                      # points incomparable to v
+        if len(nb) < 2:
+            continue
+        sub = comp[np.ix_(nb, nb)].astype(np.int8)      # comparability among them
+        k, lab = connected_components(coo_matrix(sub), directed=False)
+        for c in range(k):
+            members = nb[lab == c]
+            if len(members) < 2:
+                continue
+            e_out = eid[v, members]                     # (v, b) for b in the component
+            e_in = eid[members, v]                      # (b, v)
+            rows.extend(e_out[:-1]); cols.extend(e_out[1:])
+            rows.extend(e_in[:-1]); cols.extend(e_in[1:])
+    if m == 0:
+        return []
+    g = coo_matrix((np.ones(len(rows)), (rows, cols)), shape=(m, m))
+    k, lab = connected_components(g, directed=False)
+    rev = eid[b_idx, a_idx]                             # id of the reversed edge
+    classes, seen = [], set()
+    for c in range(k):
+        if c in seen:
+            continue
+        members = np.nonzero(lab == c)[0]
+        c_rev = int(lab[rev[members[0]]])
+        if c_rev == c:                                   # would mean not a comparability graph
+            raise RuntimeError("implication class equals its own reverse")
+        seen.add(c); seen.add(c_rev)
+        classes.append([(int(a_idx[e]), int(b_idx[e])) for e in members])
+    return classes
+
+
+def count_realizers_mod_swap(R, max_classes=14):
+    """Number of realizers (L1, L2) of the order R modulo the swap, i.e. half
+    the number of transitive orientations T of the incomparability graph such
+    that R union T is a linear order.  Enumerates the 2^k orientation choices
+    over the k colour classes and checks transitivity; returns None if k is
+    larger than max_classes."""
+    n = R.shape[0]
+    classes = implication_colour_classes(R)
+    k = len(classes)
+    if k == 0:
+        return 1, k                                       # a chain: unique realizer
+    if k > max_classes:
+        return None, k
+    P = R.astype(np.int32)
+    count = 0
+    for mask in range(2 ** k):
+        T = np.zeros((n, n), dtype=np.int32)
+        for i, cls in enumerate(classes):
+            if (mask >> i) & 1:
+                for a, b in cls:
+                    T[a, b] = 1
+            else:
+                for a, b in cls:
+                    T[b, a] = 1
+        L = P | T
+        L2 = (L @ L) > 0
+        if not np.any(L2 & (L == 0)):
+            count += 1
+    assert count % 2 == 0
+    return count // 2, k
+
+
+def brute_force_realizers_mod_swap(R):
+    """cross-check for tiny n: pairs of linear extensions whose intersection is R"""
+    from itertools import permutations
+    n = R.shape[0]
+    exts = []
+    for perm in permutations(range(n)):
+        pos = np.empty(n, dtype=int); pos[list(perm)] = np.arange(n)
+        L = pos[:, None] < pos[None, :]
+        if np.all(L[R]):
+            exts.append(L)
+    count = sum(1 for L1 in exts for L2 in exts if np.array_equal(L1 & L2, R))
+    symmetric = sum(1 for L1 in exts if np.array_equal(L1, R))   # 1 iff R is a chain
+    return (count + symmetric) // 2
+
+
+def experiment_E5e(rng, fast):
+    plan = [(10, 200), (20, 200), (50, 200), (100, 200), (200, 100), (300, 100)] if not fast else \
+           [(10, 50), (20, 50), (50, 30), (100, 20)]
+    rows = []
+    for n, reps in plan:
+        counts, skipped, ks = [], 0, []
+        for _ in range(reps):
+            UV = sprinkle_diamond_2d(rng, n)
+            R = causal_order_2d(UV)
+            c, k = count_realizers_mod_swap(R)
+            ks.append(k)
+            if c is None:
+                skipped += 1
+            else:
+                counts.append(c)
+        counts = np.array(counts)
+        rows.append({"n": n, "samples": reps, "not_enumerated": skipped,
+                     "fraction_unique": float(np.mean(counts == 1)) if len(counts) else None,
+                     "fraction_two": float(np.mean(counts == 2)) if len(counts) else None,
+                     "fraction_le_eight": float(np.mean(counts <= 8)) if len(counts) else None,
+                     "median_count": float(np.median(counts)) if len(counts) else None,
+                     "max_count": int(counts.max()) if len(counts) else None,
+                     "median_colour_classes": float(np.median(ks))})
+        print(f"  E5e n={n}: unique realizer in {rows[-1]['fraction_unique']:.2f}, <=8 in "
+              f"{rows[-1]['fraction_le_eight']:.2f}, skipped {skipped}", file=sys.stderr)
+    # cross-check against brute force at n = 6
+    agree, tested = 0, 30 if not fast else 10
+    for _ in range(tested):
+        UV = sprinkle_diamond_2d(rng, 6)
+        R = causal_order_2d(UV)
+        c, _ = count_realizers_mod_swap(R)
+        agree += int(c == brute_force_realizers_mod_swap(R))
+    return {"rows": rows, "crosscheck_n6_agree": agree, "crosscheck_n6_tested": tested}
 
 
 # --------------------------------------------------------------------------
@@ -379,7 +520,7 @@ def make_figure(res, rng):
 
 def write_tables(res):
     L = ["# Lorentzian chain tables (generated by experiments/lorentzian_chain.py)\n",
-         f"seed = {MASTER_SEED}; fast = {res['meta']['fast']}; runtime = {res['meta']['seconds']} s\n",
+         f"seed = {MASTER_SEED + 1}; fast = {res['meta']['fast']}; runtime = {res['meta']['seconds']} s\n",
          "\n## E5a Kernel of the order translation\n"]
     for k, v in res["E5a"].items():
         L.append(f"- {k}: {v}")
@@ -403,6 +544,16 @@ def write_tables(res):
     for r in res["E5d"]:
         L.append(f"| {r['n']} | {r['repetitions']} | {r['rmse_median']:.4f} | {r['rmse_max']:.4f} | "
                  f"{r['rmse_times_sqrt_n']:.3f} | {r['order_disagreement_median']:.4f} |")
+    L += ["\n## E5d ablation: unrelated-pair votes only (median RMSE)\n"]
+    for r in res["E5d"]:
+        L.append(f"- n={r['n']}: all pairs {r['rmse_median']:.4f}, unrelated only {r['rmse_median_unrelated_votes_only']:.4f}")
+    L += ["\n## E5e Number of realizers of the causal order modulo the swap (uniform samples)\n",
+          "| n | samples | not enumerated | fraction unique | fraction = 2 | fraction <= 8 | median | max | median colour classes |",
+          "|---|---|---|---|---|---|---|---|---|"]
+    for r in res["E5e"]["rows"]:
+        L.append(f"| {r['n']} | {r['samples']} | {r['not_enumerated']} | {r['fraction_unique']:.2f} | {r['fraction_two']:.2f} | "
+                 f"{r['fraction_le_eight']:.2f} | {r['median_count']:.0f} | {r['max_count']} | {r['median_colour_classes']:.0f} |")
+    L.append(f"\ncross-check against brute force at n=6: {res['E5e']['crosscheck_n6_agree']}/{res['E5e']['crosscheck_n6_tested']} agree")
     with open(os.path.join(RESULTS, "tables_lorentz.md"), "w") as fh:
         fh.write("\n".join(L) + "\n")
 
@@ -417,7 +568,7 @@ def main():
                     "python": platform.python_version(), "numpy": np.__version__,
                     "scipy": scipy.__version__}}
     for name, fn in (("E5a", experiment_E5a), ("E5b", experiment_E5b),
-                     ("E5c", experiment_E5c), ("E5d", experiment_E5d)):
+                     ("E5c", experiment_E5c), ("E5d", experiment_E5d), ("E5e", experiment_E5e)):
         print(f"{name} ...", file=sys.stderr)
         res[name] = fn(rng, args.fast)
     res["meta"]["seconds"] = round(time.time() - t0, 1)

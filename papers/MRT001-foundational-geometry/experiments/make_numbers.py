@@ -199,6 +199,25 @@ if os.path.exists(lz_path):
     _x = _np.log([r['n'] for r in dd]); _y = _np.log([r['rmse_median'] for r in dd])
     L.append(rf"\newcommand{{\EfiveDexponent}}{{{-_np.polyfit(_x, _y, 1)[0]:.2f}}}")
     L.append(rf"\newcommand{{\EfiveDdisagreeFirst}}{{{100*dd[0]['order_disagreement_median']:.2f}}}")
+    if "rmse_median_unrelated_votes_only" in dd[-1]:
+        a_all, a_inc = dd[-1]["rmse_median"], dd[-1]["rmse_median_unrelated_votes_only"]
+        rel = 100.0 * (a_inc - a_all) / a_all
+        abl = "less than one percent" if abs(rel) < 1 else (f"{rel:+.0f}" + "\\%")
+        L.append(rf"\newcommand{{\EfiveDablation}}{{{abl}}}")
+    if "E5e" in lz:
+        e5e = lz["E5e"]
+        rows_e = e5e["rows"]
+        with open(os.path.join(out_dir, "table_e5e.tex"), "w") as fh:
+            body = []
+            for r in rows_e:
+                body.append(f"{r['n']} & {r['samples']} & {r['not_enumerated']} & {r['fraction_unique']:.2f} & "
+                            f"{r['fraction_two']:.2f} & {r['fraction_le_eight']:.2f} & {r['median_colour_classes']:.0f}")
+            fh.write(" \\\\\n".join(body) + "\n")
+        L.append(rf"\newcommand{{\EfiveEnmax}}{{{rows_e[-1]['n']}}}")
+        L.append(rf"\newcommand{{\EfiveEuniqueNmax}}{{{rows_e[-1]['fraction_unique']:.2f}}}")
+        L.append(rf"\newcommand{{\EfiveEleEightNmax}}{{{rows_e[-1]['fraction_le_eight']:.2f}}}")
+        L.append(rf"\newcommand{{\EfiveEcrossAgree}}{{{e5e['crosscheck_n6_agree']}}}")
+        L.append(rf"\newcommand{{\EfiveEcrossTested}}{{{e5e['crosscheck_n6_tested']}}}")
     L.append(rf"\newcommand{{\EfiveSeconds}}{{{int(round(lz['meta']['seconds']))}}}")
     L.append(r"\newcommand{\HasLorentz}{1}")
 
@@ -216,11 +235,11 @@ if os.path.exists(cls_path):
     rows_c = cl["rows"]
     rows_tex = []
     for r in rows_c:
-        rows_tex.append(f"{r['n']} & {r['configurations']} & {sci(r['gap_median'])} & "
+        rows_tex.append(f"{r['n']} & {sci(r['gap_median'])} & "
                         f"{r['disjoint_extremal_pairs']}/{r['configurations']} & "
                         f"{r['perturbations_below_quarter_gap_kept']}/{r['perturbations_total']} & "
                         f"{r['quarter_gap_displacement_changed']}/{r['quarter_gap_displacement_tested']} & "
-                        f"{sci(r['walk_radius_median'])}")
+                        f"{r['walk_steps']} & {sci(r['walk_radius_median'])}")
     with open(os.path.join(out_dir, "table_e2c.tex"), "w") as fh:
         fh.write(" \\\\\n".join(rows_tex) + "\n")     # last row without terminator
     L.append(rf"\newcommand{{\EtwocSlopeGap}}{{{-cl['slope_gap']:.1f}}}")
@@ -235,6 +254,7 @@ if os.path.exists(cls_path):
         if r["n"] == 64:
             L.append(rf"\newcommand{{\EtwocGapNsixtyfour}}{{{sci(r['gap_median'])}}}")
             L.append(rf"\newcommand{{\EtwocWalkNsixtyfour}}{{{sci(r['walk_radius_median'])}}}")
+            L.append(rf"\newcommand{{\EtwocBoundNsixtyfour}}{{{sci(3 * r['gap_median'] ** 2 / 8)}}}")
     L.append(rf"\newcommand{{\EtwocGapNmax}}{{{sci(rows_c[-1]['gap_median'])}}}")
     L.append(rf"\newcommand{{\EtwocWalkNmax}}{{{sci(rows_c[-1]['walk_radius_median'])}}}")
     L.append(rf"\newcommand{{\EtwocSeconds}}{{{int(round(cl['meta']['seconds']))}}}")

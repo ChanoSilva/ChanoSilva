@@ -250,7 +250,10 @@ def m_lda(Xtr, ytr, Xte, grid):
 def m_qda(Xtr, ytr, Xte, grid):
     out = []
     for r in grid["reg_param"]:
-        clf = QuadraticDiscriminantAnalysis(reg_param=r).fit(Xtr, ytr)
+        try:
+            clf = QuadraticDiscriminantAnalysis(reg_param=r).fit(Xtr, ytr)
+        except np.linalg.LinAlgError:
+            continue  # singular class covariance at this regularisation: configuration skipped
         pred, sc = msp_output(clf, Xte, None)
         out.append((dict(reg_param=r), pred, sc))
     return out
@@ -417,8 +420,8 @@ def build_methods(fast):
         "kNN": (m_knn, dict(k=ks, weights=["uniform", "distance"]), None, "reference"),
         "NCM": (m_ncm, dict(), None, "reference"),
         "LDA": (m_lda, dict(shrinkage=[None, "auto"]), None, "reference"),
-        "QDA": (m_qda, dict(reg_param=[0.0, 0.01, 0.1, 0.5]), None, "reference"),
-        "LogReg": (m_logreg, dict(C=[0.01, 0.1, 1.0, 10.0, 100.0]), None, "reference"),
+        "QDA": (m_qda, dict(reg_param=[0.01, 0.1, 0.5]), None, "reference"),
+        "LogReg": (m_logreg, dict(C=[0.1, 1.0, 10.0]), None, "reference"),
         "RForest": (m_rforest, dict(n_estimators=100 if not fast else 50, min_samples_leaf=[1, 5]), None, "reference"),
         "DANN": (m_dann, dict(K_m=[50, 100], k=[5, 11, 21], eps=1.0), None, "reference"),
     }
@@ -646,7 +649,7 @@ def main():
     ap.add_argument("--fast", action="store_true")
     args = ap.parse_args()
     t0w, t0c = time.time(), time.process_time()
-    n_repeats = 2 if args.fast else 4
+    n_repeats = 2 if args.fast else 3
     n_splits = 5
     D = make_datasets(SEED, fast=args.fast)
     methods = build_methods(args.fast)

@@ -59,7 +59,19 @@ Un subagente revisor independiente leyó el borrador v0.1 completo (texto, códi
 - Script `experiments/ordinal_class.py`: verifica ambas partes numéricamente, mide g(X) frente a n (corrida completa: escala ~n^-4.2, coherente con el espaciamiento mínimo entre ~n²/2 valores: ~n^-4; 2240/2240 perturbaciones bajo g/4 conservan el patrón y 92/92 desplazamientos explícitos lo rompen) y corre un paseo aleatorio restringido a la clase que da una cota inferior del radio en disparidad de Procrustes (~n^-8.0). En n=64 esa cota es dos órdenes de magnitud menor que la disparidad a la que se detuvo el solver de E2: el residuo del solver es pertenencia aproximada, no tamaño de clase.
 - Interpretación cuidada: el radio inscrito acota el grosor de la clase por arriba (ninguna bola de radio > g/2 cabe dentro); el paseo solo da una cota inferior del radio y muestra anisotropía. No hay cota superior del diámetro.
 - Pendiente teórico: demostrar la ley n^-4 de la brecha mínima y una cota superior del diámetro de la clase.
-- Segunda ronda de revisión arbitral interna lanzada sobre v0.3 (resultado y acciones al final de esta nota si llegó a tiempo).
+- Segunda ronda de revisión arbitral interna realizada sobre v0.3 (véase la sección siguiente).
+
+## Segunda ronda de revisión arbitral interna (v0.3 → v0.4)
+Hallazgos confirmados y acciones:
+1. Prop. 5.2 sobreenunciaba "estrictamente mayor que una órbita a n finito": una cadena tiene un único realizador y, para muestras uniformes, el número de realizadores módulo el intercambio es 1, 2, 4 u 8 en la gran mayoría de los casos (unicidad en alrededor de un tercio). Se reescribió la proposición (conteo = mitad de las orientaciones transitivas del grafo de incomparabilidad), se añadió E5e (conteo por clases de implicación de Golumbic, verificado por fuerza bruta en n=6) y se corrigieron resumen, texto y tabla de afirmaciones.
+2. El "radio" del paseo restringido crece linealmente con el presupuesto de pasos (no está saturado): se renombró "rango del paseo", se eliminó la inferencia sobre el residuo del solver y se reformuló qué acota cada medición (grosor en X por arriba; extensión por abajo; sin cota del diámetro).
+3. La comprobación numérica de la Prop. 3.8(i) usaba desplazamientos en caja (norma euclidiana hasta √2·g/4): corregida a desplazamientos uniformes en la bola euclidiana y relanzada.
+4. "Ninguna bola de radio > g/2 cabe en la clase" era falso sin "centrada en X" (la clase contiene todas las semejanzas): corregido; "contenido finito del Teorema 3.7" reemplazado por "acota el grosor, no el diámetro módulo semejanza".
+5. Resumen y tabla de afirmaciones: el radio inscrito lleva norma y condición (g/4 con pares disjuntos; [g/4, g/2] en general).
+6. Prop. 3.8(ii): Y está fuera de la clase (empate); la prueba numérica detecta la inversión estricta justo más allá de g/4; se añadió la inyectividad (g ≤ D_min para n ≥ 3) y una observación sobre el caso de punto compartido.
+7. Prop. 5.2: hipótesis explícita de coordenadas u y v distintas dos a dos; ejemplo de la anticadena escrito con desigualdades.
+8. Consistencia: "dos secuencias" en vez de "dos cadenas"; tres scripts; semillas (E5: +1, E2c: +2); fecha v0.3; "less than one percent" reemplazado por una ablación reproducible (E5d con votos solo de pares incomparables); revista de Kronheimer–Penrose; "of dimension at most n−1".
+Verificado por el árbitro sin cambios: numeración y referencias cruzadas, macros frente a JSON, parámetros del apéndice, las 10 ordenaciones de la recta, n!/2 para la anticadena, fracciones esperadas de E5b, las tres referencias nuevas y Klein 1872.
 
 ## Decisiones tomadas
 - Objetos etiquetados en todos los formalismos (sin cociente por reetiquetado), para mantener las demostraciones elementales.
