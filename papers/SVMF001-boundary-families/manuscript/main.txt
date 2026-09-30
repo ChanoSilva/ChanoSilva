@@ -1,0 +1,765 @@
+               Families of Classification Boundaries:
+    Locally Adaptive Support Vector Machines Against Matched Global References,
+           with an Exact Statement of When Local Adaptation Cannot Help
+
+                                        Luciano Silva Alarco
+                               Pontificia Universidad Católica del Perú
+                                    ORCID 0000-0002-3395-3129
+
+                Working draft v0.1 — research line SVMF001 — September 30, 2026
+
+
+
+                                               Abstract
+     We revisit a paused research line on “families of classification boundaries”: variants of the
+     support vector machine whose decision boundary adapts locally, compared against global
+     references. The original variants are not available, so this draft reconstructs a self-contained
+     version of the question with four small, transparent families—a localised (kNN) linear SVM,
+     a cell-partitioned linear SVM, an RBF-SVM with a positive-definite variable-bandwidth
+     kernel, and a soft mixture of local linear SVMs—each containing a global reference (linear or
+     RBF-SVM) as a special case of its own hyper-parameter grid. Two contributions are made.
+     First, an exact statement of when local adaptation cannot help: if the reference’s function
+     class already contains the Bayes rule, localisation can only act on the estimation error, and
+     for local models fitted on cells chosen independently of the labels the expected risk equals a
+     mixture of the reference’s learning curve at binomially thinned sample sizes, hence is never
+     smaller when that curve is non-increasing and strictly larger when it is strictly decreasing.
+     In the Gaussian location model this is closed-form for the nearest-centroid threshold: with
+     n = 320 points and four cells the excess risk is multiplied by 4.08. Second, a controlled
+     comparison with a criterion of added value fixed before running: paired improvement over
+     the best global reference with a bootstrap 95% interval excluding zero on a majority of
+     6 data sets (three real, three synthetic regimes), repeated stratified cross-validation, and
+     robustness under 20% label noise and 25% subsampling. No family met the majority criterion.
+     Across 24 data-set/family cells of the main condition, 8 intervals lie below zero and 1 above
+     (VB-RBF-SVM on Gaussian, linear); the latter is a +0.75 percentage-point gain against a
+     reference chosen by inner cross-validation on the very data set where the exact statement
+     applies, and it disappears against the better of the two global references (−0.37 [−1.25,
+     +0.25]). In the regime designed to favour local adaptation (spatially varying scale and density)
+     the variable-bandwidth family matched but did not beat the RBF-SVM. The finding of the
+     original line—that exploratory improvements depend on the regime and the required added
+     value was not supported—is reproduced with a stated protocol, and no general superiority
+     in robustness or accuracy is claimed. All computations run in about 231 CPU-seconds with
+     a fixed seed.
+
+
+1    Introduction
+A support vector machine with a fixed kernel draws one boundary for the whole input space [5,
+14, 16]. Several proposals let the boundary adapt to where the query point lies: train the classifier
+only on the neighbours of the query [2, 4, 15, 21], split the space into cells with one model each,
+let the kernel width follow the local density as in variable-bandwidth density estimation [1, 19],
+or blend local linear classifiers with soft weights [10]. Each of these can, in principle, fit a
+boundary whose curvature or scale varies across the space; each also fits its local model on fewer
+points than the global reference.
+
+
+                                                    1
+    The research line SVMF001 studied such “families of classification boundaries” and recorded,
+in its public summary, that the exploratory improvements depended strongly on the regime and
+that the final comparison did not support the required added value over comparable references,
+with no claim of general superiority in robustness or classification. The concrete variants and
+the regimes are not available to us. This draft therefore does two things, in the same spirit and
+at a deliberately modest scale.
+
+ 1. It states and proves, in a precise but limited form, when local adaptation cannot help
+    (Section 3): when the reference’s class already contains the Bayes rule, and the local models
+    are fitted on cells chosen independently of the labels, the expected risk of the localised
+    rule is a mixture of the reference’s learning curve at smaller sample sizes. One instance is
+    computed exactly.
+
+ 2. It reconstructs the comparison as a controlled experiment with a criterion of added value
+    fixed in advance (Section 4), four small families that each contain a global reference as
+    a special case, six data sets grouped into named regimes, and two robustness conditions
+    (Section 5).
+
+Scope. The families are reconstructions, not the original variants; the data sets are small
+(all subsampled to at most 400 points, for a total budget of a few CPU-minutes); the exact
+statement covers partition-based localisation and not neighbourhood-based localisation, which is
+only illustrated. Section 6 lists every claim with its status.
+
+
+2     Setting and the four families
+2.1   Risk, excess risk, learning curves
+Let (X, Y ) be a random pair in X × {−1, +1}, X ⊆ Rd , with distribution P , η(x) = P(Y =
+1 | X = x). The risk of a classifier f : X → {−1, +1} is R(f ) = P(f (X) ̸= Y ), the Bayes rule
+is f ∗ (x) = sign(2η(x) − 1) with risk R∗ , and the excess risk is E(f ) = R(f ) − R∗ ≥ 0 [7]. A
+learning rule A maps a finite labelled sample S of any size m ≥ 0 to a classifier A(S) (with a
+fixed default for m = 0). Its learning curve is RA (m) = E R(A(Sm )) for Sm an i.i.d. sample of
+size m from P .
+Definition 2.1 (Approximation and estimation error). For a class F of classifiers and fˆ ∈ F
+fitted on a sample,
+                       E(fˆ) = inf R(f ) − R∗ + R(fˆ) − inf R(f ) .
+                                  f ∈F                          f ∈F
+                                  |      {z       }   |        {z          }
+                                  approximation(F )       estimation(fˆ)
+
+Both terms are non-negative; the approximation term is zero if and only if F contains a Bayes
+rule (up to null sets).
+
+2.2   Global references and locally adaptive families
+All families below are fitted on standardised inputs. The two references are the soft-margin linear
+SVM f (x) = sign(⟨w, x⟩ + b) and the RBF-SVM with kernel kγ (x, z) = exp(−γ∥x − z∥2 ) [3, 5],
+both with the penalty parameter C and, for the RBF, γ chosen by inner cross-validation from
+grids given in Section 4. The four locally adaptive families are:
+
+(a) kNN-SVM (localised linear SVM) [2, 21]. For a query x let Nk (x) be the k training points
+    nearest to x. If all their labels coincide, predict that label; otherwise predict with a linear
+    SVM (fixed C) trained on Nk (x) alone. The value k = “all” gives the global linear SVM
+    with the same C.
+
+                                                  2
+(b) Cell-SVM (hard partition). Partition the training inputs into M cells by k-means; fit one
+    linear SVM per cell (a constant vote if the cell is pure); route a query to the cell of its
+    nearest centre. M = 1 is the global linear SVM.
+
+(c) VB-RBF-SVM (variable-bandwidth kernel). Give each point x a bandwidth a(x) =
+    a0 (rκ (x)/r̄)2β , where rκ (x) is the distance from x to its κ-th nearest training point (excluding
+    itself when x is a training point), r̄ is the median of rκ over the training points, a0 = 1/(2γ)
+    and β ≥ 0; then use the kernel Ka of Lemma 2.2 in an SVM. β = 0 is the RBF-SVM with
+    parameter γ; β = 12 makes the bandwidth proportional to the κ-NN radius, the classical
+    square-root-of-density scaling in spirit [1].
+
+(d) LLSVM (soft mixture of local linear SVMs) [10]. With anchors c1 , . . . , cM from k-means
+    and weights wm (x) ∝ exp(−∥x − cm ∥2 /2s2 ) summing to one (s2 the mean squared dis-
+    tance from the training points to their nearest anchor), the decision function is f (x) =
+    P
+      m wm (x) (⟨βm , x⟩ + bm ), which is linear in the feature map Φ(x) = (wm (x) x, wm (x))m≤M
+    and is therefore fitted as one linear SVM on Φ(x). M = 1 is the global linear SVM.
+
+Lemma 2.2 (A positive-definite variable-bandwidth kernel). [proved here, standard argument] Let
+a : Rd → (0, ∞) be any function. Then
+                                      2√a(x)a(z) d/2
+                                                              ∥x−z∥2
+                                                                      
+                          Ka (x, z) = a(x)+a(z)        exp − a(x)+a(z)
+
+is a positive-definite kernel on Rd with Ka (x, x) = 1, and for constant a ≡ 1/(2γ) it equals kγ .
+
+Proof. Put φx (u) = exp(−∥u − x∥2 /a(x)) ∈ L2 (Rd ). Completing the square, ∥u − x∥2 /a +
+∥u − z∥2 /b = (1/a + 1/b)∥u − c∥2 + ∥x − z∥2 /(a + b) with c = (bx + az)/(a + b), so ⟨φx , φz ⟩ =
+             d/2
+                  exp −∥x − z∥2 /(a + b) with a = a(x), b = a(z), and ∥φx ∥2 = (πa/2)d/2 . Hence
+                                         
+ πab/(a + b)
+Ka (x, z) = ⟨φx , φz ⟩/(∥φx ∥ ∥φz ∥), a normalised Gram function of vectors in a Hilbert space,
+which is positive definite. The last claim is the case a = b = 1/(2γ).
+
+Remark 2.3 (Nesting). Every local family contains a global reference in its own grid (k = all,
+M = 1, β = 0), and in the experiment ties in the inner cross-validation are broken towards that
+member. A local family can therefore fall below its own global member only through selection
+noise, and can rise above the best global reference only through genuine adaptation. The kernel
+prefactor in Lemma 2.2 is what makes √ Ka a valid kernel; in dimension d it down-weights pairs
+with mismatched bandwidths by (2 ab/(a + b))d/2 , which is a strong penalty when d is large.
+Dropping the prefactor is not an option: the matrix [exp(−∥xi − xj ∥2 /(ai + aj ))] is not positive
+semidefinite in general.
+
+
+3    When local adaptation cannot help
+Lemma 3.1 (Only the estimation term is available). [proved here, elementary] Let Fref contain a
+Bayes rule. For any classifier ĝ (local or not), E(ĝ) ≥ 0 = approximation(Fref ). Consequently
+a locally adaptive procedure can improve on a reference fitted in Fref only by having a smaller
+estimation term, never by reducing the approximation term, which is already zero.
+
+Proof. Immediate from Definition 2.1 and E ≥ 0.
+
+   The lemma is trivial but it locates the question: when the Bayes boundary is a hyperplane
+and the reference is a linear SVM, or more generally when the reference class is rich enough (a
+universal kernel [11, 17]), local adaptation is a bet that fitting on fewer points estimates better.
+The next proposition makes this exact for partition-based localisation.
+
+
+
+                                                  3
+Proposition 3.2 (Partition-localised rules with label-independent cells). [proved here] Let A
+be any learning rule with learning curve RA . Let (Xi , Yi , Zi )i≤n and (X, Y, Z) be i.i.d., where
+Z ∈ {1, . . . , M } is a cell label with pj = P(Z = j) > 0 and Z is independent of (X, Y ).
+The partition-localised rule predicts at a test point with cell Z = j using A(S (j) ), where
+S (j) = {(Xi , Yi ) : Zi = j}. Then
+                                          M
+                                          X                 
+                  E R(localised rule) =         pj E RA (Nj ) ,   Nj ∼ Bin(n, pj ).
+                                          j=1
+
+If RA is non-increasing, the right-hand side is at least RA (n); if RA is strictly decreasing and
+M ≥ 2, it is strictly larger than RA (n).
+Proof. Given the training data S, the risk of the localised rule is P A(S (Z) )(X) ̸= Y | S =
+                                                                                                 
+               (j)                                     (j)
+                                       P
+   j pj P A(S )(X) ̸= Y | S, Z = j =
+P
+                                            j pj R(A(S )), because (X, Y ) is independent of Z and
+of S. Since the Zi are independent of the (Xi , Yi ), conditionally on Nj = m the sub-sample S (j)
+is an i.i.d. sample of size m from P , so E[R(A(S (j) )) | Nj = m] = RA (m), and Nj ∼ Bin(n, pj ).
+Taking expectations gives the identity. If RA is non-increasing then RA (Nj ) ≥ RA (n) because
+Nj ≤ n; if it is strictly decreasing and pj < 1 then P(Nj < n) > 0 and the inequality is strict.
+Remark 3.3 (What the proposition covers). (i) The cells may be defined through the inputs:
+if X = (X1 , X2 ) with X2 independent of (X1 , Y ), A uses X1 only, and Z is a function of X2 ,
+the hypotheses hold with X1 in the role of X; this is the case of a partition along directions
+that carry no label information. (ii) The identity holds for any rule A, including the SVM; the
+conclusion needs the monotonicity of RA , which is a property of the pair (rule, distribution),
+not a theorem in general—learning curves can be non-monotone [20]. For the SVM in the model
+below it is checked numerically, not proved. (iii) Neighbourhood-based localisation (kNN-SVM)
+and data-dependent partitions (k-means cells, soft weights) are not covered: their local samples
+are not i.i.d. from P . Nothing here says that such rules cannot help in general; Lemma 3.1 says
+only that if they help, it must be through estimation.
+Proposition 3.4 (Exact learning curve of the nearest-centroid threshold). [proved here] Let Y be
+uniform on {−1, +1} and X | Y ∼ N (Y µ, 1) on R, µ > 0. The Bayes rule is sign(x) with risk
+R∗ = Φ(−µ), and the rule “predict +1 iff x > t” has risk R(t) = 12 [Φ(t − µ) + Φ(−t − µ)]. Let
+Anc fit t̂ = 12 (X̄+ + X̄− ), the midpoint of the class means, predicting the only present class when
+a class is missing. Then:
+                                                                                  2        2
+ (i) conditionally on the class counts (N+ , N− ) with
+      1
+                                                      √ N+ , N− ≥ 1, t̂ ∼ N (0, s ) with s =
+                                                             2
+      4 (1/N+ + 1/N− ) and E[R(t̂) | N+ , N− ] = Φ −µ/ 1 + s ; when a class is missing the risk
+         1
+     is 2 ;
+                                                                   q
+(ii) RAnc (n) = nk=0 nk 2−n r(k, n − k), with r(a, b) = Φ(−µ/ 1 + 14 (1/a + 1/b)) for a, b ≥ 1
+                 P       
+
+     and r(a, b) = 12 otherwise, is non-increasing in n ≥ 0 and strictly decreasing for n ≥ 1.
+Proof. (i) Given the counts, X̄+ ∼ N (µ, 1/N+ ) and X̄− ∼ N (−µ, 1/N− ) are independent,     √     so
+t̂ ∼ N (0, s2 ). For W ∼ N (0, 1) independent of t̂, E Φ(t̂ − µ) = P(W − t̂ ≤ −µ) = Φ(−µ/ 1 + s2 )
+because W − t̂ ∼ N (0, 1+s2 ); by the symmetry t̂ 7→ −t̂ the second term has the same expectation.
+A constant rule has risk 12 because the classes are equiprobable. (ii) The formula is (i) averaged
+over N+ ∼ Bin(n, 21 ). For monotonicity, realise the samples of sizes n and n + 1 as the first
+n and n + 1 terms of one i.i.d. sequence; the conditional expected risk given the labels is r
+of the counts in both cases, and the (n + 1)-th label raises one count by one.     √ Since r(a, b) is
+strictly decreasing in each argument on {a, b ≥ 1} (s2 decreases and Φ(−µ/ 1 + s2 ) with it),
+r(0, b) = r(0, b + 1) = 12 , and r(a, b) < 12 whenever a, b ≥ 1, the risk given the first n + 1 labels
+is pointwise at most the risk given the first n, with strict inequality on the event that both
+classes are present among the first n + 1 points, which has positive probability for n ≥ 1. Taking
+expectations gives RAnc (n + 1) < RAnc (n) for n ≥ 1 and equality 12 = 12 for n = 0.
+
+                                                     4
+                      M (cells)    expected risk   excess (×10−4 )      ratio to M = 1
+                              1          0.05025                  2.7             1.00
+                              2          0.05052                  5.3             2.01
+                              4          0.05107                 10.8             4.08
+                              8          0.05221                 22.3             8.38
+                             16          0.05477                 47.8            17.99
+                             32          0.06638                163.9            61.68
+                                        n   RAnc (n)       excess (×10−4 )
+                                      10     0.06045                104.7
+                                      20     0.05446                 44.8
+                                      40     0.05216                 21.7
+                                      80     0.05106                 10.7
+                                     160     0.05052                  5.3
+                                     320     0.05025                  2.7
+                                     640     0.05012                  1.3
+                                    1280     0.05005                  0.7
+
+Table 1: Exact values (finite binomial sums) for the nearest-centroid threshold in the Gaussian location
+model with µ = 1.645, Bayes risk 0.0500. Left: partition-localised rule with M equiprobable label-
+independent cells at n = 320. Right: the learning curve, strictly decreasing on n = 2, . . . , 1000 by direct
+evaluation (and for all n ≥ 1 by Proposition 3.4).
+
+
+Corollary 3.5 (An exactly computed case where local adaptation strictly hurts). [proved
+here; numbers computed exactly] In the model of Proposition 3.4, extended by any coordinates
+independent of (X1 , Y ) along which cells are formed, the partition-localised nearest-centroid
+rule with M ≥    2 equiprobable cells has strictly larger expected risk than the global one, and
+             n  −m
+                M (1 − M −1 )n−m RAnc (m). With µ = 1.645 (Bayes risk 0.0500) and n = 320:
+       P
+ER = m m
+the global excess risk is 2.7 × 10−4 , and M = 2, 4, 8, 16, 32 cells multiply it by 2.01, 4.08, 8.38,
+17.99 and 61.68 (Table 1). A Monte Carlo check with 2000 samples gives 0.05024 ± 0.00001
+against the exact 0.05025 for the global rule and 0.05105 ± 0.00002 against 0.05107 for M = 4.
+
+Remark 3.6 (First-order reading). Since R′′ (0) = µφ(µ), the excess risk of a threshold with
+variance s2 is 12 µφ(µ)s2 + O(s4 ), and E s2 ≈ 1/n for the global rule, ≈ M/n for a cell: the
+multiplication by about M in Table 1 is the variance inflation of fitting on n/M points, with no
+bias to be removed. The exact values are the finite sums, not this expansion.
+
+
+Illustration for rules not covered by the proposition (computationally verified, not
+proved). Figure 1 and Table 2 report simulations in the same model. (D1) The kNN-localised
+nearest-centroid rule in d = 2 (second coordinate pure noise), n = 320: the risk is worst at
+k = 20 (0.1070, against 0.0503 for k = n), because the local class means are truncated by the
+neighbourhood (bias) and computed from few points (variance); for small k the neighbourhoods
+are mostly pure and the rule degenerates to a k-NN vote [6, 18]. (D2) The kNN-localised linear
+SVM in d = 2 with C = 1: 0.0562 at k = 10 and 0.0540 at k = 160 against 0.0521 ± 0.0006 for
+the global linear SVM; the differences are within about one standard error at k ≥ 20, so in two
+dimensions the localised SVM neither helps nor clearly hurts here. (D3) The learning curve
+of the global linear SVM in d = 10 is decreasing at every step between n = 20 (0.1178) and
+n = 640 (0.0538), the monotonicity that Proposition 3.2 needs in order to apply to the SVM in
+this model. (D4) Accordingly, the partition-localised linear SVM with label-independent cells in
+d = 10, n = 320, has risk 0.0577, 0.0658, 0.0803, 0.0985 for M = 1, 2, 4, 8.
+
+
+
+
+                                                       5
+                      D1: kNN nearest centroid, d = 2
+                                                                                              D2: kNN linear SVM, d = 2                                         D3: linear SVM, d = 10
+                       k     risk                 s.e.
+                                                                                                  k     risk        s.e.                                         n       risk      s.e.
+                        5      0.0896                        0.0011
+                                                                                                  10             0.0562              0.0026                      20   0.1178             0.0029
+                       10      0.1028                        0.0015
+                                                                                                  20             0.0554              0.0027                      40   0.0978             0.0016
+                       20      0.1070                        0.0020
+                                                                                                  40             0.0554              0.0031                      80   0.0797             0.0011
+                       40      0.0889                        0.0022
+                                                                                                  80             0.0545              0.0027                     160   0.0653             0.0005
+                       80      0.0578                        0.0007
+                                                                                                 160             0.0540              0.0028                     320   0.0577             0.0003
+                      160      0.0510                        0.0003
+                                                                                              global             0.0521              0.0006                     640   0.0538             0.0001
+                      320      0.0503                        0.0003
+                                                                                              D4: cells, d = 10
+                                                                                              M       risk      s.e.
+                                                                                               1        0.0577            0.0002
+                                                                                               2        0.0658            0.0004
+                                                                                               4        0.0803            0.0005
+                                                                                               8        0.0985            0.0007
+
+Table 2: Simulations in the Gaussian location model (µ = 1.645, Bayes risk 0.0500, n = 320 unless
+stated). D1: 200 training samples, exact conditional risk averaged over 1000 test points. D2: 16 samples,
+125 test points, C = 1. D3: 200 samples per n, exact risk of the fitted hyperplane. D4: 200 samples, cells
+drawn independently of the data.
+
+                              partition-localised nearest centroid                            kNN-localised rules, d = 2, n = 320                                     learning curves
+                                                                                                                                                       10−1
+                                                          M = 1 cells                                                                                                            nearest centroid (exact)
+                      10−1                                M = 4 cells                                                                                                            linear SVM, d = 10 (MC)
+                                                          M = 16 cells
+                                                                                       10−2                                                            10−2
+excess risk (exact)
+
+
+
+
+                      10−2
+                                                                         excess risk
+
+
+
+
+                                                                                                                                         excess risk
+
+
+
+                                                                                       10−3
+                                                                                                                                                       10−3
+                      10−3
+                                                                                       10−4        global linear SVM
+                                                                                                   kNN nearest centroid
+                      10−4                                                                         kNN linear SVM                                      10−4
+                                     102                       103                                   101                       102                            101          102                     103
+                                               n                                                            k (local sample size)                                            n
+
+
+Figure 1: Left: exact excess risk of the partition-localised nearest-centroid rule against n for M = 1, 4, 16
+label-independent cells (Corollary 3.5). Middle: kNN-localised rules in d = 2 (D1, D2); the dashed line is
+the global linear SVM. Right: learning curves of the nearest-centroid threshold (exact) and of the linear
+SVM in d = 10 (Monte Carlo).
+
+
+4                            Experimental protocol and predefined criterion
+Data sets. Six binary tasks (Table 3), grouped into three named regimes fixed before running:
+real (wine, class 0 against the rest; breast cancer; digits, even against odd, a task with several
+modes per class), linear (the Gaussian location model of Section 3 in d = 10, δ = 3.29, Bayes
+error 0.0500, so that the linear reference contains the Bayes rule), and multiscale, designed to
+favour local adaptation: two-scale moons (100 points of the standard moons and 300 points
+of a copy shrunk by 4 and displaced, so that scale and density both vary) and a two-scale
+checkerboard (100 points on 2 × 2 cells of side 1 and 300 points on 4 × 4 cells of side 12 ). Breast
+cancer and digits are subsampled (stratified) to 300 and 400 points and digits are reduced to 16
+principal components fitted on the training fold; this subsampling is part of the compute budget
+and is stated as such.
+
+Resampling and tuning. Main condition: 2 repetitions of stratified 5-fold cross-validation
+(10 outer folds). Two robustness conditions with 5 outer folds each: noise20, in which 20% of
+the training labels of each fold are flipped at random (test labels clean), and sub25, in which
+
+
+                                                                                                                 6
+      data set                  regime         n    d   ntrain (main)   ntrain (sub25)   positives
+      wine                      real         178   13            142               40        33%
+      breast cancer             real         300   30            240               60        63%
+      digits (parity)           real         400   64            320               80        50%
+      Gaussian, linear          linear       400   10            320               80        48%
+      two-scale moons           multiscale   400    2            320               80        50%
+      two-scale checkerboard    multiscale   400    2            320               80        52%
+
+Table 3: Data sets. d is the dimension after preprocessing (digits: 16 principal components). All inputs
+are standardised on the training fold.
+
+
+only 25% of the training fold (stratified, at least 40 points) is used. Every family is tuned on the
+training fold by an inner stratified 3-fold cross-validation with accuracy as the score. Grids: linear
+SVM C ∈ {0.01, 0.1, 1.0, 10.0}; RBF-SVM C ∈ {0.1, 1.0, 10.0}, γ ∈ {0.1, 0.3, 1.0, 3.0, 10.0} × γmed
+with γmed the inverse median squared distance; kNN-SVM k ∈ {20, 50, 100, all} with C = 1.0
+fixed, the inner validation sets being subsampled to at most 40 points to bound the number
+of per-point fits; cell-SVM M ∈ {1, 2, 4, 8}, C ∈ {0.1, 1.0, 10.0}; VB-RBF-SVM the RBF grid
+times β ∈ {0.0, 0.5, 1.0} with κ = 10; LLSVM M ∈ {1, 2, 4, 8}, C ∈ {0.01, 0.1, 1.0, 10.0}. Ties
+are broken towards the global member (Remark 2.3).
+
+Reference and paired comparison. The best global reference in an outer fold is whichever
+of the linear and RBF-SVM has the higher inner-cross-validation score in that fold; its test
+accuracy is the reference value, so the choice uses no test data. For each family and data set we
+record the paired difference (family minus reference) in each outer fold and a percentile bootstrap
+95% interval of the mean difference over folds (B = 2000) [9]. Outer folds of a cross-validation
+are not independent, so these intervals are descriptive rather than exact [8, 12]; with 10 folds
+they are also wide, which works against detecting small effects in either direction.
+
+Predefined criterion of added value. A family has added value if (A) its mean paired
+improvement over the best global reference is positive with a bootstrap interval excluding zero
+on a majority of the 6 data sets in the main condition; or, failing that, (B) there is a named
+regime on every data set of which (A) holds, and no data set outside the regime shows an interval
+entirely below zero. Robustness is reported separately as the accuracy under the two conditions
+and the paired differences there. The criterion, the regimes, the grids and the seed were fixed
+before the run; one sensitivity check added after seeing the results is labelled as post hoc in
+Section 5.
+
+
+5     Results
+5.1    Main condition
+Table 4 gives the mean accuracies and Table 5 the paired differences against the best global
+reference; Figure 2 shows all three conditions. Of the 24 data-set/family cells, 8 have intervals
+entirely below zero, 1 entirely above (VB-RBF-SVM on Gaussian, linear), and the rest include
+zero.
+    The three local linear families (kNN-SVM, cell-SVM, LLSVM) are never significantly better
+and are significantly worse wherever the RBF-SVM is much better than the linear SVM:
+digits (cell-SVM −3.37, LLSVM −4.12), two-scale moons (−10.63, −11.38, −12.00) and the
+checkerboard (−13.12, −18.25, −17.75). With 320 training points and cells of a few dozen
+points, piecewise-linear boundaries built from local linear SVMs do not reach the RBF-SVM on
+curved boundaries at two scales; Figure 3 shows why. The variable-bandwidth family, which
+
+
+                                                   7
+  data set                   linear   RBF    best global     kNN-SVM       cell-SVM     VB-RBF     LLSVM
+  wine                        99.2    99.7            99.7          99.4         98.9       99.7        99.2
+  breast cancer               96.0    96.2            96.5          96.3         96.2       96.2        96.2
+  digits (parity)             85.2    97.5            97.5          96.6         94.1       97.6        93.4
+  Gaussian, linear            93.9    93.4            93.1          92.0         93.0       93.9        93.5
+  two-scale moons             84.5    97.5            97.5          86.9         86.1       96.9        85.5
+  two-scale checkerboard      50.8    87.0            87.0          73.9         68.8       87.0        69.2
+
+Table 4: Main condition: mean test accuracy (%) over 10 outer folds. “Best global” is the reference
+selected by inner cross-validation in each fold; it can be below both references’ means because it is a
+per-fold choice.
+
+ data set                  kNN-SVM                   cell-SVM                   VB-RBF-SVM              LLSVM
+ wine                      -0.28 [-1.11, +0.56]      -0.85 [-2.25, +0.55]       +0.00 [+0.00, +0.00]    -0.57 [-1.67, +0.54]
+ breast cancer             -0.17 [-1.17, +1.00]      -0.33 [-1.33, +0.50]       -0.33 [-1.00, +0.00]    -0.33 [-1.67, +0.83]
+ digits (parity)           -0.87 [-3.25, +1.13]      -3.37 [-5.63, -1.25]−      +0.13 [-0.37, +0.75]    -4.12 [-5.50, -2.62]−
+ Gaussian, linear          -1.13 [-2.38, +0.50]      -0.12 [-1.00, +0.75]       +0.75 [+0.12, +1.50]+   +0.38 [-0.25, +1.13]
+ two-scale moons           -10.63 [-14.25, -7.13]−   -11.38 [-13.63, -9.00]−    -0.62 [-1.88, +0.00]    -12.00 [-14.50, -9.50]−
+ two-scale checkerboard    -13.12 [-17.00, -9.50]−   -18.25 [-21.50, -15.00]−   +0.00 [-1.88, +1.38]    -17.75 [-20.75, -14.50]−
+
+Table 5: Main condition: mean paired difference in accuracy (percentage points, family minus best
+global reference) with percentile bootstrap 95% interval over 10 folds; + /− marks an interval entirely
+above/below zero.
+
+
+contains the RBF-SVM, is statistically indistinguishable from the best reference on five data
+sets, including both multiscale sets (−0.62 [−1.88, +0.00] and +0.00 [−1.88, +1.38]) for which
+it was designed, and shows +0.75 [+0.12, +1.50] on the Gaussian linear data set.
+
+The one positive cell. The +0.75 points of VB-RBF-SVM on the Gaussian linear data set
+arise on the data set where Section 3 says local adaptation cannot reduce the excess risk. The
+explanation is in Table 4: the linear SVM (93.9) and the VB-RBF-SVM (93.9) have the same
+mean accuracy, and both exceed the selected reference (93.1) because the inner cross-validation
+picked the RBF-SVM in 80% of the folds although the linear SVM was better on the test folds.
+The gain is against the selection, not against the better global reference. A post-hoc check
+(Table 6) against the oracle reference, the better of the two global references on each test fold
+(an optimistic reference, since it uses test data), gives −0.37 [−1.25, +0.25] on that data set and
+no interval above zero anywhere (0 of 72 cells across all conditions).
+
+Did the inner cross-validation want to be local? Table 7 reports how often a genuinely
+local configuration was selected. It is selected most of the time on the data sets where it then
+loses (digits, multiscale) for the local linear families, which shows that the inner cross-validation
+was not simply collapsing them onto their global member; for VB-RBF-SVM a β > 0 was
+selected in 70% of the folds on the Gaussian data set and in 10% and 40% on the two multiscale
+sets.
+
+5.2    Robustness: label noise and subsampling
+Table 8 gives the accuracies averaged over data sets and their drops from the main condition;
+Table 9 gives the paired differences per data set. Under 20% training-label noise the average
+drop is 6.0 points for the best global reference against 5.1 (kNN-SVM), 4.8 (cell-SVM), 6.9
+(VB-RBF-SVM) and 3.7 (LLSVM); the kNN-SVM, whose local fits see few and noisy points, is
+significantly below the reference on 4 of 6 data sets. Under 25% subsampling the drops are 6.2
+
+
+                                                       8
+                                        main                                                     noise20                                                sub25
+           wine
+  breast_cancer
+   digits_parity
+   gauss_linear
+  moons_2scale           knn_svm
+                         cell_svm
+                         vb_rbf
+ checker_2scale          llsvm
+                     −20      −15       −10        −5          0         −20          −15       −10       −5         0            5    −20 −15 −10 −5                0      5     10
+                       accuracy difference vs best global (pp)                     accuracy difference vs best global (pp)              accuracy difference vs best global (pp)
+
+
+Figure 2: Paired accuracy differences against the best global reference (percentage points) with bootstrap
+95% intervals, for the main condition and the two robustness conditions.
+
+           moons_2scale / RBF-SVM                       moons_2scale / kNN-SVM                           moons_2scale / VB-RBF-SVM                     moons_2scale / LLSVM
+            C=10, gamma=9.97                                 k=20, C=1                                   beta=0, C=10, gamma=9.97                           M=4, C=1
+
+
+
+
+           checker_2scale / RBF-SVM                     checker_2scale / kNN-SVM                         checker_2scale / VB-RBF-SVM                   checker_2scale / LLSVM
+             C=10, gamma=3.41                                  k=20, C=1                                 beta=0, C=10, gamma=3.41                           M=8, C=10
+
+
+
+
+Figure 3: Decision regions on the first outer training fold of the two multiscale data sets, for the
+configurations selected by inner cross-validation in that fold. The variable-bandwidth family selected
+β = 0 here, i.e. the RBF-SVM itself.
+
+
+for the reference against 7.3, 5.9, 5.1 and 4.4. No family is significantly above the reference under
+either condition (VB-RBF-SVM on the subsampled two-scale moons: +4.25 [−1.75, +9.00]).
+We therefore find no evidence of superior robustness, and some evidence of inferior robustness
+for the neighbourhood-based family, in line with the variance mechanism of Section 3.
+
+5.3       Verdict under the predefined criterion
+Table 10 applies the criterion of Section 4 literally. No family meets the majority clause (A).
+The regime clause (B) is met, by the letter, by one family in one regime: VB-RBF-SVM in the
+linear regime, which consists of a single data set. We report this as the rule requires and then
+say why it is not added value in the sense intended: the regime is the one in which Section 3
+shows that no reduction of excess risk is available, the gain vanishes against the better global
+reference (Table 6), and a one-data-set regime is too weak a base for a named-regime claim.
+The flaw is in our criterion, which should have required at least two data sets per regime; we
+record it rather than repair it after the fact. In the multiscale regime, for which the family was
+designed, the outcome is a tie with the RBF-SVM.
+
+
+
+
+                                                                                             9
+ data set                    oracle acc. (%) kNN-SVM                    cell-SVM                   VB-RBF-SVM             LLSVM
+                                                                                          −
+ wine                                100.0   -0.56 [-1.39, +0.00]       -1.13 [-2.25, -0.29]       -0.28 [-0.83, +0.00]   -0.85 [-1
+ breast cancer                        96.7   -0.33 [-1.33, +0.50]       -0.50 [-1.33, +0.33]       -0.50 [-1.33, +0.00]   -0.50 [-1
+ digits (parity)                      97.5   -0.87 [-3.38, +1.00]       -3.37 [-5.88, -1.37]−      +0.13 [-0.37, +0.75]   -4.12 [-5
+ Gaussian, linear                     94.3   -2.25 [-3.12, -1.50]−      -1.25 [-2.37, -0.13]−      -0.37 [-1.25, +0.25]   -0.75 [-1
+ two-scale moons                      97.5   -10.63 [-14.13, -7.38]−    -11.38 [-13.75, -9.00]−    -0.62 [-1.88, +0.00]   -12.00 [-
+ two-scale checkerboard               87.0   -13.12 [-16.75, -9.38]−    -18.25 [-21.38, -14.88]−   +0.00 [-2.00, +1.50]   -17.75 [-
+
+Table 6: Post hoc (defined after the main results were seen): paired differences against the oracle best
+global reference, max(linear, RBF) test accuracy in each fold, main condition.
+
+    data set                  reference picks RBF     kNN-SVM          cell-SVM    VB-RBF-SVM        LLSVM
+    wine                                       1.0            0.6           0.5                0.0        0.5
+    breast cancer                              0.6            0.3           0.3                0.2        0.4
+    digits (parity)                            1.0            1.0           1.0                0.5        1.0
+    Gaussian, linear                           0.8            0.5           0.3                0.7        0.8
+    two-scale moons                            1.0            0.8           0.9                0.1        1.0
+    two-scale checkerboard                     1.0            1.0           1.0                0.4        1.0
+
+Table 7: Main condition: fraction of outer folds in which the inner cross-validation selected the RBF-SVM
+as reference, and in which it selected a local configuration (k ̸= all, M > 1, β > 0) for each family.
+
+
+6      What can be claimed
+Limitations. The families are reconstructions chosen for transparency, not the strongest
+versions in the literature: the local SVMs are linear with a fixed C, the cell and anchor partitions
+come from a single k-means run, the kNN-SVM’s inner validation is subsampled, and the
+variable-bandwidth exponent takes three values. The data sets are small by design (a total
+budget of about 231 CPU-seconds), so the comparison speaks to the regime of a few hundred
+training points, where the variance mechanism of Section 3 is strongest and local methods
+are at a disadvantage; with much larger samples the balance may differ, and nothing here
+says otherwise. The bootstrap intervals treat the outer folds as exchangeable, which they are
+not. Proposition 3.2 covers partitions independent of the labels; data-dependent partitions and
+neighbourhoods are only illustrated. The criterion’s regime clause admitted a single-data-set
+regime, a design flaw reported above.
+
+Next steps for the research line. (a) A lower bound for neighbourhood-based localisation:
+for the kNN-localised linear rule in the Gaussian model, bound the conditional excess risk at a
+query by the local sample size, which would extend Proposition 3.2 to the kNN-SVM. (b) Re-run
+the comparison at n in the thousands with the same criterion (repaired to require two data sets
+per regime) to see whether the multiscale tie turns into a gain for the variable-bandwidth family.
+(c) Compare the variable-bandwidth kernel with the simpler alternative of a global RBF-SVM on
+density-normalised inputs, which may capture the same effect without the dimension-dependent
+prefactor of Lemma 2.2. (d) If the original variants of the line are recovered, insert them into
+this protocol unchanged.
+
+
+A       Reproducibility
+The directory contains experiments/families.py (the six families in about 300 lines),
+experiments/run_comparison.py (protocol, criterion, bootstrap, results/results.json,
+results/tables.md, Figure 2), experiments/exact_example.py (Section 3: exact sums,
+Monte Carlo, D1–D4, results/exact_example.json, Figure 1), experiments/posthoc_
+
+                                                     10
+                                                   main       noise20           sub25
+                      method                         acc.   acc.   drop   acc.     drop
+                      linear SVM                     84.9   83.0    1.9   82.5       2.4
+                      RBF-SVM                        95.2   89.1    6.1   89.0       6.2
+                      best global (inner CV)         95.2   89.2    6.0   89.0       6.2
+                      kNN-SVM                        90.9   85.8    5.1   83.6       7.3
+                      cell-SVM                       89.5   84.7    4.8   83.6       5.9
+                      VB-RBF-SVM                     95.2   88.3    6.9   90.1       5.1
+                      LLSVM                          89.5   85.8    3.7   85.1       4.4
+
+Table 8: Accuracy (%) averaged over the 6 data sets in each condition, and drop from the main condition
+(percentage points). The robustness conditions use 5 outer folds.
+
+ data set                 kNN-SVM                     cell-SVM                    VB-RBF-SVM              LLSVM
+ noise20
+ wine                     -2.83 [-5.70, -0.56]−       -1.13 [-3.95, +1.16]        -0.57 [-1.71, +0.00]    -0.56 [-1.67, +0.00]
+ breast cancer            -4.67 [-8.00, -0.33]−       -0.33 [-1.00, +0.00]        -2.00 [-3.00, -1.00]−   +1.00 [+0.00, +3.00]
+ digits (parity)          -2.75 [-4.50, -1.00]−       -2.50 [-4.50, -0.50]−       +1.50 [+0.00, +4.00]    +0.25 [-2.75, +3.25]
+ Gaussian, linear         -0.25 [-1.00, +0.50]        -1.25 [-3.75, +0.50]        -0.25 [-2.00, +1.50]    +0.00 [+0.00, +0.00]
+ two-scale moons          -2.25 [-9.00, +3.51]        -4.50 [-10.51, +2.00]       -4.00 [-9.25, -0.25]−   -4.50 [-9.50, -0.75]−
+ two-scale checkerboard   -7.75 [-12.76, -4.00]−      -17.00 [-18.75, -15.25]−    +0.25 [-0.50, +1.00]    -16.75 [-19.75, -14.00]−
+ sub25
+ wine                     -1.67 [-2.78, -0.56]−       +0.00 [+0.00, +0.00]        +0.00 [+0.00, +0.00]    -0.56 [-1.67, +0.00]
+ breast cancer            -0.67 [-2.00, +0.00]        -3.00 [-5.33, -0.67]−       +0.00 [-1.00, +1.00]    +0.00 [+0.00, +0.00]
+ digits (parity)          -9.75 [-11.75, -7.25]−      -13.75 [-19.75, -8.25]−     -0.50 [-1.50, +0.50]    -9.00 [-11.75, -6.50]−
+ Gaussian, linear         +0.75 [-2.75, +5.50]        -1.50 [-4.00, +1.00]        +0.75 [-1.25, +3.00]    +1.00 [-2.50, +4.51]
+ two-scale moons          -2.00 [-4.00, +0.00]        -0.25 [-1.75, +1.25]        +4.25 [-1.75, +9.00]    -1.50 [-3.50, +0.25]
+ two-scale checkerboard   -19.25 [-22.75, -15.50]−    -13.75 [-21.25, -6.25]−     +1.75 [-0.25, +3.75]    -13.75 [-22.75, -4.75]−
+
+Table 9: Robustness conditions: paired differences against the best global reference (percentage points)
+with bootstrap 95% intervals over 5 folds.
+
+
+oracle.py (Table 6, from results.json only), experiments/make_region_figure.py (Fig-
+ure 3) and experiments/make_numbers.py, which converts the JSON results into the macros
+and table bodies used by this document, so that no number in the text is typed. Seed 20260930;
+Python 3.11.15, NumPy 2.4.6, SciPy 1.17.1, scikit-learn 1.9.1 [13]; single-threaded BLAS; 206
+seconds for the comparison and 26 seconds for the exact example on a shared four-core machine.
+run_comparison.py--fast runs a reduced smoke test.
+
+Details. Standardisation and, for digits, PCA are fitted on the training fold only; the robustness
+conditions are applied to the training fold after preprocessing. Inner folds are stratified with
+a fold-specific seed shared by all families. The kNN-SVM uses Euclidean neighbours in the
+standardised space; pure neighbourhoods vote without fitting. Cell-SVM and LLSVM share one
+k-means partition per inner fold and M (one initialisation, fixed seed). The variable-bandwidth
+family reuses the RBF-SVM’s inner scores for β = 0, which are identical by construction.
+Bootstrap intervals are percentile intervals over 2000 resamples of the fold-wise paired differences.
+The exact sums of Section 3 use scipy.stats.binom and scipy.stats.norm; the Monte Carlo
+check evaluates the exact risk of each fitted threshold rather than an empirical test error.
+
+
+
+
+                                                      11
+ family             CI > 0    CI < 0    majority (A)      named regime (B)                added value
+ kNN-SVM             0/6        2/6        not met        none                                 no
+ cell-SVM            0/6        3/6        not met        none                                 no
+ VB-RBF-SVM          1/6        0/6        not met        linear                  yes (by the letter; see text)
+ LLSVM               0/6        3/6        not met        none                                 no
+
+           Table 10: The predefined criterion applied to the main condition (6 data sets).
+
+ claim                                                                              status
+ If the reference class contains a Bayes rule, localisation can act only on         proved here (elementary)
+ the estimation term (Lemma 3.1)
+ The variable-bandwidth kernel Ka is positive definite and nests the RBF            proved here (standard)
+ kernel (Lemma 2.2)
+ Partition-localised rule with label-independent cells: risk is the learning        proved here
+ curve averaged at binomially thinned sizes; not below the global rule if
+ the curve is non-increasing, strictly above if strictly decreasing (Prop. 3.2)
+ Nearest-centroid threshold in the Gaussian model: closed-form conditional          proved here; exact numbers
+ risk; learning curve strictly decreasing (Prop. 3.4); partition-localisation
+ multiplies the excess risk by 4.08 with 4 cells at n = 320 (Cor. 3.5)
+    Monte Carlo agrees with the exact values to within one standard error           verified
+ The linear SVM’s learning curve is decreasing in the Gaussian model,               verified, not proved
+ d = 10 (D3); partition-localised SVM risk grows with M (D4)
+ kNN-localised rules in the Gaussian model do not improve on the global             verified, illustration
+ rule; the centroid version is up to twice as bad, the SVM version within
+ noise in d = 2 (D1, D2)
+ No family meets the majority criterion of added value on 6 data sets               measured
+ Local linear families are significantly worse than the best global reference       measured
+ on the curved multiscale sets and on digits
+ VB-RBF-SVM ties the RBF-SVM on the multiscale sets; its one positive               measured / post hoc
+ cell is against a selected reference and vanishes against the oracle reference
+ No family is more robust than the reference under 20% label noise or 25%           measured
+ subsampling; kNN-SVM is less robust
+ General superiority of any family in accuracy or robustness                        not claimed
+ Behaviour of the original variants of the line, of larger samples, or of other     not addressed
+ kernels
+
+Table 11: Claims and their status. “Verified” and “measured” mean produced by the scripts of
+Appendix A with the fixed seed; neither is a proof.
+
+
+References
+ [1] Ian S. Abramson. On bandwidth variation in kernel estimates—a square root law. Annals
+     of Statistics, 10(4):1217–1223, 1982.
+
+ [2] Léon Bottou and Vladimir Vapnik. Local learning algorithms. Neural Computation, 4(6):
+     888–900, 1992.
+
+ [3] Chih-Chung Chang and Chih-Jen Lin. LIBSVM: A library for support vector machines.
+     ACM Transactions on Intelligent Systems and Technology, 2(3):27:1–27:27, 2011.
+
+ [4] Haibin Cheng, Pang-Ning Tan, and Rong Jin. Localized support vector machine and its
+     efficient algorithm. In Proceedings of the SIAM International Conference on Data Mining
+     (SDM), pages 461–466, 2007.
+
+ [5] Corinna Cortes and Vladimir Vapnik. Support-vector networks. Machine Learning, 20(3):
+     273–297, 1995.
+
+                                                     12
+ [6] Thomas M. Cover and Peter E. Hart. Nearest neighbor pattern classification. IEEE
+     Transactions on Information Theory, 13(1):21–27, 1967.
+
+ [7] Luc Devroye, László Györfi, and Gábor Lugosi. A Probabilistic Theory of Pattern Recognition.
+     Springer, New York, 1996.
+
+ [8] Thomas G. Dietterich. Approximate statistical tests for comparing supervised classification
+     learning algorithms. Neural Computation, 10(7):1895–1923, 1998.
+
+ [9] Bradley Efron and Robert J. Tibshirani. An Introduction to the Bootstrap. Chapman &
+     Hall, New York, 1993.
+
+[10] Ľubor Ladický and Philip H. S. Torr. Locally linear support vector machines. In Proceedings
+     of the 28th International Conference on Machine Learning (ICML), 2011.
+
+[11] Charles A. Micchelli, Yuesheng Xu, and Haizhang Zhang. Universal kernels. Journal of
+     Machine Learning Research, 7:2651–2667, 2006.
+
+[12] Claude Nadeau and Yoshua Bengio. Inference for the generalization error. Machine Learning,
+     52(3):239–281, 2003.
+
+[13] Fabian Pedregosa, Gaël Varoquaux, Alexandre Gramfort, Vincent Michel, Bertrand Thirion,
+     Olivier Grisel, Mathieu Blondel, Peter Prettenhofer, Ron Weiss, Vincent Dubourg, Jake
+     Vanderplas, Alexandre Passos, David Cournapeau, Matthieu Brucher, Matthieu Perrot,
+     and Édouard Duchesnay. Scikit-learn: Machine learning in Python. Journal of Machine
+     Learning Research, 12:2825–2830, 2011.
+
+[14] Bernhard Schölkopf and Alexander J. Smola. Learning with Kernels: Support Vector
+     Machines, Regularization, Optimization, and Beyond. MIT Press, Cambridge, MA, 2002.
+
+[15] Nicola Segata and Enrico Blanzieri. Fast and scalable local kernel machines. Journal of
+     Machine Learning Research, 11:1883–1926, 2010.
+
+[16] Ingo Steinwart and Andreas Christmann. Support Vector Machines. Springer, New York,
+     2008.
+
+[17] Ingo Steinwart and Clint Scovel. Fast rates for support vector machines using Gaussian
+     kernels. Annals of Statistics, 35(2):575–607, 2007.
+
+[18] Charles J. Stone. Consistent nonparametric regression. Annals of Statistics, 5(4):595–645,
+     1977.
+
+[19] George R. Terrell and David W. Scott. Variable kernel density estimation. Annals of
+     Statistics, 20(3):1236–1265, 1992.
+
+[20] Tom Viering and Marco Loog. The shape of learning curves: A review. IEEE Transactions
+     on Pattern Analysis and Machine Intelligence, 45(6):7799–7819, 2023.
+
+[21] Hao Zhang, Alexander C. Berg, Michael Maire, and Jitendra Malik. SVM-KNN: Discrimi-
+     native nearest neighbor classification for visual category recognition. In Proceedings of the
+     IEEE Conference on Computer Vision and Pattern Recognition (CVPR), pages 2126–2136,
+     2006.
+
+
+
+
+                                               13
+

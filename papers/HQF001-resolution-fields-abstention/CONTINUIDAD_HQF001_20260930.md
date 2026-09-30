@@ -18,7 +18,7 @@ No existe manuscrito, código ni notas previas de la línea; solo la ficha. Todo
 6. **"Cuántico".** Solo se reproduce la salvedad de la ficha; el término "resolución" nombra un campo matricial y nada más.
 
 ## Qué se produjo (todo en `papers/HQF001-resolution-fields-abstention/`)
-1. `manuscript/main.tex` (inglés, 10 páginas) + `refs.bib` (24 entradas) + `main.pdf`; macros y tablas generadas por `experiments/make_numbers.py`.
+1. `manuscript/main.tex` (inglés, 11 páginas con referencias) + `refs.bib` (24 entradas) + `main.pdf`; macros y tablas generadas por `experiments/make_numbers.py`.
 2. `experiments/selective_benchmark.py` (benchmark completo), `experiments/lda_identity.py` (verificación de la Proposición 1), `experiments/make_figures.py`.
 3. `results/results.json`, `results/tables.md`, `results/results_identity.json`, `results/tables_identity.md`; `figures/` (4 figuras).
 4. README, esta nota y una propuesta de ficha.
