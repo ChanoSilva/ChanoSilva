@@ -13,8 +13,10 @@
 | `manuscript/numbers.tex`, `manuscript/table_*.tex` | Macros y cuerpos de tabla **generados** desde `results/results.json`; ningún número del texto está tipeado a mano. |
 | `manuscript/build.sh` | Regenera macros y compila. |
 | `experiments/recursive_knots.py` | Construye los polígonos K_0..K_3 (cables iterados por desplazamiento en un marco de Bishop cerrado) y mide longitud, minRad, distancia doblemente crítica, grosor poligonal, ropelength, writhe y holonomía. |
-| `experiments/make_numbers.py` | Convierte `results/results.json` en `numbers.tex` y las tablas. |
+| `experiments/shrink.py` | Sonda opcional: acortamiento de curva discreto sobre K_1 y K_2 con seguimiento de L/τ (no certificada). |
+| `experiments/make_numbers.py` | Convierte `results/*.json` en `numbers.tex` y las tablas. |
 | `results/results.json`, `results/tables.md` | Resultados completos (determinista; semilla 20260930 solo como registro). |
+| `results/results_shrink.json`, `results/tables_shrink.md` | Resultados de la sonda de acortamiento. |
 | `figures/fig_curves.*`, `figures/fig_rop.*` | Proyecciones de K_1, K_2, K_3 y crecimiento de L/τ con la profundidad. |
 | `PLAN.md` | Plan de una página escrito al inicio de la sesión. |
 | `CONTINUIDAD_RTK001_20260930.md` | Nota de continuidad: supuestos, decisiones, limitaciones, pendientes. |
@@ -26,7 +28,7 @@
 2. Se demuestra lo elemental: K_d es una curva cerrada suave y embebida si r_d ≤ grosor(K_{d−1})/2 (Lema 3.1); el marco cerrado tiene número de enlace round(Wr K_{d−1}) con su núcleo, lo que identifica K_d como el cable (p, q + p·round(Wr)) de K_{d−1} (Lema 3.2); y L(K_d) ≤ p L(K_{d−1})(1 + r κ_max) + r(2πq + p|α|) (Lema 3.3). La cota inferior del grosor de K_d solo se demuestra en dos de tres casos; el caso local queda como hipótesis (H_c) verificada numéricamente. Bajo (H_c), la cota de ropelength cumple una recursión lineal: Rop_d ≤ 2π Λ^d con Λ = A/γ explícito (Λ = 20 para (2,3), f = 1/2, c = 1/2).
 3. Numéricamente, polígonos explícitos de hasta 8192 vértices dan L/τ = 38.4, 155.6 y 622.7 en profundidades 1, 2, 3 (patrón (2,3), f = 1/2), estables al 0.03 % al duplicar la resolución. Son cotas superiores verificadas numéricamente para polígonos explícitos, no grosores suaves certificados. No se afirma estacionariedad, optimalidad ni ley de flujo recursiva.
 
-## Resultados de referencia (corrida completa, N_0 ∈ {512, 1024}, 4.6 min de CPU)
+## Resultados de referencia (corrida completa, N_0 ∈ {512, 1024}, 4.6 min de CPU; sonda de acortamiento 5.1 min adicionales)
 
 - **Profundidad 1–3, (2,3), f = 1/2:** L/τ = 38.4 (N = 2048), 155.6 (N = 4096), 622.7 (N = 8192); factor de crecimiento por nivel ≈ 4.0. Para comparación, el ropelength numérico conocido del trébol es ≈ 32.7 (literatura): la construcción no está cerca de ser ajustada ni en profundidad 1.
 - **Grosor:** en 36 de 36 niveles el grosor poligonal lo fija la distancia doblemente crítica, nunca el radio de curvatura; τ coincide con la estimación punto–tangente de Gonzalez–Maddocks al 0.01 %. Para f ≤ 0.35, τ(K_d) = r_d exactamente (cuatro cifras) en todas las profundidades; para f = 1/2, τ_1 = 0.4158 < 0.5 (la curvatura del toro base acerca las hebras interiores) y τ_d = r_d en d = 2, 3.
@@ -34,11 +36,13 @@
 - **Tipo de nudo:** el writhe de K_1 = T(2,3) cruza el semientero 3.5 dentro de la malla (Wr = 3.127, 3.257, 3.518, 3.710 para f = 0.25, 0.35, 0.5, 0.6), así que K_2 es el cable (2, 9) del trébol para f ≤ 0.35 pero el cable (2, 11) para f ≥ 0.5. La holonomía medida coincide con 2π·frac(Wr) como exige el Lema 3.2.
 - **Convergencia:** cambio relativo máximo de L/τ y de τ entre N_0 y 2N_0: 0.03 % sobre las 12 cadenas.
 - **Otros patrones (f = 1/2):** (3,2): L/τ = 47.7, 331.4, 2296.5; (2,5): 72.4, 291.4, 1166.2.
+- **Sonda de acortamiento (no certificada, N_0 = 512, 200 pasos, λ = 0.1):** en K_1, L/τ baja de 38.36 a 38.05 (0.8 %, aún decreciendo en el paso 200); en K_2 sube monótonamente de 155.59 a 156.25. Resultado marginal en profundidad 1 y negativo en profundidad 2: el acortamiento de curva simple no es una vía barata para mejorar la familia.
 
 ## Reproducir
 
 ```bash
 python3 experiments/recursive_knots.py      # ~5 min en 4 núcleos compartidos (--fast: ~3 min con la mitad de resolución)
+python3 experiments/shrink.py               # ~5 min; sonda opcional
 ./manuscript/build.sh                        # requiere TeX Live (pdflatex, bibtex, latexmk)
 ```
 

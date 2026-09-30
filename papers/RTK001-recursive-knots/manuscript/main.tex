@@ -52,7 +52,7 @@
 \maketitle
 
 \begin{abstract}
-We study a concrete family of \emph{recursive knots}: starting from a round circle $K_0$, the curve $K_d$ is the $(p_d,q_d)$ torus pattern placed on the tube of radius $r_d$ around $K_{d-1}$, using a rotation-minimising (Bishop) frame closed by a linear twist. The question of the research line is how much rope (length divided by thickness) such nested knots need. We prove three elementary facts for this family: $K_d$ is an embedded smooth closed curve whenever $r_d<\thick(K_{d-1})$ (Lemma~\ref{lem:embed}); the closed Bishop frame has linking number $\operatorname{round}(\Wr K_{d-1})$ with its core, which identifies $K_d$ as an explicit cable of $K_{d-1}$ (Lemma~\ref{lem:frame}); and $L(K_d)\le p_d L(K_{d-1})(1+r_d\kappa_{d-1})+r_d(2\pi q_d+p_d|\alpha_d|)$ (Lemma~\ref{lem:length}). A lower bound on the thickness of $K_d$ of the form $\min(\thick K_{d-1}-r_d,\ c\,r_d\sin(\pi/p_d))$ is proved only for pairs of points in the same normal disc or over distant base points; the remaining local case is stated as a hypothesis $(\mathrm H_c)$ and checked numerically. Under $(\mathrm H_c)$ the ropelength bound satisfies a linear recursion whose solution grows geometrically, $\Rop_d\le 2\pi\Lambda^d$ with an explicit $\Lambda$. Numerically, explicit polygons with up to $\NvHalfThree$ vertices give $L/\tau=\RopHalfOne$, $\RopHalfTwo$ and $\RopHalfThree$ at depths $1,2,3$ for the default pattern $(2,3)$ and offset fraction $f=1/2$, stable to $\ConvMaxRelRop\%$ under doubling of the resolution. These are numerically verified upper bounds for explicit polygons, not certified smooth thicknesses; no stationarity, optimality or recursive flow law is claimed.
+We study a concrete family of \emph{recursive knots}: starting from a round circle $K_0$, the curve $K_d$ is the $(p_d,q_d)$ torus pattern placed on the tube of radius $r_d$ around $K_{d-1}$, using a rotation-minimising (Bishop) frame closed by a linear twist. The question of the research line is how much rope (length divided by thickness) such nested knots need. We prove three elementary facts for this family: $K_d$ is an embedded smooth closed curve whenever $r_d\le\thick(K_{d-1})/2$ (Lemma~\ref{lem:embed}); the closed Bishop frame has linking number $\operatorname{round}(\Wr K_{d-1})$ with its core, which identifies $K_d$ as an explicit cable of $K_{d-1}$ (Lemma~\ref{lem:frame}); and $L(K_d)\le p_d L(K_{d-1})(1+r_d\kappa_{d-1})+r_d(2\pi q_d+p_d|\alpha_d|)$ (Lemma~\ref{lem:length}). A lower bound on the thickness of $K_d$ of the form $\min(\thick K_{d-1}-r_d,\ c\,r_d\sin(\pi/p_d))$ is proved only for pairs of points in the same normal disc or over distant base points; the remaining local case is stated as a hypothesis $(\mathrm H_c)$ and checked numerically. Under $(\mathrm H_c)$ the ropelength bound satisfies a linear recursion whose solution grows geometrically, $\Rop_d\le 2\pi\Lambda^d$ with an explicit $\Lambda$. Numerically, explicit polygons with up to $\NvHalfThree$ vertices give $L/\tau=\RopHalfOne$, $\RopHalfTwo$ and $\RopHalfThree$ at depths $1,2,3$ for the default pattern $(2,3)$ and offset fraction $f=1/2$, stable to $\ConvMaxRelRop\%$ under doubling of the resolution. These are numerically verified upper bounds for explicit polygons, not certified smooth thicknesses; no stationarity, optimality or recursive flow law is claimed.
 \end{abstract}
 
 \section{Introduction and status}
@@ -188,9 +188,9 @@ For the default family with $f\le1/2$, $\thick(K_d)=r_d$ exactly whenever the an
 Three further observations. First, for $f\le0.35$ the measured $\tau(K_d)$ equals $r_d$ to four digits at every depth (the antipodal strands in a normal disc are the doubly critical pair), so $\Rop_d=L_d/r_d$ and the recursion $\tau_d=f\tau_{d-1}$ is exact; for $f=1/2$ at depth one $\tau_1=\TauHalfOne<r_1=0.5$, the bending of the base torus bringing inner strands closer, while at depths $2,3$ again $\tau_d=r_d$. Second, the writhe of $K_1=T(2,3)$ crosses the half-integer $3.5$ inside the grid ($\Wr=\WrQuarterOne$, $\WrThirtyFiveOne$, $\WrHalfOne$, $\WrSixtyOne$ for $f=0.25,0.35,0.5,0.6$), so by Lemma~\ref{lem:frame} the frame linking number is $3$ for $f\le0.35$ and $4$ for $f\ge0.5$ and the depth-two knot type changes across the grid: $K_2$ is the $(2,\SlopeQuarterTwo)$-cable of the trefoil for $f=0.25$ but the $(2,\SlopeHalfTwo)$-cable for $f=0.5$. The measured $\alpha_d$ agrees with $2\pi\,\mathrm{frac}(\Wr K_{d-1})$ as Lemma~\ref{lem:frame} requires (e.g.\ $\alpha_2=\AlphaHalfTwo$ for $f=0.5$). Third, the best depth-one value on the grid is $f=0.5$ ($\Rop_1=\RopHalfOne$), the best depth-three value also ($\Rop_3=\RopHalfThree$); $f=0.6$ is worse at every depth, consistent with the crossover $1-f\approx cf$ in \eqref{eq:consts}, but we did not optimise $f$ and make no optimality claim.
 
 
-\paragraph{Curve-shortening probe (uncertified).} \ifnum\HasShrink=1 As a first look at how far the family is from tight configurations, \texttt{experiments/shrink.py} applies $\ShrinkSteps$ explicit discrete curve-shortening steps (each vertex moved a fraction $\ShrinkLam$ of the way to the midpoint of its neighbours) to $K_1$ and $K_2$ of the $(2,3)$, $f=1/2$ chain at $N_0=\ShrinkNZero$, measuring $L/\tau$ after every step ($L/\tau$ is scale invariant, so no rescaling is needed) and keeping the best polygon seen. At depth one $L/\tau$ goes from $\ShrinkStartOne$ to a best value of $\ShrinkBestOne$ at step $\ShrinkStepOne$ ($\ShrinkPctOne\%$ lower; value at the last step $\ShrinkEndOne$; thickness lost: \ShrinkLostOne); at depth two from $\ShrinkStartTwo$ to $\ShrinkBestTwo$ at step $\ShrinkStepTwo$ ($\ShrinkPctTwo\%$; last step $\ShrinkEndTwo$; thickness lost: \ShrinkLostTwo). This is not a gradient flow of length at fixed thickness, the knot type is monitored only through $\tau>0$, and the improved polygons are reported as uncertified numerical improvements, not as new configurations of the family. \else The optional curve-shortening probe was not run in this build. \fi
+\paragraph{Curve-shortening probe (uncertified).} \ifnum\HasShrink=1 As a first look at how far the family is from tight configurations, \texttt{experiments/shrink.py} applies $\ShrinkSteps$ explicit discrete curve-shortening steps (each vertex moved a fraction $\ShrinkLam$ of the way to the midpoint of its neighbours) to $K_1$ and $K_2$ of the $(2,3)$, $f=1/2$ chain at $N_0=\ShrinkNZero$, measuring $L/\tau$ after every step ($L/\tau$ is scale invariant, so no rescaling is needed) and keeping the best polygon seen. At depth one $L/\tau$ goes from $\ShrinkStartOne$ to a best value of $\ShrinkBestOne$ at step $\ShrinkStepOne$ ($\ShrinkPctOne\%$ lower; value at the last step $\ShrinkEndOne$; thickness lost: \ShrinkLostOne); at depth two from $\ShrinkStartTwo$ to $\ShrinkBestTwo$ at step $\ShrinkStepTwo$ ($\ShrinkPctTwo\%$; last step $\ShrinkEndTwo$; thickness lost: \ShrinkLostTwo). The probe is therefore marginal at depth one and adverse at depth two: plain curve shortening is not a cheap way to improve the family, and it gives no evidence either way about local minimality. It is not a gradient flow of length at fixed thickness, the knot type is monitored only through $\tau>0$, and the depth-one polygon is reported as an uncertified numerical improvement, not as a new configuration of the family. \else The optional curve-shortening probe was not run in this build. \fi
 
-\begin{table}[t]\centering\small
+\begin{table}[htbp]\centering\small
 \caption{Default family $(p,q)=(2,3)$, finest resolution ($N_0=\NZeroFine$). $r_d=f\tau_{d-1}$; $\rho_d$ from \eqref{eq:rho} with $c=1/2$; slope $=q+pn$ of Lemma~\ref{lem:frame}. All lengths in units of $R_0$.}\label{tab:main}
 \begin{tabular}{@{}rrrrrrrrrrrr@{}}\toprule
 $f$ & $d$ & $N$ & $r_d$ & $L$ & $\minRad$ & $\dcsd/2$ & $\tau$ & $L/\tau$ & $\rho_d$ & $\Wr$ & slope\\\midrule
@@ -198,7 +198,7 @@ $f$ & $d$ & $N$ & $r_d$ & $L$ & $\minRad$ & $\dcsd/2$ & $\tau$ & $L/\tau$ & $\rh
 \bottomrule\end{tabular}
 \end{table}
 
-\begin{table}[t]\centering\small
+\begin{table}[htbp]\centering\small
 \caption{Other patterns, $f=0.5$, finest resolution ($N_0=\NZeroThreeTwo$ for $(3,2)$, $\NZeroTwoFive$ for $(2,5)$).}\label{tab:patterns}
 \begin{tabular}{@{}lrrrrrrrrr@{}}\toprule
 $(p,q)$ & $d$ & $N$ & $r_d$ & $L$ & $\tau$ & $L/\tau$ & $\rho_d$ & $\Wr$ & slope\\\midrule
@@ -206,7 +206,7 @@ $(p,q)$ & $d$ & $N$ & $r_d$ & $L$ & $\tau$ & $L/\tau$ & $\rho_d$ & $\Wr$ & slope
 \bottomrule\end{tabular}
 \end{table}
 
-\begin{table}[t]\centering\small
+\begin{table}[htbp]\centering\small
 \caption{Resolution check (criterion C1): $L/\tau$ at the coarse and fine resolutions and relative change.}\label{tab:conv}
 \begin{tabular}{@{}lrrrrrrr@{}}\toprule
 $(p,q)$ & $f$ & $d$ & $N$ coarse & $L/\tau$ & $N$ fine & $L/\tau$ & change (\%)\\\midrule
@@ -214,7 +214,7 @@ $(p,q)$ & $f$ & $d$ & $N$ coarse & $L/\tau$ & $N$ fine & $L/\tau$ & change (\%)\
 \bottomrule\end{tabular}
 \end{table}
 
-\begin{table}[t]\centering\small
+\begin{table}[htbp]\centering\small
 \caption{Measured $L/\tau$ (numerical chain, $r_d=f\tau_{d-1}$) against the conditional bound $2\pi\Lambda^d$ of Corollary~\ref{cor:rec} (theoretical chain, $r_d=f\rho_{d-1}$, $c=1/2$). The two chains differ in $r_d$; the comparison is indicative only.}\label{tab:bounds}
 \begin{tabular}{@{}rrrrrrr@{}}\toprule
 $f$ & $\gamma$ & $A$ & $\Lambda$ & $d=1$ & $d=2$ & $d=3$\\\midrule
@@ -222,12 +222,12 @@ $f$ & $\gamma$ & $A$ & $\Lambda$ & $d=1$ & $d=2$ & $d=3$\\\midrule
 \bottomrule\end{tabular}
 \end{table}
 
-\begin{figure}[t]\centering
+\begin{figure}[htbp]\centering
 \includegraphics[width=\textwidth]{../figures/fig_curves.pdf}
 \caption{Projections of $K_1,K_2,K_3$ for $(2,3)$, $f=0.5$.}\label{fig:curves}
 \end{figure}
 
-\begin{figure}[t]\centering
+\begin{figure}[htbp]\centering
 \includegraphics[width=0.6\textwidth]{../figures/fig_rop.pdf}
 \caption{Polygonal $L/\tau$ against depth for the default family (solid) and the conditional bound $2\pi\Lambda^d$ (dashed, $f\le1/2$).}\label{fig:rop}
 \end{figure}
@@ -247,7 +247,7 @@ Explicit polygons with $L/\tau=\RopHalfOne,\RopHalfTwo,\RopHalfThree$ at $d=1,2,
 Knot type of $K_2$ changes between $f=0.35$ and $f=0.5$ (writhe crosses $3.5$). & computationally verified ($\Wr$ to $10^{-3}$), consequence of Lemma~\ref{lem:frame}\\
 $\Rop\ge c_0\Cr^{3/4}$; existence and regularity of tight knots. & literature \cite{BuckSimon1999,CKS2002}\\
 $\thick(K_d)=r_d$ exactly for small $f$; growth rate $\Lambda_\ast\approx\GrowthThree$. & conjectural\\
-Curve-shortening steps lower the polygonal $L/\tau$ of $K_1$, $K_2$ (Section~\ref{sec:exp}). & uncertified numerical improvement\\
+Plain curve-shortening steps lower the polygonal $L/\tau$ of $K_1$ by $\ShrinkPctOne\%$ and raise that of $K_2$ (Section~\ref{sec:exp}). & uncertified numerical probe; negative at depth two\\
 Stationarity or optimality of any $K_d$; a recursive flow law for tight recursive knots. & not claimed\\
 \bottomrule\end{tabular}
 \end{center}

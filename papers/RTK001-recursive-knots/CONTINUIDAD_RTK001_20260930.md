@@ -14,7 +14,7 @@ Línea RTK001, "Geometría de nudos recursivos" / "Geometry of recursive knots",
 
 ## Qué se produjo (todo en `papers/RTK001-recursive-knots/`)
 1. `PLAN.md`, escrito antes que cualquier código.
-2. `experiments/recursive_knots.py` (numérica determinista) y `experiments/make_numbers.py` (macros LaTeX). Ningún número del manuscrito está escrito a mano.
+2. `experiments/recursive_knots.py` (numérica determinista), `experiments/shrink.py` (sonda opcional) y `experiments/make_numbers.py` (macros LaTeX). Ningún número del manuscrito está escrito a mano.
 3. Manuscrito `manuscript/main.tex` (inglés, 9 páginas, 10 referencias) compilado a `main.pdf` sin errores ni referencias/citas indefinidas (un aviso de caja horizontal desbordada en el apéndice, de 17 pt, en una línea con nombres de archivo en monoespaciado).
 4. README, esta nota y la propuesta de ficha.
 
@@ -26,7 +26,7 @@ Línea RTK001, "Geometría de nudos recursivos" / "Geometry of recursive knots",
 - **Término de giro en la cota de longitud.** La fórmula sugerida "L_d ≤ p L_{d−1}(1 + r κ) + 2π q r" omite el giro de cierre; se añadió el término p|α| r ≤ π p r (Lema 3.3). Con él, la cota se cumple en 36 de 36 niveles medidos.
 - **Constante c de la hipótesis (H_c).** Se define ρ_d = min(τ_{d−1} − r_d, c r_d sin(π/p_d)) y se usa c = 1/2 en el texto y en las tablas. Una primera versión del código calculaba, por error de convención, la variante c = 1 bajo el nombre "c = 1/2"; se corrigió y ahora el JSON guarda ambas (`rho_pred` con c = 1/2, `rho_pred_cone` con c = 1). Resultado: con c = 1/2 la desigualdad se cumple con margen ≥ 1.66 en los 9 niveles por defecto con f ≤ 1/2; con c = 1 falla exactamente en (f = 1/2, d = 1), cociente 0.83.
 - **Resoluciones.** N_0 ∈ {512, 1024} para (2,3) y (2,5); {256, 512} para (3,2), cuyo polígono de profundidad 3 tiene 27 N_0 vértices (13 824). Cambio relativo máximo entre resoluciones: 0.03 %.
-- **Paso de gradiente opcional.** No se hizo (presupuesto de tiempo); queda como pendiente explícito.
+- **Paso de gradiente opcional.** Se sustituyó por una sonda más simple (`experiments/shrink.py`): 200 pasos explícitos de acortamiento de curva discreto (cada vértice se mueve una fracción λ = 0.1 hacia el punto medio de sus vecinos) sobre K_1 y K_2 de la cadena (2,3), f = 1/2, N_0 = 512, midiendo L/τ en cada paso (invariante de escala, sin reescalado) y conservando el mejor polígono. No es un flujo gradiente de la longitud a grosor fijo y el tipo de nudo solo se vigila mediante τ > 0. Resultado: K_1 baja de 38.36 a 38.05 (0.8 %, aún decreciendo al final); K_2 sube monótonamente de 155.59 a 156.25. Se reporta como sonda no certificada, marginal en d = 1 y negativa en d = 2. Tiempo: 305 s.
 - **Idioma.** Manuscrito en inglés; README, nota de continuidad y ficha en español.
 
 ## Resultados de referencia (corrida completa, 278 s de pared en núcleos compartidos)
@@ -49,7 +49,7 @@ Seguras: Buck–Simon 1999 (Topology Appl. 91, 245–257); Cantarella–Kusner�
 ## Próximos pasos concretos
 1. Demostrar (H_c) con constantes explícitas: para p = 2, analizar el par antipodal sobre un tubo curvado usando (5) y su derivada; controlar κ(K_d) ≤ 1/ρ_d.
 2. Certificar τ con aritmética de intervalos sobre un interpolante C^{1,1} (arcos circulares), para pasar de "verificado numéricamente" a "demostrado" en profundidad 1 (y quizá 2).
-3. Paso de gradiente con restricción τ ≥ 1 en d = 1, 2 (reportado como mejora numérica no certificada), para medir cuán lejos está la familia de configuraciones ajustadas (trébol: 38.4 frente a ≈ 32.7).
+3. Sustituir la sonda de acortamiento por una minimización de longitud con restricción τ ≥ 1 (gradiente de ropelength o recocido, con comprobación certificada del tipo de nudo) en d = 1, 2, para medir cuán lejos está la familia de configuraciones ajustadas (trébol: 38.4 frente a ≈ 32.7). El acortamiento simple no sirve (empeora K_2).
 4. Optimizar f_d por profundidad y parametrizar el patrón en longitud de arco; probar φ_d ≠ 0.
 5. Atar una cota inferior a cada configuración concreta cuando se conozca el número de cruces del cable identificado por el Lema 3.2 (p. ej. cable (2, 11) del trébol).
 6. Revisión arbitral interna independiente del borrador v0.1 (no se hizo en esta sesión por presupuesto de tiempo).
