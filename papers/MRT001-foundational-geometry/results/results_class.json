@@ -5,7 +5,7 @@
     "python": "3.11.15",
     "numpy": "2.4.6",
     "scipy": "1.17.1",
-    "seconds": 165.3
+    "seconds": 166.1
   },
   "rows": [
     {
@@ -24,7 +24,7 @@
       "walk_radius_q1": 0.004284599025738325,
       "walk_radius_q3": 0.0074266082936333844,
       "walk_acceptance_mean": 0.29410624999999996,
-      "seconds": 11.1
+      "seconds": 12.1
     },
     {
       "n": 16,
@@ -42,7 +42,7 @@
       "walk_radius_q1": 3.6441009023028485e-05,
       "walk_radius_q3": 6.721657672597083e-05,
       "walk_acceptance_mean": 0.28837500000000005,
-      "seconds": 12.6
+      "seconds": 11.9
     },
     {
       "n": 32,
@@ -60,7 +60,7 @@
       "walk_radius_q1": 2.0253818539287134e-07,
       "walk_radius_q3": 3.4426392187806577e-07,
       "walk_acceptance_mean": 0.280175,
-      "seconds": 10.8
+      "seconds": 11.0
     },
     {
       "n": 64,
@@ -96,7 +96,7 @@
       "walk_radius_q1": 3.174825937875254e-12,
       "walk_radius_q3": 4.747934700419398e-12,
       "walk_acceptance_mean": 0.24073333333333333,
-      "seconds": 48.3
+      "seconds": 50.3
     },
     {
       "n": 256,
@@ -108,13 +108,13 @@
       "disjoint_extremal_pairs": 12,
       "perturbations_below_quarter_gap_kept": 240,
       "perturbations_total": 240,
-      "quarter_gap_displacement_changed": 11,
+      "quarter_gap_displacement_changed": 12,
       "quarter_gap_displacement_tested": 12,
       "walk_radius_median": 5.543308444040372e-15,
       "walk_radius_q1": 4.3347453941716106e-15,
       "walk_radius_q3": 6.98305082012326e-15,
       "walk_acceptance_mean": 0.1617222222222222,
-      "seconds": 65.6
+      "seconds": 64.0
     }
   ],
   "raw": {
