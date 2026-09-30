@@ -56,8 +56,10 @@ Un subagente revisor independiente leyó el borrador v0.1 completo (texto, códi
 
 ## Añadido tras la revisión (v0.3): medición directa de la clase ordinal (E2c)
 - Nueva Proposición (radio inscrito de la clase ordinal): si g(X) es la brecha mínima entre distancias consecutivas ordenadas, toda perturbación de cada punto menor que g/4 conserva el patrón; con pares extremos disjuntos, un desplazamiento explícito de g/4 produce un empate. Radio inscrito en [g/4, g/2], igual a g/4 en el caso disjunto. Demostración elemental (desigualdad triangular).
-- Script `experiments/ordinal_class.py`: verifica ambas partes numéricamente, mide g(X) frente a n (escala ~n^-3.7, coherente con el espaciamiento mínimo entre ~n²/2 valores: ~n^-4) y corre un paseo aleatorio restringido a la clase que da una cota inferior del radio en disparidad de Procrustes (~n^-8). En n=64 esa cota es dos órdenes de magnitud menor que la disparidad a la que se detuvo el solver de E2: el residuo del solver es pertenencia aproximada, no tamaño de clase.
+- Script `experiments/ordinal_class.py`: verifica ambas partes numéricamente, mide g(X) frente a n (corrida completa: escala ~n^-4.2, coherente con el espaciamiento mínimo entre ~n²/2 valores: ~n^-4; 2240/2240 perturbaciones bajo g/4 conservan el patrón y 92/92 desplazamientos explícitos lo rompen) y corre un paseo aleatorio restringido a la clase que da una cota inferior del radio en disparidad de Procrustes (~n^-8.0). En n=64 esa cota es dos órdenes de magnitud menor que la disparidad a la que se detuvo el solver de E2: el residuo del solver es pertenencia aproximada, no tamaño de clase.
+- Interpretación cuidada: el radio inscrito acota el grosor de la clase por arriba (ninguna bola de radio > g/2 cabe dentro); el paseo solo da una cota inferior del radio y muestra anisotropía. No hay cota superior del diámetro.
 - Pendiente teórico: demostrar la ley n^-4 de la brecha mínima y una cota superior del diámetro de la clase.
+- Segunda ronda de revisión arbitral interna lanzada sobre v0.3 (resultado y acciones al final de esta nota si llegó a tiempo).
 
 ## Decisiones tomadas
 - Objetos etiquetados en todos los formalismos (sin cociente por reetiquetado), para mantener las demostraciones elementales.
