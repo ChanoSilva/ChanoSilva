@@ -1,0 +1,136 @@
+{
+  "meta": {
+    "seed": 20260931,
+    "fast": false,
+    "python": "3.11.15",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "seconds": 14.8
+  },
+  "E5a": {
+    "n": 300,
+    "trials": 200,
+    "conformal_order_preserved": 200,
+    "conformal_median_relative_tau_change": 0.22922372789263423,
+    "boost_order_preserved": 200,
+    "boost_max_relative_tau_change": 1.6685894688332046e-10,
+    "rotation_median_fraction_of_pairs_changed": 0.19597547380156077,
+    "rotation_min_fraction_of_pairs_changed": 0.05899665551839465
+  },
+  "E5b": [
+    {
+      "D": 2,
+      "n": 400,
+      "repetitions": 60,
+      "ordering_fraction_mean": 0.49894360902255636,
+      "ordering_fraction_sd": 0.01851110091378789,
+      "expected_fraction": 0.5,
+      "dimension_estimate_mean": 2.0035907148882304,
+      "dimension_estimate_sd": 0.04949462268528818
+    },
+    {
+      "D": 3,
+      "n": 400,
+      "repetitions": 60,
+      "ordering_fraction_mean": 0.2297792397660819,
+      "ordering_fraction_sd": 0.016678621851223752,
+      "expected_fraction": 0.22857142857142862,
+      "dimension_estimate_mean": 2.9965703143005653,
+      "dimension_estimate_sd": 0.09170023359318588
+    },
+    {
+      "D": 4,
+      "n": 400,
+      "repetitions": 60,
+      "ordering_fraction_mean": 0.10048015873015871,
+      "ordering_fraction_sd": 0.012058460092367917,
+      "expected_fraction": 0.1,
+      "dimension_estimate_mean": 4.002505735571448,
+      "dimension_estimate_sd": 0.14401799312717567
+    }
+  ],
+  "E5c": [
+    {
+      "n": 250,
+      "repetitions": 8,
+      "pairs": 12000,
+      "corr_L_tau": 0.9669685005411565,
+      "corr_L_tau_distorted": 0.8558457483569671,
+      "slope_L_vs_sqrtn_tau": 1.7320808480907361,
+      "median_rel_err_tau_hat": 0.16937081841725452,
+      "median_rel_err_tau_hat_tau_gt_quarter": 0.14286418303876752,
+      "median_rel_err_vs_distorted_tau_gt_quarter": 0.2293235027014628,
+      "seconds": 0.5
+    },
+    {
+      "n": 500,
+      "repetitions": 8,
+      "pairs": 12000,
+      "corr_L_tau": 0.9784305031501978,
+      "corr_L_tau_distorted": 0.8664120021086952,
+      "slope_L_vs_sqrtn_tau": 1.7388954708262412,
+      "median_rel_err_tau_hat": 0.15960906333671115,
+      "median_rel_err_tau_hat_tau_gt_quarter": 0.1378090944688301,
+      "median_rel_err_vs_distorted_tau_gt_quarter": 0.2174624569011806,
+      "seconds": 0.8
+    },
+    {
+      "n": 1000,
+      "repetitions": 6,
+      "pairs": 9000,
+      "corr_L_tau": 0.9875616849509828,
+      "corr_L_tau_distorted": 0.8705725485641802,
+      "slope_L_vs_sqrtn_tau": 1.7918345637786355,
+      "median_rel_err_tau_hat": 0.1256293124481106,
+      "median_rel_err_tau_hat_tau_gt_quarter": 0.10437217820361025,
+      "median_rel_err_vs_distorted_tau_gt_quarter": 0.21741655410932673,
+      "seconds": 1.4
+    },
+    {
+      "n": 2000,
+      "repetitions": 4,
+      "pairs": 6000,
+      "corr_L_tau": 0.9904973563412567,
+      "corr_L_tau_distorted": 0.9091035670274332,
+      "slope_L_vs_sqrtn_tau": 1.8539683242502984,
+      "median_rel_err_tau_hat": 0.10562180267580967,
+      "median_rel_err_tau_hat_tau_gt_quarter": 0.08168674096285898,
+      "median_rel_err_vs_distorted_tau_gt_quarter": 0.16551220501340946,
+      "seconds": 2.6
+    }
+  ],
+  "E5d": [
+    {
+      "n": 250,
+      "repetitions": 10,
+      "rmse_median": 0.07274458733520334,
+      "rmse_max": 0.09709783940601159,
+      "rmse_times_sqrt_n": 1.1501929171414056,
+      "order_disagreement_median": 0.0769156626506024
+    },
+    {
+      "n": 500,
+      "repetitions": 10,
+      "rmse_median": 0.049247051004347835,
+      "rmse_max": 0.06279938296925436,
+      "rmse_times_sqrt_n": 1.1011975373712106,
+      "order_disagreement_median": 0.05240480961923848
+    },
+    {
+      "n": 1000,
+      "repetitions": 6,
+      "rmse_median": 0.041820673669611605,
+      "rmse_max": 0.054319794284795185,
+      "rmse_times_sqrt_n": 1.3224858207860473,
+      "order_disagreement_median": 0.045553553553553554
+    },
+    {
+      "n": 2000,
+      "repetitions": 4,
+      "rmse_median": 0.03131275301808065,
+      "rmse_max": 0.038167271671772605,
+      "rmse_times_sqrt_n": 1.4003488862218005,
+      "order_disagreement_median": 0.03685167583791896
+    }
+  ]
+}
