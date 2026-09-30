@@ -403,7 +403,7 @@ def run_E2(rng, fast):
                              "r21_min": float(np.min(np.abs(Ac["E1"]) / np.abs(Ac["E2"]))),
                              "r21_med": q(np.abs(Ac["E1"]) / np.abs(Ac["E2"]), .5),
                              "NTu_rel_med": q(NTu / Ac["Y"], .5),
-                             "E2_over_minusNTu_med": q(-Ac["E2"] / np.where(NTu > 0, NTu, np.nan), .5) if np.any(NTu > 0) else None,
+                             "E2_over_minusNTu_med": (float(np.nanmedian(-Ac["E2"] / np.where(NTu > 0, NTu, np.nan))) if np.any(NTu > 0) else None),
                              "two_sided_bound_holds": int(np.all(two_sided)),
                              "lower_bound_informative": int(np.all(lower > 0)),
                              "frac_above_med": q(Ac["frac_above"], .5),
@@ -547,6 +547,8 @@ def run_E4(rng, fast):
     elig = [r for r in rows if r["rev1"] >= 0.02]
     fail = [r for r in elig if r["rev2"] > r["rev1"] / 5.0]
     summ = {"C2_eligible_cells": len(elig), "C2_failing_cells": len(fail),
+            "C2_eligible_smooth_cells": len([r for r in elig if r["prox"] == "none"]),
+            "C2_eligible_capped_cells": len([r for r in elig if r["prox"] != "none"]),
             "C2_failing_smooth_cells": len([r for r in fail if r["prox"] == "none"]),
             "C2_failing_capped_cells": len([r for r in fail if r["prox"] != "none"]),
             "C2_holds": int(len(fail) == 0),

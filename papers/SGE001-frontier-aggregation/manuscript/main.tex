@@ -50,7 +50,7 @@
 
 \begin{abstract}
 \noindent
-A population of production units shares a concave frontier $f$ and differs in its inputs $x_i\in\R^d$. The aggregate output $Y=\sum_i f(x_i)$ is routinely replaced by the ``representative unit'' $N f(\bar x)$, or by its second-order correction $N[f(\bar x)+\tfrac12\tr(\Hf(\bar x)\Sigma)]$ built from the input covariance. We make the error of these approximations precise and test it in a controlled simulation. In the smooth regime we prove an exact remainder identity and a bound of the second-order error by the third absolute central moment of the inputs, with a segmentwise constant that is computable for Cobb--Douglas frontiers; the improvement factor of the second order over the first grows like the inverse dispersion, and the bounds hold in every one of the simulated populations. At a capacity threshold $f_c=\min(f,c)$ we prove that the second-order error equals $-N\Tu$ up to second-order terms, where $\Tu$ is the one-sided mean distance of the individual outputs to the capacity; $\Tu$ is linear in the dispersion when units straddle the threshold, so the second-order error is of the same order as the first-order error and the improvement factor tends to one. Simulation confirms both regimes to the predicted exponents ($\EoneSlopeTwoCDLN$--$\EoneSlopeTwoCDSU$ against $\EtwoSlopeCappedLN$) and to four digits in the constant. A margin condition certifies that the ordering of two aggregates is preserved by the approximation; among the certified comparisons no reversal occurred, but the certificate is available only for dispersions below about $0.2$ and never at a threshold crossing, where two populations with identical first and second moments can have aggregates that differ at first order in the dispersion. The predefined criterion of a uniform fivefold error reduction is met by the second order for symmetric inputs up to the end of the sweep, fails for log-normal inputs above a dispersion of $\EoneConeLargestCDLN$, and fails in every threshold cell of the decision experiment; a scalar recalibration of the second-order term, global or by regime, does not restore it. The paper claims nothing about real populations or policy.
+A population of production units shares a concave frontier $f$ and differs in its inputs $x_i\in\R^d$. The aggregate output $Y=\sum_i f(x_i)$ is routinely replaced by the ``representative unit'' $N f(\bar x)$, or by its second-order correction $N[f(\bar x)+\tfrac12\tr(\Hf(\bar x)\Sigma)]$ built from the input covariance. We make the error of these approximations precise and test it in a controlled simulation. In the smooth regime we prove an exact remainder identity and a bound of the second-order error by the third absolute central moment of the inputs, with a segmentwise constant that is computable for Cobb--Douglas frontiers; the improvement factor of the second order over the first grows like the inverse dispersion, and the bounds hold in every one of the simulated populations. At a capacity threshold $f_c=\min(f,c)$ we prove that the second-order error equals $-N\Tu$ up to second-order terms, where $\Tu$ is the one-sided mean distance of the individual outputs to the capacity; $\Tu$ is linear in the dispersion when units straddle the threshold, so the second-order error is of the same order as the first-order error and the improvement factor tends to one. Simulation confirms both regimes to the predicted exponents ($\EoneSlopeTwoCDLN$--$\EoneSlopeTwoCDSU$ against $\EtwoSlopeCappedLN$) and to four digits in the constant. A margin condition certifies that the ordering of two aggregates is preserved by the approximation; among the certified comparisons no reversal occurred, but the certificate covers a shrinking share of the comparisons as dispersion grows (none at $\sigma=0.4$) and is never available at a threshold crossing, where two populations with identical first and second moments can have aggregates that differ at first order in the dispersion. The predefined criterion of a uniform fivefold error reduction is met by the second order for symmetric inputs up to the end of the sweep, fails for log-normal inputs above a dispersion of $\EoneConeLargestCDLN$, and fails in $\EfourFailingCapped$ of the $\EfourEligibleCapped$ threshold cells of the decision experiment in which the first order errs at all; a scalar recalibration of the second-order term, global or by regime, does not restore it. The paper claims nothing about real populations or policy.
 \end{abstract}
 
 \section{Introduction}\label{sec:intro}
@@ -68,8 +68,8 @@ Let $U\subseteq\R^d_{>0}$ be open and convex and $f\colon U\to\R$ a frontier, at
 \begin{definition}[Population, moments]\label{def:pop}
 A population is a finite list $x_1,\dots,x_N\in U$. Its mean is $\bar x=\frac1N\sum_i x_i$ (in $U$ by convexity), its deviations are $h_i=x_i-\bar x$, and its central moments are
 \[
-\Sigma=\frac1N\sum_i h_ih_i^{\!\top},\qquad \mu_3=\frac1N\sum_i h_i\otimes h_i\otimes h_i,\qquad
-s^2=\tr\Sigma=\frac1N\sum_i\|h_i\|^2,\qquad m_3=\frac1N\sum_i\|h_i\|^3 .
+\Sigma=\frac1N\sum_i h_ih_i^{\!\top},\quad \mu_3=\frac1N\sum_i h_i\otimes h_i\otimes h_i,\quad
+s^2=\tr\Sigma=\frac1N\sum_i\|h_i\|^2,\quad m_3=\frac1N\sum_i\|h_i\|^3 .
 \]
 \end{definition}
 
@@ -128,7 +128,7 @@ Taylor's formula along the segment $t\mapsto\bar x+th_i$, which lies in $U$ \cit
 f(x_i)&=f(\bar x)+Df(\bar x)[h_i]+\int_0^1(1-t)\,D^2\!f(\bar x+th_i)[h_i,h_i]\,\dd t,\\
 f(x_i)&=f(\bar x)+Df(\bar x)[h_i]+\tfrac12D^2\!f(\bar x)[h_i,h_i]+\int_0^1\tfrac{(1-t)^2}{2}\,D^3\!f(\bar x+th_i)[h_i,h_i,h_i]\,\dd t .
 \end{align*}
-Summing over $i$, the linear terms vanish because $\sum_ih_i=0$, and $\sum_i\frac12D^2\!f(\bar x)[h_i,h_i]=\frac N2\tr(\Hf(\bar x)\Sigma)=Q_2$. This gives the identities in (a) and (c); (b) follows from the first integral form by subtracting $\frac12D^2\!f(\bar x)[h_i,h_i]=\int_0^1(1-t)D^2\!f(\bar x)[h_i,h_i]\,\dd t$. The bounds use $|T[h,\dots,h]|\le\|T\|\|h\|^k$, $\int_0^1(1-t)\,\dd t=\frac12$ and $\int_0^1\frac{(1-t)^2}{2}\,\dd t=\frac16$; $\|h_i\|^3\le\rho\|h_i\|^2$ gives $m_3\le\rho s^2$. Concavity gives $D^2\!f(\xi_i)[h_i,h_i]\le0$ in (a), and $D^2\!f\preceq-\lambda I$ gives $-D^2\!f(\xi_i)[h_i,h_i]\ge\lambda\|h_i\|^2$ in (d).
+Summing over $i$, the linear terms vanish because $\sum_ih_i=0$, and $\sum_i\frac12D^2\!f(\bar x)[h_i,h_i]=\frac N2\tr(\Hf(\bar x)\Sigma)=Q_2$. This gives the identities in (a) and (c); (b) follows from the first integral form by subtracting $\frac12D^2\!f(\bar x)[h_i,h_i]$, written as $\int_0^1(1-t)\,D^2\!f(\bar x)[h_i,h_i]\,\dd t$. The bounds use $|T[h,\dots,h]|\le\|T\|\|h\|^k$, $\int_0^1(1-t)\,\dd t=\frac12$ and $\int_0^1\frac{(1-t)^2}{2}\,\dd t=\frac16$; $\|h_i\|^3\le\rho\|h_i\|^2$ gives $m_3\le\rho s^2$. Concavity gives $D^2\!f(\xi_i)[h_i,h_i]\le0$ in (a), and $D^2\!f\preceq-\lambda I$ gives $-D^2\!f(\xi_i)[h_i,h_i]\ge\lambda\|h_i\|^2$ in (d).
 \end{proof}
 
 \begin{remark}[Orders in the dispersion]\label{rem:orders}
@@ -227,7 +227,7 @@ With Definition~\ref{def:eff}, $Y^\theta-\bar\theta\Yh_k=\bar\theta E_k+C$ with 
 
 \paragraph{Common protocol.} Two inputs (capital, labour) with sector mean $\bar x=(\EoneXbarK,\EoneXbarL)$. Two smooth frontiers: Cobb--Douglas $f=K^{0.3}L^{0.5}$ \citep{cobbdouglas1928} and CES $f=(0.4K^{-1}+0.6L^{-1})^{-0.8}$ \citep{acms1961}, both with returns to scale $0.8$ and hence strictly concave on $\R^2_{>0}$; the analytic gradient, Hessian and third-derivative tensor of both are checked against central differences (E0: worst relative deviation $\EzeroCDthird$ for Cobb--Douglas, $\EzeroCESthird$ for CES). Two input laws with correlation $\EoneCorr$ between the standard shocks: log-normal, $x=\bar x\odot\exp(\sigma z-\sigma^2/2)$ (LN, skewed), and symmetric uniform, $x=\bar x\odot(1+\sigma w)$ with $w$ uniform on $[-\sqrt3,\sqrt3]$ through a Gaussian copula and antithetic pairs $(w,-w)$, so that the sample mean is exactly $\bar x$ and all sample third central moments vanish exactly (SU). The shocks are drawn once per replication and reused across the dispersion sweep (common random numbers). Errors are reported as medians over replications of $|e_k|$; ratios of errors are reported as the minimum over replications, which is the conservative choice for a uniform criterion. Bounds use the segmentwise constants of Remark~\ref{rem:constants} and are only computed for the Cobb--Douglas frontier.
 
-\paragraph{Predefined criteria.} \emph{C1 (certified improvement)}: for a given frontier and input law, $\min_{\text{reps}}|E_1|/|E_2|\ge5$ at every $\sigma$ of the sweep ($\sigma\in[0.01,1]$ for LN, $[0.01,0.5]$ for SU, log-spaced). We report whether C1 holds on the whole sweep and the largest $\sigma$ up to which it holds. \emph{C2 (decisions)}: in every cell of the decision experiment in which the first-order reversal rate is at least $2\%$, the second-order reversal rate is at most one fifth of it. Both criteria were fixed before the runs.
+\paragraph{Predefined criteria.} \emph{C1 (certified improvement)}: for a given frontier and input law, the minimum over replications of $|E_1|/|E_2|$ is at least $5$ at every $\sigma$ of the sweep (log-spaced in $[0.01,1]$ for LN and in $[0.01,0.5]$ for SU). We report whether C1 holds on the whole sweep and the largest $\sigma$ up to which it holds. \emph{C2 (decisions)}: in every cell of the decision experiment in which the first-order reversal rate is at least $2\%$, the second-order reversal rate is at most one fifth of it. Both criteria were fixed before the runs.
 
 \subsection{E1: dispersion sweep on smooth frontiers}
 
@@ -237,18 +237,18 @@ $N=\EoneN$ units, $\EoneReps$ replications. Figure~\ref{fig:sweep} and Table~\re
 \centering\small
 \begin{tabular}{llrrrrrrr}
 \toprule
-frontier & law & $\sigma$ & $|e_1|$ & $|e_2|$ & $|e_3|$ & $\min\frac{|E_1|}{|E_2|}$ & $\mathrm{med}\frac{|E_2|}{|E_3|}$ & $B_2/Y$\\
+frontier & law & $\sigma$ & $|e_1|$ & $|e_2|$ & $|e_3|$ & $\min|E_1|/|E_2|$ & $\mathrm{med}\,|E_2|/|E_3|$ & $B_2/Y$\\
 \midrule
 \input{table_e1.tex}\\
 \bottomrule
 \end{tabular}
-\caption{E1. Median relative errors over \EoneReps{} replications, $N=\EoneN$; the improvement ratio of the second over the first order is the minimum over replications; $B_2/Y$ is the median certified bound of Proposition~\ref{prop:smooth}(c) (Cobb--Douglas only).}
+\caption{E1. Median relative errors over \EoneReps{} replications, $N=\EoneN$, at four of the sweep's dispersions; the improvement ratio of the second over the first order is the minimum over replications; $B_2/Y$ is the median certified bound of Proposition~\ref{prop:smooth}(c) (Cobb--Douglas only).}
 \label{tab:e1}
 \end{table}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{../figures/dispersion_sweep.pdf}
+\includegraphics[width=0.9\linewidth]{../figures/dispersion_sweep.pdf}
 \caption{E1. Median relative aggregation error against dispersion for the three orders and, for Cobb--Douglas, the certified bound on the second-order error. Slopes $2$, $4$ ($3$--$4$ on skewed inputs) and $4$.}
 \label{fig:sweep}
 \end{figure}
@@ -281,10 +281,10 @@ $\sigma$ & $|e_2|$ (no $\theta$) & $|C|/Y^\theta$ & $|Y^\theta-\bar\theta\Yh_2|/
 Cobb--Douglas frontier, $N=\EtwoN$, $\EtwoReps$ replications, both input laws, capacity $c=f(\bar x)/(1+\delta)$ with $\delta\in\{\EtwoDeltas\}$ (negative: the representative unit is below capacity) and $\sigma$ from $\EtwoSigmaMin$ to $1$. Figure~\ref{fig:threshold} and Table~\ref{tab:e2}.
 
 \begin{table}[t]
-\centering\small
+\centering\footnotesize
 \begin{tabular}{rrrrrrrrr}
 \toprule
-$\delta$ & $\sigma$ & $|e_1|$ & $|e_2|$ & $|e_2|$ smooth & $\min\frac{|E_1|}{|E_2|}$ & $N\Tu/Y$ & $-E_2/(N\Tu)$ & above\\
+$\delta$ & $\sigma$ & $|e_1|$ & $|e_2|$ & $|e_2|$ (smooth) & $\min|E_1|/|E_2|$ & $N\Tu/Y$ & $-E_2/(N\Tu)$ & above\\
 \midrule
 \input{table_e2.tex}\\
 \bottomrule
@@ -307,17 +307,17 @@ With the mean on the capacity ($\delta=0$) the small-dispersion exponent of the 
 $G=\EthreeG$ firms of $n=\Ethreen$ units ($N=\EthreeN$), firm means log-normal around the sector mean with between-firm dispersion $\sigma_B$, units log-normal around their firm mean with within-firm dispersion $\sigma_W$, both in $\{0.05,0.1,0.2,0.4\}$, $\EthreeReps$ replications; smooth Cobb--Douglas frontier and the same frontier capped at the sector mean output. Table~\ref{tab:e3} and Figure~\ref{fig:hier}.
 
 \begin{table}[t]
-\centering\small
+\centering\footnotesize
 \begin{tabular}{rrrrrrrrr}
 \toprule
 & & \multicolumn{4}{c}{smooth} & \multicolumn{3}{c}{capacity at sector mean output}\\
 \cmidrule(lr){3-6}\cmidrule(lr){7-9}
-$\sigma_B$ & $\sigma_W$ & pooled $|e_1|$ & pooled $|e_2|$ & bottom-up $|e_2|$ & gain & pooled $|e_2|$ & bottom-up $|e_2|$ & straddling\\
+$\sigma_B$ & $\sigma_W$ & pooled $|e_1|$ & pooled $|e_2|$ & b.-up $|e_2|$ & gain & pooled $|e_2|$ & b.-up $|e_2|$ & straddling (\%)\\
 \midrule
 \input{table_e3.tex}\\
 \bottomrule
 \end{tabular}
-\caption{E3. Median relative errors over \EthreeReps{} replications; ``gain'' is the median ratio of the pooled to the bottom-up second-order error; ``straddling'' is the median percentage of firms with units on both sides of the capacity.}
+\caption{E3. Median relative errors over \EthreeReps{} replications, for $\sigma_B,\sigma_W\in\{0.05,0.2,0.4\}$; ``gain'' is the median ratio of the pooled to the bottom-up second-order error; ``straddling'' is the median percentage of firms with units on both sides of the capacity.}
 \label{tab:e3}
 \end{table}
 
@@ -351,14 +351,14 @@ $\sigma$ & rev.~1 & rev.~2 & rev.~3 & certified & cert.\ rev. & rev.~1 & rev.~2 
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{../figures/decision.pdf}
+\includegraphics[width=0.9\linewidth]{../figures/decision.pdf}
 \caption{E4. Rank-reversal rates against the dispersion of sector $A$ for six capacity positions.}
 \label{fig:decision}
 \end{figure}
 
 Without capacity the second order removes almost all reversals: the first-order rate reaches $\EfourSmoothRevOneMax\%$ and the second-order rate never exceeds $\EfourSmoothRevTwoMax\%$. Among the certified comparisons there were $\EfourCertifiedReversals$ reversals at order~2 (and $\EfourCertifiedOneReversals$ among comparisons certified with first-order bounds), as Proposition~\ref{prop:margin} requires; but the certificate covers $\EfourCertFracSmall\%$ of the trials at $\sigma=\EfourSigmaMin$, $\EfourCertFracPointTwo\%$ at $\sigma=0.2$ and $\EfourCertFracPointFour\%$ at $\sigma=0.4$. The third order is harmful at large dispersion: at $\sigma=\EfourSigmaMax$ its reversal rate is $\EfourRevThreeLargeSigma\%$, against $\EfourRevOneLargeSigma\%$ for the first and $\EfourRevTwoLargeSigma\%$ for the second order, because the third central moments of log-normal inputs over-correct. With the capacity at the mean output of $A$ the reversal rates are $\EfourCapZeroRevOneSmall\%$ (order~1) and $\EfourCapZeroRevTwoSmall\%$ (order~2) already at $\sigma=\EfourSigmaMin$, and the second-order rate stays between $\EfourCapRevTwoMin\%$ and $\EfourCapRevTwoMax\%$: the decision is close to a coin toss at every order. With the capacity at $+10\%$ the crossing regime is entered at $\sigma\approx0.1$ and at $\sigma=0.2$ the rates are $\EfourCapTenRevOnePointTwo\%$ and $\EfourCapTenRevTwoPointTwo\%$.
 
-\emph{Criterion C2.} Of the $\EfourEligible$ cells with a first-order reversal rate of at least $2\%$, $\EfourFailing$ fail C2: $\EfourFailingSmooth$ without capacity and $\EfourFailingCapped$ with it. C2 does not hold.
+\emph{Criterion C2.} Of the $\EfourEligible$ cells with a first-order reversal rate of at least $2\%$ ($\EfourEligibleSmooth$ without capacity, $\EfourEligibleCapped$ with it), $\EfourFailing$ fail C2: $\EfourFailingSmooth$ of the former and $\EfourFailingCapped$ of the latter; the capped cells that pass are those at the largest dispersion, where the second order happens to be right for reasons unrelated to the crossing. C2 does not hold.
 
 \subsection{E5: a scalar recalibration}
 
@@ -382,17 +382,17 @@ No variant meets C1 (order 2: \EfiveOtwoConeAll; global: \EfiveGlobConeAll; by r
 \section{What can be claimed}\label{sec:claims}
 
 \begin{table}[t]
-\centering\small
-\begin{tabular}{p{0.70\linewidth}l}
+\centering\footnotesize
+\begin{tabular}{p{0.74\linewidth}l}
 \toprule
 claim & status\\
 \midrule
 First-order error is $N$ times the Jensen gap, non-positive for concave $f$ & classical\\
 Exact remainder identities and bounds $B_1$, $B_2$; improvement ratio $\ge3\lambda/(M_3\rho)$ (Prop.~\ref{prop:smooth}) & proved here\\
 \quad bounds hold in every simulated population; $|E_2|/B_2\le\EoneEtwoOverBtwoMaxCDLN$ (E1) & verified\\
-\quad exponents $2$ / $3$--$4$ / $4$ in the dispersion (E1) & consequence of Prop.~\ref{prop:smooth}, verified\\
+\quad exponents $2$ / $3$--$4$ / $4$ in the dispersion, as Prop.~\ref{prop:smooth} implies (E1) & verified\\
 Third order does not improve on the second for log-normal inputs (Rem.~\ref{rem:orders}) & heuristic; verified\\
-Top-down two-stage second order equals pooled second order (Lem.~\ref{lem:hier}) & proved here; verified to $\EthreeLemmaGap$\\
+Top-down two-stage second order equals pooled second order (Lem.~\ref{lem:hier}), checked to $\EthreeLemmaGap$ & proved here; verified\\
 Bottom-up error is the sum of within-firm errors; gain $\EthreeGainMin$--$\EthreeGainMax$ (E3) & proved here; verified\\
 Hinge identity; $E_2(f_c)=-N\Tu+O(\text{smooth terms})$ (Lem.~\ref{lem:hinge}, Prop.~\ref{prop:cap}) & proved here\\
 \quad two-sided bound holds in all $\EtwoCells$ cells; $-E_2/(N\Tu)=\EtwoRatioSmallest$ at $\sigma=\EtwoSigmaMin$ (E2) & verified\\
@@ -401,8 +401,8 @@ Populations with equal first and second moments and aggregates differing at orde
 Margin condition preserves the ordering (Prop.~\ref{prop:margin}); $\EfourCertifiedReversals$ reversals among certified pairs (E4) & proved here; verified\\
 Certificate available only at small dispersion ($\EfourCertFracPointFour\%$ of pairs at $\sigma=0.4$) & verified\\
 Covariance floor $O(\sigma/\sqrt N)$ with independent efficiencies (Rem.~\ref{rem:eff}); dominates up to $\sigma=\EonebSigmaCov$ & elementary; verified\\
-C1 holds on the SU sweep; fails on the LN sweep above $\sigma=\EoneConeLargestCDLN$; fails at crossings & verified (criterion predefined)\\
-C2 fails in $\EfourFailing$ of $\EfourEligible$ eligible cells, all with a capacity & verified (criterion predefined)\\
+Predefined C1 holds on the SU sweep; fails on the LN sweep above $\sigma=\EoneConeLargestCDLN$; fails at crossings & verified\\
+Predefined C2 fails in $\EfourFailing$ of $\EfourEligible$ eligible cells, all with a capacity & verified\\
 A scalar recalibration of $Q_2$, global or by regime, does not meet C1 (E5) & verified\\
 Statements about real sectors, estimated frontiers or policy & not addressed\\
 \bottomrule

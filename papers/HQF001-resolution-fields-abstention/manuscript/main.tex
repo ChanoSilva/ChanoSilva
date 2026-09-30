@@ -50,7 +50,7 @@ Research line HQF001 asked whether an \emph{anisotropic resolution field}, a pos
 
 \section{Introduction and scope}\label{sec:intro}
 
-A classifier that may abstain trades coverage for accuracy~\citep{chow1970,elyaniv2010}. The trade is governed by a scalar confidence score: examples are accepted in decreasing order of the score and the selective risk is tracked as a function of coverage; the area under this risk--coverage curve (AURC) summarises the quality of the score for a fixed classifier~\citep{geifman2017,geifman2019}. The simplest scores are the maximum posterior probability of a probabilistic classifier~\citep{hendrycks2017}, the vote fraction of a $k$-nearest-neighbour rule~\citep{cover1967} and the distance margin of a prototype classifier~\citep{kohonen1990,tibshirani2002}. Locally adaptive metrics~\citep{hastie1996,weinberger2009} change the geometry in which those distances are measured.
+A classifier that may abstain trades coverage for accuracy~\citep{chow1970,elyaniv2010,franc2023}. The trade is governed by a scalar confidence score: examples are accepted in decreasing order of the score and the selective risk is tracked as a function of coverage; the area under this risk--coverage curve (AURC) summarises the quality of the score for a fixed classifier~\citep{geifman2017,geifman2019}. The simplest scores are the maximum posterior probability of a probabilistic classifier~\citep{hendrycks2017}, the vote fraction of a $k$-nearest-neighbour rule~\citep{cover1967} and the distance margin of a prototype classifier~\citep{kohonen1990,tibshirani2002}. Locally adaptive metrics~\citep{hastie1996,weinberger2009} change the geometry in which those distances are measured.
 
 Research line HQF001 proposed to represent uncertainty by an \emph{anisotropic resolution field}: a field of positive definite matrices $A(x)$, one per input point, describing in which directions and at what scale the data around $x$ resolve distinctions between classes, together with an abstention rule derived from it. Its public record stated the objective (``test whether the representation adds information beyond local metrics and prototype-based methods''), the finding (``available comparisons do not establish a residual gain over those references'') and the scope (``the formulation is computational and makes no claim about quantum physical phenomena''). No manuscript existed; the present note reconstructs a precise version of the idea from that record, states one exact result about it, and runs the controlled comparison that the record said was missing, with the success criterion fixed in advance.
 
@@ -149,7 +149,7 @@ The numerical verification (\path{experiments/lda_identity.py}, true parameters,
 \label{tab:datasets}
 \end{table}
 
-\paragraph{Evaluation.} Repeated stratified $\MetaSplits$-fold cross-validation with $\MetaRepeats$ repeats ($\MetaFolds$ outer folds, identical for all methods). Inside each training fold, features are standardised and every method's hyper-parameters are chosen by $\MetaInner$-fold inner cross-validation minimising AURC; the chosen configuration is refitted on the whole training fold and scored on the test fold. Paired per-fold differences of AURC are summarised by the mean and a percentile bootstrap 95\% interval over folds ($B=\MetaBootB$)~\citep{efron1993}, with a two-sided Wilcoxon signed-rank $p$-value as a secondary check. Folds of a repeated cross-validation are not independent, so the intervals are somewhat optimistic~\citep{dietterich1998,nadeau2003}; this works \emph{against} a negative conclusion, not for it.
+\paragraph{Evaluation.} Repeated stratified $\MetaSplits$-fold cross-validation with $\MetaRepeats$ repeats ($\MetaFolds$ outer folds, identical for all methods). Inside each training fold, features are standardised and every method's hyper-parameters are chosen by $\MetaInner$-fold inner cross-validation minimising AURC; the chosen configuration is refitted on the whole training fold and scored on the test fold. Paired per-fold differences of AURC are summarised by the mean and a percentile bootstrap 95\% interval over folds ($B=\MetaBootB$)~\citep{efron1993}, with a two-sided Wilcoxon signed-rank $p$-value as a secondary check~\citep{demsar2006}. Folds of a repeated cross-validation are not independent, so the intervals are somewhat optimistic~\citep{dietterich1998,nadeau2003}; this works \emph{against} a negative conclusion, not for it.
 
 \paragraph{Predefined criterion.} Fixed before the run: the field score shows a \emph{residual gain} if its AURC is lower than that of the best reference (the reference with the lowest mean AURC on that dataset, among the $\MetaNRefs$ references) on a majority ($\ge\MetaMajority$ of $\MetaNDatasets$) of datasets, with the paired 95\% interval excluding zero. Choosing the best reference per dataset on the same folds favours the references slightly; we therefore also report the field against each reference separately. Total compute: $\MetaCpuSeconds$~s of CPU ($\MetaCpuMinutes$~min) for the benchmark, single-threaded, plus \IdCpuSeconds~s for the verification of Section~\ref{sec:exact}.
 
@@ -164,7 +164,7 @@ The numerical verification (\path{experiments/lda_identity.py}, true parameters,
 \toprule
 dataset & $k$-NN & NCM & LDA & QDA & LogReg & RForest & DANN & err.\\
 \midrule
-\input{table_aurc_refs.tex}
+\input{table_aurc_refs.tex}\\
 \bottomrule
 \end{tabular}
 \caption{References: AURC${}\times100$, mean over \MetaFolds{} folds (lower is better; best in bold). ``err.'' is the error rate${}\times100$ of the best reference at full coverage, i.e.\ the AURC of an uninformative score for that classifier.}
@@ -178,7 +178,7 @@ dataset & $k$-NN & NCM & LDA & QDA & LogReg & RForest & DANN & err.\\
 \toprule
 dataset & best ref. & AURC & aniso & iso & Eucl. & volume & anisotropy & aniso, glob.\ prot.\\
 \midrule
-\input{table_aurc_field.tex}
+\input{table_aurc_field.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Field variants: AURC${}\times100$, mean over \MetaFolds{} folds, next to the best reference of Table~\ref{tab:refs}. ``aniso'' is the full method of Definition~\ref{def:field}; ``iso'' and ``Eucl.'' are its ablations; ``volume'' and ``anisotropy'' rank by geometry alone (with the predictions of the full method).}
@@ -194,7 +194,7 @@ dataset & best ref. & AURC & aniso & iso & Eucl. & volume & anisotropy & aniso, 
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
 dataset & best ref. & $\Delta$ [95\% CI] & wins & $\Delta$ [95\% CI] & wins & $\Delta$ [95\% CI] & wins\\
 \midrule
-\input{table_diff.tex}
+\input{table_diff.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Paired differences $\Delta=\aurc(\text{field})-\aurc(\text{best reference})$, ${}\times100$, with percentile bootstrap 95\% intervals over folds, and the number of folds in which the field had the lower AURC. Negative $\Delta$ favours the field.}
@@ -217,7 +217,7 @@ Tables~\ref{tab:refs}--\ref{tab:diff} and Figure~\ref{fig:forest} give the main 
 \toprule
 dataset & vs $k$-NN & vs NCM & vs LDA & vs QDA & vs LogReg & vs RForest & vs DANN\\
 \midrule
-\input{table_vsrefs.tex}
+\input{table_vsrefs.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Anisotropic field against each reference separately: mean paired $\Delta$ of AURC${}\times100$ (negative favours the field). Bold: field significantly better (95\% interval below 0); italic: significantly worse; roman: inconclusive.}
@@ -235,7 +235,7 @@ Table~\ref{tab:vsrefs} removes the best-reference selection. Counting datasets o
 \toprule
 dataset & aniso$-$iso & aniso$-$Eucl. & Eucl.$-$NCM & aniso$-$vol. & aniso$-$glob.\ prot. & aniso$-k$-NN & aniso$-$LDA & aniso$-$DANN\\
 \midrule
-\input{table_ablation.tex}
+\input{table_ablation.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Ablations and direct comparisons: mean paired difference of AURC${}\times100$ (first minus second; negative favours the first). Bold: first significantly better; italic: second significantly better.}
@@ -253,7 +253,7 @@ Table~\ref{tab:ablation} answers the line's question in its narrow form. Allowin
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
 dataset & err. & AURC & err. & AURC & err. & AURC\\
 \midrule
-\input{table_geom.tex}
+\input{table_geom.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Geometry-only scores (${}\times100$). For each variant, ``err.'' is the error rate of its own (tuned) field classifier at full coverage, i.e.\ the AURC of a random ordering of its predictions; italics mark an AURC at or above that level. Volume and anisotropy rank the predictions by the shape of $S(x)$ alone.}
@@ -280,7 +280,7 @@ Table~\ref{tab:geom} shows that the two purely geometric scores are far from the
 \cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}\cmidrule(lr){12-14}
 dataset & best ref. & 100 & 90 & 80 & 100 & 90 & 80 & 100 & 90 & 80 & 100 & 90 & 80\\
 \midrule
-\input{table_acc.tex}
+\input{table_acc.tex}\\
 \bottomrule
 \end{tabular}
 \caption{Accuracy (\%) at coverage 100\%, 90\% and 80\%, mean over folds.}

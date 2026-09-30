@@ -12,7 +12,7 @@ La ficha pública de SPD001 planteaba explorar las componentes *ortogonal*, *tan
 
 | Ruta | Contenido |
 |---|---|
-| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés, 10 páginas) y bibliografía (31 entradas reales). |
+| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés, 12 páginas con bibliografía) y bibliografía (30 entradas reales, 25 citadas). |
 | `manuscript/main.pdf` | PDF compilado con pdflatex + bibtex (sin errores ni referencias indefinidas). |
 | `manuscript/numbers.tex`, `manuscript/table_*.tex` | Macros y cuerpos de tabla **generados** desde los resultados; ningún número del texto está tipeado a mano. |
 | `manuscript/build.sh` | Regenera macros y compila. |

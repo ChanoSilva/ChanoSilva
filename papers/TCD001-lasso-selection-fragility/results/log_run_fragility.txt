@@ -1,9 +1,10 @@
 family A n=8: 60 instances, f_any_signed(C) mean 1.32, P(f=1)=0.72, elapsed 3s
-family A n=10: 60 instances, f_any_signed(C) mean 1.67, P(f=1)=0.57, elapsed 9s
-family A n=12: 60 instances, f_any_signed(C) mean 1.88, P(f=1)=0.42, elapsed 17s
-family A n=14: 60 instances, f_any_signed(C) mean 2.07, P(f=1)=0.38, elapsed 33s
-family B n=8: 60 instances, f_any_signed(C) mean 1.12, P(f=1)=0.90, elapsed 37s
-family B n=10: 60 instances, f_any_signed(C) mean 1.30, P(f=1)=0.95, elapsed 43s
-family B n=12: 60 instances, f_any_signed(C) mean 1.10, P(f=1)=0.90, elapsed 51s
-family B n=14: 60 instances, f_any_signed(C) mean 1.07, P(f=1)=0.93, elapsed 67s
-done in 66.70251035690308 s
+family A n=10: 60 instances, f_any_signed(C) mean 1.67, P(f=1)=0.57, elapsed 8s
+family A n=12: 60 instances, f_any_signed(C) mean 1.88, P(f=1)=0.42, elapsed 15s
+family A n=14: 60 instances, f_any_signed(C) mean 2.07, P(f=1)=0.38, elapsed 28s
+family B n=8: 60 instances, f_any_signed(C) mean 1.12, P(f=1)=0.90, elapsed 31s
+family B n=10: 60 instances, f_any_signed(C) mean 1.30, P(f=1)=0.95, elapsed 37s
+family B n=12: 60 instances, f_any_signed(C) mean 1.10, P(f=1)=0.90, elapsed 44s
+family B n=14: 60 instances, f_any_signed(C) mean 1.07, P(f=1)=0.93, elapsed 56s
+done in 55.93974566459656 s
+FRAGDONE

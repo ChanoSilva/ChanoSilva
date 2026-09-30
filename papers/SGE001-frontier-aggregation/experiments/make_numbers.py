@@ -66,7 +66,7 @@ for key, tag in keys.items():
     if S["bound2_holds_all"] is not None:
         M(f"EoneBoundSigma{tag}", fnum(S["sigma_largest_bound2_le_e1"], 2)); M(f"EoneEtwoOverBtwoMax{tag}", fnum(S["ratio_E2_over_B2_max"], 3))
         M(f"EoneBoxOverSeg{tag}", fnum(S["ratio_B2box_over_B2_max"], 0)); M(f"EoneBoundHolds{tag}", "yes" if S["bound2_holds_all"] else "no")
-sel_sig = {"LN": [0.01, 0.0316, 0.1, 0.316, 1.0], "SU": [0.01, 0.0306, 0.0935, 0.286, 0.5]}
+sel_sig = {"LN": [0.01, 0.1, 0.316, 1.0], "SU": [0.01, 0.0935, 0.286, 0.5]}
 tr = []
 for key in keys:
     fname, law = key.split("-")
@@ -99,7 +99,7 @@ M("EtwoDeltas", ", ".join(f"{d:+.2f}" for d in E2["deltas"]))
 tr = []
 for delta in (-0.3, -0.03, 0.0, 0.1):
     sel = [r for r in E2["rows"] if r["law"] == "LN" and r["delta"] == delta]
-    for s in (0.01, 0.0316, 0.1, 0.316, 1.0):
+    for s in (0.01, 0.0316, 0.1, 0.316):
         r = min(sel, key=lambda x: abs(x["sigma"] - s))
         rr = r["E2_over_minusNTu_med"]
         tr.append(f"{delta:+.2f} & {sig(r['sigma'])} & {sci(r['e1_med'])} & {sci(r['e2_med'])} & {sci(r['e2_smooth_med'])} & {r['r21_min']:.2f} & "
@@ -117,6 +117,8 @@ tr = []
 sm = {(r["sigma_B"], r["sigma_W"]): r for r in E3["rows"] if not r["capped"]}
 cp = {(r["sigma_B"], r["sigma_W"]): r for r in E3["rows"] if r["capped"]}
 for k in sorted(sm):
+    if 0.1 in k:
+        continue
     a, b = sm[k], cp[k]
     tr.append(f"{k[0]} & {k[1]} & {sci(a['pooled1_med'])} & {sci(a['pooled2_med'])} & {sci(a['hier2_med'])} & {a['gain_hier_over_pooled_med']:.1f} & "
               f"{sci(b['pooled2_med'])} & {sci(b['hier2_med'])} & {pct(b['frac_firms_straddling_med'], 0)}")
@@ -128,6 +130,7 @@ for k, tag in (((0.4, 0.05), "HighBLowW"), ((0.05, 0.4), "LowBHighW"), ((0.05, 0
 # ---------------------------------------------------------------- E4
 E4 = res["E4"]; S4 = E4["summary"]
 M("EfourN", S4["N"]); M("EfourTrials", S4["trials"]); M("EfourGammaMax", pct(S4["gamma_max"], 0))
+M("EfourEligibleSmooth", S4["C2_eligible_smooth_cells"]); M("EfourEligibleCapped", S4["C2_eligible_capped_cells"])
 M("EfourEligible", S4["C2_eligible_cells"]); M("EfourFailing", S4["C2_failing_cells"]); M("EfourFailingSmooth", S4["C2_failing_smooth_cells"]); M("EfourFailingCapped", S4["C2_failing_capped_cells"])
 M("EfourCtwoHolds", "yes" if S4["C2_holds"] else "no"); M("EfourCertifiedReversals", S4["certified_reversals_total"]); M("EfourCertifiedOneReversals", S4["certified1_reversals_total"])
 M("EfourSmoothRevOneMax", pct(S4["smooth_rev1_max"], 1)); M("EfourSmoothRevTwoMax", pct(S4["smooth_rev2_max"], 1))

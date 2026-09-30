@@ -6,7 +6,7 @@
   "numpy": "2.4.6",
   "scipy": "1.17.1",
   "matplotlib": "3.11.2",
-  "seconds": 39.87636756896973
+  "seconds": 35.52020263671875
  },
  "E0": {
   "CD": {
@@ -1750,7 +1750,7 @@
     "r21_min": 49.42465545097423,
     "r21_med": 75.13064730849678,
     "NTu_rel_med": 2.2617578735563355e-06,
-    "E2_over_minusNTu_med": NaN,
+    "E2_over_minusNTu_med": -0.8796096135083215,
     "two_sided_bound_holds": 1,
     "lower_bound_informative": 0,
     "frac_above_med": 0.0005,
@@ -1920,7 +1920,7 @@
     "r21_min": 12.07855957109111,
     "r21_med": 64.9661228058127,
     "NTu_rel_med": 5.748400198886342e-06,
-    "E2_over_minusNTu_med": NaN,
+    "E2_over_minusNTu_med": 0.9543183832081559,
     "two_sided_bound_holds": 1,
     "lower_bound_informative": 0,
     "frac_above_med": 0.0005,
@@ -2073,7 +2073,7 @@
     "r21_min": 18.688700145628417,
     "r21_med": 4117.340664207701,
     "NTu_rel_med": 0.0,
-    "E2_over_minusNTu_med": NaN,
+    "E2_over_minusNTu_med": 0.9989395159570166,
     "two_sided_bound_holds": 1,
     "lower_bound_informative": 0,
     "frac_above_med": 0.0,
@@ -2090,7 +2090,7 @@
     "r21_min": 3.0022999257101852,
     "r21_med": 8.299992721411503,
     "NTu_rel_med": 4.484273262942233e-06,
-    "E2_over_minusNTu_med": NaN,
+    "E2_over_minusNTu_med": 0.9986775329842313,
     "two_sided_bound_holds": 1,
     "lower_bound_informative": 0,
     "frac_above_med": 0.0015,
@@ -3059,7 +3059,7 @@
     "r21_min": 1.0,
     "r21_med": 1.0,
     "NTu_rel_med": 0.0,
-    "E2_over_minusNTu_med": NaN,
+    "E2_over_minusNTu_med": 1.0000000001453337,
     "two_sided_bound_holds": 1,
     "lower_bound_informative": 0,
     "frac_above_med": 1.0,
@@ -5393,6 +5393,8 @@
   "summary": {
    "C2_eligible_cells": 23,
    "C2_failing_cells": 15,
+   "C2_eligible_smooth_cells": 3,
+   "C2_eligible_capped_cells": 20,
    "C2_failing_smooth_cells": 0,
    "C2_failing_capped_cells": 15,
    "C2_holds": 0,

@@ -364,8 +364,11 @@ def _score_candidates(st: LassoState, target: str, j: int | None, rule: str, idx
         if len(st.Sc):
             parts.append((mu_new - np.abs(c_new)) / (st.mu - np.abs(st.c[st.Sc]))[None, :])
         score = np.min(np.concatenate(parts, axis=1), axis=1)
-    # sets that already break the pattern get the most negative score
-    score = np.where(res["preserved"], score, np.minimum(score, -1e300))
+    if target in ("any", "any_signed"):
+        # any break of the current pattern reaches the target: give it the most negative score
+        score = np.where(res["preserved"], score, np.minimum(score, -1e300))
+    # for targeted changes the score is the predicted target margin itself, whether or not the
+    # candidate removal also breaks the pattern elsewhere
     return score
 
 

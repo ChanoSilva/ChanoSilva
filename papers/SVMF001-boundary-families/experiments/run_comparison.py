@@ -380,40 +380,7 @@ def make_figures(out, records, names):
     fig.savefig(os.path.join(figdir, "fig_paired.pdf"))
     plt.close(fig)
 
-    # decision regions on the two 2-D multiscale sets, using the configurations chosen in fold 0 (main)
-    fig, axes = plt.subplots(2, 4, figsize=(13, 6))
-    for row, d in enumerate(["moons_2scale", "checker_2scale"]):
-        if d not in names:
-            continue
-        loader, _, _ = DATASETS[d]
-        rng = np.random.default_rng([SEED, sum(map(ord, d))])
-        X, y = loader(rng)
-        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEED + 7 * sum(map(ord, "main")))
-        tr, te = next(iter(skf.split(X, y)))
-        Xtr, Xte = preprocess(X[tr], X[te], False, SEED)
-        ytr = y[tr]
-        fold0 = records[d]["conditions"]["main"]["folds"][0]
-        xx, yy = np.meshgrid(np.linspace(Xtr[:, 0].min() - .3, Xtr[:, 0].max() + .3, 220),
-                             np.linspace(Xtr[:, 1].min() - .3, Xtr[:, 1].max() + .3, 160))
-        G = np.column_stack([xx.ravel(), yy.ravel()])
-        models = {
-            "rbf": F.SVC(kernel="rbf", C=fold0["rbf"]["cfg"]["C"], gamma=fold0["rbf"]["cfg"]["gamma"]).fit(Xtr, ytr).predict,
-            "knn_svm": (lambda Z, c=fold0["knn_svm"]["cfg"]: F.knn_svm_predict_multi(Xtr, ytr, Z, [c["k"]], c["C"])[c["k"]]),
-            "vb_rbf": F.VBRBF(fold0["vb_rbf"]["cfg"]["gamma"], fold0["vb_rbf"]["cfg"]["beta"], fold0["vb_rbf"]["cfg"]["C"], GRID["vb_kbw"]).fit(Xtr, ytr).predict,
-            "llsvm": F.LLSVM(fold0["llsvm"]["cfg"]["M"], fold0["llsvm"]["cfg"]["C"], SEED).fit(Xtr, ytr).predict,
-        }
-        for col, (mname, pred) in enumerate(models.items()):
-            ax = axes[row, col]
-            Z = pred(G).reshape(xx.shape)
-            ax.contourf(xx, yy, Z, levels=[-2, 0, 2], colors=["#f4d6d6", "#d6e4f4"], alpha=0.9)
-            ax.scatter(Xtr[:, 0], Xtr[:, 1], c=np.where(ytr == 1, "#1b6ca8", "#c0392b"), s=6)
-            cfg = {k: (round(v, 3) if isinstance(v, float) else v) for k, v in fold0[mname]["cfg"].items() if k != "gamma_mult"}
-            ax.set_title(f"{d} / {mname}\n{cfg}", fontsize=8)
-            ax.set_xticks([]); ax.set_yticks([])
-    fig.tight_layout()
-    fig.savefig(os.path.join(figdir, "fig_regions.png"), dpi=150)
-    fig.savefig(os.path.join(figdir, "fig_regions.pdf"))
-    plt.close(fig)
+    # the decision-region figure is produced by make_region_figure.py from results.json
 
 
 if __name__ == "__main__":

@@ -138,7 +138,9 @@ with open(os.path.join(OUT, "table_e2.tex"), "w") as fh:
 # pooled statistics per family
 for fam in fm["families"]:
     rs = [r for r in fra["records"] if r["family"] == fam]
-    fs = np.array([r["f_any_signed_C"] for r in rs], float)
+    fs = np.array([r["f_any_signed_C"] if r["f_any_signed_C"] is not None else np.nan for r in rs], float)
+    mac(f"Etwo{fam}NotFound", int(np.sum(np.isnan(fs))))
+    mac(f"Etwo{fam}EmptySupport", int(sum(r["support_size"] == 0 for r in rs)))
     mac(f"Etwo{fam}FracOne", pct(np.mean(fs == 1)))
     mac(f"Etwo{fam}Max", int(np.nanmax(fs)))
     mac(f"Etwo{fam}Mean", num(np.nanmean(fs)))
@@ -161,7 +163,7 @@ for fam in fm["families"]:
     mac(f"Etwo{fam}EnterNotFound", sum(f is None for f in fe))
     mac(f"Etwo{fam}EnterMean", num(np.mean([f for f in fe if f is not None]), 1))
     # certificate at n<=14
-    ge2 = [r for r in rs if r["f_any_signed_C"] >= 2]
+    ge2 = [r for r in rs if r["f_any_signed_C"] is not None and r["f_any_signed_C"] >= 2]
     mac(f"Etwo{fam}NGeTwo", len(ge2))
     mac(f"Etwo{fam}KstarGeOne", pct(np.mean([r["kstar"] >= 1 for r in ge2])) if ge2 else "--")
     mac(f"Etwo{fam}KstarGap", num(np.mean([r["f_any_signed_C"] - 1 - r["kstar"] for r in ge2]), 1) if ge2 else "--")
