@@ -177,7 +177,8 @@ with open(os.path.join(OUT, "table_e3.tex"), "w") as fh:
             c = next(c for c in cfgs if c["dataset"] == d and c["potential"] == p)
             s = c["summary"]
             ex = lambda m: ("0" if s[m]["best_rel_excess"] <= 1e-12 else sci(s[m]["best_rel_excess"], 1))
-            rows.append(f"{d} & {p.replace('_', r'\_')} & {c['E_best']:.5g} & {ex('relax')} & {ex('lloyd+relax')} & {ex('lloyd')} & {ex('lloyd_naive')} & "
+            ptex = p.replace("_", "\\_")
+            rows.append(f"{d} & {ptex} & {c['E_best']:.5g} & {ex('relax')} & {ex('lloyd+relax')} & {ex('lloyd')} & {ex('lloyd_naive')} & "
                         f"{s['relax']['frac_reaching_best']:.2f} & {s['lloyd+relax']['frac_reaching_best']:.2f} & {s['lloyd']['frac_reaching_best']:.2f} & "
                         f"{s['relax']['frac_voronoi_stable']:.2f} & {s['lloyd']['frac_hartigan_stable']:.2f} & {c['ari_best_relax_vs_lloydrelax']:.2f}")
     fh.write(" \\\\\n".join(rows) + "\n")

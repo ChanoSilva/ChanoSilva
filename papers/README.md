@@ -13,7 +13,7 @@ Avances de líneas de investigación de Luciano Silva Alarco (PUCP) producidos e
 | `HQF001-resolution-fields-abstention/` | HQF001 | Resolución local e incertidumbre | Comparación controlada (ver su README) |
 | `EQO001-equilibrium-welfare/` | EQO001 | Operadores de equilibrio y bienestar | Nota v0.1 (13 pp.): qué es y qué no es teorema; problemas abiertos |
 | `SVMF001-boundary-families/` | SVMF001 | Familias de fronteras de clasificación | Comparación controlada (ver su README) |
-| `OMR001-transferable-corrections/` | OMR001 | Correcciones transferibles | Garantía de reversión segura (ver su README) |
+| `OMR001-transferable-corrections/` | OMR001 | Correcciones transferibles | Nota v0.1 (14 pp.): qué puede y qué no puede garantizarse; cota explícita de no-daño para la reversión validada (es una garantía de selección, no del operador); simulación con 345 configuraciones |
 
 Documentos transversales:
 - `TRIAJE_lineas_en_pausa_20260930.md`: triaje de las 23 líneas en pausa y 4 archivadas, con bloqueos y pasos mínimos.
