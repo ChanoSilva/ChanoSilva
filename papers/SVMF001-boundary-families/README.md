@@ -33,14 +33,14 @@
 - Robustez (promedios sobre los 6 conjuntos, `results/tables.md`): exactitud media 95.2 % de la mejor referencia global en la condición principal, 89.2 % con 20 % de ruido en etiquetas (caída 6.0 pp) y 89.0 % con el 25 % del entrenamiento (caída 6.2 pp); las familias locales caen 5.1 / 4.8 / 6.9 / 3.7 pp con ruido y 7.3 / 5.9 / 5.1 / 4.4 pp con submuestreo (kNN-SVM / cell-SVM / VB-RBF-SVM / LLSVM), pero parten de exactitudes más bajas (90.9 / 89.5 / 95.2 / 89.5 %), así que las caídas no son comparables entre sí; lo que cuenta es la comparación pareada bajo cada condición: ninguna familia queda significativamente por encima de la referencia (tampoco frente a la referencia oráculo), kNN-SVM queda significativamente por debajo en 4 de 6 conjuntos con ruido y en 3 de 6 con submuestreo (frente a 2 de 6 en la condición principal), y VB-RBF-SVM en 2 de 6 con ruido y en ninguno con submuestreo.
 - Ejemplo exacto: riesgo de Bayes 0.0500; umbral de centroides global con n = 320: 0.05025; con 2, 4, 8, 16, 32 celdas independientes de la etiqueta el exceso se multiplica por 2.01, 4.08, 8.38, 17.99, 61.68. Chequeo Monte Carlo (2000 muestras): 0.05024 ± 0.00001 y 0.05105 ± 0.00002 frente a los exactos 0.05025 y 0.05107.
 - Ilustración (no demostrada): en d = 2 la versión kNN del umbral de centroides llega a 0.107 de riesgo en k = 20 (el doble del global); la kNN-SVM lineal queda dentro del error de simulación para k ≥ 20; la curva de aprendizaje de la SVM lineal en d = 10 decrece en todos los pasos (0.118 → 0.054) y su versión por celdas independientes crece con M (0.058, 0.066, 0.080, 0.099 para M = 1, 2, 4, 8).
-- Cómputo total: 206 s (comparación) + 26 s (ejemplo exacto), un solo hilo, semilla fija.
+- Cómputo total: 206 s (comparación) + 28 s (ejemplo exacto), un solo hilo, semilla fija.
 
 ## Reproducir
 
 ```bash
 pip install -r experiments/requirements.txt
 python3 experiments/run_comparison.py        # ~3.5 min en un núcleo (usar --fast para una prueba de humo)
-python3 experiments/exact_example.py         # ~30 s
+python3 experiments/exact_example.py         # ~28 s
 python3 experiments/posthoc_oracle.py        # < 1 s, lee results.json
 python3 experiments/make_region_figure.py    # ~5 s, lee results.json
 ./manuscript/build.sh                        # requiere TeX Live (pdflatex, bibtex, latexmk)
