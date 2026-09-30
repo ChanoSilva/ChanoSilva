@@ -12,7 +12,7 @@ Avances de líneas de investigación de Luciano Silva Alarco (PUCP) producidos e
 | `RTK001-recursive-knots/` | RTK001 | Geometría de nudos recursivos | Cotas de longitud de cuerda (ver su README) |
 | `HQF001-resolution-fields-abstention/` | HQF001 | Resolución local e incertidumbre | Borrador v0.1 (11 pp.): comparación controlada de clasificación selectiva con criterio predefinido, **resultado negativo** (0/8 mejor, 6/8 peor); proposición exacta que aísla qué podría aportar la anisotropía; propuesta de cierre |
 | `EQO001-equilibrium-welfare/` | EQO001 | Operadores de equilibrio y bienestar | Nota v0.1 (13 pp.): qué es y qué no es teorema; problemas abiertos |
-| `SVMF001-boundary-families/` | SVMF001 | Familias de fronteras de clasificación | Comparación controlada (ver su README) |
+| `SVMF001-boundary-families/` | SVMF001 | Familias de fronteras de clasificación | Borrador v0.1 (14 pp.): enunciado exacto de cuándo la adaptación local no puede ayudar (adelgazamiento binomial de la curva de aprendizaje), comparación controlada de cuatro familias con criterio predefinido, **resultado negativo** (0 familias cumplen) |
 | `OMR001-transferable-corrections/` | OMR001 | Correcciones transferibles | Nota v0.1 (14 pp.): qué puede y qué no puede garantizarse; cota explícita de no-daño para la reversión validada (es una garantía de selección, no del operador); simulación con 345 configuraciones |
 
 Documentos transversales:
