@@ -33,6 +33,27 @@ No se encontró ningún manuscrito previo titulado "Foundational Geometry". Se a
 - E5c: correlación L–τ 0.967 (n=250) → 0.990 (n=2000); pendiente L/(√n τ) 1.73 → 1.85 (límite 2); error relativo mediano de τ̂ (τ>1/4) 14% → 8% frente a τ, pero 23% → 17% frente al τ' de la configuración reparametrizada (el conteo fija el factor conforme).
 - E5d: RMSE de coordenadas 0.073 (n=250) → 0.031 (n=2000); RMSE·√n entre 1.15 y 1.40; desacuerdo de orden 7.7% → 3.7%.
 
+## Revisión arbitral interna (30/09/2026, misma sesión)
+Un subagente revisor independiente leyó el borrador v0.1 completo (texto, código y resultados) y produjo 18 hallazgos. Todos se atendieron en la revisión v0.2:
+1. Núcleo del orden causal: el resumen decía "es el grupo conforme"; se corrigió a "contiene al grupo conforme y es estrictamente mayor a n finito" y se añadió la Proposición 5.2 (las clases del núcleo son uniones de órbitas conformes sobre los realizadores de Dushnik–Miller del orden; ejemplo de la anticadena).
+2. E5d: la frase "los pares relacionados no restringen el signo" era falsa; se corrigió el texto y el código ahora usa los votos de pares comparables e incomparables (el efecto numérico es <1%).
+3. E2: las disparidades estaban limitadas por la tolerancia del solver (1e-9). Se rehízo con tolerancia 1e-13, se añadió la discordancia de Kendall entre el orden de entrada y el de salida (la reconstrucción solo está aproximadamente en la clase), se eliminó el exponente único (~n^-2.9) del resumen y de la tabla de afirmaciones, y se reportan exponentes locales.
+4. E4: la explicación de la fracción 0.35 de la dimensión afín era errónea (el mecanismo real depende del rango de p: p<1 euclidiano en dimensión n-1; 1<p<2 exactamente dos autovalores positivos; p>2 muchos). Se añadió E4b con dos testigos explícitos de no ordinalidad (colineal perturbado; triángulo rectángulo perturbado para el grafo de Gabriel) y se aclaró que la columna de distorsión monótona prueba la fórmula sobre Met, condición suficiente para la profundidad ordinal.
+5. E2b: se reescribió como verificación de la tubería (la identidad de reconstrucciones es tautológica).
+6. Prop. 5.1 y texto: mapas conformes del diamante (no de Minkowski), boosts como mapas de R^{1,1}, grupo de Lorentz ortócrono en Zeeman.
+7. E5d: tasa reportada como n^-0.4 observada, no n^-1/2; explicación por mal condicionamiento de las raíces cerca de u=v.
+8. Coord(n,d) restringido a configuraciones inyectivas; Prop. 3.4 con puntos distintos.
+9. Leyenda de la Tabla 1: una instancia de betweenness es un par (b,{a,c}).
+10. Caus+N declarado como formalismo más modelo de muestreo; "segunda cadena" reemplazado por "traducción seguida de un paso estadístico".
+11. Columna asintótica de la Sección 4 restringida a invariantes continuos.
+12. E5c: N=(n-2)τ², pendiente por el origen, cita Baik–Deift–Johansson para la corrección N^{1/6}, columna τ' presentada como ilustración.
+13. Definiciones 2.4 (profundidad 0) y 2.6 (fidelidad asintótica con distancia y cuantificador explícitos); observación de meaningfulness con dos tipos de escala.
+14. Teorema 3.5 etiquetado "enunciado informal"; Terada–von Luxburg con hipótesis (grafo k-NN no ponderado, k→∞, k/n→0).
+15. Hawking–King–McCarthy/Malament enunciados con precisión.
+16. Bollobás–Brightwell 1991 (box-spaces) añadido para cadenas en dimensión arbitraria; 1992 queda para la concentración.
+17. Fórmula de Myrheim–Meyer escrita como Γ(D+1)Γ(D/2)/(2Γ(3D/2)) y explicada como el doble del cociente ⟨R⟩/N².
+18. Bibliografía: Klein citado como 1872 (con nota de la reimpresión de 1893); eslogan "orden + número" atribuido a Sorkin; Kronheimer–Penrose y Dushnik–Miller ahora citados.
+
 ## Decisiones tomadas
 - Objetos etiquetados en todos los formalismos (sin cociente por reetiquetado), para mantener las demostraciones elementales.
 - E1 con aritmética exacta y no con tolerancia flotante: la tolerancia 1e-9 produce ~1 triple espurio por configuración en n=50 (la brecha de betweenness es cuadrática en la distancia a la recta). Se menciona en el texto como advertencia metodológica.

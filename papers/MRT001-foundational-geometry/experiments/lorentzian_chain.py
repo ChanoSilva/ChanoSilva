@@ -278,10 +278,11 @@ def reconstruct_from_counts(R):
 
     Uniform density gives |past| ~ (n-1) u v and |future| ~ (n-1)(1-u)(1-v),
     hence s = u + v and p = u v, and {u, v} as the roots of x^2 - s x + p.
-    Which root is u is a per-point sign; incomparable pairs must satisfy
-    (u_r - u_q)(v_r - v_q) < 0, which gives pairwise same/different votes,
-    resolved globally by the leading eigenvector of the vote matrix
-    (Z2 synchronisation).  The global swap u <-> v (parity) is unresolvable
+    Which root is u is a per-point sign.  A comparable pair must satisfy
+    (u_r - u_q)(v_r - v_q) > 0 and an unrelated pair < 0; whenever exactly
+    one of the two relative orientations satisfies the constraint the pair
+    votes "same" or "opposite", and the votes are resolved globally by the
+    leading eigenvector of the vote matrix (Z2 synchronisation).  The global swap u <-> v (parity) is unresolvable
     from the order and is fixed against the truth by the caller.
     """
     n = R.shape[0]
@@ -292,16 +293,21 @@ def reconstruct_from_counts(R):
     disc = np.clip(s * s - 4 * p, 0.0, None)
     big = (s + np.sqrt(disc)) / 2
     small = (s - np.sqrt(disc)) / 2
-    inc = ~(R | R.T)
+    rel = R | R.T                                    # comparable pairs
+    inc = ~rel
     np.fill_diagonal(inc, False)
-    # votes: for incomparable (r, q), does "same orientation" satisfy the constraint?
-    # same orientation: u = big for both -> (big_r-big_q)(small_r-small_q) < 0
-    same_ok = (big[:, None] - big[None, :]) * (small[:, None] - small[None, :]) < 0
-    # different orientation: u_r = big_r, v_r = small_r; u_q = small_q, v_q = big_q
-    diff_ok = (big[:, None] - small[None, :]) * (small[:, None] - big[None, :]) < 0
+    # sign of the product of coordinate differences under each orientation:
+    #   same orientation:     (u_r-u_q)(v_r-v_q) = (b_r-b_q)(s_r-s_q)
+    #   opposite orientation: (u_r-u_q)(v_r-v_q) = (b_r-s_q)(s_r-b_q)
+    # a comparable pair needs a positive product, an unrelated pair a negative one
+    same_prod = (big[:, None] - big[None, :]) * (small[:, None] - small[None, :])
+    diff_prod = (big[:, None] - small[None, :]) * (small[:, None] - big[None, :])
+    same_ok = np.where(rel, same_prod > 0, same_prod < 0)
+    diff_ok = np.where(rel, diff_prod > 0, diff_prod < 0)
+    off = ~np.eye(n, dtype=bool)
     W = np.zeros((n, n))
-    W[inc & same_ok & ~diff_ok] = 1.0
-    W[inc & diff_ok & ~same_ok] = -1.0
+    W[off & same_ok & ~diff_ok] = 1.0
+    W[off & diff_ok & ~same_ok] = -1.0
     w, V = np.linalg.eigh(W)
     sigma = np.sign(V[:, -1])
     sigma[sigma == 0] = 1.0

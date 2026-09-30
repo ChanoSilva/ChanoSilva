@@ -54,10 +54,17 @@ with open(os.path.join(out_dir, "table_e1_controls.tex"), "w") as fh:
 
 # E2
 e2 = res["E2"]
+import math
 with open(os.path.join(out_dir, "table_e2.tex"), "w") as fh:
+    prev = {}
     for r in e2["recovery"]:
+        loc = "--"
+        if r["d"] in prev:
+            pn, pm = prev[r["d"]]
+            loc = f"{-math.log(r['median_disparity'] / pm) / math.log(r['n'] / pn):.1f}"
+        prev[r["d"]] = (r["n"], r["median_disparity"])
         fh.write(f"{r['d']} & {r['n']} & {r['repetitions']} & {sci(r['median_disparity'])} & "
-                 f"{sci(r['q1'])} & {sci(r['q3'])} & {sci(r['max'])} \\\\\n")
+                 f"{sci(r['q1'])} & {sci(r['q3'])} & {sci(r['max'])} & {sci(r['median_discordance'])} & {loc} \\\\\n")
 for r in e2["recovery"]:
     tag = ("Dtwo" if r["d"] == 2 else "Dthree") + "N" + word(r["n"])
     L.append(rf"\newcommand{{\EtwoMed{tag}}}{{{sci(r['median_disparity'])}}}")
@@ -74,6 +81,14 @@ L.append(rf"\newcommand{{\EtwoMaxDtwoLast}}{{{sci(d2[-1]['max'])}}}")
 L.append(rf"\newcommand{{\EtwoMedDthreeFirst}}{{{sci(d3[0]['median_disparity'])}}}")
 L.append(rf"\newcommand{{\EtwoMedDthreeLast}}{{{sci(d3[-1]['median_disparity'])}}}")
 L.append(rf"\newcommand{{\EtwoTotalRuns}}{{{sum(r['repetitions'] for r in e2['recovery'])}}}")
+L.append(rf"\newcommand{{\EtwoDiscDtwoLast}}{{{sci(d2[-1]['median_discordance'])}}}")
+L.append(rf"\newcommand{{\EtwoDiscDtwoFirst}}{{{sci(d2[0]['median_discordance'])}}}")
+L.append(rf"\newcommand{{\EtwoDiscDthreeLast}}{{{sci(d3[-1]['median_discordance'])}}}")
+L.append(rf"\newcommand{{\EtwoDropDtwo}}{{{math.log10(d2[0]['median_disparity'] / d2[-1]['median_disparity']):.1f}}}")
+L.append(rf"\newcommand{{\EtwoDropDthree}}{{{math.log10(d3[0]['median_disparity'] / d3[-1]['median_disparity']):.1f}}}")
+loc2 = [(-math.log(b['median_disparity']/a['median_disparity'])/math.log(b['n']/a['n'])) for a, b in zip(d2, d2[1:])]
+L.append(rf"\newcommand{{\EtwoLocMaxDtwo}}{{{max(loc2):.1f}}}")
+L.append(rf"\newcommand{{\EtwoLocMinDtwo}}{{{min(loc2):.1f}}}")
 b = e2["distortion"]
 L.append(rf"\newcommand{{\EtwoBn}}{{{b['n']}}}")
 L.append(rf"\newcommand{{\EtwoBreps}}{{{b['repetitions']}}}")
@@ -115,6 +130,13 @@ aff = [r for r in e4["table"] if r["quantity"] == "affine_dimension"][0]
 L.append(rf"\newcommand{{\EfourAffMono}}{{{aff['monotone']:.2f}}}")
 gab = [r for r in e4["table"] if r["quantity"] == "gabriel_graph"][0]
 L.append(rf"\newcommand{{\EfourGabrielMono}}{{{gab['monotone']:.2f}}}")
+e4b = res.get("E4b")
+if e4b:
+    yes = lambda b: "yes" if b else "no"
+    L.append(rf"\newcommand{{\EfourbCollinearSame}}{{{yes(e4b['collinear']['pattern_equal'])}}}")
+    L.append(rf"\newcommand{{\EfourbCollinearDims}}{{{e4b['collinear']['affine_dimension'][0]} and {e4b['collinear']['affine_dimension'][1]}}}")
+    L.append(rf"\newcommand{{\EfourbGabrielSame}}{{{yes(e4b['gabriel']['pattern_equal'])}}}")
+    L.append(rf"\newcommand{{\EfourbGabrielEdges}}{{{yes(e4b['gabriel']['edge_12_present'][0])} and {yes(e4b['gabriel']['edge_12_present'][1])}}}")
 
 # E2 empirical log-log slopes of the median disparity against n
 import numpy as np
@@ -173,6 +195,10 @@ if os.path.exists(lz_path):
     L.append(rf"\newcommand{{\EfiveDsqrtFirst}}{{{dd[0]['rmse_times_sqrt_n']:.2f}}}")
     L.append(rf"\newcommand{{\EfiveDsqrtLast}}{{{dd[-1]['rmse_times_sqrt_n']:.2f}}}")
     L.append(rf"\newcommand{{\EfiveDdisagreeLast}}{{{100*dd[-1]['order_disagreement_median']:.2f}}}")
+    import numpy as _np
+    _x = _np.log([r['n'] for r in dd]); _y = _np.log([r['rmse_median'] for r in dd])
+    L.append(rf"\newcommand{{\EfiveDexponent}}{{{-_np.polyfit(_x, _y, 1)[0]:.2f}}}")
+    L.append(rf"\newcommand{{\EfiveDdisagreeFirst}}{{{100*dd[0]['order_disagreement_median']:.2f}}}")
     L.append(rf"\newcommand{{\EfiveSeconds}}{{{int(round(lz['meta']['seconds']))}}}")
     L.append(r"\newcommand{\HasLorentz}{1}")
 

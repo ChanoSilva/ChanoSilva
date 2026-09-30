@@ -49,6 +49,7 @@ import matplotlib.pyplot as plt
 from scipy.sparse.csgraph import minimum_spanning_tree
 from scipy.spatial import procrustes
 from scipy.spatial.distance import pdist, squareform
+from scipy.stats import kendalltau
 from sklearn.manifold import MDS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -100,8 +101,10 @@ def tau_relational_exact(P):
                             a, b, c distinct).
     Congruence   ab == cd:  d(a,b) = d(c,d) for distinct unordered pairs.
 
-    Returns (number of unordered triples {a,c} with some b strictly between
-    them, number of unordered pairs of distinct point-pairs at equal distance).
+    Returns (number of pairs (b, {a,c}) with b strictly between a and c,
+    number of unordered pairs of distinct point-pairs at equal distance).
+    For each unordered {a,c} every b strictly between them is counted once,
+    so a row of four collinear points contributes 1 + 1 + 2 = 4.
     """
     P = np.asarray(P, dtype=np.int64)
     n, d = P.shape
@@ -145,7 +148,7 @@ def random_rigid(rng, d):
 
 def _mds(nonmetric, d, seed, n_init):
     return MDS(n_components=d, metric_mds=not nonmetric, metric="precomputed",
-               init="random", n_init=n_init, max_iter=2000, eps=1e-9,
+               init="random", n_init=n_init, max_iter=50000, eps=1e-13,
                random_state=seed, n_jobs=1, normalized_stress="auto")
 
 
@@ -253,24 +256,31 @@ def experiment_E2(rng, fast):
     rows, raw = [], {}
     for d, sizes, reps in plan:
         for n in sizes:
-            disp = []
+            disp, disc = [], []
             t0 = time.time()
+            iu = np.triu_indices(n, 1)
             for _ in range(reps):
                 X = random_config(rng, n, d)
-                R, _ = tau_ordinal(tau_metric(X))
+                D = tau_metric(X)
+                R, _ = tau_ordinal(D)
                 Y = nonmetric_embedding(R, d, rng)
                 disp.append(float(procrustes(X, Y)[2]))
-            disp = np.array(disp)
-            raw[f"d={d},n={n}"] = disp.tolist()
+                # fraction of ordinal constraints (pairs of pairs) violated by Y
+                tau_k = kendalltau(D[iu], tau_metric(Y)[iu]).statistic
+                disc.append(float((1.0 - tau_k) / 2.0))
+            disp, disc = np.array(disp), np.array(disc)
+            raw[f"d={d},n={n}"] = {"disparity": disp.tolist(), "discordance": disc.tolist()}
             rows.append({"d": d, "n": n, "repetitions": reps,
                          "median_disparity": float(np.median(disp)),
                          "q1": float(np.percentile(disp, 25)),
                          "q3": float(np.percentile(disp, 75)),
                          "max": float(disp.max()),
+                         "median_discordance": float(np.median(disc)),
+                         "max_discordance": float(disc.max()),
                          "seconds": round(time.time() - t0, 1)})
             print(f"  E2 d={d} n={n:4d}  median disparity {np.median(disp):.3e}  "
-                  f"(q1 {np.percentile(disp, 25):.3e}, q3 {np.percentile(disp, 75):.3e})",
-                  file=sys.stderr)
+                  f"(q1 {np.percentile(disp, 25):.3e}, q3 {np.percentile(disp, 75):.3e})  "
+                  f"discordance {np.median(disc):.2e}", file=sys.stderr)
     # E2b: invariance under a monotone distortion of the metric (d = 2, n = 64)
     d, n = 2, 64
     reps_b = 10 if fast else 20
@@ -393,6 +403,30 @@ def experiment_E4(rng, fast):
 
 
 # --------------------------------------------------------------------------
+# E4b  explicit witnesses: same ordinal pattern, different metric-level quantity
+# --------------------------------------------------------------------------
+def experiment_E4b():
+    out = {}
+    # collinear configuration with distinct distances, and a small planar perturbation
+    X0 = np.array([[0.0, 0.0], [1.0, 0.0], [2.5, 0.0], [4.2, 0.0]])
+    X1 = X0.copy(); X1[1, 1] = 0.01; X1[2, 1] = -0.02
+    D0, D1 = tau_metric(X0), tau_metric(X1)
+    out["collinear"] = {"pattern_equal": tau_ordinal(D0)[1] == tau_ordinal(D1)[1],
+                        "affine_dimension": [affine_dimension(D0), affine_dimension(D1)]}
+    # right triangle (3,4,5) at k=(0,0), perturbed to acute and to obtuse
+    def tri(theta):
+        return np.array([[0.0, 0.0], [3.0, 0.0], [4.0 * np.cos(theta), 4.0 * np.sin(theta)]])
+    Dr = tau_metric(tri(np.pi / 2))
+    Da = tau_metric(tri(np.pi / 2 - 0.05))          # acute at k
+    Do = tau_metric(tri(np.pi / 2 + 0.05))          # obtuse at k
+    out["gabriel"] = {"pattern_equal": tau_ordinal(Da)[1] == tau_ordinal(Do)[1] == tau_ordinal(Dr)[1],
+                      "edge_12_present": [bool((1, 2) in gabriel_graph(Da)), bool((1, 2) in gabriel_graph(Do))],
+                      "sides_acute": sorted(Da[np.triu_indices(3, 1)].round(4).tolist()),
+                      "sides_obtuse": sorted(Do[np.triu_indices(3, 1)].round(4).tolist())}
+    return out
+
+
+# --------------------------------------------------------------------------
 # Figure and tables
 # --------------------------------------------------------------------------
 def make_figure(e2):
@@ -438,11 +472,11 @@ def write_tables(res):
         L.append(f"| {r['grid']} | {r['n']} | {r['betweenness_instances']} | "
                  f"{r['congruence_instances']} |")
     L += ["\n## E2 Ordinal recovery (non-metric MDS on ranks, Procrustes disparity)\n",
-          "| d | n | repetitions | median | Q1 | Q3 | max |",
-          "|---|---|---|---|---|---|---|"]
+          "| d | n | repetitions | median | Q1 | Q3 | max | median Kendall discordance |",
+          "|---|---|---|---|---|---|---|---|"]
     for r in res["E2"]["recovery"]:
         L.append(f"| {r['d']} | {r['n']} | {r['repetitions']} | {r['median_disparity']:.2e} | "
-                 f"{r['q1']:.2e} | {r['q3']:.2e} | {r['max']:.2e} |")
+                 f"{r['q1']:.2e} | {r['q3']:.2e} | {r['max']:.2e} | {r['median_discordance']:.2e} |")
     b = res["E2"]["distortion"]
     L.append(f"\n### E2b Monotone distortion (n = {b['n']}, {b['repetitions']} repetitions)\n")
     for k_, v in b.items():
@@ -464,6 +498,11 @@ def write_tables(res):
     for r in res["E4"]["table"]:
         f = lambda v: "n/a" if v is None else f"{v:.2f}"
         L.append(f"| {r['quantity']} | {f(r['rigid'])} | {f(r['similarity'])} | {f(r['monotone'])} |")
+    L.append("\n## E4b Explicit witnesses of non-ordinality\n")
+    L.append(f"- collinear vs perturbed: same pattern = {res['E4b']['collinear']['pattern_equal']}, "
+             f"affine dimensions {res['E4b']['collinear']['affine_dimension']}")
+    L.append(f"- right triangle perturbed to acute/obtuse: same pattern = {res['E4b']['gabriel']['pattern_equal']}, "
+             f"Gabriel edge (1,2) present {res['E4b']['gabriel']['edge_12_present']}")
     with open(os.path.join(RESULTS, "tables.md"), "w") as fh:
         fh.write("\n".join(L) + "\n")
 
@@ -484,6 +523,7 @@ def main():
                      ("E3", experiment_E3), ("E4", experiment_E4)):
         print(f"{name} ...", file=sys.stderr)
         res[name] = fn(rng, args.fast)
+    res["E4b"] = experiment_E4b()
     res["meta"]["seconds"] = round(time.time() - t0, 1)
     with open(os.path.join(RESULTS, "results.json"), "w") as fh:
         json.dump(res, fh, indent=2)
