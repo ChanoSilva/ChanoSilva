@@ -30,6 +30,7 @@ No existe manuscrito, código ni notas previas de la línea; solo la ficha. Todo
 - **QDA con `reg_param = 0` excluido** (falla por covarianza singular en folds internos pequeños); rejilla {0.01, 0.1, 0.5}.
 - **Empates en la puntuación:** la curva riesgo–cobertura se calcula como esperanza exacta bajo desempate aleatorio uniforme (por bloques), porque las fracciones de voto de k-NN y las probabilidades de random forest tienen muchos empates y el AURC depende de cómo se traten.
 - **Ajuste de hiperparámetros:** todos los métodos por CV interna de 3 folds minimizando AURC (el criterio de evaluación), refit en el fold completo. La clave de configuración lleva el $K_m$ nominal (no el recortado) para que la selección interna coincida con la configuración externa en datasets pequeños; este fue un error detectado en la prueba rápida y corregido antes de la corrida de referencia.
+- **Estadísticas recalculadas sin recorrer el benchmark.** Tras la primera versión se detectó que un mismo par (campo vs. k-NN en breast-cancer) aparecía con dos IC distintos porque se remuestreaba dos veces (comparaciones y ablaciones) con distinto ruido Monte Carlo y su extremo inferior está en +0.01. Se añadió `--resummarise` (recalcula resumen y criterio desde los resultados por fold guardados, misma semilla) y las ablaciones cuyo segundo miembro es una referencia copian la comparación. Los veredictos del criterio no cambiaron; algunos extremos de IC se movieron en 0.01–0.05. Ese par se señala en el manuscrito como efectivamente no concluyente.
 - **Idioma:** manuscrito en inglés; README y nota en español.
 
 ## Resultados de referencia (corrida completa, semilla 20260930, 449 s CPU / 477 s reloj)
@@ -46,9 +47,9 @@ AURC×100 (media sobre 15 folds); mejor referencia en negrita; err = tasa de err
 | synth-classcov | 1.69 | 48.46 | 48.44 | **0.97** | 48.45 | 2.48 | 1.77 | 7.3 | 1.40 | 1.24 | 1.23 | 18.02 | 16.69 | 46.62 |
 | synth-lda | 2.90 | 5.05 | **1.58** | 1.64 | 1.63 | 3.67 | 2.26 | 8.9 | 2.83 | 2.94 | 3.10 | 15.02 | 14.42 | 4.48 |
 
-Diferencias pareadas Field-aniso − mejor referencia (AURC×100, IC 95 % bootstrap, victorias/15 folds): iris +0.20 [+0.04, +0.43] 1/15; wine +0.05 [−0.00, +0.10] 4/15; breast-cancer +0.58 [+0.35, +0.89] 0/15; digits +0.01 [−0.11, +0.13] 7/15; synth-informative +1.30 [+0.81, +1.85] 2/15; moons-aniso +0.56 [+0.34, +0.75] 2/15; synth-classcov +0.43 [+0.32, +0.55] 0/15; synth-lda +1.25 [+1.04, +1.51] 0/15. **Criterio: 0 mejor, 6 peor, 2 no concluyente → no cumplido.** Las otras cinco variantes: peores en 8/8.
+Diferencias pareadas Field-aniso − mejor referencia (AURC×100, IC 95 % bootstrap, victorias/15 folds): iris +0.20 [+0.04, +0.43] 1/15; wine +0.05 [−0.00, +0.10] 4/15; breast-cancer +0.58 [+0.35, +0.90] 0/15; digits +0.01 [−0.11, +0.14] 7/15; synth-informative +1.30 [+0.76, +1.87] 2/15; moons-aniso +0.56 [+0.35, +0.76] 2/15; synth-classcov +0.43 [+0.32, +0.56] 0/15; synth-lda +1.25 [+1.04, +1.50] 0/15. **Criterio: 0 mejor, 6 peor, 2 no concluyente → no cumplido.** Las otras cinco variantes: peores en 8/8.
 
-Ablación aniso − iso: iris −0.28 [−0.54, −0.05]; wine −0.20 [−0.38, −0.04]; breast-cancer +0.37 [+0.19, +0.61]; digits −0.78 [−1.21, −0.40]; synth-informative −0.14 [−0.51, +0.20]; moons-aniso −0.05 [−0.10, +0.00]; synth-classcov +0.16 [+0.10, +0.21]; synth-lda −0.11 [−0.37, +0.12].
+Ablación aniso − iso: iris −0.28 [−0.54, −0.05]; wine −0.20 [−0.37, −0.05]; breast-cancer +0.37 [+0.19, +0.59]; digits −0.78 [−1.19, −0.43]; synth-informative −0.14 [−0.52, +0.19]; moons-aniso −0.05 [−0.10, +0.00]; synth-classcov +0.16 [+0.10, +0.21]; synth-lda −0.11 [−0.36, +0.10].
 
 Hiperparámetros elegidos para Field-aniso (120 pares dataset–fold): α = 0.05 en 9 %, 0.2 en 18 %, 0.5 en 72 %; $K_m$ = 20 en 31 %, 40 en 16 %, 80 en 53 %.
 

@@ -122,7 +122,7 @@ Let $f\in C^2(U)$ and let $x_1,\dots,x_N\in U$.
 \]
 \end{enumerate}
 \end{proposition}
-\begin{proof}
+\begin{proof}\sloppy
 Taylor's formula along the segment $t\mapsto\bar x+th_i$, which lies in $U$ \citep[Ch.~VIII]{dieudonne1960}, gives the Lagrange form $f(x_i)=f(\bar x)+Df(\bar x)[h_i]+\frac12D^2\!f(\xi_i)[h_i,h_i]$ and the integral forms
 \begin{align*}
 f(x_i)&=f(\bar x)+Df(\bar x)[h_i]+\int_0^1(1-t)\,D^2\!f(\bar x+th_i)[h_i,h_i]\,\dd t,\\
@@ -231,7 +231,7 @@ With Definition~\ref{def:eff}, $Y^\theta-\bar\theta\Yh_k=\bar\theta E_k+C$ with 
 
 \subsection{E1: dispersion sweep on smooth frontiers}
 
-$N=\EoneN$ units, $\EoneReps$ replications. Figure~\ref{fig:sweep} and Table~\ref{tab:e1} report the results; Table~\ref{tab:e1} lists five dispersions per case. The small-dispersion exponents (least squares on $\sigma\le0.05$) are: order~1, $\EoneSlopeOneCDLN$ (CD--LN), $\EoneSlopeOneCDSU$ (CD--SU), $\EoneSlopeOneCESLN$, $\EoneSlopeOneCESSU$ (CES); order~2, $\EoneSlopeTwoCDLN$, $\EoneSlopeTwoCDSU$, $\EoneSlopeTwoCESLN$, $\EoneSlopeTwoCESSU$; order~3, $\EoneSlopeThreeCDLN$, $\EoneSlopeThreeCDSU$, $\EoneSlopeThreeCESLN$, $\EoneSlopeThreeCESSU$. These are the exponents of Remark~\ref{rem:orders}: $2$ for the first order, $4$ for the second order on symmetric inputs, between $3$ and $4$ on log-normal inputs, and $4$ for the third order.
+$N=\EoneN$ units, $\EoneReps$ replications. Figure~\ref{fig:sweep} and Table~\ref{tab:e1} report the results; the table lists four dispersions per case. The small-dispersion exponents (least squares on $\sigma\le0.05$) are: order~1, $\EoneSlopeOneCDLN$ (CD--LN), $\EoneSlopeOneCDSU$ (CD--SU), $\EoneSlopeOneCESLN$, $\EoneSlopeOneCESSU$ (CES); order~2, $\EoneSlopeTwoCDLN$, $\EoneSlopeTwoCDSU$, $\EoneSlopeTwoCESLN$, $\EoneSlopeTwoCESSU$; order~3, $\EoneSlopeThreeCDLN$, $\EoneSlopeThreeCDSU$, $\EoneSlopeThreeCESLN$, $\EoneSlopeThreeCESSU$. These are the exponents of Remark~\ref{rem:orders}: $2$ for the first order, $4$ for the second order on symmetric inputs, between $3$ and $4$ on log-normal inputs, and $4$ for the third order.
 
 \begin{table}[t]
 \centering\footnotesize\setlength{\tabcolsep}{4pt}
@@ -257,7 +257,7 @@ frontier & law & $\sigma$ & $|e_1|$ & $|e_2|$ & $|e_3|$ & $\min|E_1|/|E_2|$ & $\
 
 \emph{Third order.} On log-normal inputs the median ratio $|E_2|/|E_3|$ is below $1$ in $\EoneRttCellsCDLN$ of $\EoneCellsCDLN$ cells for Cobb--Douglas and $\EoneRttCellsCESLN$ of $\EoneCellsCESLN$ for CES: adding the third moment does not improve the aggregate, as Remark~\ref{rem:orders} anticipates, and at large dispersion it degrades it substantially (minimum ratio $\EoneRttMinCDLN$). On symmetric inputs $\Yh_3=\Yh_2$ exactly.
 
-\emph{Bounds.} The segmentwise bound $B_2$ holds in every replication and cell (\EoneBoundHoldsCDLN{} for LN, \EoneBoundHoldsCDSU{} for SU), as does the cruder single-box bound. It is conservative: the largest observed $|E_2|/B_2$ is $\EoneEtwoOverBtwoMaxCDLN$ (LN) and $\EoneEtwoOverBtwoMaxCDSU$ (SU), because the actual error is $O(\sigma^4)$ by cancellation while the bound is $O(\sigma^3)$ through the absolute third moment. The bound is smaller than the first-order error, and therefore \emph{certifies} that the second order improves on the first, only for $\sigma\le\EoneBoundSigmaCDLN$ (LN) and $\sigma\le\EoneBoundSigmaCDSU$ (SU), whereas the improvement itself is observed up to $\sigma\approx\EoneConeLargestCDLN$.
+\emph{Bounds.} The segmentwise bound $B_2$ holds in every replication and cell of both input laws (checks: \EoneBoundHoldsCDLN, \EoneBoundHoldsCDSU), as does the cruder single-box bound. It is conservative: the largest observed $|E_2|/B_2$ is $\EoneEtwoOverBtwoMaxCDLN$ (LN) and $\EoneEtwoOverBtwoMaxCDSU$ (SU), because the actual error is $O(\sigma^4)$ by cancellation while the bound is $O(\sigma^3)$ through the absolute third moment. The bound is smaller than the first-order error, and therefore \emph{certifies} that the second order improves on the first, only for $\sigma\le\EoneBoundSigmaCDLN$ (LN) and $\sigma\le\EoneBoundSigmaCDSU$ (SU), whereas the improvement itself is observed up to $\sigma\approx\EoneConeLargestCDLN$.
 
 \subsection{E1b: efficiency terms}
 
@@ -315,7 +315,7 @@ $\sigma_B$ & $\sigma_W$ & pooled $|e_1|$ & pooled $|e_2|$ & b.-up $|e_2|$ & gain
 \label{fig:hier}
 \end{figure}
 
-The identity $\Yh_2^{\mathrm{TD}}=\Yh_2$ of Lemma~\ref{lem:hier}(i) holds to a relative $\EthreeLemmaGap$ (floating point). On the smooth frontier the bottom-up estimator is better in $\EthreeBetterCells$ of $\EthreeCells$ cells, by a factor from $\EthreeGainMin$ (small $\sigma_B$, large $\sigma_W$: $\EthreePooledTwoLowBHighW$ against $\EthreeHierTwoLowBHighW$) to $\EthreeGainMax$ (large $\sigma_B$, small $\sigma_W$: $\EthreePooledTwoHighBLowW$ against $\EthreeHierTwoHighBLowW$); the bottom-up error depends on $\sigma_W$ only, as Lemma~\ref{lem:hier}(ii) says, and both bounds hold in every replication (\EthreeBoundsHold). With the capacity, $\EthreeStraddleMin$--$\EthreeStraddleMax\%$ of the firms straddle it; the bottom-up error is $\EthreeCappedRatioMin$--$\EthreeCappedRatioMax$ times the pooled one, and the firms that do not straddle contribute at most a fraction $\EthreeNonStraddleShare$ of the bottom-up error: the hierarchy localises the failure but does not remove it, since inside a straddling firm Corollary~\ref{cor:cross} applies.
+The identity $\Yh_2^{\mathrm{TD}}=\Yh_2$ of Lemma~\ref{lem:hier}(i) holds to a relative $\EthreeLemmaGap$ (floating point). On the smooth frontier the bottom-up estimator is better in $\EthreeBetterCells$ of $\EthreeCells$ cells, by a median per-replication factor from $\EthreeGainMin$ (small $\sigma_B$, large $\sigma_W$; median errors $\EthreePooledTwoLowBHighW$ and $\EthreeHierTwoLowBHighW$) to $\EthreeGainMax$ (large $\sigma_B$, small $\sigma_W$; median errors $\EthreePooledTwoHighBLowW$ and $\EthreeHierTwoHighBLowW$); the bottom-up error depends on $\sigma_W$ only, as Lemma~\ref{lem:hier}(ii) says, and the bound checks of Lemma~\ref{lem:hier}(ii) and Proposition~\ref{prop:smooth}(c) pass in every replication (all hold: \EthreeBoundsHold). With the capacity, $\EthreeStraddleMin$--$\EthreeStraddleMax\%$ of the firms straddle it; the bottom-up error is $\EthreeCappedRatioMin$--$\EthreeCappedRatioMax$ times the pooled one, and the firms that do not straddle contribute at most a fraction $\EthreeNonStraddleShare$ of the bottom-up error: the hierarchy localises the failure but does not remove it, since inside a straddling firm Corollary~\ref{cor:cross} applies.
 
 \subsection{E4: rank reversals between two sectors}
 
@@ -364,7 +364,7 @@ law & regime & order 2 ($\lambda=1$) & global $\lambda$ & regime $\lambda$\\
 \label{tab:e5}
 \end{table}
 
-No variant meets C1 (order 2: \EfiveOtwoConeAll; global: \EfiveGlobConeAll; by regime: \EfiveRegConeAll). The global rescaling is worse than the representative unit in the smooth regime (minimum ratio $\EfiveGlobLNSmooth$), because a factor fitted to crossing cells destroys the $O(\sigma^4)$ accuracy where there is no crossing. The regime-specific factor helps at moderate dispersion below capacity but is worse than the representative unit at small dispersion (minimum ratio $\EfiveRegLNBelow$), where no unit crosses and the term it rescales should be left alone; at the capacity every variant has minimum ratio $1$, since in some replications the sample mean falls above the capacity and $Q_2=0$. This is the mechanism of Example~\ref{ex:moments}: the error to be removed scales as $\sigma$, the only available regressor scales as $\sigma^2$, and no constant reconciles them across dispersions. The plain second order fails C1 on the test grid too (ratio $\EfiveOtwoLNSmooth$ at $\sigma=0.6$, consistent with E1).
+No variant meets C1 (order 2: \EfiveOtwoConeAll; global: \EfiveGlobConeAll; by regime: \EfiveRegConeAll). The global rescaling is worse than the representative unit in the smooth regime (minimum ratio $\EfiveGlobLNSmooth$), because a factor fitted to crossing cells destroys the $O(\sigma^4)$ accuracy where there is no crossing. The regime-specific factor helps at moderate dispersion below capacity but is worse than the representative unit at small dispersion (minimum ratio $\EfiveRegLNBelow$), where no unit crosses and the term it rescales should be left alone; at the capacity every variant has minimum ratio $1$, because whenever the sample mean lands (or, for the symmetric law, rounds) above the capacity the one-sided Hessian vanishes, $Q_2=0$, and every variant coincides with the representative unit. This is the mechanism of Example~\ref{ex:moments}: the error to be removed scales as $\sigma$, the only available regressor scales as $\sigma^2$, and no constant reconciles them across dispersions. The plain second order fails C1 on the test grid too (ratio $\EfiveOtwoLNSmooth$ at $\sigma=0.6$, consistent with E1).
 
 \section{What can be claimed}\label{sec:claims}
 
@@ -398,7 +398,7 @@ Statements about real sectors, estimated frontiers or policy & not addressed\\
 \label{tab:claims}
 \end{table}
 
-Table~\ref{tab:claims} is the deliverable of the research line: it separates what is proved from what is measured, and it records that the predefined criterion of a general certified improvement was not met. The positive content is precise: in the smooth regime the second-order correction is an $O(\sigma)$ relative improvement with a computable, conservative certificate; at a capacity crossing it is no improvement at all, the missing quantity $\Tu$ is not a function of the moments, and no rescaling of the moment term supplies it.
+Table~\ref{tab:claims} is the deliverable of the research line: it separates what is proved from what is measured, and it records that the predefined criterion of a general certified improvement was not met. The positive content is precise: in the smooth regime the second-order correction reduces the error by a factor of order $\sigma$ and comes with a computable, conservative certificate; at a capacity crossing it is no improvement at all, the missing quantity $\Tu$ is not a function of the moments, and no rescaling of the moment term supplies it.
 
 \paragraph{Limitations.} The frontier is known exactly; estimation error in $f$ or in the moments is not modelled, and would add to every error reported. The certified bounds are computed only for Cobb--Douglas, where the derivative suprema have closed forms; for CES a bound would need a numerical supremum, which we did not certify. The bounds are loose by a factor of about $50$--$1000$ at moderate dispersion because they use absolute third moments where the actual error cancels to fourth order. Two input laws and two frontiers are a controlled design, not a survey of shapes; the crossing analysis covers the capacity kink $\min(f,c)$ and, by the same proof, any frontier with a first-derivative jump along a hypersurface, but not regime switches that also change the level. The hierarchy has two levels; deeper hierarchies compose Lemma~\ref{lem:hier}. The decision experiment uses one margin distribution ($\pm\EfourGammaMax\%$) and one dispersion ratio between sectors.
 
@@ -415,6 +415,7 @@ Table~\ref{tab:claims} is the deliverable of the research line: it separates wha
 \paragraph{E4.} $\gamma\sim U(-0.05,0.05)$; $\bar x_B=\bar x_A(1+\gamma)^{1/0.8}$; $\sigma_B=\sigma_A/2$; capacity $c=f(\bar x_A)(1+p)$; certification with $|\Yh_2^A-\Yh_2^B|>B_2^A+B_2^B$.
 \paragraph{E5.} $\lambda=\sum E_1Q_2/\sum Q_2^2$ over the training cells (all replications), globally or within each regime; evaluation on fresh shocks.
 
+\providecommand{\bibfont}{}\renewcommand{\bibfont}{\small}
 \bibliographystyle{plainnat}
 \bibliography{refs}
 \end{document}

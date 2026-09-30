@@ -187,7 +187,7 @@ dataset & best ref. & AURC & aniso & iso & Eucl. & volume & anisotropy & aniso, 
 \end{table}
 
 \begin{table}[t]
-\centering\small
+\centering\footnotesize
 \setlength{\tabcolsep}{3.5pt}
 \begin{tabular}{llrcrcrc}
 \toprule
@@ -225,7 +225,7 @@ dataset & vs $k$-NN & vs NCM & vs LDA & vs QDA & vs LogReg & vs RForest & vs DAN
 \label{tab:vsrefs}
 \end{table}
 
-Table~\ref{tab:vsrefs} removes the best-reference selection. Counting datasets on which the field is significantly better/worse: $k$-NN \VsRefKnnBetter/\VsRefKnnWorse, NCM \VsRefNcmBetter/\VsRefNcmWorse, LDA \VsRefLdaBetter/\VsRefLdaWorse, QDA \VsRefQdaBetter/\VsRefQdaWorse, logistic regression \VsRefLogregBetter/\VsRefLogregWorse, random forest \VsRefRforestBetter/\VsRefRforestWorse, DANN \VsRefDannBetter/\VsRefDannWorse. The field does beat the global-prototype methods (NCM, LDA, logistic regression) where their linear boundaries are wrong (synth-classcov, synth-informative, moons-aniso), and it beats the non-parametric local references ($k$-NN, DANN, random forest) on synth-classcov; but on every dataset at least one reference is at least as good, and on synth-classcov that reference is QDA, whose class-specific metric is the population version of what the field estimates locally. Moreover the gain over $k$-NN and DANN on synth-classcov is not attributable to anisotropy: the Euclidean ablation of the field (local prototypes, identity metric) reaches \AurcCcovFeuclid{} against \AurcCcovFaniso{} for the full method (Table~\ref{tab:field}), so what helps there is the local-prototype margin, not the metric.
+Table~\ref{tab:vsrefs} removes the best-reference selection. Counting datasets on which the field is significantly better/worse: $k$-NN \VsRefKnnBetter/\VsRefKnnWorse, NCM \VsRefNcmBetter/\VsRefNcmWorse, LDA \VsRefLdaBetter/\VsRefLdaWorse, QDA \VsRefQdaBetter/\VsRefQdaWorse, logistic regression \VsRefLogregBetter/\VsRefLogregWorse, random forest \VsRefRforestBetter/\VsRefRforestWorse, DANN \VsRefDannBetter/\VsRefDannWorse. One of these intervals, the field against $k$-NN on breast-cancer (\VsBcKnn), has its lower end within $0.01$ of zero; its classification changes with the bootstrap draw and it should be read as inconclusive. The field does beat the global-prototype methods (NCM, LDA, logistic regression) where their linear boundaries are wrong (synth-classcov, synth-informative, moons-aniso), and it beats the non-parametric local references ($k$-NN, DANN, random forest) on synth-classcov; but on every dataset at least one reference is at least as good, and on synth-classcov that reference is QDA, whose class-specific metric is the population version of what the field estimates locally. Moreover the gain over $k$-NN and DANN on synth-classcov is not attributable to anisotropy: the Euclidean ablation of the field (local prototypes, identity metric) reaches \AurcCcovFeuclid{} against \AurcCcovFaniso{} for the full method (Table~\ref{tab:field}), so what helps there is the local-prototype margin, not the metric.
 
 \subsection{Ablations: does anisotropy add information?}
 

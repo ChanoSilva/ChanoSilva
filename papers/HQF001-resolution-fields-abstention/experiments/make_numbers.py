@@ -218,6 +218,10 @@ for f in FIELDS:
     mac(f"Crit{M_TAG[f]}InconList", ", ".join(DS_NAME[d] for d in c["inconclusive"]) if c["inconclusive"] else "none")
     mac(f"Crit{M_TAG[f]}Met", "met" if c["criterion_met"] else "not met")
 
+for ds in S:
+    for r in REFS:
+        c = S[ds]["comparisons"]["Field-aniso"][r]
+        mac(f"Vs{DS_TAG[ds]}{M_TAG[r]}", f"{spct(c['mean_diff'])} [{spct(c['ci_lo'])}, {spct(c['ci_hi'])}]")
 # how often Field-aniso beats each reference individually (CI excluding 0)
 for r in REFS:
     n_better = sum(1 for ds in S if S[ds]["comparisons"]["Field-aniso"][r]["ci_hi"] < 0)
