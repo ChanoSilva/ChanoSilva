@@ -227,20 +227,25 @@ For an additive correction $C=R+v$ it applies $v$ to $\bar X_n$ itself. It is \e
 M_\eta(\alpha;\xi)=\sup_{\omega>0,\ |\delta-\omega^2|\le2\xi\omega} f_\eta(\omega,\delta),\qquad
 f_\eta(\omega,\delta)=\big((1-\eta)\delta+\eta\omega^2\big)\Phi\big(-(z+\tfrac{\delta}{2\omega})\big)+2\eta\,\omega\,\varphi\big(z+\tfrac{\delta}{2\omega}\big),
 \]
-and $\bar\kappa_\eta(\alpha)=\max\{\kappa(\alpha)+\eta\varphi(z),\ \eta\varphi(0)\}$, $\kappa_\varphi(\alpha)=\sup_{u\ge0}u\,\varphi(z+u)\le\varphi(1)$, $c_d=\E\norm Z$ and $\mu_{3,d}=\E\norm Z^3$ for $Z\sim N(0,I_d)$.
+and $\bar\kappa_\eta(\alpha)=\max\{\kappa(\alpha)+\eta\varphi(z),\ \eta\varphi(0)\}$, $\kappa_\varphi(\alpha)=\sup_{u\ge0}u\,\varphi(z+u)\le\varphi(1)$, $c_d=\E\norm Z$ and $\mu_{3,d}=\E\norm Z^3$ for $Z\sim N(0,I_d)$. By the proof of (iv), the supremum defining $M_\eta$ may be restricted to $\delta=\omega^2\pm2\xi\omega$ (worst corrections collinear with $R-\theta$), so it is one-dimensional, and $M_0$ is the function of Proposition~\ref{prop:sharp}(c).
 
 \begin{table}[t]
-\centering\footnotesize\setlength{\tabcolsep}{4pt}
-\begin{tabular}{rcccc}
+\centering\footnotesize\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{rcccccccc}
 \toprule
-$\alpha$ & $m=3$ & $m=6$ & $m=12$ & $m=24$\\
+& \multicolumn{2}{c}{$m=3$} & \multicolumn{2}{c}{$m=6$} & \multicolumn{2}{c}{$m=12$} & \multicolumn{2}{c}{$m=24$}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+$\alpha$ & refit & split & refit & split & refit & split & refit & split\\
 \midrule
+\multicolumn{9}{l}{\emph{worst case over $\theta$ and $\mathcal F$-measurable $C$}}\\
 \input{table_worst_refit.tex}\\
-\midrule
 split cost & \input{table_worst_split.tex}\\
+\midrule
+\multicolumn{9}{l}{\emph{oracle correction $C=\theta$}}\\
+\input{table_oracle.tex}\\
 \bottomrule
 \end{tabular}
-\caption{Worst case over $\theta$ and $\mathcal F$-measurable $C$ of the excess risk over the full-data reference $\bar X_n$ ($d=\Cd$, $n=\Cn$, $\sigma=1$, $n_e=n-m$): transported refit, $(\sigma^2/m)\E[M_\eta(\alpha;\xi)]$ (Theorem~\ref{thm:refit}(iii)--(iv), computed numerically and attained by an explicit family of corrections within Monte Carlo error), against the bracket for the split estimator, split cost plus the interval of Proposition~\ref{prop:sharp}(b). Each cell: refit, then the bracket. Bold: refit better (below the bracket); italic: refit worse (above it).}
+\caption{Exact excess risk over the full-data reference $\bar X_n$ of the transported refit and of the split estimator ($d=\Cd$, $n=\Cn$, $\sigma=1$, $n_e=n-m$; quadrature, no Monte Carlo). Top: worst case over $\theta$ and $\mathcal F$-measurable $C$, $(\sigma^2/m)\E[M_\eta(\alpha;\xi)]$ for the refit (Theorem~\ref{thm:refit}(iii)--(iv)) and $d\sigma^2m/(nn_e)+(\sigma^2/m)\E[M_0(\alpha;\xi)]$ for the split (Proposition~\ref{prop:sharp}(c)). Bottom: the oracle correction (Remark~\ref{rem:refitcost}(e)); negative values are gains. Bold: refit better than split; italic: refit worse; $^{\mathrm H}$: refit harmful relative to $\bar X_n$.}
 \label{tab:worstrefit}
 \end{table}
 
@@ -263,9 +268,9 @@ and $\Psi_\eta(\alpha;x)\le\bar\kappa_\eta(\alpha)+x\,\Phi(x-z)$.
 +\frac{4\eta^2\varphi(0)\,\mu_{3,d}\,\sigma^2\sqrt m}{n_e^{3/2}}
 +\frac{4\sigma^2(\kappa_2+\eta\kappa_\varphi)}{m}.
 \]
-\item \textup{(Attainment.)} For $d\ge2$, every $\theta$ and every $\varepsilon>0$ there is an $\mathcal F$-measurable $C$ with $\risk(\hat\theta_{\rm rf})-\risk(\bar X_n)\ge(\sigma^2/m)\E[M_\eta(\alpha;\xi)]-\varepsilon$. For every $d$, $C=2\theta_0-R$ gives at $\theta=\theta_0$ exactly $4\alpha\,d\sigma^2m/(nn_e)+4\eta\varphi(z)\sigma^2c_d/\sqrt{n_em}$; hence no bound uniform in $C$ can be smaller than $4\alpha$ times the split cost of Corollary~\ref{cor:split}, the multiple that appears in (iii).
+\item \textup{(Attainment.)} For every $d\ge1$, every $\theta_0$ and every $\varepsilon>0$ there is an $\mathcal F$-measurable $C=R+\lambda(R-\theta_0)$, with $\lambda$ a function of $\norm{R-\theta_0}$ (it inflates or shrinks the error of $R$, as in Proposition~\ref{prop:sharp}(c)), such that at $\theta=\theta_0$, $\risk(\hat\theta_{\rm rf})-\risk(\bar X_n)\ge(\sigma^2/m)\E[M_\eta(\alpha;\xi)]-\varepsilon$. Also, $C=2\theta_0-R$ gives at $\theta=\theta_0$ exactly $4\alpha\,d\sigma^2m/(nn_e)+4\eta\varphi(z)\sigma^2c_d/\sqrt{n_em}$; hence no bound uniform in $C$ can be smaller than $4\alpha$ times the split cost of Corollary~\ref{cor:split}, the multiple that appears in (iii).
 \end{enumerate}
-\status{proved here (Appendix~\ref{app:proofs}); not yet checked by an independent referee; $\Psi_\eta$, $M_\eta$ computed numerically; checked by Monte Carlo}
+\status{proved here (Appendix~\ref{app:proofs}); checked by an independent internal referee (round 3); $\Psi_\eta$, $M_\eta$ computed numerically; checked by Monte Carlo}
 \end{theorem}
 
 \begin{corollary}[Cross-fitted reversion]\label{cor:crossfit}
@@ -273,16 +278,20 @@ Let $n=Km$ and split the target sample into folds $I_1,\dots,I_K$ of size $m$. L
 \[
 \hat\theta_{\rm cf}=\frac1K\sum_{k=1}^K\big(J_kC_k+(1-J_k)R_k\big)=\bar X_n+\frac1K\sum_{k=1}^KJ_k\,(C_k-R_k),
 \]
-so $\hat\theta_{\rm cf}=\bar X_n$ whenever no check passes, and $\risk(\hat\theta_{\rm cf})-\risk(\bar X_n)$ is at most the average over $k$ of the bounds of Theorem~\ref{thm:refit}(ii)--(iii) with $\eta=1/K$; in particular it is at most $(\sigma^2/m)\E[M_{1/K}(\alpha;\xi)]$, uniformly in $\theta$ and in the $C_k$. \status{proved here (Jensen); not yet checked by an independent referee}
+so $\hat\theta_{\rm cf}=\bar X_n$ whenever no check passes, and $\risk(\hat\theta_{\rm cf})-\risk(\bar X_n)$ is at most the average over $k$ of the bounds of Theorem~\ref{thm:refit}(ii)--(iii) with $\eta=1/K$; in particular it is at most $(\sigma^2/m)\E[M_{1/K}(\alpha;\xi)]$, uniformly in $\theta$ and in the $C_k$. \status{proved here (Jensen); checked by an independent internal referee (round 3)}
 \end{corollary}
 
 \begin{remark}[What happens to the split cost]\label{rem:refitcost}
-(a)~\emph{For each given correction the split cost is gone}: the bound of Theorem~\ref{thm:refit}(ii) is the expectation of a quantity proportional to $\norm{C-R}$ and is zero for $C=R$, whereas the split estimator pays $d\sigma^2m/(nn_e)$ even then (Corollary~\ref{cor:split}). The price is a larger slope, $\Psi_\eta(\alpha;0)$ against $\kappa(\alpha)$ (\RfPsiZeroTen{} against \KappaTen{} at $\alpha=0.1$, $\eta=\RfEtaDefault$), plus the term $2\eta\E[\norm{C-R}\norm{R-\theta}]$.
-(b)~\emph{Uniformly in $\theta$ and $C$ the split cost is only reduced}, and in the worst case at least the fraction $4\alpha$ of it remains (Theorem~\ref{thm:refit}(iv)). Table~\ref{tab:worstrefit} compares the exact worst case of $\hat\theta_{\rm rf}$ with that of the split estimator in the design of Section~\ref{sec:sim}: the refit is better in the worst case for \RfBetterText, worse for \RfWorseText, and the comparison is inconclusive (within the bracket of Proposition~\ref{prop:sharp}(b)) for \RfUnclearText. With plain hold-out ($\alpha=0.5$, $4\alpha=2$) the transported refit is \emph{worse} than the split in the worst case. The closed form in (iii) is \RfClosedMin--\RfClosedMax{} times the exact cap on that grid.
-(c)~The route ``use $C$ if the check passes, otherwise $\bar X_n$'' does \emph{not} remove the split cost even for a vanishing correction: for $C=R-t(R-\theta_0)$ with $t\to0$ the check detects that $C$ beats $R$, not that it beats $\bar X_n$, and the exact limit of the excess (by quadrature, Appendix~\ref{app:proofs}) is \RfVOneTen{} times the split cost at $m=\Cm$, $\alpha=0.1$ (between \RfVOneMin{} and \RfVOneMax{} times on the grid). The correction has to be transported to $\bar X_n$.
-(d)~For cross-fitting the reflection of (iv) cancels in the average ($\frac1K\sum_k(R_k-\theta)=\bar X_n-\theta$), so the lower bound does not carry over; the Jensen step is loose (Section~\ref{sec:sim}).
+(a)~\emph{The bound has no split-cost term}: the bound of Theorem~\ref{thm:refit}(ii) is the expectation of a quantity proportional to $\norm{C-R}$ and is zero for $C=R$, whereas the split estimator pays $d\sigma^2m/(nn_e)$ even then (Corollary~\ref{cor:split}). The price is a larger slope, $\Psi_\eta(\alpha;0)$ against $\kappa(\alpha)$ (\RfPsiZeroTen{} against \KappaTen{} at $\alpha=0.1$, $\eta=\RfEtaDefault$), plus the term $2\eta\E[\norm{C-R}\norm{R-\theta}]$. This compares bounds, not risks: for a given correction the refit can be worse than the split, see (e).
+(b)~\emph{Uniformly in $\theta$ and $C$ the split cost is only reduced}, and in the worst case at least the fraction $4\alpha$ of it remains (Theorem~\ref{thm:refit}(iv)). Table~\ref{tab:worstrefit} compares the exact worst cases of $\hat\theta_{\rm rf}$ and of the split estimator in the design of Section~\ref{sec:sim}: the refit is better for \RfBetterText{} and worse for \RfWorseText. With plain hold-out ($\alpha=0.5$, $4\alpha=2$) it is worse in this design and, numerically, in all \RfGenN{} other designs we tried ($d\in\{1,2,5,50\}$, $n_e\in\{2,10,1000\}$, $m\in\{1,3,30\}$; ratio \RfGenRatioMin--\RfGenRatioMax); this is not proved. The closed form in (iii) is \RfClosedMin--\RfClosedMax{} times the exact cap on the grid; it does not vanish as $\alpha\to0$ and is informative only for moderate $\alpha$ and $m\ll n_e$; for small $\alpha$ the exact cap should be used.
+(c)~The route ``use $C$ if the check passes, otherwise $\bar X_n$'' does \emph{not} remove the split cost even for a vanishing correction $C=R-t(R-\theta_0)$, $t\to0$: the check detects that $C$ beats $R$, not that it beats $\bar X_n$, and the exact limit of the excess is \RfVOneTen{} times the split cost at $m=\Cm$, $\alpha=0.1$ (\RfVOneMin--\RfVOneMax{} on the grid; derivation in \path{theory/refit_derivation.md}).
+(d)~For cross-fitting the reflection of (iv) cancels in the average ($\frac1K\sum_k(R_k-\theta)=\bar X_n-\theta$), so the lower bound does not carry over; but cross-fitting is not free of the split cost either (up to \RfAcfMaxSplit{} times it on the adversarial grid of Section~\ref{sec:sim}), and the Jensen step is loose.
+(e)~\emph{Not better than the split for every correction.} For the oracle correction $C=\theta$ ($w=-e$, $\Delta=-\norm e^2$, $u=-\xi/2$), identity (i) gives exactly
+\[
+\risk(\hat\theta_{\rm rf})-\risk(\bar X_n)=\frac{\sigma^2}{m}\,\E\big[-(1-2\eta)\,\xi^2\,\Phi(\xi/2-z)+2\eta\,\xi\,\varphi(z-\xi/2)\big],
+\]
+against $d\sigma^2m/(nn_e)-(\sigma^2/m)\E[\xi^2\Phi(\xi/2-z)]$ for the split estimator (Table~\ref{tab:worstrefit}, bottom). At $\alpha=0.1$ and $m=\Cm$ the split is better ($\RfOraSpTenTwelve$ against $\RfOraRfTenTwelve$); at $m=24$ the transported oracle is harmful ($\RfOraRfTenTwentyFour$, \RfOraRfTenTwentyFourPct{} of the risk of $\bar X_n$) while the split gains ($\RfOraSpTenTwentyFour$). On the grid the split beats the refit with the oracle for \RfOraSplitBetterText, and the refit is harmful for \RfOraHarmText. Two effects combine: the check passes preferentially when the held-out noise points where it hurts $\bar X_n+w$ (the term $\eta\E[s\varphi(z+u)]$ of (i)), and $w=C-R$ corrects the error of $R$, not that of $\bar X_n$. If $m\ge n_e$ ($\eta\ge\tfrac12$) both terms are non-negative, so the transported oracle is never better than $\bar X_n$.
 \end{remark}
-
 
 
 \section{Relation to known constructs, and the line's conclusion}\label{sec:related}
@@ -344,7 +353,6 @@ $\snr$ & $\lambda^\ast$ & $\bar X_n$ & all data & $\alpha{=}0.5$ & $\alpha{=}0.2
 \end{table}
 
 
-
 \begin{table}[t]
 \centering\footnotesize
 \begin{tabular}{rrrrrrrrr}
@@ -361,17 +369,6 @@ $\kappa$ & $\bar X_n$ & all data & $\alpha{=}0.5$ & $\alpha{=}0.2$ & $\alpha{=}0
 \end{table}
 
 
-
-
-
-
-
-
-
-
-
-
-
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.68\linewidth]{../figures/sweeps.pdf}
@@ -379,14 +376,6 @@ $\kappa$ & $\bar X_n$ & all data & $\alpha{=}0.5$ & $\alpha{=}0.2$ & $\alpha{=}0
 \label{fig:sweeps}
 \end{figure}
 
-\begin{figure}[t]
-\centering
-\begin{minipage}[c]{0.53\linewidth}\includegraphics[width=\linewidth]{../figures/excess_vs_bounds.pdf}\end{minipage}\hfill
-\begin{minipage}[c]{0.44\linewidth}
-\caption{Excess risk over $R$ on the departure sweep ($\alpha=0.1$) against the bounds of Theorem~\ref{thm:safe}, the closed form $\varphi(z)\E[s]$ and the cap of Corollary~\ref{cor:cap} (dashed). The identity bound $\E[\Delta^+\pi]$ is nearly attained where the excess is positive; at $\kappa=8$ the $\kappa$-bound is \DEightRevTenBoundKappa{} against an excess of \DEightRevTenExcess; at $\kappa=16$ the cap (\UniformCapTen) is below the $\kappa$-bound (\DSixteenRevTenBoundKappa).}
-\label{fig:excess}
-\end{minipage}
-\end{figure}
 
 \paragraph{Results: safety (S).}
 Across all \CnConfigs{} (configuration, operator, $\alpha$) combinations the bounds of Theorem~\ref{thm:safe}(i)--(ii), in the $\kappa$-form and in the closed form, hold with the two-standard-error allowance: \SafeAll; the harmful-event frequency bound holds: \SafeHarmAll; the cap of Corollary~\ref{cor:cap} holds: \SafeUniformAll{} (largest ratio of excess to cap \MaxExcessOverUniform; at $m=\Cm$ and $\alpha=0.1$ the cap is \UniformCapTen, \UniformCapTenOverRe{} times the risk of $R$ and \CapPhiOverCapTen{} times smaller than its closed form \CapPhiTen; the $\kappa$-bound exceeds it by up to \MaxBoundKappaOverUniform{} times on the grid). In this design the worst case over operators at $\alpha=0.1$ lies between \WorstLowerTen{} and \WorstUpperTen{} (Proposition~\ref{prop:sharp}(b)). Where $\Delta>0$ almost surely, the comparison with $\E[\Delta^+\pi]$ is a check of identity~(i) between two Monte Carlo estimates of the same quantity, not of a bound. The largest ratio of the Monte Carlo excess to the $\kappa$-bound is \MaxExcessOverKappa, to its closed form $\varphi(z)\E[s]$ \MaxExcessOverPhi, and to the regret bound of Theorem~\ref{thm:safe}(iv) it is \MaxRegretOverBound. The identity of Theorem~\ref{thm:safe}(i) was checked replicate by replicate: paired $z$-test where acceptance is frequent (\NIdentityCLT{} combinations, largest $|z|$ \MaxIdentityZ), Poisson 99\% interval for the acceptance count where it is rare (\NIdentityPoisson{} combinations, \NIdentityFail{} failure: \RecheckConfig, \RecheckMainCount{} acceptances against \RecheckMainExpected{} expected, not reproduced with \RecheckSeeds{} fresh seeds, \RecheckCount{} against \RecheckExpected, $z=\RecheckZ$); a conditional check with a fixed $(R,C,\theta)$ agrees with $\Phi(-(\Delta+zs)/s)$ at every $\alpha$ (largest $|z|$ \CondCheckMaxZ). The frequency of harmful events (the correction used and harmful) of the EB operator never exceeds \HarmMaxHalf{} at $\alpha=0.5$, \HarmMaxTen{} at $\alpha=0.1$ and \HarmMaxOne{} at $\alpha=0.01$, against up to \DSixteenAlwaysEHarm{} for always correcting on the split sample; the frequency of using $C$ given that it is harmful never exceeds $\alpha$ (at most \AccHarmMaxTen{} for $\alpha=0.1$). Reversion also caps the two bad operators: full pooling has unreverted risk \SSixteenPoolAlways{} at $\snr=16$ against \SSixteenPoolRevTen{} after reversion (the per-configuration tables for all operators, with every bound, are in \path{results/tables.md}, T1, T2 and T4).
@@ -401,7 +390,6 @@ On the departure sweep always correcting with all the data becomes harmful (uppe
 In all \RfDesignN{} (configuration, operator, $\alpha$) combinations the excess of the transported refit over $\bar X_n$ stays below the bounds of Theorem~\ref{thm:refit}(ii) and (iii) (largest ratios \RfDesignMaxB{} and \RfDesignMaxCap; \RfDesignMaxBc{} and \RfDesignMaxCapc{} to the closed forms); identity~(i), checked replicate by replicate, gives $|z|\le\RfIdMaxZ$ in \RfIdNz{} combinations and \RfIdFail{} Poisson failure in \RfIdNPois{} rare-acceptance ones. On an adversarial grid of \RfAdvN{} pairs $(\theta,C)$ all bounds hold within two standard errors (largest ratio \RfAdvMaxCap{} to the exact cap, at $\alpha=0.01$), a family built from the maximiser of $M_\eta$ reaches \RfAdvWorstMin--\RfAdvWorstMax{} times the exact cap and the reflection of (iv) \RfAdvReflMin--\RfAdvReflMax{} times its value, and identity~(i) gives $|z|\le\RfAdvIdMaxZ$ over \RfAdvIdN{} points (\RfAdvIdAbove{} above the threshold 3 fixed in advance). The cross-fitted estimator ($m\in\{\RfCfMs\}$) satisfies Corollary~\ref{cor:crossfit} in all \RfCfN{} design and \RfAcfN{} adversarial combinations, loosely (largest ratio \RfCfMaxB{} to the bound in the design).
 
 In the design (EB operator, $\alpha=0.1$, $m=\Cm$; per-configuration values in \path{theory/check_refit_output.txt}) the transported refit does not pay the split: in the hierarchy its gain over $\bar X_n$ at $\alpha=0.1$ is \SZeroTrTenGain{} at $\snr=0$ and \SOneTrTenGain{} at $\snr=1$, and criterion~U (applied after the fact to this estimator, added in v0.4) holds at $\snr\in\{\UsefulTrHalf\}$ for $\alpha=0.5$, $\{\UsefulTrTwenty\}$ for $0.2$ and $\{\UsefulTrTen\}$ for $0.1$. It is not harmless: on the departure sweep it is harmful relative to $\bar X_n$ at $\kappa\in\{\HarmfulTrTenDep\}$ for $\alpha=0.1$, with risk at most \DepTrTenMax{} times that of $\bar X_n$ ($\kappa=\DepTrTenMaxAt$; \DepTrHalfMax{} at $\alpha=0.5$, $\kappa=\DepTrHalfMaxAt$), within the proved bounds. Cross-fitting with $K=\RfCfK$ folds gains \RfCfSZeroGain{} over $\bar X_n$ at $\snr=0$, and its excess on the departure sweep never exceeds \RfCfDepMax. The simulation's refit (operator re-applied) also stays below the bounds of Theorem~\ref{thm:refit} (largest ratios \RfSimMaxB{} and \RfSimMaxCap), but this is empirical only.
-
 
 
 \paragraph{Verdict under the predefined criterion.}
