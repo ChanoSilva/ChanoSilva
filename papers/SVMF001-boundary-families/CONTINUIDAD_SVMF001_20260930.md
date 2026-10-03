@@ -1,4 +1,4 @@
-# SVMF001 — Continuidad interna, 30/09/2026 (actualizada el 03/10/2026: rondas 1 y 2 de revisión interna, manuscrito v0.3; integración de la teoría de vecinos, manuscrito v0.4)
+# SVMF001 — Continuidad interna, 30/09/2026 (actualizada el 03/10/2026: rondas 1 y 2 de revisión interna, manuscrito v0.3; integración de la teoría de vecinos, manuscrito v0.4; ronda 3 de revisión interna, manuscrito v0.5)
 
 Documento de trabajo interno. No incorporar al manuscrito ni a entregas institucionales.
 
@@ -98,10 +98,10 @@ Informe: `REFEREE_SVMF001_ronda2_20261003.md` (cambios mayores, solo de texto; 0
 
 ## Pendientes y próximos pasos sugeridos
 1. Confirmar con el autor si existen las variantes originales; si sí, insertarlas en este protocolo sin modificarlo.
-2. **Hecho en parte (v0.4, 03/10/2026; véase la sección de integración):** cubierto el caso no informativo (identidad exacta, Prop. 3.6) y el límite con k fijo en la coordenada de señal para el centroide local y la kNN-SVM con C fijo (Teorema 3.11, Cor. 3.12), demostrados aquí y aún no revisados por un árbitro independiente. Abierto: k = ρn riguroso, n_0 explícito, SVM local con coordenadas fuera de la métrica, celdas k-means/LLSVM en la coordenada de señal, consistencia de la SVM lineal global, C por validación interna.
+2. **Hecho en parte (v0.4, 03/10/2026; véase la sección de integración):** cubierto el caso no informativo (identidad exacta, Prop. 3.6) y el límite con k fijo en la coordenada de señal para el centroide local y la kNN-SVM con C fijo (Teorema 3.11, Cor. 3.12), demostrados aquí y revisados por un árbitro interno independiente en la ronda 3 (v0.5). Abierto: k = ρn riguroso, n_0 explícito, SVM local con coordenadas fuera de la métrica, celdas k-means/LLSVM en la coordenada de señal, consistencia de la SVM lineal global, C por validación interna.
 3. Repetir la comparación con n de miles, el criterio reparado (≥ 2 conjuntos por régimen), rejillas que no saturen y un criterio predefinido también para robustez, para ver si el empate multiescala y las hipótesis de las lunas se convierten en ganancia para el núcleo de ancho variable.
 4. Comparar el núcleo de ancho variable con una RBF-SVM global sobre entradas normalizadas por densidad, que evitaría el prefactor dependiente de la dimensión.
-5. Actualizar la ficha SVMF001 del CV web: de "En pausa" a "En desarrollo — borrador v0.3 (reconstrucción)", manteniendo el hallazgo negativo tal como está (texto en `FICHA_SVMF001_propuesta.md`).
+5. Actualizar la ficha SVMF001 del CV web: de "En pausa" a "En desarrollo — borrador v0.5 (reconstrucción)", manteniendo el hallazgo negativo tal como está (texto en `FICHA_SVMF001_propuesta.md`).
 
 ## Integración de la teoría de localización por vecinos (03/10/2026)
 
@@ -133,5 +133,43 @@ Re-ejecución del script teórico 127.5 s de CPU; chequeos propios ≈ 14 s; com
 4. Celdas k-means y pesos suaves (LLSVM) formados con la coordenada de señal.
 5. Consistencia de la SVM lineal global en el modelo (la comparación de la kNN-SVM con ella es solo numérica; la monotonía de su curva sigue siendo una hipótesis comprobada numéricamente).
 6. Teorema 3.11(ii) con C elegido por validación interna (el teorema supone C fijo, como la kNN-SVM del experimento).
-7. Revisión por un árbitro independiente de Prop. 3.6 a Obs. 3.13 y del apéndice C (ronda 3).
+7. Revisión por un árbitro independiente de Prop. 3.6 a Obs. 3.13 y del apéndice C (ronda 3). **Hecho (ronda 3; véase abajo).**
 8. Extensión: 16 páginas frente al objetivo de ≤ 14 (véase arriba).
+
+## Ronda 3 de revisión interna (03/10/2026)
+
+Informe: `REFEREE_SVMF001_ronda3_20261003.md` (cambios menores, solo de texto; 0 bloqueantes, 3 mayores, 10 menores; Prop. 3.6, Cor. 3.7, Lemas 3.8–3.10, Teorema 3.11 y Cor. 3.12 de v0.4 confirmados correctos por lectura paso a paso y verificación numérica propia; Obs. 3.13 heurística). Respuesta punto por punto: `RESPUESTA_SVMF001_ronda3_20261003.md`. Resumen: **10 aceptados, 3 aceptados con matiz (M2, M3, m3), 0 rebatidos.** Manuscrito v0.4 → **v0.5** (3 October 2026). Ningún número de la corrida de referencia ni de `theory/` cambia; `theory/` no se tocó (listado con fechas idéntico antes y después) y `check_knn_localisation.py` no se ejecutó.
+
+**Renumeración** (por el recorte 1 de M3: el resultado general va primero): Prop. 3.6 → **Prop. 3.2**; Prop. 3.2 → **Cor. 3.3** (prueba de 3 líneas desde la Prop. 3.2); Obs. 3.3 → 3.4; Prop. 3.4 → 3.5; Cor. 3.5 → 3.6; Cor. 3.7 = 3.7; Lema 3.8 → **Lema C.1** (apéndice C); Lemas 3.9–3.10 → 3.8–3.9; Teorema 3.11 → **3.10**; Cor. 3.12 → **3.11**; Obs. 3.13 → **3.12**; simulaciones D5–D7 → D6–D8 y D5 nueva (antes en el Cor. 3.7). Tablas: la de saturación (antes Tabla 3) y la Fig. 2 salen del PDF; criterio = Tabla 4, afirmaciones = Tabla 5.
+
+| Hallazgo | Acción |
+|---|---|
+| M1 resumen/tabla frente a la Tabla 5 | Verificado en `results/results.json` (`vb_rbf`: `named_regimes = ["linear"]`, `added_value = true`). Resumen: "No family met its majority clause … That interval makes the variable-bandwidth family meet the regime clause by the letter, in the one-data-set linear regime, where the linear reference already contains the Bayes rule: a flaw of the criterion, not added value"; fila de la tabla de afirmaciones reescrita igual; §5.3 ya era correcto (se precisa "where the reference class contains the Bayes rule, so that only the estimation term is available"); README (punto 3), ficha ES/EN (estado y hallazgos). |
+| M2 "verified numerically" de la Obs. 3.13 | Con matiz: la redacción propuesta («within about 10 %») es falsa por la letra (el desvío es 11.1 %), se usa la cifra exacta por macro. Estado: "heuristic, not proved; simulations agree only in part"; texto: coincide con Q(½) en todo n, con Q(¼) solo en el n mayor (μ = 1.645) y queda 11 % por debajo (z = −2.3) con μ = 0.5 en n = 32 000; apéndice B (D8) con 88 ± 4, 88 ± 4, 84 ± 5 frente a 94.4 y "within 1.6 SE" para ρ = ½. Macros nuevas desde el JSON congelado. Tabla de afirmaciones: fila propia "heuristic; simulations agree only in part". README (puntos 1 y vecinos) y ficha. |
+| M3 extensión | 16 → **15 páginas** (14 de texto y apéndices + 1 de bibliografía). Aplicados los 11 recortes del árbitro (1: Prop. general primero y la de particiones como corolario; 2: Lema 3.8 al apéndice C; 3: prueba del Lema 3.9 y su comentario al apéndice C; 4–6: simulaciones de Cor. 3.7, Cor. 3.12 y Obs. 3.13 al apéndice B; 7: celda gaussiana en 2 líneas; 8: historia de versiones fuera del título y del Scope; 9: resumen sin el detalle de saturación; 10: Limitations sin repetir el alcance; 11: tabla de saturación a `results/tables.md`) y además: Fig. 2 fuera del PDF (sus intervalos están en la Tabla 2 y en `results/tables.md`), y condensados el párrafo de comparación pareada, el del preregistro, los de VB-RBF, robustez y veredicto, la tabla de afirmaciones, el apéndice A y D1–D4. Los traslados entre secciones no acortan; por eso no se llegó a 14: haría falta sacar la Fig. 1 y la Tabla 3 (anidada; sus números solo están en JSON) o la Tabla 1, lo que se juzga peor que una página de exceso. Ninguna prueba salió del PDF; márgenes y letra sin cambios. |
+| m1 hipótesis de la Prop. 3.2 | §2: (S, x) ↦ A(S)(x) conjuntamente medible; la aleatoriedad interna de una regla aleatorizada es independiente de todo. Prop. 3.2: R_A es la curva bajo la ley P de (X, Y); la aleatoriedad de A va en R_A, no en U; "measurable metric (e.g. a norm on R^p)". |
+| m2 minimizadores exactos y holgura de r_0 | Tras el Lema 3.9: el lema y el Teorema 3.10(ii) tratan minimizadores exactos; libsvm (tolerancia 10⁻³) devuelve aproximados; r_0 sale de cotas burdas y está lejos de ser fino. D7: la comprobación de 6 646 consultas bajo r_0 solo verifica la implementación, porque la búsqueda adversarial del árbitro encontró las primeras predicciones minoritarias a varios múltiplos de r_0 (≈ 3–7·r_0 con k = 3, 6–14 con k = 5, 12–26 con k = 9; cifras del árbitro, no del repositorio, por eso no van al PDF). |
+| m3 cita del Lema C.1 | Biau y Devroye (2015), *Lectures on the Nearest Neighbor Method*, Springer; sin capítulo ni DOI (no verificables: la red a Crossref/doi.org está bloqueada en esta sesión). Con matiz. |
+| m4 v < 1 | "because v < 1 (truncating a Gaussian to an interval reduces its variance)". |
+| m5 tabla de afirmaciones | Fila de vecinos con Prop. 3.2, Cor. 3.7, Teorema 3.10, Cor. 3.11, Lemas 3.8, 3.9 y C.1: "proved here; checked by an independent internal referee (round 3)"; ninguna mención "not yet checked" en manuscrito, README ni ficha. |
+| m6 título del apéndice B | "Simulations". |
+| m7 macros redondeadas al más cercano | `make_knn_numbers.py` sigue verificando las 51 macros guardadas pero ya no emite las 6 que redondean una cota al más cercano (`KLSelMaxZ`, `KLPtwoMaxZ`, `KLPtwoMaxDiff`, `KLPtwoMinGap`, `KLPtwoDallMin`, `KLPtwoDallMax`); `\KLSelMaxZ` (1.4, usada) se sustituye por `\KLSelMaxZUp` (techo, 1.4, mismo valor). |
+| m8 "independiente" | README: "Verificación del integrador". |
+| m9 título del Cor. 3.11 | "Fixed k is eventually worse than the global nearest-centroid rule"; se dice que la comparación con la SVM lineal global es solo numérica. |
+| m10 R_∞(k) → ½ | Media frase en el Teorema 3.10(i): con n → ∞ primero, una vecindad mixta se reduce a un punto y su umbral cae a cada lado con probabilidad ½; artefacto de k fijo, no de k = ρn. |
+| Bibliografía | DOI de cover1967 (10.1109/TIT.1967.1053964, dado por el árbitro; coincide con el habitual); biau2015 nueva (26 entradas). |
+
+**Macros** (`manuscript/knn_numbers.tex`): SHA-256 del JSON congelado verificado (`f035b43d…`); las 51 macros guardadas se rederivan idénticas; ninguna macro usada cambia de valor. Ya no se emiten 6 (arriba). Nuevas: `\KLSelMaxZUp` = 1.4; `\KLRatioQuarterHardA` = `\KLRatioQuarterHardB` = 88 ± 4; `\KLZQuarterHardC` = −2.3; `\KLGapQuarterHardPct` = 11; `\KLZQuarterMainC` = −1.1 y `\KLGapQuarterMainPct` = 6 (emitidas, no usadas); `\KLHalfMaxZUp` = 1.6 (techo de max |z| = 1.54 en ρ = ½). `numbers.tex` idéntico a v0.4.
+
+**Compilación v0.5:** `build.sh` completo sin errores; 0 advertencias, 0 cajas desbordadas, 0 referencias o citas indefinidas, 0 "??" en `pdftotext`; **15 páginas**; `latexmk -c` deja `main.pdf` y `main.bbl`. Páginas cambiadas renderizadas y revisadas (§3, tabla de afirmaciones, apéndices B–C).
+
+**Cómputo de la ronda 3:** `make_knn_numbers.py` y `make_numbers.py` (< 2 s cada uno, varias veces), compilaciones (≈ 10 × 2–4 s). Total < 1 min de CPU. Sin corridas nuevas.
+
+**Queda abierto tras la ronda 3:**
+1. Extensión: 15 páginas frente al objetivo de ≤ 14 (véase M3).
+2. Obs. 3.12 (k = ρn): versión rigurosa o corrección; la simulación la contradice en (ρ, μ) = (¼, 0.5) (z = −2.3 en n = 32 000, sin acercarse).
+3. n_0(k) explícito en el Cor. 3.11; SVM local con coordenadas fuera de la métrica; celdas k-means/LLSVM en la coordenada de señal; consistencia de la SVM lineal global; C por validación interna (sin cambios desde la integración).
+4. Reproducción bit a bit de `theory/check_knn_localisation.py` por un árbitro (acción 10 del informe; el integrador ya la hizo en una copia, el árbitro no).
+5. Capítulo/lema concreto y DOI de Biau y Devroye (2015) por confirmar.
+6. Comparaciones limitadas por la rejilla, positivos de robustez como hipótesis, inferencia entre pliegues y predefinición de v0.1: sin cambios (véanse rondas 1–2).
+
