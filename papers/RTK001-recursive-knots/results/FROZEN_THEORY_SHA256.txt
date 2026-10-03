@@ -1,0 +1,16 @@
+# SHA-256 of the evaluation of the theory constants frozen for v0.3 (review round 2, M4), 03/10/2026
+# experiments/check_Hc.py and experiments/check_same_strand.py are copies of theory/check_Hc.py and theory/check_same_strand.py
+# with only the import path and the output directory changed (experiments/, results/); rerun on 03/10/2026:
+# results/*_summary.json are byte-identical to theory/*_summary.json, the *_output.txt files differ only in timing lines.
+# make_numbers.py reads only the results/ copies.
+97264f3ddafc71015d6d1d843dfc40958c7e02645972f6432e1d6e07a0f3179f  experiments/check_Hc.py
+e807ca55416403af9b2a1f04d018b8ac48562b961542b6b1c1401f9034011bbd  experiments/check_same_strand.py
+dcc6745b40360dc6a9b67a56abd40f19e321b1ee3d74aa847a7f3435343cdcdc  results/check_Hc_summary.json
+4797be4ef6fd37d1a2e5984d6001ab4c477b38d8568cbc89cdf9d625f7a4eefd  results/check_same_strand_summary.json
+aeff73089ded42a4a5e8cdade0f2e91f090b7e6350a009a0b978b0c0e1407a40  results/check_Hc_output.txt
+ce5da1dfd00e7faa6d28e08f7078f613ca8265e6e7d5587b6d3bc51480676445  results/check_same_strand_output.txt
+# originals in theory/ at freezing time:
+8e894481d9c59bb811f95fb386d91df3356528ba4e0a2c2086650fa2380c9503  theory/check_Hc.py
+92e4721624af81cadd3614ac68f1157a98e711eb281f3f1c1b44f632cfbf77e2  theory/check_same_strand.py
+dcc6745b40360dc6a9b67a56abd40f19e321b1ee3d74aa847a7f3435343cdcdc  theory/check_Hc_summary.json
+4797be4ef6fd37d1a2e5984d6001ab4c477b38d8568cbc89cdf9d625f7a4eefd  theory/check_same_strand_summary.json

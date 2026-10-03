@@ -2,8 +2,8 @@
  "meta": {
   "seed": 20260930,
   "fast": false,
-  "seconds": 13.537742376327515,
-  "seconds_cpu": 13.40389398,
+  "seconds": 13.611729860305786,
+  "seconds_cpu": 13.324862749000001,
   "python": "3.11.15",
   "numpy": "2.4.6",
   "scipy": "1.17.1",

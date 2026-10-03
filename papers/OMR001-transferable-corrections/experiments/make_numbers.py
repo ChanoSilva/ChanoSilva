@@ -274,6 +274,7 @@ for r in msweep:
     mac(f"M{tag}RevGain", pct(q["gain_vs_Rn"]["gain"]))
     mac(f"M{tag}Excess", f"{q['excess_vs_Re'][0]:+.4f}")
     mac(f"M{tag}BoundPhi", f"{q['bound_phi']:.4f}")
+    mac(f"M{tag}BoundKappa", f"{q['bound_kappa']:.4f}")
 
 def max_se(rows):
     v = []

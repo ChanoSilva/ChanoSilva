@@ -1,6 +1,6 @@
 # E2-E4: welfare-weight cones
 
-Seed 20260930; 85.7 s.
+Seed 20260930; 113.6 s.
 
 ## E2 two-player example
 - x* = [1.0, 1.0], F(x*) = [-1.0, -1.0], residual 0.0e+00
@@ -17,7 +17,7 @@ Seed 20260930; 85.7 s.
 - x* = [1.0, 1.0, 1.0], residual 0.0e+00, jointly concave: False
 - slice lambda_3 = 1: 7381 points, mismatches exact test vs parabola: 0; max |bisected boundary - parabola| = 1.0e-08
 - witness lambda = [0.3, 0.0, 1.0]: in Lambda_1 True, in Lambda False, gap 0.10125, better x = [0.55, 0.0, 1.0]
-- strongly monotone variant eps = 0.2: boundary second differences [0.00199, 0.00194, 0.00188, 0.00183, 0.00178, 0.00174, 0.00169]
+- strongly monotone variant eps = 0.2: max |bisected boundary - phi| = 1.1e-08; boundary second differences [0.00199, 0.00194, 0.00188, 0.00183, 0.00178, 0.00174, 0.00169]
 
 ## E3/E4 random games
 
@@ -37,6 +37,7 @@ Seed 20260930; 85.7 s.
 - E2c_slice_mismatches_zero: PASS (value 0)
 - E2c_bisection_vs_parabola_le_1e-7: PASS (value 1.0000000105758744e-08)
 - E2c_witness_in_L1_not_L_gap_0.10125: PASS (value 0.10124999999999984)
+- E2c_variant_boundary_vs_phi_le_1e-7: PASS (value 1.1111111142270147e-08)
 - E3_cone_points_in_Lambda: PASS (value 268/268)
 - E3_grid_in_L1_in_Lambda: PASS (value 882/882)
 - E3_grid_out_L1_out_Lambda: PASS (value 24718/24718)

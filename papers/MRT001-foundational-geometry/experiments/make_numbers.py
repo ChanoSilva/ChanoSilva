@@ -230,12 +230,29 @@ rl_path = os.path.join(ROOT, "results", "results_realizer_law.json")
 if os.path.exists(rl_path):
     rl = json.load(open(rl_path))
     rr = rl["rows"]
+    # v0.6: observed exception rate against the first-order value 5/n of Proposition prop:exceptions
+    def exc_frac(r):
+        return (r['samples'] - r['equal_to_two_pow_N']) / r['samples']
     with open(os.path.join(out_dir, "table_e5f.tex"), "w") as fh:
         body = []
         for r in rr:
             body.append(f"{r['n']} & {r['samples']} & {r['equal_to_two_pow_N']}/{r['samples']} & {r['mean_N']:.2f} & "
-                        f"{r['fraction_unique']:.2f} & {r['fraction_two']:.2f} & {r['fraction_le_eight']:.2f}")
+                        f"{r['fraction_unique']:.2f} & {r['fraction_two']:.2f} & {r['fraction_le_eight']:.2f} & "
+                        f"{exc_frac(r):.3f} & {5 / r['n']:.3f}")
         fh.write(" \\\\\n".join(body) + "\n")
+    from fractions import Fraction as _Fr
+
+    def ratio_set(rows):
+        s = sorted({_Fr(e['count'], 2 ** e['N']) for r in rows for e in r['exceptions']})
+        out = [rf"$\tfrac{{{q.numerator}}}{{{q.denominator}}}$" if q.denominator > 1 else f"${q.numerator}$" for q in s]
+        return ", ".join(out[:-1]) + " and " + out[-1] if len(out) > 1 else out[0]
+    L.append(rf"\newcommand{{\RlawExcFirst}}{{{exc_frac(rr[0]):.3f}}}")
+    L.append(rf"\newcommand{{\RlawFiveNFirst}}{{{5 / rr[0]['n']:.3f}}}")
+    _big = [r for r in rr if r["n"] >= 100]
+    L.append(rf"\newcommand{{\RlawExcBig}}{{{sum(r['samples'] - r['equal_to_two_pow_N'] for r in _big)}}}")
+    L.append(rf"\newcommand{{\RlawExcBigExpected}}{{{sum(r['samples'] * 5 / r['n'] for r in _big):.1f}}}")
+    L.append(rf"\newcommand{{\RlawRatiosAll}}{{{ratio_set(rr)}}}")
+    L.append(rf"\newcommand{{\RlawRatiosBig}}{{{ratio_set(_big)}}}")
     last = rr[-1]
     L.append(rf"\newcommand{{\RlawNmin}}{{{rr[0]['n']}}}")
     L.append(rf"\newcommand{{\RlawNmax}}{{{last['n']}}}")
@@ -253,6 +270,46 @@ if os.path.exists(rl_path):
     L.append(rf"\newcommand{{\RlawPoissonLeThree}}{{{p['P_N_le_3']:.3f}}}")
     L.append(rf"\newcommand{{\RlawSeconds}}{{{int(round(rl['meta']['seconds']))}}}")
     L.append(r"\newcommand{\HasRlaw}{1}")
+
+# v0.6: frozen output of theory/check_realizer_law.py (numerical check of the proof of the
+# realizer law), read only after its SHA-256 matches the recorded one
+chk_path = os.path.join(ROOT, "results", "check_realizer_law_output.txt")
+chk_sha_path = os.path.join(ROOT, "results", "check_realizer_law_output.sha256")
+if os.path.exists(chk_path) and os.path.exists(chk_sha_path):
+    import hashlib
+    import re
+    raw = open(chk_path, "rb").read()
+    sha = hashlib.sha256(raw).hexdigest()
+    recorded = open(chk_sha_path).read().split()[0]
+    if sha != recorded:
+        raise SystemExit(f"check_realizer_law_output.txt: SHA-256 {sha} != recorded {recorded}")
+    txt = raw.decode()
+    rows_b = re.findall(r"^(\d+) \| (\d+) \| [\d.]+ \| [\d.]+ \| [\d.]+ \([\d., ]+\) \| [\d.]+ \| [\d.]+ \| ([\d.]+) \|",
+                        txt, flags=re.M)
+    nP = [float(x[2]) for x in rows_b]
+    L.append(rf"\newcommand{{\RlawChkNlo}}{{{rows_b[0][0]}}}")
+    L.append(rf"\newcommand{{\RlawChkNhi}}{{{rows_b[-1][0]}}}")
+    L.append(rf"\newcommand{{\RlawChkNPlo}}{{{min(nP):.2f}}}")
+    L.append(rf"\newcommand{{\RlawChkNPhi}}{{{max(nP):.2f}}}")
+    L.append(rf"\newcommand{{\RlawChkSamplesMin}}{{{min(int(x[1]) for x in rows_b)}}}")
+    L.append(rf"\newcommand{{\RlawChkSamplesMax}}{{{max(int(x[1]) for x in rows_b)}}}")
+    brute = re.findall(r"^n=(\d+): (\d+) perms \| mismatches formula vs lc.brute_force: (\S+), vs u-order brute force: (\d+)",
+                       txt, flags=re.M)
+    L.append(rf"\newcommand{{\RlawChkBruteNmax}}{{{max(int(b[0]) for b in brute)}}}")
+    L.append(rf"\newcommand{{\RlawChkBrutePerms}}{{{sum(int(b[1]) for b in brute)}}}")
+    L.append(rf"\newcommand{{\RlawChkBruteMismatch}}{{{sum(int(b[3]) + (int(b[2]) if b[2].isdigit() else 0) for b in brute)}}}")
+    gal = re.findall(r"^Gallai check n=(\d+): (\d+) simple permutations .*?; R != 1 in (\d+)", txt, flags=re.M)
+    L.append(rf"\newcommand{{\RlawChkGallaiNmax}}{{{max(int(g[0]) for g in gal)}}}")
+    L.append(rf"\newcommand{{\RlawChkGallaiSimple}}{{{sum(int(g[1]) for g in gal)}}}")
+    L.append(rf"\newcommand{{\RlawChkGallaiBad}}{{{sum(int(g[2]) for g in gal)}}}")
+    ndtv = sorted({x for x in re.findall(r"n\*d_TV = ([\d.]+)", txt)})
+    L.append(rf"\newcommand{{\RlawChkNdTV}}{{{ndtv[0] if len(ndtv) == 1 else ndtv[0] + '--' + ndtv[-1]}}}")
+    sn_ratio = re.search(r"max ratio = ([\d.]+)", txt).group(1)
+    chk_seconds = int(round(float(re.search(r"^total ([\d.]+) s", txt, flags=re.M).group(1))))
+    L.append(rf"\newcommand{{\RlawChkSnRatio}}{{{sn_ratio}}}")
+    L.append(rf"\newcommand{{\RlawChkSeconds}}{{{chk_seconds}}}")
+    L.append(rf"\newcommand{{\RlawChkSha}}{{{sha[:16]}}}")
+    L.append(r"\newcommand{\HasRlawChk}{1}")
 
 import glob
 for t in glob.glob(os.path.join(out_dir, "table_*.tex")):

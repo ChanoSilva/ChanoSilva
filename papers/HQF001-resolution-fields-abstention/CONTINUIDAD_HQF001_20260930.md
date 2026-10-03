@@ -17,15 +17,15 @@ No existe manuscrito, código ni notas previas de la línea; solo la ficha. Todo
 5. **Criterio de "ganancia residual"** (fijado antes de correr): AURC menor que la mejor referencia (mejor media por dataset entre las 7) en ≥ 5 de 8 datasets con IC bootstrap pareado al 95 % que excluya 0. Se reporta además la comparación contra cada referencia por separado para eliminar el sesgo de selección de la mejor.
 6. **"Cuántico".** Solo se reproduce la salvedad de la ficha; el término "resolución" nombra un campo matricial y nada más.
 
-## Qué se produjo (todo en `papers/HQF001-resolution-fields-abstention/`)
+## Qué se produjo en v0.1 (30/09/2026; superado por v0.2 y v0.3 — estado actual en el README y en las secciones de las rondas 1 y 2)
 1. `manuscript/main.tex` (inglés, 11 páginas con referencias) + `refs.bib` (24 entradas) + `main.pdf`; macros y tablas generadas por `experiments/make_numbers.py`.
 2. `experiments/selective_benchmark.py` (benchmark completo), `experiments/lda_identity.py` (verificación de las Proposiciones 3.1 y 3.2), `experiments/make_figures.py`.
 3. `results/results.json`, `results/tables.md`, `results/results_identity.json`, `results/tables_identity.md`; `figures/` (4 figuras).
 4. README, esta nota y una propuesta de ficha.
 
-## Decisiones tomadas
-- **Datasets:** iris, wine, breast-cancer, digits (PCA a 20 componentes ajustado en cada fold de entrenamiento, para que las covarianzas de vecindario sean estimables para todos los métodos locales por igual), y cuatro sintéticos diseñados según la Proposición 3.2: synth-informative (`make_classification`), moons-aniso (dos lunas + ruido gaussiano anisótropo 0.30×0.06 rotado 30° + 3 dimensiones de ruido), synth-classcov (covarianzas rotadas distintas), synth-lda (covarianza compartida, 3 clases; control donde por la Proposición 3.1 no puede haber ganancia).
-- **synth-classcov terminó con medias coincidentes.** La separación de medias se buscaba por bisección hacia un error de Bayes del 10 % en [0.05, 20], pero las dos covarianzas rotadas ya separan las clases con 7.7 % de error, así que la bisección tocó el límite inferior (desplazamiento 0.05). No se corrigió ni se recorrió: es el caso más nítido del régimen donde una métrica local podría importar, explica que NCM/LDA/LogReg estén al nivel de azar (≈48 % de error) y se documenta explícitamente en el manuscrito. Una variante con desplazamiento de medias y covarianzas distintas queda pendiente.
+## Decisiones tomadas (v0.1, 30/09/2026; las que cambiaron se indican en las secciones de las rondas 1 y 2)
+- **Datasets:** iris, wine, breast-cancer, digits (PCA a 20 componentes ajustado en cada fold de entrenamiento, para que las covarianzas de vecindario sean estimables para todos los métodos locales por igual), y cuatro sintéticos diseñados según la Proposición 3.2: synth-informative (`make_classification`), moons-aniso (dos lunas + ruido gaussiano anisótropo 0.30×0.06 rotado 30° + 3 dimensiones de ruido), synth-classcov (covarianzas rotadas distintas), synth-lda (covarianza compartida, 3 clases; control donde ninguna puntuación puede superar a un LDA bien estimado salvo por error de estimación: para K = 3 lo garantiza la optimalidad del rechazo por máximo posterior verdadero (Chow 1970), no la Proposición 3.1(i), que es para K = 2 — corregido en la ronda 2, R2-m5).
+- **[v0.1; superado: dataset regenerado en v0.2] synth-classcov terminó con medias coincidentes.** La separación de medias se buscaba por bisección hacia un error de Bayes del 10 % en [0.05, 20], pero las dos covarianzas rotadas ya separan las clases con 7.7 % de error, así que la bisección tocó el límite inferior (desplazamiento 0.05). No se corrigió ni se recorrió: es el caso más nítido del régimen donde una métrica local podría importar, explica que NCM/LDA/LogReg estén al nivel de azar (≈48 % de error) y se documenta explícitamente en el manuscrito. Una variante con desplazamiento de medias y covarianzas distintas queda pendiente.
 - **Presupuesto de cómputo:** 3 repeticiones × 5 folds (no 4×5) y rejilla de regresión logística C ∈ {0.1, 1, 10} para caber en ~10 min de CPU. Un hilo BLAS (`OMP_NUM_THREADS=1`) para que CPU ≈ reloj.
 - **QDA con `reg_param = 0` excluido** (falla por covarianza singular en folds internos pequeños); rejilla {0.01, 0.1, 0.5}.
 - **Empates en la puntuación:** la curva riesgo–cobertura se calcula como esperanza exacta bajo desempate aleatorio uniforme (por bloques), porque las fracciones de voto de k-NN y las probabilidades de random forest tienen muchos empates y el AURC depende de cómo se traten.
@@ -33,7 +33,9 @@ No existe manuscrito, código ni notas previas de la línea; solo la ficha. Todo
 - **Estadísticas recalculadas sin recorrer el benchmark (v0.1).** Tras la primera versión se detectó que un mismo par (campo vs. k-NN en breast-cancer) aparecía con dos IC distintos porque se remuestreaba dos veces (comparaciones y ablaciones) con distinto ruido Monte Carlo y su extremo inferior está en +0.01. Se añadió `--resummarise` y las ablaciones cuyo segundo miembro es una referencia copiaron la comparación; pero la comparación con la "mejor referencia" (`__best__`) siguió remuestreándose aparte de la directa, así que el defecto persistió en 43 de 48 pares (hallazgo B2 del árbitro). Efecto real del `--resummarise` sobre v0.1 (verificado por el árbitro emulando el orden original del RNG, `verif_math_stats.txt` D2): los extremos de IC se movieron hasta 0.25 en AURC×100 (mediana 0.014, percentil 90 0.079; 84 de 464 extremos más de 0.05) y cambiaron 4 veredictos de comparaciones individuales (breast-cancer campo vs k-NN y vs NCM, breast-cancer iso vs k-NN, synth-informative anisotropía vs LogReg); **ninguno del criterio**. Corregido en v0.2: generador por par y `__best__` copia la directa (véase la sección de la ronda 1).
 - **Idioma:** manuscrito en inglés; README y nota en español.
 
-## Resultados de referencia (corrida completa, semilla 20260930, 449 s CPU / 477 s reloj)
+## Resultados de referencia v0.1 (30/09/2026; superados por v0.2 y v0.3: synth-classcov regenerado, IC con B = 2 000, rejilla del campo v0.2 — no usar estas cifras)
+
+Corrida completa v0.1, semilla 20260930, 449 s CPU / 477 s reloj.
 AURC×100 (media sobre 15 folds); mejor referencia en negrita; err = tasa de error de la mejor referencia:
 
 | dataset | k-NN | NCM | LDA | QDA | LogReg | RForest | DANN | err | Field-aniso | Field-iso | Field-euclid | Field-vol | Field-anis | Field-gproto |
@@ -55,16 +57,16 @@ Hiperparámetros elegidos para Field-aniso (120 pares dataset–fold): α = 0.05
 
 Verificación de la Proposición 3.1 del manuscrito (parámetros verdaderos, d = 5, n = 4000): K = 2 equiprobable: Spearman(s, m) = 1.000000, máx |m − tanh(s/4)| = 2.8×10⁻¹⁶, diferencia de AURC = 0. Priors (0.8, 0.2): Spearman 0.9725, no monótono, predicciones distintas en 0.57 % de los puntos; puntuación corregida monótona (desviación 4.4×10⁻¹⁶). K = 3 (error 11.2 %): máx |s − 2 log(p₍₁₎/p₍₂₎)| = 7.1×10⁻¹⁵; monótono en el log-cociente, no en p₍₁₎−p₍₂₎ ni en MSP; AURC×100 2.415 (s), 2.392 (p₍₁₎−p₍₂₎), 2.380 (MSP). Contraejemplo explícito: μ₁=(0,0), μ₂=(2,0), μ₃=(1,2), Σ=I, x_A=(0.75,0), x_B=(0.75,0.5): s = 1 en ambos; margen posterior 0.221 vs 0.189; MSP 0.562 vs 0.481.
 
-## Tiempo total de cómputo de la sesión
+## Tiempo total de cómputo de la sesión v0.1 (30/09/2026)
 Corrida de referencia 449 s CPU; verificación ≈ 1 s; figuras ≈ 5 s; prueba rápida completa (`--fast`) 148 s; dos intentos abortados de la prueba rápida ≈ 35 s; depuración de la calibración ≈ 10 s. Total ≈ 650 s ≈ 10.8 min de CPU.
 
-## Limitaciones (explícitas en el manuscrito)
+## Limitaciones (v0.1, 30/09/2026; superadas — las vigentes están en el §6 del manuscrito v0.3)
 - El campo es **una** reconstrucción; formulaciones supervisadas o aprendidas, o la combinación margen + volumen como regla bidimensional, no se corrieron y podrían cambiar el resultado.
 - Datasets pequeños/medianos y de baja dimensión tras el preprocesado (n ≤ 1797, d ≤ 30); en alta dimensión la comparación puede moverse en cualquier sentido.
 - CV interna de 3 folds sobre AURC es ruidosa en iris y wine.
-- Los IC bootstrap sobre folds repetidos son optimistas y la mejor referencia se elige en los mismos folds: ambos sesgos favorecen encontrar una ganancia, así que refuerzan la conclusión negativa.
+- [Incorrecto, corregido en la ronda 1 (B1)] Los IC bootstrap sobre folds repetidos son optimistas y la mejor referencia se elige en los mismos folds: ambos sesgos favorecen encontrar una ganancia, así que refuerzan la conclusión negativa. (El optimismo de los IC infla también los veredictos "peor" y los recuentos positivos de ablación; véase el manuscrito.)
 - DANN no se ajustó más allá de la rejilla indicada (una iteración, ε = 1).
-- synth-classcov con medias coincidentes (véase decisiones).
+- [v0.1; superado] synth-classcov con medias coincidentes (véase decisiones).
 
 ## Lo que NO se afirma
 - No se afirma que ningún campo de resolución sea inútil para abstención: se afirma que **esta** formulación, en **estos** datasets, no supera a las referencias bajo el criterio predefinido.
@@ -122,4 +124,4 @@ Informe: `REFEREE_HQF001_ronda1_20260930.md` (2 bloqueantes, 6 mayores, 12 menor
 2. Las bibliografías marcadas "no verificables en red" por el árbitro (18 entradas canónicas) siguen sin cotejo en red; no se detectaron discrepancias.
 3. m5 solo se documenta: ajustar el escalador/PCA dentro de cada pliegue interno cambiaría la selección de hiperparámetros y requeriría otra corrida completa.
 4. Las vías (a)–(c) del §6 (campo supervisado, regla margen + volumen, alta dimensión) no se corrieron.
-5. Tiempo de cómputo de la ronda: corrida completa 284.5 s + pruebas de humo y re-resumen ≈ 15 s + verificación de la proposición < 1 s + figuras 3 s ≈ 5.1 min de CPU.
+5. Tiempo de cómputo de la ronda: corrida completa 284.5 s + pruebas de humo y re-resumen ≈ 15 s + exploración de espectros 4 s + verificación de la proposición < 1 s + figuras 3 s + compilaciones ≈ 30 s ≈ 5.6 min de CPU (cifra unificada con la respuesta de la ronda 1; la versión anterior de esta línea omitía espectros y compilaciones).

@@ -1,0 +1,94 @@
+{
+ "meta": {
+  "seed": 20260930,
+  "python": "3.11.15",
+  "numpy": "2.4.6",
+  "seconds": 84.9718656539917
+ },
+ "families": [
+  {
+   "family": "all_unit",
+   "n": 3,
+   "graphs": 8,
+   "pairs_checked": 20,
+   "member_cases": 9,
+   "nonmember_cases": 11,
+   "mismatches": 0,
+   "exact_method": "faces"
+  },
+  {
+   "family": "all_unit",
+   "n": 4,
+   "graphs": 64,
+   "pairs_checked": 256,
+   "member_cases": 88,
+   "nonmember_cases": 168,
+   "mismatches": 0,
+   "exact_method": "faces"
+  },
+  {
+   "family": "all_unit",
+   "n": 5,
+   "graphs": 1024,
+   "pairs_checked": 6144,
+   "member_cases": 1840,
+   "nonmember_cases": 4304,
+   "mismatches": 0,
+   "exact_method": "vertices"
+  },
+  {
+   "family": "sample_unit",
+   "n": 6,
+   "graphs": 300,
+   "pairs_checked": 2501,
+   "member_cases": 708,
+   "nonmember_cases": 1793,
+   "mismatches": 0,
+   "exact_method": "vertices"
+  },
+  {
+   "family": "sample_w123",
+   "n": 6,
+   "graphs": 300,
+   "pairs_checked": 4765,
+   "member_cases": 953,
+   "nonmember_cases": 3812,
+   "mismatches": 0,
+   "exact_method": "vertices"
+  }
+ ],
+ "total_pairs": 13686,
+ "total_mismatches": 0,
+ "max_residual": 0.0,
+ "min_mu": 0.2,
+ "eps": 0.2,
+ "L1_orthant_always": true,
+ "other_unit_vectors_always_in_Lambda": true,
+ "crosscheck_vertices_vs_faces": {
+  "cases": 36,
+  "max_abs_diff": 0.0
+ },
+ "criteria": {
+  "membership_iff_maxcut_lt_k": {
+   "pass": true,
+   "value": 0
+  },
+  "other_unit_vectors_in_Lambda": {
+   "pass": true,
+   "value": true
+  },
+  "Lambda1_orthant": {
+   "pass": true,
+   "value": true
+  },
+  "residual_le_1e-12": {
+   "pass": true,
+   "value": 0.0
+  },
+  "vertices_vs_faces_le_1e-9": {
+   "pass": true,
+   "value": 0.0
+  },
+  "all_pass": true
+ }
+}

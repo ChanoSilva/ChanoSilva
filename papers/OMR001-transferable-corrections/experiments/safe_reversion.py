@@ -574,7 +574,7 @@ def make_figures(structure, departure):
                yscale="log", legend_loc="upper left")
 
     # Combined figure for the manuscript (one row): guaranteed estimators on both sweeps
-    fig, axes = plt.subplots(1, 2, figsize=(8.4, 3.4))
+    fig, axes = plt.subplots(1, 2, figsize=(8.4, 3.6))
     for ax, rows, xx, xlabel, sub, xscale, yscale, loc in (
             (axes[0], structure, [r["snr"] for r in structure],
              r"snr $=\tau^2/(\sigma^2/n_e)$ (smaller = tasks more alike)",
@@ -596,12 +596,14 @@ def make_figures(structure, departure):
             ax.set_yscale(yscale)
         ax.set_title(sub, loc="left", color=C["text"], fontsize=9)
         ax.set_xlabel(xlabel, fontsize=9, color=C["text"])
-        ax.legend(fontsize=7.5, loc=loc)
         style(ax)
+    # one shared legend below the panels (both panels show the same series; avoids overlap with the curves)
+    h, lab = axes[0].get_legend_handles_labels()
+    fig.legend(h, lab, loc="lower center", ncol=3, fontsize=7.5)
     axes[0].set_ylabel("risk / risk of full-data reference")
     fig.suptitle("Reverting estimators with the guarantee of Theorem 4.2 (EB operator, m = %d)" % CFG["m_default"],
                  x=0.01, ha="left", color=C["text"], fontsize=10)
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0.12, 1, 1))
     fig.savefig(os.path.join(FIGURES, "sweeps.png"), dpi=200)
     fig.savefig(os.path.join(FIGURES, "sweeps.pdf"))
     plt.close(fig)
@@ -621,6 +623,8 @@ def make_figures(structure, departure):
     ax.errorbar(x[pos], ex[pos], yerr=2 * se[pos], color=C["blue"], capsize=2,
                 label=r"Monte Carlo excess risk ($\pm$2 SE); shown only where $>0$", **mk)
     ax.set_yscale("log")
+    lo = min(min(v["bound_tight"] for v in q if v["bound_tight"] > 0), min(v["bound_alpha"] for v in q if v["bound_alpha"] > 0))
+    ax.set_ylim(lo / 15, 2.5 * max(max(v["bound_phi"] for v in q), max(v["bound_alpha"] for v in q)))  # room for the legend
     ax.set_xlabel(r"departure of the target, in units of $\tau$ (snr = 1, $\alpha$ = 0.1)")
     ax.set_ylabel("excess risk over reference $R$ (log)")
     ax.set_title("Do no harm: excess risk of the reverting estimator vs. Theorem 4.2", loc="left", color=C["text"])

@@ -1,0 +1,188 @@
+check_same_strand.py -- checks of theory/same_strand_derivation.md on the RTK001 (2,3) family
+
+=== closed forms ===
+  d=1, f=0.25: zeta=2.00000, tau*Omega_bar = 1.870820, delta_R1 = 1.679259, delta_R2 = 1.674154 (pi/3 = 1.047198); c0_Lam(delta_R1) = 2.2330; c0_2D(u = 1.5 delta) = 2.2330
+  d=1, f=0.35: zeta=1.23810, tau*Omega_bar = 2.337313, delta_R1 = 1.344104, delta_R2 = 1.299635 (pi/3 = 1.047198); c0_Lam(delta_R1) = 1.1562; c0_2D(u = 1.5 delta) = 1.1899
+  d=1, f=0.5: zeta=0.66667, tau*Omega_bar = 2.940383, delta_R1 = 1.068430, delta_R2 = 0.935600 (pi/3 = 1.047198); c0_Lam(delta_R1) = 0.5091; c0_2D(u = 1.5 delta) = 0.6503
+  a priori f=0.35, d=2: Theta_min >= 2.3873, zeta_min >= 4.4335, delta_R2^ap = 2.4702 (>= pi/3: True), c0_Lam^ap = 1.6977
+  a priori f=0.35, d=3: Theta_min >= 4.7745, zeta_min >= 8.8669, delta_R2^ap = 2.8501 (>= pi/3: True), c0_Lam^ap = 1.8268
+  a priori f=0.35, d=4: Theta_min >= 9.5490, zeta_min >= 17.7339, delta_R2^ap = 3.0112 (>= pi/3: True), c0_Lam^ap = 1.8511
+  a priori f=0.35, d=6: Theta_min >= 38.1961, zeta_min >= 70.9355, delta_R2^ap = 3.1123 (>= pi/3: True), c0_Lam^ap = 1.8568
+  a priori f=0.5, d=2: Theta_min >= 1.8028, zeta_min >= 1.8028, delta_R2^ap = 1.6774 (>= pi/3: True), c0_Lam^ap = 0.7436
+  a priori f=0.5, d=3: Theta_min >= 3.6056, zeta_min >= 3.6056, delta_R2^ap = 2.4210 (>= pi/3: True), c0_Lam^ap = 0.8828
+  a priori f=0.5, d=4: Theta_min >= 7.2111, zeta_min >= 7.2111, delta_R2^ap = 2.8124 (>= pi/3: True), c0_Lam^ap = 0.9730
+  a priori f=0.5, d=6: Theta_min >= 28.8444, zeta_min >= 28.8444, delta_R2^ap = 3.0686 (>= pi/3: True), c0_Lam^ap = 0.9987
+  threshold: delta_R2^ap(f=1/2) >= pi/3 iff Theta_min >= 1.1121
+  min_[pi/3, pi) Lambda/r at f=0.25: 3.000000 (>= 1 required)
+  min_[pi/3, pi) Lambda/r at f=0.35: 1.857143 (>= 1 required)
+  min_[pi/3, pi) Lambda/r at f=0.5: 1.000000 (>= 1 required)
+
+=== (2,3) f=0.25 N0=256 d=1: M=256, N_d=512, r=0.25000, tau=1.00000, f=0.2500, m=1.5000, v in [0.9999,0.9999], Theta in [0.6666,0.6666], zeta_min=1.9998
+[const] chi in [0.2915,0.4637] (dchi=0.1722); R1: tau*Omega_bar = 1 + 0.2000 + 0.6709 + tau*Gamma3' 0.0000 = 1.8710 -> delta_R1 = 1.6791; R2 (no H_3): delta_R2 = 1.6740; pi/3 = 1.0472; route used: R1 (circle base, a_0=0) -> delta_turn = 1.6791 (>= pi/3? True)
+[X] chi(t) in [0.29146,0.46351] vs bound [0.29148,0.46369]: slack lo -2.49e-05, hi +1.81e-04 (>= -O(1/M^2)); max |T_d.U| = 6.3e-05
+[R1] max discrete turning of T_d per base arclength * tau = 1.3888 <= tau*Omega_bar = 1.8710? True (ratio 0.742)
+[Y] max |dY/dsigma| / (kappa + (m/v) sin chi_1) over chi_1 in {lo, mid, hi} = 0.9704 (pointwise, forward difference: <= 1 + O(1/M)); max |dY/dsigma| / (1/tau + sin chi_1/h_min) = 0.9705 (the bound used in R2: <= 1 required)
+[T] same-strand arcs checked: 43520 (stride 1, up to 87 steps, delta < 2.099); max[(a+b)_max - (2dchi + delta + u sin chi_hi)] = -3.51e-01 (<= O(1/M)); max[Phi - tau Omega_bar delta] = -1.18e-02 (<= 0)
+[T] arcs with delta < delta_turn = 1.6791: 34816; max (a+b)_max among them = 2.2838 (< pi required); min (X2-X1).(T1+T2)/|X2-X1| = 0.8319 (> 0 required: not doubly critical)
+[DC] vertex local minima: 0 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[DC] sign-change cells: 316 pairs with distinct base points; same-strand local (k=0, delta<pi): 298, min delta = 2.3561 (>= delta_turn 1.6791? True), min dist/r = 7.2948
+[c0] same strand: c0_Lam(delta >= 1.6791) = 2.2329 (cert. 2.2328) at delta=1.6791217025032577; with P_0 term c0_2D = 2.2329 at (1.6791217025032577, 2.5189354442525915); using max(R1,R2) (R1 needs H_3 for d>=2): c0_Lam = 2.2328; >= 1/2? True
+[Kap] refined bound r*kappa_hat = 0.2906 (Lipschitz-corrected 0.2948) at (x,v)=(-0.014999999999999986, 0.9998996042161364); old r*kbar = 0.5578; measured r*kappa_d,max = 0.2906; valid? True; c_kappa new = 3.3920 (old 1.7927)
+[AP] d=1 (exact circle base, route R1): delta_R1 = 1.6793 >= pi/3? True; c0_Lam = 2.2330
+    time 0.3s
+
+=== (2,3) f=0.25 N0=256 d=2: M=512, N_d=1024, r=0.06250, tau=0.25000, f=0.2500, m=1.3732, v in [1.6771,2.6095], Theta in [4.8852,7.6009], zeta_min=14.6557
+[const] chi in [0.0263,0.0681] (dchi=0.0418); R1: tau*Omega_bar = 1 + 0.0046 + 0.0139 + tau*Gamma3' 0.0169 = 1.0355 -> delta_R1 = 3.0339; R2 (no H_3): delta_R2 = 3.0159; pi/3 = 1.0472; route used: R2 (no H_3) -> delta_turn = 3.0159 (>= pi/3? True)
+[X] chi(t) in [0.03111,0.05206] vs bound [0.02631,0.06813]: slack lo +4.81e-03, hi +1.61e-02 (>= -O(1/M^2)); max |T_d.U| = 2.1e-05
+[R1] max discrete turning of T_d per base arclength * tau = 0.2962 <= tau*Omega_bar = 1.0355? True (ratio 0.286)
+[Y] max |dY/dsigma| / (kappa + (m/v) sin chi_1) over chi_1 in {lo, mid, hi} = 1.0093 (pointwise, forward difference: <= 1 + O(1/M)); max |dY/dsigma| / (1/tau + sin chi_1/h_min) = 0.2966 (the bound used in R2: <= 1 required)
+[T] same-strand arcs checked: 30708 (stride 1, up to 40 steps, delta < 3.142); max[(a+b)_max - (2dchi + delta + u sin chi_hi)] = -1.52e-01 (<= O(1/M)); max[Phi - tau Omega_bar delta] = -7.08e-02 (<= 0)
+[T] arcs with delta < delta_turn = 3.0159: 29428; max (a+b)_max among them = 0.8788 (< pi required); min (X2-X1).(T1+T2)/|X2-X1| = 1.8105 (> 0 required: not doubly critical)
+[DC] vertex local minima: 224 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[DC] sign-change cells: 1942 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[c0] same strand: c0_Lam(delta >= 3.0159) = 2.9921 (cert. 2.9921) at delta=3.0159250196880816; with P_0 term c0_2D = 2.9921 at (3.0159250196880816, 0.39678419452906); using max(R1,R2) (R1 needs H_3 for d>=2): c0_Lam = 2.9942; >= 1/2? True
+[Kap] refined bound r*kappa_hat = 0.3308 (Lipschitz-corrected 0.3311) at (x,v)=(0.25, 2.6094630565513985); old r*kbar = 0.3449; measured r*kappa_d,max = 0.0764; valid? True; c_kappa new = 3.0202 (old 2.8995)
+[AP] a priori Theta_min >= 3.3541 (measured 4.8852): delta_R2^ap = 2.8592 >= pi/3? True; c0_Lam^ap = 2.9602
+    time 0.6s
+
+=== (2,3) f=0.25 N0=256 d=3: M=1024, N_d=2048, r=0.01562, tau=0.06250, f=0.2500, m=1.2508, v in [3.2986,5.5167], Theta in [42.1951,70.5686], zeta_min=126.5852
+[const] chi in [0.0028,0.0079] (dchi=0.0051); R1: tau*Omega_bar = 1 + 0.0001 + 0.0002 + tau*Gamma3' 0.0005 = 1.0007 -> delta_R1 = 3.1393; R2 (no H_3): delta_R2 = 3.1309; pi/3 = 1.0472; route used: R2 (no H_3) -> delta_turn = 3.1309 (>= pi/3? True)
+[X] chi(t) in [0.00351,0.00596] vs bound [0.00283,0.00790]: slack lo +6.73e-04, hi +1.94e-03 (>= -O(1/M^2)); max |T_d.U| = 3.9e-06
+[R1] max discrete turning of T_d per base arclength * tau = 0.0765 <= tau*Omega_bar = 1.0007? True (ratio 0.076)
+[Y] max |dY/dsigma| / (kappa + (m/v) sin chi_1) over chi_1 in {lo, mid, hi} = 1.0477 (pointwise, forward difference: <= 1 + O(1/M)); max |dY/dsigma| / (1/tau + sin chi_1/h_min) = 0.0765 (the bound used in R2: <= 1 required)
+[T] same-strand arcs checked: 14638 (stride 1, up to 11 steps, delta < 3.142); max[(a+b)_max - (2dchi + delta + u sin chi_hi)] = -3.23e-01 (<= O(1/M)); max[Phi - tau Omega_bar delta] = -3.13e-01 (<= 0)
+[T] arcs with delta < delta_turn = 3.1309: 14594; max (a+b)_max among them = 0.2384 (< pi required); min (X2-X1).(T1+T2)/|X2-X1| = 1.9858 (> 0 required: not doubly critical)
+[DC] vertex local minima: 5422 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[DC] sign-change cells: 15682 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[c0] same strand: c0_Lam(delta >= 3.1309) = 2.9999 (cert. 2.9999) at delta=3.130875431369027; with P_0 term c0_2D = 2.9999 at (3.130875431369027, 0.044366439496653864); using max(R1,R2) (R1 needs H_3 for d>=2): c0_Lam = 3.0000; >= 1/2? True
+[Kap] refined bound r*kappa_hat = 0.3333 (Lipschitz-corrected 0.3336) at (x,v)=(0.25, 5.516681193665661); old r*kbar = 0.3336; measured r*kappa_d,max = 0.0193; valid? True; c_kappa new = 2.9978 (old 2.9979)
+[AP] a priori Theta_min >= 6.7082 (measured 42.1951): delta_R2^ap = 3.0200 >= pi/3? True; c0_Lam^ap = 2.9926
+    time 1.8s
+
+=== (2,3) f=0.35 N0=256 d=1: M=256, N_d=512, r=0.35000, tau=1.00000, f=0.3500, m=1.5000, v in [0.9999,0.9999], Theta in [0.6666,0.6666], zeta_min=1.2380
+[const] chi in [0.3709,0.6795] (dchi=0.3085); R1: tau*Omega_bar = 1 + 0.3949 + 0.9427 + tau*Gamma3' 0.0000 = 2.3375 -> delta_R1 = 1.3440; R2 (no H_3): delta_R2 = 1.2995; pi/3 = 1.0472; route used: R1 (circle base, a_0=0) -> delta_turn = 1.3440 (>= pi/3? True)
+[X] chi(t) in [0.37091,0.67917] vs bound [0.37093,0.67946]: slack lo -1.70e-05, hi +2.89e-04 (>= -O(1/M^2)); max |T_d.U| = 8.7e-05
+[R1] max discrete turning of T_d per base arclength * tau = 1.4783 <= tau*Omega_bar = 2.3375? True (ratio 0.632)
+[Y] max |dY/dsigma| / (kappa + (m/v) sin chi_1) over chi_1 in {lo, mid, hi} = 0.9558 (pointwise, forward difference: <= 1 + O(1/M)); max |dY/dsigma| / (1/tau + sin chi_1/h_min) = 0.9559 (the bound used in R2: <= 1 required)
+[T] same-strand arcs checked: 34816 (stride 1, up to 70 steps, delta < 1.680); max[(a+b)_max - (2dchi + delta + u sin chi_hi)] = -6.28e-01 (<= O(1/M)); max[Phi - tau Omega_bar delta] = -2.11e-02 (<= 0)
+[T] arcs with delta < delta_turn = 1.3440: 27648; max (a+b)_max among them = 1.9571 (< pi required); min (X2-X1).(T1+T2)/|X2-X1| = 1.1168 (> 0 required: not doubly critical)
+[DC] vertex local minima: 0 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[DC] sign-change cells: 90 pairs with distinct base points; same-strand local (k=0, delta<pi): 74, min delta = 2.1352 (>= delta_turn 1.3440? True), min dist/r = 5.2342
+[c0] same strand: c0_Lam(delta >= 1.3440) = 1.1562 (cert. 1.1561) at delta=1.343989344082888; with P_0 term c0_2D = 1.1899 at (1.343989344082888, 2.016186432741084); using max(R1,R2) (R1 needs H_3 for d>=2): c0_Lam = 1.1561; >= 1/2? True
+[Kap] refined bound r*kappa_hat = 0.4394 (Lipschitz-corrected 0.4515) at (x,v)=(0.07174999999999998, 0.9998996042161364); old r*kbar = 0.9811; measured r*kappa_d,max = 0.4393; valid? True; c_kappa new = 2.2150 (old 1.0193)
+[AP] d=1 (exact circle base, route R1): delta_R1 = 1.3441 >= pi/3? True; c0_Lam = 1.1562
+    time 0.3s
+
+=== (2,3) f=0.35 N0=256 d=2: M=512, N_d=1024, r=0.12250, tau=0.35000, f=0.3500, m=1.2435, v in [1.6712,2.8962], Theta in [3.8398,6.6545], zeta_min=7.1311
+[const] chi in [0.0389,0.1393] (dchi=0.1004); R1: tau*Omega_bar = 1 + 0.0193 + 0.0362 + tau*Gamma3' 0.0981 = 1.1536 -> delta_R1 = 2.7233; R2 (no H_3): delta_R2 = 2.8382; pi/3 = 1.0472; route used: R2 (no H_3) -> delta_turn = 2.8382 (>= pi/3? True)
+[X] chi(t) in [0.04737,0.09577] vs bound [0.03894,0.13932]: slack lo +8.43e-03, hi +4.36e-02 (>= -O(1/M^2)); max |T_d.U| = 6.6e-05
+[R1] max discrete turning of T_d per base arclength * tau = 0.4534 <= tau*Omega_bar = 1.1536? True (ratio 0.393)
+[Y] max |dY/dsigma| / (kappa + (m/v) sin chi_1) over chi_1 in {lo, mid, hi} = 1.0701 (pointwise, forward difference: <= 1 + O(1/M)); max |dY/dsigma| / (1/tau + sin chi_1/h_min) = 0.4473 (the bound used in R2: <= 1 required)
+[T] same-strand arcs checked: 40900 (stride 1, up to 55 steps, delta < 3.142); max[(a+b)_max - (2dchi + delta + u sin chi_hi)] = -2.41e-01 (<= O(1/M)); max[Phi - tau Omega_bar delta] = -4.87e-02 (<= 0)
+[T] arcs with delta < delta_turn = 2.8382: 36982; max (a+b)_max among them = 1.2276 (< pi required); min (X2-X1).(T1+T2)/|X2-X1| = 1.6395 (> 0 required: not doubly critical)
+[DC] vertex local minima: 76 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[DC] sign-change cells: 788 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[c0] same strand: c0_Lam(delta >= 2.8382) = 1.8243 (cert. 1.8243) at delta=2.838185247177469; with P_0 term c0_2D = 1.8243 at (2.838185247177469, 0.42650625062030956); using max(R1,R2) (R1 needs H_3 for d>=2): c0_Lam = 1.8243; >= 1/2? True
+[Kap] refined bound r*kappa_hat = 0.5287 (Lipschitz-corrected 0.5322) at (x,v)=(0.3495625, 2.8962005528515786); old r*kbar = 0.6274; measured r*kappa_d,max = 0.1736; valid? True; c_kappa new = 1.8789 (old 1.5938)
+[AP] a priori Theta_min >= 2.3873 (measured 3.8398): delta_R2^ap = 2.4702 >= pi/3? True; c0_Lam^ap = 1.6977
+    time 0.7s
+
+=== (2,3) f=0.35 N0=256 d=3: M=1024, N_d=2048, r=0.04287, tau=0.12250, f=0.3500, m=1.0084, v in [3.1859,6.4325], Theta in [25.7908,52.0731], zeta_min=47.8971
+[const] chi in [0.0050,0.0209] (dchi=0.0159); R1: tau*Omega_bar = 1 + 0.0004 + 0.0008 + tau*Gamma3' 0.0050 = 1.0062 -> delta_R1 = 3.1222; R2 (no H_3): delta_R2 = 3.1073; pi/3 = 1.0472; route used: R2 (no H_3) -> delta_turn = 3.1073 (>= pi/3? True)
+[X] chi(t) in [0.00654,0.01414] vs bound [0.00498,0.02088]: slack lo +1.56e-03, hi +6.74e-03 (>= -O(1/M^2)); max |T_d.U| = 1.8e-05
+[R1] max discrete turning of T_d per base arclength * tau = 0.1743 <= tau*Omega_bar = 1.0062? True (ratio 0.173)
+[Y] max |dY/dsigma| / (kappa + (m/v) sin chi_1) over chi_1 in {lo, mid, hi} = 1.1163 (pointwise, forward difference: <= 1 + O(1/M)); max |dY/dsigma| / (1/tau + sin chi_1/h_min) = 0.1740 (the bound used in R2: <= 1 required)
+[T] same-strand arcs checked: 28544 (stride 1, up to 21 steps, delta < 3.142); max[(a+b)_max - (2dchi + delta + u sin chi_hi)] = -1.70e-01 (<= O(1/M)); max[Phi - tau Omega_bar delta] = -1.39e-01 (<= 0)
+[T] arcs with delta < delta_turn = 3.1073: 28200; max (a+b)_max among them = 0.5326 (< pi required); min (X2-X1).(T1+T2)/|X2-X1| = 1.9299 (> 0 required: not doubly critical)
+[DC] vertex local minima: 4560 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[DC] sign-change cells: 11018 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[c0] same strand: c0_Lam(delta >= 3.1073) = 1.8567 (cert. 1.8567) at delta=3.107285142005589; with P_0 term c0_2D = 1.8567 at (3.107285142005589, 0.05967159361772747); using max(R1,R2) (R1 needs H_3 for d>=2): c0_Lam = 1.8570; >= 1/2? True
+[Kap] refined bound r*kappa_hat = 0.5383 (Lipschitz-corrected 0.5390) at (x,v)=(0.35, 6.432510246797526); old r*kbar = 0.5420; measured r*kappa_d,max = 0.0635; valid? True; c_kappa new = 1.8552 (old 1.8449)
+[AP] a priori Theta_min >= 4.7745 (measured 25.7908): delta_R2^ap = 2.8501 >= pi/3? True; c0_Lam^ap = 1.8268
+    time 2.5s
+
+=== (2,3) f=0.50 N0=256 d=1: M=256, N_d=512, r=0.50000, tau=1.00000, f=0.5000, m=1.5000, v in [0.9999,0.9999], Theta in [0.6666,0.6666], zeta_min=0.6666
+[const] chi in [0.4637,0.9828] (dchi=0.5192); R1: tau*Omega_bar = 1 + 0.6924 + 1.2482 + tau*Gamma3' 0.0000 = 2.9406 -> delta_R1 = 1.0684; R2 (no H_3): delta_R2 = 0.9355; pi/3 = 1.0472; route used: R1 (circle base, a_0=0) -> delta_turn = 1.0684 (>= pi/3? True)
+[X] chi(t) in [0.46369,0.98242] vs bound [0.46369,0.98284]: slack lo -4.08e-09, hi +4.17e-04 (>= -O(1/M^2)); max |T_d.U| = 1.1e-04
+[R1] max discrete turning of T_d per base arclength * tau = 1.6389 <= tau*Omega_bar = 2.9406? True (ratio 0.557)
+[Y] max |dY/dsigma| / (kappa + (m/v) sin chi_1) over chi_1 in {lo, mid, hi} = 0.9366 (pointwise, forward difference: <= 1 + O(1/M)); max |dY/dsigma| / (1/tau + sin chi_1/h_min) = 0.9367 (the bound used in R2: <= 1 required)
+[T] same-strand arcs checked: 27648 (stride 1, up to 56 steps, delta < 1.335); max[(a+b)_max - (2dchi + delta + u sin chi_hi)] = -1.05e+00 (<= O(1/M)); max[Phi - tau Omega_bar delta] = -3.19e-02 (<= 0)
+[T] arcs with delta < delta_turn = 1.0684: 22016; max (a+b)_max among them = 1.6986 (< pi required); min (X2-X1).(T1+T2)/|X2-X1| = 1.3212 (> 0 required: not doubly critical)
+[DC] vertex local minima: 6 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[DC] sign-change cells: 400 pairs with distinct base points; same-strand local (k=0, delta<pi): 54, min delta = 1.9634 (>= delta_turn 1.0684? True), min dist/r = 3.7008
+[c0] same strand: c0_Lam(delta >= 1.0684) = 0.5091 (cert. 0.5091) at delta=1.0683546125494283; with P_0 term c0_2D = 0.6504 at (1.0683546125494283, 1.6026928224258827); using max(R1,R2) (R1 needs H_3 for d>=2): c0_Lam = 0.5091; >= 1/2? True
+[Kap] refined bound r*kappa_hat = 0.6992 (Lipschitz-corrected 0.7043) at (x,v)=(0.21625000000000005, 0.9998996042161364); old r*kbar = 1.7810; measured r*kappa_d,max = 0.6990; valid? True; c_kappa new = 1.4199 (old 0.5615)
+[AP] d=1 (exact circle base, route R1): delta_R1 = 1.0684 >= pi/3? True; c0_Lam = 0.5091
+    time 0.3s
+
+=== (2,3) f=0.50 N0=256 d=2: M=512, N_d=1024, r=0.20791, tau=0.41582, f=0.5000, m=1.9822, v in [1.8028,3.3531], Theta in [2.1872,4.0680], zeta_min=2.1872
+[const] chi in [0.0818,0.4288] (dchi=0.3471); R1: tau*Omega_bar = 1 + 0.1729 + 0.1901 + tau*Gamma3' 0.6491 = 2.0121 -> delta_R1 = 1.5613; R2 (no H_3): delta_R2 = 2.0565; pi/3 = 1.0472; route used: R2 (no H_3) -> delta_turn = 2.0565 (>= pi/3? True)
+[X] chi(t) in [0.10258,0.27664] vs bound [0.08176,0.42883]: slack lo +2.08e-02, hi +1.52e-01 (>= -O(1/M^2)); max |T_d.U| = 1.7e-04
+[R1] max discrete turning of T_d per base arclength * tau = 0.6336 <= tau*Omega_bar = 2.0121? True (ratio 0.315)
+[Y] max |dY/dsigma| / (kappa + (m/v) sin chi_1) over chi_1 in {lo, mid, hi} = 1.0103 (pointwise, forward difference: <= 1 + O(1/M)); max |dY/dsigma| / (1/tau + sin chi_1/h_min) = 0.5907 (the bound used in R2: <= 1 required)
+[T] same-strand arcs checked: 35900 (stride 1, up to 50 steps, delta < 2.571); max[(a+b)_max - (2dchi + delta + u sin chi_hi)] = -7.27e-01 (<= O(1/M)); max[Phi - tau Omega_bar delta] = -8.15e-02 (<= 0)
+[T] arcs with delta < delta_turn = 2.0565: 28736; max (a+b)_max among them = 1.2322 (< pi required); min (X2-X1).(T1+T2)/|X2-X1| = 1.6424 (> 0 required: not doubly critical)
+[DC] vertex local minima: 64 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[DC] sign-change cells: 746 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[c0] same strand: c0_Lam(delta >= 2.0565) = 0.8454 (cert. 0.8454) at delta=2.056499218334263; with P_0 term c0_2D = 0.8454 at (2.056499218334263, 0.5055268622826953); using max(R1,R2) (R1 needs H_3 for d>=2): c0_Lam = 0.8454; >= 1/2? True
+[Kap] refined bound r*kappa_hat = 0.9115 (Lipschitz-corrected 0.9670) at (x,v)=(0.4375, 1.8028139898667725); old r*kbar = 2.0617; measured r*kappa_d,max = 0.3254; valid? True; c_kappa new = 1.0342 (old 0.4850)
+[AP] a priori Theta_min >= 1.8028 (measured 2.1872): delta_R2^ap = 1.6774 >= pi/3? True; c0_Lam^ap = 0.7436
+    time 0.7s
+
+=== (2,3) f=0.50 N0=256 d=3: M=1024, N_d=2048, r=0.10396, tau=0.20791, f=0.5000, m=1.5122, v in [3.0164,8.0491], Theta in [9.5942,25.6013], zeta_min=9.5942
+[const] chi in [0.0130,0.1039] (dchi=0.0908); R1: tau*Omega_bar = 1 + 0.0107 + 0.0108 + tau*Gamma3' 0.1169 = 1.1384 -> delta_R1 = 2.7596; R2 (no H_3): delta_R2 = 2.9283; pi/3 = 1.0472; route used: R2 (no H_3) -> delta_turn = 2.9283 (>= pi/3? True)
+[X] chi(t) in [0.01814,0.06023] vs bound [0.01302,0.10385]: slack lo +5.12e-03, hi +4.36e-02 (>= -O(1/M^2)); max |T_d.U| = 9.2e-05
+[R1] max discrete turning of T_d per base arclength * tau = 0.3290 <= tau*Omega_bar = 1.1384? True (ratio 0.289)
+[Y] max |dY/dsigma| / (kappa + (m/v) sin chi_1) over chi_1 in {lo, mid, hi} = 1.0287 (pointwise, forward difference: <= 1 + O(1/M)); max |dY/dsigma| / (1/tau + sin chi_1/h_min) = 0.3277 (the bound used in R2: <= 1 required)
+[T] same-strand arcs checked: 44134 (stride 1, up to 36 steps, delta < 3.142); max[(a+b)_max - (2dchi + delta + u sin chi_hi)] = -2.45e-01 (<= O(1/M)); max[Phi - tau Omega_bar delta] = -7.52e-02 (<= 0)
+[T] arcs with delta < delta_turn = 2.9283: 41118; max (a+b)_max among them = 0.9175 (< pi required); min (X2-X1).(T1+T2)/|X2-X1| = 1.7973 (> 0 required: not doubly critical)
+[DC] vertex local minima: 1836 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[DC] sign-change cells: 8362 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[c0] same strand: c0_Lam(delta >= 2.9283) = 0.9886 (cert. 0.9886) at delta=2.928280611252329; with P_0 term c0_2D = 0.9886 at (2.928280611252329, 0.11438011276293467); using max(R1,R2) (R1 needs H_3 for d>=2): c0_Lam = 0.9886; >= 1/2? True
+[Kap] refined bound r*kappa_hat = 0.9970 (Lipschitz-corrected 1.0012) at (x,v)=(0.5, 8.049120466919822); old r*kbar = 1.1710; measured r*kappa_d,max = 0.1910; valid? True; c_kappa new = 0.9988 (old 0.8540)
+[AP] a priori Theta_min >= 3.6056 (measured 9.5942): delta_R2^ap = 2.4210 >= pi/3? True; c0_Lam^ap = 0.8828
+    time 2.3s
+
+=== (2,3) f=0.50 N0=512 d=1: M=512, N_d=1024, r=0.50000, tau=1.00000, f=0.5000, m=1.5000, v in [1.0000,1.0000], Theta in [0.6666,0.6666], zeta_min=0.6666
+[const] chi in [0.4637,0.9828] (dchi=0.5191); R1: tau*Omega_bar = 1 + 0.6923 + 1.2481 + tau*Gamma3' 0.0000 = 2.9404 -> delta_R1 = 1.0684; R2 (no H_3): delta_R2 = 0.9356; pi/3 = 1.0472; route used: R1 (circle base, a_0=0) -> delta_turn = 1.0684 (>= pi/3? True)
+[X] chi(t) in [0.46366,0.98270] vs bound [0.46366,0.98281]: slack lo -2.55e-10, hi +1.04e-04 (>= -O(1/M^2)); max |T_d.U| = 2.9e-05
+[R1] max discrete turning of T_d per base arclength * tau = 1.6390 <= tau*Omega_bar = 2.9404? True (ratio 0.557)
+[Y] max |dY/dsigma| / (kappa + (m/v) sin chi_1) over chi_1 in {lo, mid, hi} = 0.9368 (pointwise, forward difference: <= 1 + O(1/M)); max |dY/dsigma| / (1/tau + sin chi_1/h_min) = 0.9368 (the bound used in R2: <= 1 required)
+[T] same-strand arcs checked: 110592 (stride 1, up to 110 steps, delta < 1.336); max[(a+b)_max - (2dchi + delta + u sin chi_hi)] = -1.05e+00 (<= O(1/M)); max[Phi - tau Omega_bar delta] = -1.60e-02 (<= 0)
+[T] arcs with delta < delta_turn = 1.0684: 89088; max (a+b)_max among them = 1.7181 (< pi required); min (X2-X1).(T1+T2)/|X2-X1| = 1.3066 (> 0 required: not doubly critical)
+[DC] vertex local minima: 6 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[DC] sign-change cells: 380 pairs with distinct base points; same-strand local (k=0, delta<pi): 50, min delta = 1.9635 (>= delta_turn 1.0684? True), min dist/r = 3.7013
+[c0] same strand: c0_Lam(delta >= 1.0684) = 0.5092 (cert. 0.5091) at delta=1.0684109237949373; with P_0 term c0_2D = 0.6503 at (1.0684109237949373, 1.6026566115906669); using max(R1,R2) (R1 needs H_3 for d>=2): c0_Lam = 0.5091; >= 1/2? True
+[Kap] refined bound r*kappa_hat = 0.6992 (Lipschitz-corrected 0.7043) at (x,v)=(0.21625000000000005, 0.9999749004870422); old r*kbar = 1.7810; measured r*kappa_d,max = 0.6991; valid? True; c_kappa new = 1.4199 (old 0.5615)
+[AP] d=1 (exact circle base, route R1): delta_R1 = 1.0684 >= pi/3? True; c0_Lam = 0.5091
+    time 0.8s
+
+=== (2,3) f=0.50 N0=512 d=2: M=1024, N_d=2048, r=0.20791, tau=0.41582, f=0.5000, m=1.9819, v in [1.8028,3.3538], Theta in [2.1876,4.0697], zeta_min=2.1876
+[const] chi in [0.0817,0.4288] (dchi=0.3470); R1: tau*Omega_bar = 1 + 0.1728 + 0.1901 + tau*Gamma3' 0.6499 = 2.0128 -> delta_R1 = 1.5608; R2 (no H_3): delta_R2 = 2.0566; pi/3 = 1.0472; route used: R2 (no H_3) -> delta_turn = 2.0566 (>= pi/3? True)
+[X] chi(t) in [0.10254,0.27673] vs bound [0.08172,0.42877]: slack lo +2.08e-02, hi +1.52e-01 (>= -O(1/M^2)); max |T_d.U| = 4.3e-05
+[R1] max discrete turning of T_d per base arclength * tau = 0.6337 <= tau*Omega_bar = 2.0128? True (ratio 0.315)
+[Y] max |dY/dsigma| / (kappa + (m/v) sin chi_1) over chi_1 in {lo, mid, hi} = 1.0036 (pointwise, forward difference: <= 1 + O(1/M)); max |dY/dsigma| / (1/tau + sin chi_1/h_min) = 0.5909 (the bound used in R2: <= 1 required)
+[T] same-strand arcs checked: 144552 (stride 1, up to 98 steps, delta < 2.571); max[(a+b)_max - (2dchi + delta + u sin chi_hi)] = -7.10e-01 (<= O(1/M)); max[Phi - tau Omega_bar delta] = -4.08e-02 (<= 0)
+[T] arcs with delta < delta_turn = 2.0566: 115974; max (a+b)_max among them = 1.2341 (< pi required); min (X2-X1).(T1+T2)/|X2-X1| = 1.6405 (> 0 required: not doubly critical)
+[DC] vertex local minima: 76 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[DC] sign-change cells: 594 pairs with distinct base points; same-strand local (k=0, delta<pi): none
+[c0] same strand: c0_Lam(delta >= 2.0566) = 0.8454 (cert. 0.8454) at delta=2.0566402832487696; with P_0 term c0_2D = 0.8454 at (2.0566402832487696, 0.5053570472067952); using max(R1,R2) (R1 needs H_3 for d>=2): c0_Lam = 0.8454; >= 1/2? True
+[Kap] refined bound r*kappa_hat = 0.9119 (Lipschitz-corrected 0.9674) at (x,v)=(0.4375, 1.8027852136903748); old r*kbar = 2.0629; measured r*kappa_d,max = 0.3255; valid? True; c_kappa new = 1.0337 (old 0.4848)
+[AP] a priori Theta_min >= 1.8028 (measured 2.1876): delta_R2^ap = 1.6774 >= pi/3? True; c0_Lam^ap = 0.7436
+    time 2.3s
+
+=== SUMMARY ===
+level | route | delta_turn | delta_R1 | delta_R2 | delta_R2^ap | c0_Lam (proved) | c0_2D | r kappa_hat | c_kappa new | c_kappa old | DC same-strand min delta (vertex / cells) | min dist/r | (a+b)-R2 slack | min F below
+(2,3) f=0.25 N0=256 d=1 | R1 | 1.6791 | 1.6791 | 1.6740 | 1.6793 | 2.2328 | 2.2329 | 0.2948 | 3.3920 | 1.7927 | inf / 2.3561 | 7.2948 | -3.5e-01 | 0.8319
+(2,3) f=0.25 N0=256 d=2 | R2 | 3.0159 | 3.0339 | 3.0159 | 2.8592 | 2.9921 | 2.9921 | 0.3311 | 3.0202 | 2.8995 | inf / inf | inf | -1.5e-01 | 1.8105
+(2,3) f=0.25 N0=256 d=3 | R2 | 3.1309 | 3.1393 | 3.1309 | 3.0200 | 2.9999 | 2.9999 | 0.3336 | 2.9978 | 2.9979 | inf / inf | inf | -3.2e-01 | 1.9858
+(2,3) f=0.35 N0=256 d=1 | R1 | 1.3440 | 1.3440 | 1.2995 | 1.3441 | 1.1561 | 1.1899 | 0.4515 | 2.2150 | 1.0193 | inf / 2.1352 | 5.2342 | -6.3e-01 | 1.1168
+(2,3) f=0.35 N0=256 d=2 | R2 | 2.8382 | 2.7233 | 2.8382 | 2.4702 | 1.8243 | 1.8243 | 0.5322 | 1.8789 | 1.5938 | inf / inf | inf | -2.4e-01 | 1.6395
+(2,3) f=0.35 N0=256 d=3 | R2 | 3.1073 | 3.1222 | 3.1073 | 2.8501 | 1.8567 | 1.8567 | 0.5390 | 1.8552 | 1.8449 | inf / inf | inf | -1.7e-01 | 1.9299
+(2,3) f=0.50 N0=256 d=1 | R1 | 1.0684 | 1.0684 | 0.9355 | 1.0684 | 0.5091 | 0.6504 | 0.7043 | 1.4199 | 0.5615 | inf / 1.9634 | 3.7008 | -1.1e+00 | 1.3212
+(2,3) f=0.50 N0=256 d=2 | R2 | 2.0565 | 1.5613 | 2.0565 | 1.6774 | 0.8454 | 0.8454 | 0.9670 | 1.0342 | 0.4850 | inf / inf | inf | -7.3e-01 | 1.6424
+(2,3) f=0.50 N0=256 d=3 | R2 | 2.9283 | 2.7596 | 2.9283 | 2.4210 | 0.9886 | 0.9886 | 1.0012 | 0.9988 | 0.8540 | inf / inf | inf | -2.5e-01 | 1.7973
+(2,3) f=0.50 N0=512 d=1 | R1 | 1.0684 | 1.0684 | 0.9356 | 1.0684 | 0.5091 | 0.6503 | 0.7043 | 1.4199 | 0.5615 | inf / 1.9635 | 3.7013 | -1.0e+00 | 1.3066
+(2,3) f=0.50 N0=512 d=2 | R2 | 2.0566 | 1.5608 | 2.0566 | 1.6774 | 0.8454 | 0.8454 | 0.9674 | 1.0337 | 0.4848 | inf / inf | inf | -7.1e-01 | 1.6405
+
+total time 24.2s

@@ -393,6 +393,114 @@ dropped = [(m, ds, S[ds]["methods"][m].get("inner_configs_dropped", 0)) for ds i
 mac("DroppedConfigs", sum(d[2] for d in dropped))
 mac("DroppedConfigsList", "; ".join(f"{M_NAME[m]} on {DS_NAME[ds]}: {n}" for m, ds, n in dropped) if dropped else "none")
 
+# ---- geometry-only scores against the random level (R2-M5): AURC / error rate of the variant's own classifier
+for m, tag in [("Field-vol", "Vol"), ("Field-anis", "Anis"), ("Field-aniso", "Margin")]:
+    ratio = {ds: S[ds]["methods"][m]["aurc_mean"] / S[ds]["methods"][m]["error_rate"] for ds in S}
+    inform = sorted([ds for ds in S if ratio[ds] < 0.5], key=lambda d: list(S).index(d))
+    below = [ds for ds in S if 0.5 <= ratio[ds] < 1.0]
+    mac(f"Geom{tag}InformN", len(inform)); mac(f"Geom{tag}InformList", names(inform))
+    mac(f"Geom{tag}InformRange", rng_str(*[round(100 * ratio[d]) for d in inform]) if inform else "--")
+    mac(f"Geom{tag}BelowN", len(below)); mac(f"Geom{tag}BelowList", names(below))
+    mac(f"Geom{tag}RatioMax", f"{100 * max(ratio.values()):.0f}")
+    for ds in S:
+        mac(f"Geom{tag}Ratio{DS_TAG[ds]}", f"{100 * ratio[ds]:.0f}")
+
+
+# ---- grid-edge saturation (R2-M4), for this run and for the v0.2 run
+def sat_macros(R, prefix):
+    SS = R["summary"]
+    sat = R.get("saturation") or grid_saturation(R["grids"], SS)
+    nf = R["meta"]["n_repeats"] * R["meta"]["n_splits"]
+    e = {ds: sat[ds]["Field-aniso"] for ds in SS}
+    mac(f"{prefix}SatFanisoAnyHigh", sum(v["any_high"] for v in e.values()))
+    mac(f"{prefix}SatFanisoTotal", sum(v["n"] for v in e.values()))
+    hi = [ds for ds in SS if e[ds]["any_high"] >= nf - 1]
+    mac(f"{prefix}SatFanisoDsHighN", len(hi)); mac(f"{prefix}SatFanisoDsHighList", names(hi))
+    for ds in SS:
+        mac(f"{prefix}SatFanisoHigh{DS_TAG[ds]}", f"{e[ds]['any_high']}/{e[ds]['n']}")
+        sel = SS[ds]["methods"]["Field-aniso"]["selected_params"]
+        key, cnt = sorted(sel.items(), key=lambda kv: (-kv[1], kv[0]))[0]
+        p = json.loads(key)
+        mac(f"{prefix}Sel{DS_TAG[ds]}", f"$(\\alpha,K_m)=({p['alpha']:g},{p['K_m']})$ in {cnt}/{nf}")
+    parts = []
+    for r in REFS:
+        lst = [ds for ds in SS if r in sat[ds] and sat[ds][r]["any_edge"] >= nf - 1]
+        if lst:
+            parts.append(f"{M_NAME[r]} on {names(lst)}")
+    mac(f"{prefix}SatRefText", "; ".join(parts) if parts else "none")
+    for fv in ["Field-iso", "Field-euclid"]:
+        lst = [ds for ds in SS if fv in sat[ds] and sat[ds][fv]["any_high"] >= nf - 1]
+        mac(f"{prefix}Sat{M_TAG[fv]}DsHighList", names(lst)); mac(f"{prefix}Sat{M_TAG[fv]}DsHighN", len(lst))
+
+
+sat_macros(res, "")
+if v02 is not None:
+    sat_macros(v02, "VTwo")
+    S2, C2 = v02["summary"], v02["criterion"]["Field-aniso"]
+    for suffix, cc in [("", C2), ("T", C2["t"]), ("NB", C2["nb"])]:
+        mac(f"VTwoCritFanisoBetter{suffix}", len(cc["better"]))
+        mac(f"VTwoCritFanisoWorse{suffix}", len(cc["worse"]))
+        mac(f"VTwoCritFanisoIncon{suffix}", len(cc["inconclusive"]))
+        mac(f"VTwoCritFanisoInconList{suffix}", names(cc["inconclusive"]))
+    mac("VTwoCritFanisoMet", "met" if C2["criterion_met"] else "not met")
+    A2 = {ds: S2[ds]["ablations"]["Field-aniso - Field-iso"] for ds in S2}
+    for vk, suf in [("verdict", ""), ("verdict_t", "T"), ("verdict_nb", "NB")]:
+        mac(f"VTwoAblAnisoIsoFirst{suf}", sum(1 for a in A2.values() if a[vk] == "first better"))
+        mac(f"VTwoAblAnisoIsoSecond{suf}", sum(1 for a in A2.values() if a[vk] == "second better"))
+        mac(f"VTwoAblAnisoIsoFirstList{suf}", names([d for d in S2 if A2[d][vk] == "first better"]))
+        mac(f"VTwoAblAnisoIsoSecondList{suf}", names([d for d in S2 if A2[d][vk] == "second better"]))
+    fr2 = [d for d in S2 if A2[d]["verdict"] == "first better" and A2[d]["verdict_t"] == "first better" and not A2[d]["borderline"]]
+    sr2 = [d for d in S2 if A2[d]["verdict"] == "second better" and A2[d]["verdict_t"] == "second better" and not A2[d]["borderline"]]
+    mac("VTwoAblAnisoIsoFirstRobust", len(fr2)); mac("VTwoAblAnisoIsoFirstRobustList", names(fr2))
+    mac("VTwoAblAnisoIsoSecondRobust", len(sr2)); mac("VTwoAblAnisoIsoSecondRobustList", names(sr2))
+    for ds in S2:
+        t = DS_TAG[ds]
+        for m in FIELDS:
+            mac(f"VTwoAurc{t}{M_TAG[m]}", pct(S2[ds]["methods"][m]["aurc_mean"]))
+        c2 = S2[ds]["comparisons"]["Field-aniso"]["__best__"]
+        mac(f"VTwoDiff{t}Faniso", spct(c2["mean_diff"]))
+        a2, a3 = S2[ds]["methods"]["Field-aniso"]["aurc_mean"], S[ds]["methods"]["Field-aniso"]["aurc_mean"]
+        mac(f"FieldChange{t}", f"{100 * (a3 / a2 - 1):+.0f}")
+        mac(f"VTwoAblAnisoIso{t}", spct(A2[ds]["mean_diff"]))
+    drop = [ds for ds in S if S[ds]["methods"]["Field-aniso"]["aurc_mean"] < 0.9 * S2[ds]["methods"]["Field-aniso"]["aurc_mean"]]
+    rise = [ds for ds in S if S[ds]["methods"]["Field-aniso"]["aurc_mean"] > 1.1 * S2[ds]["methods"]["Field-aniso"]["aurc_mean"]]
+    mac("FieldDropList", names(drop)); mac("FieldDropN", len(drop))
+    mac("FieldRiseList", names(rise)); mac("FieldRiseN", len(rise))
+    chg = [ds for ds in S if S[ds]["comparisons"]["Field-aniso"]["__best__"]["verdict"] != S2[ds]["comparisons"]["Field-aniso"]["__best__"]["verdict"]]
+    mac("CritChangedList", "; ".join(f"{DS_NAME[d]} ({S2[d]['comparisons']['Field-aniso']['__best__']['verdict'].replace('field ', '')} $\\to$ {S[d]['comparisons']['Field-aniso']['__best__']['verdict'].replace('field ', '')})" for d in chg) if chg else "none")
+    mac("CritChangedN", len(chg))
+    chgt = [ds for ds in S if S[ds]["comparisons"]["Field-aniso"]["__best__"]["verdict_t"] != S2[ds]["comparisons"]["Field-aniso"]["__best__"]["verdict_t"]]
+    mac("CritChangedListT", "; ".join(f"{DS_NAME[d]} ({S2[d]['comparisons']['Field-aniso']['__best__']['verdict_t'].replace('field ', '')} $\\to$ {S[d]['comparisons']['Field-aniso']['__best__']['verdict_t'].replace('field ', '')})" for d in chgt) if chgt else "none")
+    mac("CritChangedNT", len(chgt))
+    chgn = [ds for ds in S if S[ds]["comparisons"]["Field-aniso"]["__best__"]["verdict_nb"] != S2[ds]["comparisons"]["Field-aniso"]["__best__"]["verdict_nb"]]
+    mac("CritChangedListNB", "; ".join(f"{DS_NAME[d]} ({S2[d]['comparisons']['Field-aniso']['__best__']['verdict_nb'].replace('field ', '')} $\\to$ {S[d]['comparisons']['Field-aniso']['__best__']['verdict_nb'].replace('field ', '')})" for d in chgn) if chgn else "none")
+    mac("CritChangedNNB", len(chgn))
+    A3 = {ds: S[ds]["ablations"]["Field-aniso - Field-iso"] for ds in S}
+    achg = [ds for ds in S if A3[ds]["verdict"] != A2[ds]["verdict"]]
+    mac("AblChangedList", "; ".join(f"{DS_NAME[d]} ({A2[d]['verdict'].replace(' better', '')} $\\to$ {A3[d]['verdict'].replace(' better', '')})" for d in achg) if achg else "none")
+    mac("AblChangedN", len(achg))
+    mac("VTwoCpuSeconds", int(round(v02["meta"]["cpu_seconds"])))
+    g2 = {ds: S2[ds]["comparisons"]["Field-aniso"]["__best__"]["mean_diff"] for ds in S2}
+    w2 = max(g2, key=g2.get)
+    mac("VTwoGapWorstDs", DS_NAME[w2]); mac("VTwoGapWorst", spct(g2[w2]))
+    mac("VTwoFieldGridAlpha", ", ".join(f"{a:g}" for a in v02["grids"]["Field-aniso"]["alpha"]))
+    mac("VTwoFieldGridKm", ", ".join(f"{k}" for k in v02["grids"]["Field-aniso"]["K_m"]))
+
+# ---- post hoc spectrum scan for synth-classcov (R2-M3)
+if spec is not None:
+    rows = spec["spectra"]
+    geo = [r for r in rows if r["name"].startswith("geom_")]
+    solv = [r for r in geo if r["interior_solution"]]
+    first = min(solv, key=lambda r: r["lam_min"])
+    chosen = [r for r in rows if r["name"] == spec["meta"]["chosen"]][0]
+    v1 = [r for r in rows if r["name"] == "v0.1"][0]
+    mac("SpecMinSolvable", f"{first['lam_min']:g}")
+    mac("SpecMinSolvableErr", pct(first["bayes_error_at_lower_bound"], 1))
+    mac("SpecChosenLam", f"{chosen['lam_min']:g}")
+    mac("SpecChosenErr", pct(chosen["bayes_error_at_lower_bound"], 1))
+    mac("SpecVOneErr", pct(v1["bayes_error_at_lower_bound"], 1))
+    mac("SpecLams", ", ".join(f"{r['lam_min']:g}" for r in geo))
+
 # ---- synth-classcov as it was in v0.1 (coinciding means), recomputed from the stored v0.1 folds
 if v01 is not None and "synth_classcov" in v01["per_fold"]:
     import numpy as np

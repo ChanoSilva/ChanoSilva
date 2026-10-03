@@ -3,8 +3,14 @@
 (manuscript/numbers.tex) and table bodies (manuscript/table_*.tex). No number in
 main.tex is typed by hand.
 
+Protocol v0.3 (internal review round 2): the JSON comes from the preregistered run with
+widened grids (PREREGISTRO_SPD001_ronda2.md); results/v02/ holds the v0.2 run, which this
+script also reads to tabulate the v0.2 -> v0.3 changes with the same (common) bootstrap.
+Exact ties between references are handled as in support_geometry.compare(): all tied
+references are kept, wins/losses must hold against each of them.
+
 Besides the bootstrap summaries stored in the JSON, this script recomputes from the
-per-fold accuracy lists (v0.2, after internal review round 1):
+per-fold accuracy lists:
   * the 95% interval with the Nadeau-Bengio variance,
         mean +- t_{0.975,J-1} * sqrt((1/J + n_test/n_train) * var),
     for every paired comparison used in the text (macros Nb*, AblNb*, SelNb*, RegNb*);
@@ -47,12 +53,34 @@ def pct(x, nd=1):
     return f"{100 * x:.{nd}f}"
 
 
+def _digits(v, nd):
+    """Number of decimals: nd, or more (up to 3) when the value would print as zero."""
+    while nd < 3 and v != 0 and round(abs(v), nd) == 0:
+        nd += 1
+    return nd
+
+
 def signed(x, nd=1):
-    return f"{100 * x:+.{nd}f}"
+    """Signed number of accuracy points for LaTeX: typographic minus (math mode, works in
+    text and math), never '-0.0' (a non-zero value that rounds to zero gets more decimals)."""
+    v = 100 * x
+    nd = _digits(v, nd)
+    if round(abs(v), nd) == 0:
+        return f"{0:.{nd}f}"
+    return rf"\ensuremath{{{'-' if v < 0 else '+'}{abs(v):.{nd}f}}}"
+
+
+def msigned(x, nd=2):
+    """Same, plain text for the Markdown tables."""
+    v = 100 * x
+    nd = _digits(v, nd)
+    if round(abs(v), nd) == 0:
+        return f"{0:.{nd}f}"
+    return f"{'-' if v < 0 else '+'}{abs(v):.{nd}f}"
 
 
 def ci(s, nd=1):
-    return rf"${signed(s['mean'], nd)}$ [{signed(s['ci_low'], nd)}, {signed(s['ci_high'], nd)}]"
+    return rf"{signed(s['mean'], nd)} [{signed(s['ci_low'], nd)}, {signed(s['ci_high'], nd)}]"
 
 
 def pval(p):
@@ -80,9 +108,58 @@ def nbci(s, nd=1):
     return rf"[{signed(s['lo'], nd)}, {signed(s['hi'], nd)}]"
 
 
+def mdci(s):
+    return f"{msigned(s['mean'])} [{msigned(s['ci_low'])}, {msigned(s['ci_high'])}]"
+
+
+def mdnb(s):
+    return f"[{msigned(s['lo'])}, {msigned(s['hi'])}]"
+
+
+def body(rows):
+    """Rows joined by \\\\; the last row has no terminator, main.tex supplies it after \\input."""
+    return " \\\\\n".join(rows) + "\n"
+
+
+def sep(ncol):
+    return "|" + "---|" * ncol
+
+
 def frac_at(DD, n, method, key, value):
     ps = DD[n]["methods"][method]["params"]
     return 100.0 * sum(p[key] == value for p in ps) / len(ps)
+
+
+K_METHODS = ["NFL", "HKNN", "LPH", "LCD", "SD", "T", "TOD", "TO", "TD", "OD"]
+M_METHODS = ["LPH", "T", "TOD", "TO", "TD", "OD"]
+
+
+def saturation(DD, n):
+    """Percent of folds at the top of the dataset's grid, per method and hyper-parameter.
+    'k_natural' says whether the top k is k_cap (the whole class but the point: a natural
+    boundary) rather than a truncation; m counts only m = max(M) when it is below the
+    full tangent dimension min(k-1, d-1) (truncation)."""
+    g = DD[n]["grids"]
+    kt = max(g["k_grid"])
+    out = dict(k_top=kt, k_natural=(kt == g["k_cap"]))
+    out["k"] = {me: frac_at(DD, n, me, "k", kt) for me in K_METHODS}
+    out["knn"] = frac_at(DD, n, "kNN", "k", max(g["knn_grid"]))
+    out["lam"] = frac_at(DD, n, "HKNN", "lambda_rel", max(g["lambda_grid"]))
+    mt = max(g["m_grid"])
+    d = DD[n]["d"]
+    out["m"] = {}
+    for me in M_METHODS:
+        ps = DD[n]["methods"][me]["params"]
+        out["m"][me] = 100.0 * sum(p["m"] == mt and mt < min(p["k"] - 1, d - 1) for p in ps) / len(ps)
+    return out
+
+
+def tied_of(c):
+    return c.get("best_reference_tied", [c["best_reference"]])
+
+
+def refname(c):
+    return "/".join(tied_of(c))
 
 
 def params_mode(DD, n, method):
@@ -109,14 +186,17 @@ mac("MetaRepeats", m["n_repeats"])
 mac("MetaFolds", m["n_splits"] * m["n_repeats"])
 mac("MetaBoot", f"{m['n_boot']:,}".replace(",", r"\,"))
 mac("MetaCoverage", int(round(100 * m["coverage"])))
-mac("MetaKgrid", ", ".join(str(k) for k in m["k_grid"]))
+mac("MetaKgrid", ", ".join(str(k) for k in m["k_base"]))
 mac("MetaMgrid", ", ".join(str(k) for k in m["m_grid"]))
-mac("MetaKnnGrid", ", ".join(str(k) for k in m["knn_grid"]))
-mac("MetaLambdaGrid", ", ".join(str(k) for k in m["lambda_grid"]))
+mac("MetaKnnGrid", ", ".join(str(k) for k in m["knn_base"]))
+mac("MetaLambdaGrid", ", ".join(f"{x:g}" if x < 1000 else f"10^{{{int(round(math.log10(x)))}}}" for x in m["lambda_grid"]))
 mac("MetaRidge", f"{m['ridge']:g}")
-mac("MetaKMax", max(m["k_grid"]))
-mac("MetaKnnKMax", max(m["knn_grid"]))
-mac("MetaLambdaMax", f"{max(m['lambda_grid']):g}")
+mac("MetaKMax", max(m["k_base"]))
+mac("MetaKnnKMax", max(m["knn_base"]))
+mac("MetaLambdaMax", f"10^{{{int(round(math.log10(max(m['lambda_grid']))))}}}")
+mac("MetaMMax", max(m["m_grid"]))
+mac("MetaPreregSha", (m.get("preregistration_sha256") or "none")[:12])
+mac("MetaProtocol", m.get("protocol", "v0.2"))
 
 D = res["datasets"]
 C = res["comparison"]
@@ -145,7 +225,10 @@ for n in D:
         # optimism of the training-fold selection: leave-one-out (or resubstitution, for the
         # logit models) accuracy minus test accuracy, in points
         mac(f"Optim{tag}{ME[me]}", f"{100 * (float(np.mean(d['methods'][me]['loo'])) - c['means'][me]):.1f}")
-    mac(f"BestRef{tag}", c["best_reference"])
+    mac(f"BestRef{tag}", refname(c))
+    mac(f"NTied{tag}", len(tied_of(c)))
+    mac(f"TotCorrect{tag}", c["total_correct"][c["best_reference"]] if "total_correct" in c else "")
+    mac(f"NTestTotal{tag}", sum(d["methods"]["kNN"]["n_test"]) if "n_test" in d["methods"]["kNN"] else "")
     mac(f"AccBest{tag}", pct(c["means"][c["best_reference"]]))
     s = c["vs_best"]
     mac(f"DeltaBest{tag}", signed(s["mean"]))
@@ -158,6 +241,10 @@ for n in D:
     mac(f"NbPBest{tag}", pval(s["nb_p"]))
     # Nadeau-Bengio interval of the same differences
     nbv = nb_vs(D, n, "TOD", c["best_reference"])
+    # Nadeau-Bengio reading with ties: the largest upper limit over the tied references
+    nbt = [nb_vs(D, n, "TOD", r) for r in tied_of(c)]
+    nbv = dict(nbv, hi_max=max(x["hi"] for x in nbt), lo_min=min(x["lo"] for x in nbt),
+               win_all=all(x["lo"] > 0 for x in nbt), loss_all=all(x["hi"] < 0 for x in nbt))
     NBBEST[n] = nbv
     mac(f"NbLoBest{tag}", signed(nbv["lo"]))
     mac(f"NbHiBest{tag}", signed(nbv["hi"]))
@@ -197,12 +284,17 @@ for n in D:
     mac(f"SelBySelLo{tag}", signed(bs["ci_low"]))
     mac(f"SelBySelHi{tag}", signed(bs["ci_high"]))
     # fraction of folds with the chosen hyper-parameter at the top of its grid
-    FR[n] = dict(Tod=frac_at(D, n, "TOD", "k", max(m["k_grid"])),
-                 Hknn=frac_at(D, n, "HKNN", "k", max(m["k_grid"])),
-                 Knn=frac_at(D, n, "kNN", "k", max(m["knn_grid"])),
-                 Lam=frac_at(D, n, "HKNN", "lambda_rel", max(m["lambda_grid"])))
-    for key, val in FR[n].items():
-        mac(f"Frac{'LamMax' if key == 'Lam' else 'KMax'}{tag}{'' if key == 'Lam' else key}", int(round(val)))
+    FR[n] = saturation(D, n)
+    for me in K_METHODS:
+        mac(f"FracKMax{tag}{ME[me]}", int(round(FR[n]["k"][me])))
+    for me in M_METHODS:
+        mac(f"FracMMax{tag}{ME[me]}", int(round(FR[n]["m"][me])))
+    mac(f"FracKMax{tag}Knn", int(round(FR[n]["knn"])))
+    mac(f"FracLamMax{tag}", int(round(FR[n]["lam"])))
+    mac(f"KTop{tag}", FR[n]["k_top"])
+    mac(f"KCap{tag}", d["grids"]["k_cap"])
+    # HKNN without hull term: chosen k > d (rho = d for a generic neighbourhood)
+    mac(f"FracHknnKgtD{tag}", int(round(100.0 * sum(p["k"] > d["d"] for p in d["methods"]["HKNN"]["params"]) / d["folds"])))
     # resolution of one test error in accuracy points (largest test fold)
     mac(f"FoldRes{tag}", f"{100.0 / math.ceil(d['n'] / d['n_splits']):.2f}")
     PM[n] = {me: params_mode(D, n, me) for me in METHODS}
@@ -275,7 +367,12 @@ mac("WOMax", f"{max(wo):.2f}")
 mac("WTMin", f"{min(wt):.2f}")
 mac("WTMax", f"{max(wt):.2f}")
 # how many datasets have a local-support method (hull or feature line) as best reference
-mac("NBestRefHull", sum(C[n]["best_reference"] in ("HKNN", "LPH", "NFL") for n in D))
+mac("NBestRefHull", sum(all(r in ("HKNN", "LPH", "NFL") for r in tied_of(C[n])) for n in D))
+mac("NBestRefHullAny", sum(any(r in ("HKNN", "LPH", "NFL") for r in tied_of(C[n])) for n in D))
+mac("NBestRefTies", sum(len(tied_of(C[n])) > 1 for n in D))
+mac("TiesList", "; ".join(f"{DSNAME[n]} ({', '.join(tied_of(C[n]))}, {C[n]['total_correct'][C[n]['best_reference']]} of "
+                          f"{sum(D[n]['methods']['kNN']['n_test'])} correct)" for n in D if len(tied_of(C[n])) > 1) or "none")
+mac("NBestRefHknn", sum("HKNN" in tied_of(C[n]) for n in D))
 mac("NBestRefKnn", sum(C[n]["best_reference"] == "kNN" for n in D))
 mac("NBestRefLcd", sum(C[n]["best_reference"] == "LCD" for n in D))
 mac("NBestRefSd", sum(C[n]["best_reference"] == "SD" for n in D))
@@ -298,11 +395,21 @@ mac("AccTArgMin", DSNAME[min(D, key=lambda n: C[n]["means"]["T"])])
 mac("CiHiBestMax", signed(max(C[n]["vs_best"]["ci_high"] for n in D)))
 mac("CiHiBestMaxTwo", signed(max(C[n]["vs_best"]["ci_high"] for n in D), 2))
 mac("CiHiBestMaxArg", DSNAME[max(D, key=lambda n: C[n]["vs_best"]["ci_high"])])
-mac("CiHiBestMaxNb", signed(max(NBBEST[n]["hi"] for n in D)))
-mac("CiHiBestMaxNbTwo", signed(max(NBBEST[n]["hi"] for n in D), 2))
-mac("CiHiBestMaxNbArg", DSNAME[max(D, key=lambda n: NBBEST[n]["hi"])])
-mac("NSigWinsNb", sum(NBBEST[n]["lo"] > 0 for n in D))
-mac("NSigLossesNb", sum(NBBEST[n]["hi"] < 0 for n in D))
+mac("CiHiBestMaxNb", signed(max(NBBEST[n]["hi_max"] for n in D)))
+mac("CiHiBestMaxNbTwo", signed(max(NBBEST[n]["hi_max"] for n in D), 2))
+mac("CiHiBestMaxNbArg", DSNAME[max(D, key=lambda n: NBBEST[n]["hi_max"])])
+mac("NSigWinsNb", sum(NBBEST[n]["win_all"] for n in D))
+mac("NSigLossesNb", sum(NBBEST[n]["loss_all"] for n in D))
+# complementary reading across datasets (Demsar 2006): Wilcoxon signed-rank and sign test
+from scipy.stats import wilcoxon, binomtest
+_dl = np.array([C[n]["vs_best"]["mean"] for n in D])
+_w = wilcoxon(_dl, alternative="two-sided")
+_w1 = wilcoxon(_dl, alternative="greater")
+mac("WilcoxonW", f"{_w.statistic:g}")
+mac("WilcoxonP", f"{_w.pvalue:.3f}")
+mac("WilcoxonPGreater", f"{_w1.pvalue:.2f}")
+mac("SignTestPos", int((_dl > 0).sum()))
+mac("SignTestP", f"{binomtest(int((_dl > 0).sum()), int((_dl != 0).sum()), 0.5, alternative='greater').pvalue:.2f}")
 mac("CiHiHknnMax", signed(max(C[n]["vs_each"]["HKNN"]["ci_high"] for n in D)))
 mac("CiHiLphMax", signed(max(C[n]["vs_each"]["LPH"]["ci_high"] for n in D)))
 mac("AblDepthCiHiMax", signed(max(C[n]["ablation"]["TO"]["ci_high"] for n in D)))
@@ -310,34 +417,70 @@ mac("AblTangCiHiMax", signed(max(C[n]["ablation"]["OD"]["ci_high"] for n in D)))
 mac("AblDepthNbHiMax", signed(max(NBABL[n]["TO"]["hi"] for n in D)))
 mac("AblTangNbHiMax", signed(max(NBABL[n]["OD"]["hi"] for n in D)))
 mac("NWDNegative", sum(C[n]["weights_mean"]["TOD"]["D"] < 0 for n in D))
-mac("NHknnLambdaMax", sum(PM[n]["HKNN"]["lambda_rel"] == max(m["lambda_grid"]) for n in D))
-mac("NKnnKMax", sum(PM[n]["kNN"]["k"] == max(m["knn_grid"]) for n in D))
-mac("NLocalKMax", sum(PM[n]["TOD"]["k"] == max(m["k_grid"]) for n in D))
-# grid-edge fractions outside the two moons datasets, and number of near-ceiling datasets
-others = [n for n in D if n not in ("moons", "moons_noise10")]
-mac("FracKMaxOtherMax", int(round(max(max(FR[n]["Tod"], FR[n]["Hknn"]) for n in others))))
-mac("FracKMaxOtherMaxArg", ", ".join(DSNAME[n] for n in others
-                                     if max(FR[n]["Tod"], FR[n]["Hknn"]) == max(max(FR[x]["Tod"], FR[x]["Hknn"]) for x in others)))
+mac("NHknnLambdaMax", sum(PM[n]["HKNN"]["lambda_rel"] == max(D[n]["grids"]["lambda_grid"]) for n in D))
+mac("NKnnKMax", sum(PM[n]["kNN"]["k"] == max(D[n]["grids"]["knn_grid"]) for n in D))
+mac("NLocalKMax", sum(PM[n]["TOD"]["k"] == max(D[n]["grids"]["k_grid"]) for n in D))
+# residual saturation: (dataset, method) pairs whose chosen k sits at a truncating top of the
+# grid (k = 75, or the cost cap on digits) in more than half of the folds
+SAT = [(n, me, FR[n]["k"][me]) for n in D for me in K_METHODS if not FR[n]["k_natural"] and FR[n]["k"][me] > 50]
+mac("NSatTrunc", len(SAT))
+mac("SatTruncList", "; ".join(f"{DSNAME[n]}: " + ", ".join(f"{me} {x:.0f}\\%" for nn, me, x in SAT if nn == n)
+                               for n in D if any(nn == n for nn, _, _ in SAT)) or "none")
+mac("SatTruncDatasets", ", ".join(DSNAME[n] for n in D if any(nn == n for nn, _, _ in SAT)) or "none")
+_ns = [n for n in D if not FR[n]["k_natural"] and not any(nn == n for nn, _, _ in SAT)]
+mac("NoSatDatasets", ", ".join(DSNAME[n] for n in _ns) or "none")
+mac("FracKMaxNoSatMax", int(round(max([FR[n]["k"][me] for n in _ns for me in K_METHODS] or [0]))))
+_nat = [n for n in D if FR[n]["k_natural"]]
+mac("NaturalCapDatasets", ", ".join(DSNAME[n] for n in _nat) or "none")
+mac("SatKnnMax", int(round(max(FR[n]["knn"] for n in D))))
+mac("SatKnnMaxArg", DSNAME[max(D, key=lambda n: FR[n]["knn"])])
+mac("SatLamMax", int(round(max(FR[n]["lam"] for n in D))))
+mac("SatLamMaxArg", DSNAME[max(D, key=lambda n: FR[n]["lam"])])
+mac("SatMMax", int(round(max(FR[n]["m"][me] for n in D for me in M_METHODS))))
+mac("SatMMaxArg", ", ".join(sorted({f"{me} on {DSNAME[n]}" for n in D for me in M_METHODS
+                                    if FR[n]["m"][me] == max(FR[x]["m"][y] for x in D for y in M_METHODS)})))
+mac("SatMMaxNoT", int(round(max(FR[n]["m"][me] for n in D for me in M_METHODS if me != "T"))))
+mac("SatMMaxNoTArg", DSNAME[max(D, key=lambda n: max(FR[n]["m"][me] for me in M_METHODS if me != "T"))])
+mac("NTWorst", sum(min(C[n]["means"], key=C[n]["means"].get) == "T" for n in D))
 mac("NNearCeiling", sum(C[n]["means"][C[n]["best_reference"]] >= 0.96 for n in D))
 mac("NearCeilingList", ", ".join(DSNAME[n] for n in D if C[n]["means"][C[n]["best_reference"]] >= 0.96))
-mac("NLowDim", sum(D[n]["d"] <= 3 for n in D))
-mac("LowDimList", ", ".join(DSNAME[n] for n in D if D[n]["d"] <= 3))
+mac("NLowDim", sum(D[n]["d"] < min(D[n]["grids"]["k_grid"]) for n in D))
+mac("LowDimList", ", ".join(DSNAME[n] for n in D if D[n]["d"] < min(D[n]["grids"]["k_grid"])))
+mac("KMin", min(min(D[n]["grids"]["k_grid"]) for n in D))
+# datasets on which the selected HKNN neighbourhood has k > d in every fold / in some folds
+_hk = {n: sum(p["k"] > D[n]["d"] for p in D[n]["methods"]["HKNN"]["params"]) / D[n]["folds"] for n in D}
+mac("NHknnKgtDAll", sum(v == 1 for v in _hk.values()))
+mac("HknnKgtDAllList", ", ".join(DSNAME[n] for n in D if _hk[n] == 1) or "none")
+mac("NHknnKgtDSome", sum(0 < v < 1 for v in _hk.values()))
+mac("HknnKgtDSomeList", ", ".join(f"{DSNAME[n]} ({100 * _hk[n]:.0f}\\%)" for n in D if 0 < _hk[n] < 1) or "none")
+mac("NHknnKgtDNone", sum(v == 0 for v in _hk.values()))
+mac("HknnKgtDNoneList", ", ".join(DSNAME[n] for n in D if _hk[n] == 0) or "none")
+mac("NHknnKgtDMajority", sum(v > 0.5 for v in _hk.values()))
+mac("NBestRefHknnKgtD", sum("HKNN" in tied_of(C[n]) and _hk[n] > 0.5 for n in D))
 
 # regime scan
 R = reg["datasets"]
 RC = reg["comparison"]
 rn = sorted(R, key=lambda n: R[n]["p"])
-NBREG, NBREGD = {}, {}
+NBREG, NBREGD, REGSAT = {}, {}, {}
 for n in rn:
     p = R[n]["p"]
     tag = f"P{PNUM[p]}"
     for me in METHODS:
         mac(f"Reg{tag}{ME[me]}", pct(RC[n]["means"][me]))
-    mac(f"RegBest{tag}", RC[n]["best_reference"])
+    mac(f"RegBest{tag}", refname(RC[n]))
+    FRR = saturation(R, n)
+    for me in K_METHODS:
+        mac(f"FracKMaxReg{tag}{ME[me]}", int(round(FRR["k"][me])))
+    mac(f"FracKMaxReg{tag}Knn", int(round(FRR["knn"])))
+    mac(f"FracLamMaxReg{tag}", int(round(FRR["lam"])))
+    REGSAT[n] = FRR
     mac(f"RegDelta{tag}", signed(RC[n]["vs_best"]["mean"]))
     mac(f"RegLo{tag}", signed(RC[n]["vs_best"]["ci_low"]))
     mac(f"RegHi{tag}", signed(RC[n]["vs_best"]["ci_high"]))
     NBREG[n] = nb_vs(R, n, "TOD", RC[n]["best_reference"])
+    _t = [nb_vs(R, n, "TOD", r) for r in tied_of(RC[n])]
+    NBREG[n].update(win_all=all(x["lo"] > 0 for x in _t), loss_all=all(x["hi"] < 0 for x in _t))
     mac(f"RegNbLo{tag}", signed(NBREG[n]["lo"]))
     mac(f"RegNbHi{tag}", signed(NBREG[n]["hi"]))
     mac(f"RegAblDepth{tag}", signed(RC[n]["ablation"]["TO"]["mean"]))
@@ -349,14 +492,18 @@ for n in rn:
     mac(f"RegAblDepthNbP{tag}", pval(RC[n]["ablation"]["TO"]["nb_p"]))
     mac(f"RegBestAcc{tag}", pct(RC[n]["means"][RC[n]["best_reference"]]))
     mac(f"RegAblTang{tag}", signed(RC[n]["ablation"]["OD"]["mean"]))
-mac("NRegSigWins", sum(RC[n]["vs_best"]["ci_low"] > 0 for n in rn))
-mac("NRegSigLosses", sum(RC[n]["vs_best"]["ci_high"] < 0 for n in rn))
-mac("NRegSigWinsNb", sum(NBREG[n]["lo"] > 0 for n in rn))
-mac("NRegSigLossesNb", sum(NBREG[n]["hi"] < 0 for n in rn))
+mac("NRegSigWins", sum(RC[n]["win_vs_all_tied"] for n in rn))
+mac("NRegSigLosses", sum(RC[n]["loss_vs_all_tied"] for n in rn))
+mac("NRegSigWinsNb", sum(NBREG[n]["win_all"] for n in rn))
+mac("NRegSigLossesNb", sum(NBREG[n]["loss_all"] for n in rn))
+mac("RegSigLossesList", ", ".join(f"$p={R[n]['p']}$" for n in rn if RC[n]["loss_vs_all_tied"]) or "none")
+mac("RegAblOrthCiAboveList", ", ".join(f"$p={R[n]['p']}$" for n in rn if RC[n]["ablation"]["TD"]["ci_low"] > 0) or "none")
+mac("NRegAblOrthCiAboveZero", sum(RC[n]["ablation"]["TD"]["ci_low"] > 0 for n in rn))
+mac("RegReusedNote", ", ".join(f"$p={R[n]['p']}$ = {DSNAME[R[n]['reused_from']]}" for n in rn if "reused_from" in R[n]))
 mac("NRegime", len(rn))
 mac("RegDeltaMin", signed(min(RC[n]["vs_best"]["mean"] for n in rn)))
 mac("RegDeltaMax", signed(max(RC[n]["vs_best"]["mean"] for n in rn)))
-mac("RegBestSet", ", ".join(sorted(set(RC[n]["best_reference"] for n in rn))))
+mac("RegBestSet", ", ".join(sorted(set(r for n in rn for r in tied_of(RC[n])))))
 mac("RegAblDepthMin", signed(min(RC[n]["ablation"]["TO"]["mean"] for n in rn)))
 mac("RegAblDepthMax", signed(max(RC[n]["ablation"]["TO"]["mean"] for n in rn)))
 mac("RegAblTangMin", signed(min(RC[n]["ablation"]["OD"]["mean"] for n in rn)))
@@ -366,24 +513,123 @@ mac("RegAblOrthMax", signed(max(RC[n]["ablation"]["TD"]["mean"] for n in rn)))
 mac("NRegAblDepthCiAboveZero", sum(RC[n]["ablation"]["TO"]["ci_low"] > 0 for n in rn))
 mac("NRegAblTangCiAboveZero", sum(RC[n]["ablation"]["OD"]["ci_low"] > 0 for n in rn))
 mac("NRegAblDepthNbAboveZero", sum(NBREGD[n]["lo"] > 0 for n in rn))
-mac("NDepthIntervals", len(D) + len(rn))
+rn_new = [n for n in rn if "reused_from" not in R[n]]          # E2 rows not identical to an E1 dataset
+mac("NDepthIntervals", len(D) + len(rn_new))
 mac("NDepthIntervalsBootAboveZero", sum(C[n]["ablation"]["TO"]["ci_low"] > 0 for n in D)
-    + sum(RC[n]["ablation"]["TO"]["ci_low"] > 0 for n in rn))
+    + sum(RC[n]["ablation"]["TO"]["ci_low"] > 0 for n in rn_new))
+mac("NDepthIntervalsNbAboveZero", sum(NBABL[n]["TO"]["lo"] > 0 for n in D) + sum(NBREGD[n]["lo"] > 0 for n in rn_new))
+mac("DepthBootAboveList", ", ".join([DSNAME[n] for n in D if C[n]["ablation"]["TO"]["ci_low"] > 0]
+                                    + [f"$p={R[n]['p']}$" for n in rn_new if RC[n]["ablation"]["TO"]["ci_low"] > 0]) or "none")
+# E2 saturation: rows with TD (or any method) at k = 75 in more than half of the folds
+mac("RegSatList", "; ".join(f"$p={R[n]['p']}$: " + ", ".join(f"{me} {REGSAT[n]['k'][me]:.0f}\\%" for me in K_METHODS if REGSAT[n]["k"][me] > 50)
+                             for n in rn_new if any(REGSAT[n]["k"][me] > 50 for me in K_METHODS)) or "none")
 mac("RegSdDrop", pct(RC[rn[0]]["means"]["SD"] - RC[rn[-1]]["means"]["SD"]))
 mac("RegKnnDrop", pct(RC[rn[0]]["means"]["kNN"] - RC[rn[-1]]["means"]["kNN"]))
 mac("RegTodDrop", pct(RC[rn[0]]["means"]["TOD"] - RC[rn[-1]]["means"]["TOD"]))
 mac("RegHknnDrop", pct(RC[rn[0]]["means"]["HKNN"] - RC[rn[-1]]["means"]["HKNN"]))
 
 
-# ------------------------------------------------------------------ tables
-def body(rows):
-    """Rows joined by \\\\; the last row has no terminator, main.tex supplies it after \\input."""
-    return " \\\\\n".join(rows) + "\n"
+# ------------------------------------------------- v0.2 -> v0.3 (results/v02, same common bootstrap)
+import sys
+from fractions import Fraction
+sys.path.insert(0, HERE)
+import support_geometry as sg  # noqa: E402
 
+V02MD = []
+V2 = {}
+_v02p = os.path.join(ROOT, "results", "v02", "results.json")
+if os.path.exists(_v02p):
+    v02 = json.load(open(_v02p))
+    v02r = json.load(open(os.path.join(ROOT, "results", "v02", "results_regime.json")))
+
+    def v02_stats(DD, n):
+        d = DD["datasets"][n]
+        acc = {me: np.array(d["methods"][me]["acc"]) for me in METHODS}
+        # exact means: the v0.2 JSON stores fold accuracies c/n with n <= 200
+        ex = {me: sum(Fraction(a).limit_denominator(400) for a in d["methods"][me]["acc"]) for me in REFS}
+        top = max(ex.values())
+        tied = [me for me in REFS if ex[me] == top]
+        ratio = 1.0 / (d["n_splits"] - 1)
+        vs = {me: sg.paired_stats(acc["TOD"], acc[me], ratio) for me in tied}
+        rep = max(tied, key=lambda me: (vs[me]["ci_high"], -REFS.index(me)))
+        out = dict(tied=tied, best=rep, vs_best=vs[rep],
+                   abl={a: sg.paired_stats(acc["TOD"], acc[a], ratio) for a in ("TO", "TD", "OD")},
+                   frac_td=frac_at(DD["datasets"], n, "TD", "k", 30), frac_tod=frac_at(DD["datasets"], n, "TOD", "k", 30))
+        return out
+
+    V02MD += ["\n## v0.2 (k <= 30) -> v0.3 (preregistered grids): TOD minus the best reference and the three ablations\n",
+              "Both runs summarised with the same common bootstrap (v0.3 code); v0.2 per-fold lists from results/v02/. "
+              "%TD@top: % of folds with the TD neighbourhood size at the top of the grid (v0.2: k = 30).\n",
+              "| dataset | run | best ref. | TOD - best | TOD - TO (depth) | TOD - TD (orthogonal) | TOD - OD (tangential) | %TD@top |",
+              sep(8)]
+    for n in D:
+        a = v02_stats(v02, n)
+        V2[n] = a
+        tag = DS[n]
+        mac(f"VtwoAblTd{tag}", signed(a["abl"]["TD"]["mean"]))
+        mac(f"VtwoAblTdLo{tag}", signed(a["abl"]["TD"]["ci_low"]))
+        mac(f"VtwoAblTdHi{tag}", signed(a["abl"]["TD"]["ci_high"]))
+        mac(f"VtwoAblTo{tag}", signed(a["abl"]["TO"]["mean"]))
+        mac(f"VtwoDeltaBest{tag}", signed(a["vs_best"]["mean"]))
+        mac(f"VtwoBestRef{tag}", "/".join(a["tied"]))
+        mac(f"VtwoFracTd{tag}", int(round(a["frac_td"])))
+        V02MD.append(f"| {DSNAME[n]} | v0.2 | {'/'.join(a['tied'])} | {mdci(a['vs_best'])} | " + " | ".join(mdci(a["abl"][x]) for x in ("TO", "TD", "OD"))
+                     + f" | {a['frac_td']:.0f} |")
+        c = C[n]
+        V02MD.append(f"| {DSNAME[n]} | v0.3 | {refname(c)} | {mdci(c['vs_best'])} | " + " | ".join(mdci(c["ablation"][x]) for x in ("TO", "TD", "OD"))
+                     + f" | {FR[n]['k']['TD']:.0f} |")
+    for n in rn_new:
+        a = v02_stats(v02r, n)
+        tag = f"P{PNUM[R[n]['p']]}"
+        mac(f"VtwoRegAblTd{tag}", signed(a["abl"]["TD"]["mean"]))
+        mac(f"VtwoRegAblTo{tag}", signed(a["abl"]["TO"]["mean"]))
+        mac(f"VtwoRegAblToLo{tag}", signed(a["abl"]["TO"]["ci_low"]))
+        V02MD.append(f"| E2 p={R[n]['p']} | v0.2 | {'/'.join(a['tied'])} | {mdci(a['vs_best'])} | " + " | ".join(mdci(a["abl"][x]) for x in ("TO", "TD", "OD"))
+                     + f" | {a['frac_td']:.0f} |")
+        c = RC[n]
+        V02MD.append(f"| E2 p={R[n]['p']} | v0.3 | {refname(c)} | {mdci(c['vs_best'])} | " + " | ".join(mdci(c["ablation"][x]) for x in ("TO", "TD", "OD"))
+                     + f" | {REGSAT[n]['k']['TD']:.0f} |")
+    rows = []
+    for n in D:
+        a, c = V2[n], C[n]
+        rows.append(f"{DSNAME[n]} & {ci(a['abl']['TD'], 2)} & {a['frac_td']:.0f} & {ci(c['ablation']['TD'], 2)} & "
+                    f"{FR[n]['k']['TD']:.0f}{'$^{c}$' if FR[n]['k_natural'] else ''} & {ci(a['vs_best'], 2)} & {ci(c['vs_best'], 2)}")
+    for n in rn_new:
+        a, c = v02_stats(v02r, n), RC[n]
+        rows.append(f"E2, $p={R[n]['p']}$ & {ci(a['abl']['TD'], 2)} & {a['frac_td']:.0f} & {ci(c['ablation']['TD'], 2)} & "
+                    f"{REGSAT[n]['k']['TD']:.0f} & {ci(a['vs_best'], 2)} & {ci(c['vs_best'], 2)}")
+    open(os.path.join(OUT, "table_v02.tex"), "w").write(body(rows))
+    # v0.2 orthogonal-ablation range and counts, for the text
+    mac("VtwoAblOrthMin", signed(min(V2[n]["abl"]["TD"]["mean"] for n in D)))
+    mac("VtwoAblOrthMax", signed(max(V2[n]["abl"]["TD"]["mean"] for n in D)))
+    mac("VtwoNAblOrthCiAboveZero", sum(V2[n]["abl"]["TD"]["ci_low"] > 0 for n in D))
+    mac("VtwoNSigWins", sum(all(sg.paired_stats(np.array(v02["datasets"][n]["methods"]["TOD"]["acc"]),
+                                                np.array(v02["datasets"][n]["methods"][r]["acc"]), 0.25)["ci_low"] > 0
+                                for r in V2[n]["tied"]) for n in D))
+    mac("VtwoSecondsCpu", int(round(v02["meta"]["seconds_cpu"])))
+    # C2 robustness rule of the preregistration: bootstrap interval above zero in v0.3 and neither TOD nor
+    # TD at a truncating top of the grid in more than half of the folds
+    def _trunc(n, me):
+        return (not FR[n]["k_natural"]) and FR[n]["k"][me] > 50
+    ROB = [n for n in D if C[n]["ablation"]["TD"]["ci_low"] > 0 and not _trunc(n, "TOD") and not _trunc(n, "TD")]
+    GRIDDEP = [n for n in D if C[n]["ablation"]["TD"]["ci_low"] > 0 and (_trunc(n, "TOD") or _trunc(n, "TD"))]
+    LOST = [n for n in D if V2[n]["abl"]["TD"]["ci_low"] > 0 and not C[n]["ablation"]["TD"]["ci_low"] > 0]
+    mac("NOrthRobust", len(ROB))
+    mac("OrthRobustList", ", ".join(DSNAME[n] for n in ROB) or "none")
+    mac("NOrthGridDep", len(GRIDDEP))
+    mac("OrthGridDepList", ", ".join(DSNAME[n] for n in GRIDDEP) or "none")
+    mac("NOrthLost", len(LOST))
+    mac("OrthLostList", ", ".join(DSNAME[n] for n in LOST) or "none")
+    mac("OrthRobustEffects", ", ".join(f"{signed(C[n]['ablation']['TD']['mean'])} on {DSNAME[n]}" for n in ROB) or "none")
+    mac("OrthRobustNbList", ", ".join(DSNAME[n] for n in ROB if NBABL[n]["TD"]["lo"] > 0) or "none")
+    mac("NOrthRobustNb", sum(NBABL[n]["TD"]["lo"] > 0 for n in ROB))
+
+
+# ------------------------------------------------------------------ tables
 
 def bold_best(c, me):
     v = pct(c["means"][me])
-    return rf"\textbf{{{v}}}" if me == c["best_reference"] else v
+    return rf"\textbf{{{v}}}" if me in tied_of(c) else v
 
 
 rows = []
@@ -398,7 +644,7 @@ rows = []
 for n in D:
     c = C[n]
     s = c["vs_best"]
-    rows.append(f"{DSNAME[n]} & {c['best_reference']} & {ci(s, 2)} & {nbci(NBBEST[n], 2)} & {pval(s['nb_p'])} & "
+    rows.append(f"{DSNAME[n]} & {refname(c)}{'$^{*}$' if len(tied_of(c)) > 1 else ''} & {ci(s, 2)} & {nbci(NBBEST[n], 2)} & {pval(s['nb_p'])} & "
                 f"{s['wins']}/{s['losses']}/{s['ties']} & {ci(c['vs_each']['HKNN'], 2)}")
 open(os.path.join(OUT, "table_delta.tex"), "w").write(body(rows))
 
@@ -416,8 +662,8 @@ if os.path.exists(os.path.join(OUT, "table_each.tex")):
 rows = []
 for n in D:
     c = C[n]
-    rows.append(f"{DSNAME[n]} & {ci(c['ablation']['TO'])} & {ci(c['ablation']['TD'])} & {nbci(NBABL[n]['TD'])} & "
-                f"{ci(c['ablation']['OD'])}")
+    rows.append(f"{DSNAME[n]} & {ci(c['ablation']['TO'], 2)} & {ci(c['ablation']['TD'], 2)} & {nbci(NBABL[n]['TD'], 2)} & "
+                f"{ci(c['ablation']['OD'], 2)}")
 open(os.path.join(OUT, "table_ablation.tex"), "w").write(body(rows))
 
 # selective accuracy: against the best reference by accuracy and by selective accuracy
@@ -434,9 +680,12 @@ for n in D:
     c = C[n]
     pm = PM[n]
     w = c["weights_mean"]["TOD"]
-    rows.append(f"{DSNAME[n]} & {pm['kNN']['k']} & ({pm['HKNN']['k']}, {pm['HKNN']['lambda_rel']:g}) & "
+    lam = pm['HKNN']['lambda_rel']
+    lam_s = f"{lam:g}" if lam < 1000 else f"$10^{{{int(round(math.log10(lam)))}}}$"
+    rows.append(f"{DSNAME[n]} & {pm['kNN']['k']} & ({pm['HKNN']['k']}, {lam_s}) & "
                 f"({pm['LPH']['k']}, {pm['LPH']['m']}) & {pm['SD']['k']} & ({pm['TOD']['k']}, {pm['TOD']['m']}) & "
-                f"{FR[n]['Tod']:.0f} / {FR[n]['Hknn']:.0f} & "
+                f"{FR[n]['k_top']}{'' if not FR[n]['k_natural'] else '$^{c}$'} & "
+                f"{FR[n]['k']['TOD']:.0f} / {FR[n]['k']['TD']:.0f} / {FR[n]['k']['HKNN']:.0f} & "
                 f"{w['T']:.2f} & {w['O']:.2f} & {w['D']:.2f}")
 open(os.path.join(OUT, "table_params.tex"), "w").write(body(rows))
 
@@ -448,16 +697,6 @@ for n in rn:
 open(os.path.join(OUT, "table_regime.tex"), "w").write(body(rows))
 
 # ------------------------------------------------ supplementary tables (results/tables_appendix.md)
-def mdci(s):
-    return f"{signed(s['mean'], 2)} [{signed(s['ci_low'], 2)}, {signed(s['ci_high'], 2)}]"
-
-
-def mdnb(s):
-    return f"[{signed(s['lo'], 2)}, {signed(s['hi'], 2)}]"
-
-
-def sep(ncol):
-    return "|" + "---|" * ncol
 
 
 MD = ["# SPD001 -- supplementary tables (generated by experiments/make_numbers.py from results/*.json)\n",
@@ -479,14 +718,33 @@ for n in D:
     c = C[n]
     MD.append(f"| {DSNAME[n]} | " + " | ".join(pct(c["sel_means"][me], 2) for me in METHODS)
               + f" | {mdci(c['sel_vs_best'])} | {mdnb(NBSEL[n])} | {c['sel_best_reference_by_sel']} | {mdci(c['sel_vs_best_by_sel'])} |")
-MD += ["\n## Hyper-parameters: deterministic mode over folds, % of folds at the top of the grid, mean TOD weights\n",
-       "| dataset | kNN k | HKNN (k, lambda_rel) | LPH (k, m) | SD k | TOD (k, m) | % TOD k = max | % HKNN k = max | % kNN k = max | % HKNN lambda = max | w_T | w_O | w_D |",
-       sep(13)]
+MD += ["\n## Best reference and exact ties (integer counts of correct test predictions over the 25 folds)\n",
+       "| dataset | tied best references | total correct (of all test predictions) | shown in tables |", sep(4)]
 for n in D:
-    pm, w, f = PM[n], C[n]["weights_mean"]["TOD"], FR[n]
-    MD.append(f"| {DSNAME[n]} | {pm['kNN']['k']} | ({pm['HKNN']['k']}, {pm['HKNN']['lambda_rel']:g}) | ({pm['LPH']['k']}, {pm['LPH']['m']}) | "
-              f"{pm['SD']['k']} | ({pm['TOD']['k']}, {pm['TOD']['m']}) | {f['Tod']:.0f} | {f['Hknn']:.0f} | {f['Knn']:.0f} | {f['Lam']:.0f} | "
+    c = C[n]
+    MD.append(f"| {DSNAME[n]} | {', '.join(tied_of(c))} | {c['total_correct'][c['best_reference']]} of {sum(D[n]['methods']['kNN']['n_test'])} | {c['best_reference']} |")
+MD += ["\n## Hyper-parameters: deterministic mode over folds and mean TOD weights\n",
+       "| dataset | k grid | kNN k | HKNN (k, lambda_rel) | LPH (k, m) | SD k | TOD (k, m) | TD (k, m) | w_T | w_O | w_D |",
+       sep(11)]
+for n in D:
+    pm, w = PM[n], C[n]["weights_mean"]["TOD"]
+    MD.append(f"| {DSNAME[n]} | {D[n]['grids']['k_grid']} | {pm['kNN']['k']} | ({pm['HKNN']['k']}, {pm['HKNN']['lambda_rel']:g}) | ({pm['LPH']['k']}, {pm['LPH']['m']}) | "
+              f"{pm['SD']['k']} | ({pm['TOD']['k']}, {pm['TOD']['m']}) | ({pm['TD']['k']}, {pm['TD']['m']}) | "
               f"{w['T']:.2f} | {w['O']:.2f} | {w['D']:.2f} |")
+MD += ["\n## Residual saturation: % of folds at the top of the grid, per method (protocol v0.3)\n",
+       "Top k = largest k of the dataset's grid; (c) = k_cap, the whole class but the point (natural boundary, not a truncation). "
+       "kNN: % at the largest k_NN; lambda: % of HKNN folds at lambda_rel = 10^4 (natural boundary: centroid distance); "
+       "m: % of folds at m = 21 when 21 < min(k-1, d-1) (truncation), maximum over LPH, T, TOD, TO, TD, OD.\n",
+       "| dataset | top k | " + " | ".join(K_METHODS) + " | kNN | lambda | m (max) |", sep(5 + len(K_METHODS))]
+for nm, DD, SS in [(n, D, FR[n]) for n in D] + [(n, R, REGSAT[n]) for n in rn_new]:
+    lab = DSNAME[nm] if nm in D else f"E2 p={R[nm]['p']}"
+    MD.append(f"| {lab} | {SS['k_top']}{' (c)' if SS['k_natural'] else ''} | " + " | ".join(f"{SS['k'][me]:.0f}" for me in K_METHODS)
+              + f" | {SS['knn']:.0f} | {SS['lam']:.0f} | {max(SS['m'].values()):.0f} |")
+MD += ["\n## HKNN: % of folds with selected k > d (no hull term for a generic neighbourhood)\n",
+       "| dataset | d | % folds k > d |", sep(3)]
+for n in D:
+    MD.append(f"| {DSNAME[n]} | {D[n]['d']} | {100 * _hk[n]:.0f} |")
+MD += V02MD
 MD += ["\n## E2: moons regime scan, accuracy (%) against the number p of noise coordinates\n",
        "| p | " + " | ".join(METHODS) + " | best ref. | TOD - best ref., boot | NB | TOD - TO (depth), boot | NB |",
        sep(len(METHODS) + 6)]

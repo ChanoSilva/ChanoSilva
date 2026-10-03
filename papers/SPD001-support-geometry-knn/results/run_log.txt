@@ -1,17 +1,18 @@
-SPD001 run: seed=20260930 splits=5 repeats=5 fast=False
-  iris: 25 folds in 3.2s wall / 3.2s cpu; kNN=0.949, NFL=0.952, HKNN=0.957, LPH=0.964, LCD=0.957, SD=0.939, TOD=0.961, TO=0.956, TD=0.936, OD=0.963, T=0.936
-  wine: 25 folds in 6.7s wall / 6.6s cpu; kNN=0.963, NFL=0.970, HKNN=0.970, LPH=0.959, LCD=0.969, SD=0.964, TOD=0.971, TO=0.969, TD=0.964, OD=0.973, T=0.895
-  breast_cancer: 25 folds in 19.9s wall / 19.5s cpu; kNN=0.966, NFL=0.960, HKNN=0.970, LPH=0.967, LCD=0.969, SD=0.955, TOD=0.967, TO=0.971, TD=0.957, OD=0.967, T=0.933
-  digits: 25 folds in 195.3s wall / 185.9s cpu; kNN=0.964, NFL=0.976, HKNN=0.974, LPH=0.974, LCD=0.969, SD=0.910, TOD=0.972, TO=0.973, TD=0.921, OD=0.971, T=0.436
-  swiss_roll: 25 folds in 6.8s wall / 6.6s cpu; kNN=0.968, NFL=0.929, HKNN=0.974, LPH=0.970, LCD=0.969, SD=0.954, TOD=0.972, TO=0.972, TD=0.952, OD=0.971, T=0.789
-  moons: 25 folds in 4.3s wall / 4.3s cpu; kNN=0.899, NFL=0.800, HKNN=0.899, LPH=0.889, LCD=0.899, SD=0.886, TOD=0.891, TO=0.891, TD=0.880, OD=0.890, T=0.787
-  moons_noise10: 25 folds in 11.9s wall / 11.7s cpu; kNN=0.828, NFL=0.777, HKNN=0.828, LPH=0.821, LCD=0.828, SD=0.800, TOD=0.825, TO=0.826, TD=0.798, OD=0.819, T=0.628
-  spheres: 25 folds in 5.5s wall / 5.4s cpu; kNN=0.825, NFL=0.786, HKNN=0.855, LPH=0.848, LCD=0.835, SD=0.819, TOD=0.857, TO=0.852, TD=0.822, OD=0.858, T=0.708
-E2: moons regime scan
-  moons_p0: 25 folds in 4.2s wall / 4.0s cpu; kNN=0.899, NFL=0.800, HKNN=0.899, LPH=0.889, LCD=0.899, SD=0.886, TOD=0.891, TO=0.891, TD=0.880, OD=0.890, T=0.787
-  moons_p2: 25 folds in 6.6s wall / 6.5s cpu; kNN=0.871, NFL=0.826, HKNN=0.864, LPH=0.869, LCD=0.879, SD=0.855, TOD=0.878, TO=0.869, TD=0.855, OD=0.875, T=0.785
-  moons_p5: 25 folds in 10.7s wall / 9.0s cpu; kNN=0.844, NFL=0.819, HKNN=0.839, LPH=0.839, LCD=0.849, SD=0.823, TOD=0.846, TO=0.840, TD=0.825, OD=0.843, T=0.677
-  moons_p10: 25 folds in 14.7s wall / 12.5s cpu; kNN=0.828, NFL=0.777, HKNN=0.828, LPH=0.821, LCD=0.828, SD=0.800, TOD=0.825, TO=0.826, TD=0.798, OD=0.819, T=0.628
-  moons_p20: 25 folds in 19.9s wall / 17.8s cpu; kNN=0.809, NFL=0.757, HKNN=0.814, LPH=0.806, LCD=0.813, SD=0.791, TOD=0.810, TO=0.811, TD=0.787, OD=0.808, T=0.512
-verdict: {'datasets': ['iris', 'wine', 'breast_cancer', 'digits', 'swiss_roll', 'moons', 'moons_noise10', 'spheres'], 'n_datasets': 8, 'required_wins': 5, 'significant_wins': [], 'significant_losses': ['digits', 'moons'], 'adds_information': False}
-done in 310s wall / 294s cpu
+SPD001 run (protocol v0.3): seed=20260930 splits=5 repeats=5 fast=False prereg_sha256=901e19ff414cfba6c9739fbd871a787eb43a6ab9b3a6b7d4241e3cf55f69558f
+  iris: 25 folds in 3.2s wall / 3.0s cpu; grids k=[5, 10, 20, 30, 39] kNN<=81; kNN=0.949, NFL=0.952, HKNN=0.956, LPH=0.961, LCD=0.957, SD=0.939, TOD=0.960, TO=0.956, TD=0.936, OD=0.961, T=0.936
+  wine: 25 folds in 5.9s wall / 5.8s cpu; grids k=[5, 10, 20, 30, 37] kNN<=121; kNN=0.963, NFL=0.967, HKNN=0.973, LPH=0.956, LCD=0.972, SD=0.964, TOD=0.973, TO=0.977, TD=0.964, OD=0.973, T=0.900
+  breast_cancer: 25 folds in 24.0s wall / 23.9s cpu; grids k=[5, 10, 20, 30, 50, 75] kNN<=121; kNN=0.966, NFL=0.960, HKNN=0.968, LPH=0.967, LCD=0.969, SD=0.955, TOD=0.966, TO=0.969, TD=0.963, OD=0.964, T=0.966
+  digits: 25 folds in 187.7s wall / 179.3s cpu; grids k=[5, 10, 20, 30, 50] kNN<=121; kNN=0.964, NFL=0.976, HKNN=0.974, LPH=0.974, LCD=0.969, SD=0.910, TOD=0.972, TO=0.973, TD=0.921, OD=0.971, T=0.725
+  swiss_roll: 25 folds in 8.8s wall / 8.8s cpu; grids k=[5, 10, 20, 30, 50, 75] kNN<=121; kNN=0.968, NFL=0.929, HKNN=0.974, LPH=0.970, LCD=0.969, SD=0.954, TOD=0.972, TO=0.972, TD=0.952, OD=0.971, T=0.789
+  moons: 25 folds in 5.8s wall / 5.8s cpu; grids k=[5, 10, 20, 30, 50, 75] kNN<=121; kNN=0.899, NFL=0.800, HKNN=0.898, LPH=0.889, LCD=0.898, SD=0.889, TOD=0.891, TO=0.891, TD=0.881, OD=0.891, T=0.782
+  moons_noise10: 25 folds in 13.6s wall / 13.6s cpu; grids k=[5, 10, 20, 30, 50, 75] kNN<=121; kNN=0.832, NFL=0.782, HKNN=0.829, LPH=0.834, LCD=0.831, SD=0.828, TOD=0.831, TO=0.830, TD=0.834, OD=0.827, T=0.628
+  spheres: 25 folds in 7.0s wall / 7.0s cpu; grids k=[5, 10, 20, 30, 50, 75] kNN<=121; kNN=0.825, NFL=0.786, HKNN=0.854, LPH=0.848, LCD=0.835, SD=0.819, TOD=0.857, TO=0.852, TD=0.822, OD=0.858, T=0.708
+E2: moons regime scan (p = 0 and p = 10 are the E1 datasets moons and moons_noise10)
+  moons_p0: identical to moons (same data and folds), copied
+  moons_p2: 25 folds in 8.6s wall / 8.5s cpu; grids k=[5, 10, 20, 30, 50, 75] kNN<=121; kNN=0.871, NFL=0.826, HKNN=0.865, LPH=0.869, LCD=0.879, SD=0.855, TOD=0.878, TO=0.869, TD=0.854, OD=0.874, T=0.785
+  moons_p5: 25 folds in 10.7s wall / 10.7s cpu; grids k=[5, 10, 20, 30, 50, 75] kNN<=121; kNN=0.844, NFL=0.817, HKNN=0.836, LPH=0.842, LCD=0.847, SD=0.837, TOD=0.842, TO=0.837, TD=0.833, OD=0.841, T=0.677
+  moons_p10: identical to moons_noise10 (same data and folds), copied
+  moons_p20: 25 folds in 20.3s wall / 20.1s cpu; grids k=[5, 10, 20, 30, 50, 75] kNN<=121; kNN=0.824, NFL=0.759, HKNN=0.827, LPH=0.820, LCD=0.825, SD=0.824, TOD=0.822, TO=0.821, TD=0.821, OD=0.821, T=0.744
+verdict: {'datasets': ['iris', 'wine', 'breast_cancer', 'digits', 'swiss_roll', 'moons', 'moons_noise10', 'spheres'], 'n_datasets': 8, 'required_wins': 5, 'significant_wins': [], 'significant_losses': ['digits'], 'adds_information': False}
+done in 296s wall / 287s cpu
+EXIT 0

@@ -446,6 +446,7 @@ assert span(groups["EfourACostSmall"])[0] > 1 and span(groups["EfourBCost"])[0] 
 assert span(groups["EfourAThirtyCost"])[1] < 1, "greedy faster at A n=30"
 assert span(groups["EfourAThirtyfourCost"])[1] <= crit["cost"], "below the cost threshold at A n=34"
 assert all(span([k])[0] > crit["cost"] for k in runs4[0] if k != "A_34_onestep"), "only at A n=34 below the threshold"
+assert all(span([f"A_{n}_onestep"])[1] >= 1 for n in (22, 26)), "cheaper in all runs only at A n>=30"
 
 # table bodies: drop the trailing row terminator (main.tex supplies it after \input)
 for fn in os.listdir(OUT):

@@ -90,7 +90,7 @@ M("EoneLooseMin", f"{1.0 / max(S['ratio_E2_over_B2_max'] for S in _cd):.0f}")
 M("EoneLooseMax", f"{1.0 / min(S['ratio_E2_over_B2_med_min'] for S in _cd):.0f}")
 sel_sig = {"LN": [0.01, 0.1, 1.0], "SU": [0.01, 0.0935, 0.5]}
 tr = []
-for key in keys:
+for key in ("CD-LN", "CD-SU"):                # Table 1: Cobb-Douglas only (CES rows in results/tables.md)
     fname, law = key.split("-")
     sel = [r for r in rows if r["frontier"] == fname and r["law"] == law]
     for s in sel_sig[law]:
@@ -216,6 +216,9 @@ M("EfourCertBoxFracPointFour", pct(sm4[0.4]["certified_box_frac"], 1))
 M("EfourCertifiedBoxReversals", S4["certified_box_reversals_total"])
 M("EfourCapZeroRevOneSmall", pct(c0[sgs[0]]["rev1"], 1)); M("EfourCapZeroRevTwoSmall", pct(c0[sgs[0]]["rev2"], 1))
 M("EfourCapTenRevOnePointTwo", pct(c1[0.2]["rev1"], 1)); M("EfourCapTenRevTwoPointTwo", pct(c1[0.2]["rev2"], 1))
+M("EfourCapTenRevOnePointOne", pct(c1[0.1]["rev1"], 1)); M("EfourCapTenRevTwoPointOne", pct(c1[0.1]["rev2"], 1))
+M("EfourCapTenRevOnePointZeroFive", pct(c1[0.05]["rev1"], 1)); M("EfourCapTenRevTwoPointZeroFive", pct(c1[0.05]["rev2"], 1))
+M("EfourCappedCells", len([r for r in E4["rows"] if r["prox"] != "none"]))
 tr = []
 for s in sgs:
     a, c = sm4[s], c0[s]
@@ -250,13 +253,12 @@ M("EfiveOtwoLNBelowMaxExclSmall", fnum(max(r["order2_ratio_min"] for r in _bl[1:
 for law in ("LN", "SU"):
     fa = S5[f"order2-{law}-at-frac-above"]
     M(f"EfiveAtFracAbove{law}Min", pct(fa[0], 0)); M(f"EfiveAtFracAbove{law}Max", pct(fa[1], 0))
-tr = []
-for law in ("LN", "SU"):
-    for reg, label in (("smooth", "smooth"), ("below", "below"), ("at", "at (all replications)"), ("at-below", "at (below branch only)"), ("above", "above")):
-        if reg == "above":
-            tr.append(f"{law} & above & n/a & n/a & n/a")
-        else:
-            tr.append(f"{law} & {label} & {fnum(S5[f'order2-{law}-{reg}'], 2)} & {fnum(S5[f'global-{law}-{reg}'], 2)} & {fnum(S5[f'regime-{law}-{reg}'], 2)}")
+tr = []                                     # one row per regime, LN and SU side by side
+for reg, label in (("smooth", "smooth"), ("below", "below"), ("at", "at (all replications)"), ("at-below", "at (below branch only)"), ("above", "above")):
+    if reg == "above":
+        tr.append("above & n/a & n/a & n/a & n/a & n/a & n/a")
+    else:
+        tr.append(f"{label} & " + " & ".join(f"{fnum(S5[f'{name}-{law}-{reg}'], 2)}" for law in ("LN", "SU") for name in ("order2", "global", "regime")))
 write_table("e5", tr)
 
 # ---------------------------------------------------------------- E6

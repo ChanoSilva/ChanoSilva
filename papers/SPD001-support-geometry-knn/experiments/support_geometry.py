@@ -89,6 +89,7 @@ K_BASE = [5, 10, 20, 30, 50, 75]             # per-class neighbourhood sizes (al
 M_GRID = [1, 2, 3, 5, 8, 13, 21]             # tangent dimensions (restricted to m <= min(k-1, d-1))
 KNN_BASE = [1, 3, 5, 7, 9, 11, 15, 21, 31, 41, 61, 81, 121]
 LAMBDA_GRID = [0.0, 0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0]   # HKNN ridge, relative to the local scatter scale
+K_COST = {"digits": 50}                     # cost cap on k (digits: d = 64 dominates the CPU time)
 PREREG = "PREREGISTRO_SPD001_ronda2.md"
 COVERAGE = 0.8                   # coverage for selective accuracy
 N_BOOT = 10000
@@ -143,19 +144,20 @@ def make_datasets(seed, fast=False):
     return out, regime
 
 
-def dataset_grids(y, n_splits):
+def dataset_grids(y, n_splits, name=None):
     """Grids of protocol v0.3 for one dataset. k_cap is the largest per-class
     neighbourhood admissible in every training fold with leave-one-out features:
     min over classes of (n_c - ceil(n_c / n_splits)) - 1. The k grid is K_BASE cut at
     k_cap, plus k_cap itself when k_cap < max(K_BASE) (the whole class but the point)."""
     counts = np.bincount(np.searchsorted(np.unique(y), y))
     k_cap = int(min(c - math.ceil(c / n_splits) for c in counts)) - 1
-    k_grid = [k for k in K_BASE if k <= k_cap]
-    if k_cap < max(K_BASE):
+    k_top = min(k_cap, K_COST.get(name, k_cap))
+    k_grid = [k for k in K_BASE if k <= k_top]
+    if k_top == k_cap and k_cap < max(K_BASE):
         k_grid.append(k_cap)
     n_train_min = len(y) - math.ceil(len(y) / n_splits)
     knn_grid = [k for k in KNN_BASE if k <= n_train_min - 1]
-    return dict(k_grid=k_grid, k_cap=k_cap, knn_grid=knn_grid, m_grid=list(M_GRID),
+    return dict(k_grid=k_grid, k_cap=k_cap, k_cost=K_COST.get(name), knn_grid=knn_grid, m_grid=list(M_GRID),
                 lambda_grid=list(LAMBDA_GRID))
 
 
@@ -168,6 +170,38 @@ def sqdist(A, B):
     D = a2 + b2 - 2.0 * (A @ B.T)
     np.maximum(D, 0.0, out=D)
     return D
+
+
+RANK_TOL = 1e-10                 # relative threshold on squared singular values (numerical rank)
+
+
+def spectral_coordinates(V, r):
+    """Squared singular values s_j^2 of the centred neighbourhood V (nq, k, d), in
+    decreasing order, and the squared coordinates t_j^2 = (u_j . r)^2 of the residual on
+    the right singular directions, from the eigen-decomposition of the smaller Gram
+    matrix (V V^T if k <= d, V^T V otherwise). Directions whose squared singular value is
+    below RANK_TOL * s_1^2 are treated as null (s_j^2 = t_j^2 = 0), so that sums over
+    j give the projection on the span of the neighbourhood (numerical rank), also for
+    non-generic neighbourhoods. Returns arrays of shape (nq, min(k, d))."""
+    nq, k, d = V.shape
+    if k <= d:
+        ev, W = np.linalg.eigh(V @ V.transpose(0, 2, 1))           # ascending
+        ev, W = ev[:, ::-1], W[:, :, ::-1]
+        g = np.einsum("nkd,nd->nk", V, r)                           # V r
+        proj2 = np.einsum("nkj,nk->nj", W, g) ** 2                  # (w_j . V r)^2 = s_j^2 t_j^2
+    else:
+        ev, U = np.linalg.eigh(V.transpose(0, 2, 1) @ V)
+        ev, U = ev[:, ::-1], U[:, :, ::-1]
+        proj2 = None
+        t = np.einsum("nd,ndj->nj", r, U)
+    ev = np.maximum(ev, 0.0)
+    pos = ev > RANK_TOL * ev[:, :1]
+    s2 = np.where(pos, ev, 0.0)
+    if proj2 is not None:
+        t2 = np.where(pos, proj2 / np.where(pos, ev, 1.0), 0.0)
+    else:
+        t2 = np.where(pos, t * t, 0.0)
+    return s2, t2
 
 
 class LocalGeometry:
@@ -237,16 +271,15 @@ class LocalGeometry:
                 mu = Xn.mean(1)
                 V = Xn - mu[:, None, :]                   # centred neighbourhood
                 r = Xq - mu                               # residual q - mu
-                s, Wt = np.linalg.svd(V, full_matrices=False)[1:]
-                t = np.einsum("nd,njd->nj", r, Wt)        # coordinates of r on the singular directions
-                t2[:, ci, :] = t * t
-                s2[:, ci, :] = s * s
+                sv2, tt2 = spectral_coordinates(V, r)
+                t2[:, ci, :] = tt2
+                s2[:, ci, :] = sv2
                 r2[:, ci] = (r * r).sum(1)
                 nfl2[:, ci] = np.maximum(nfl_prefix[:, k - 1], 0.0)
                 depth[:, ci] = 1.0 - np.linalg.norm(cumU[:, k - 1], axis=1) / k
                 lcd[:, ci] = cumN[:, k - 1] / k
             self.geo[k] = dict(t2=t2, s2=s2, r2=r2, nfl2=nfl2, lcd=lcd, depth=depth,
-                               rank=min(k - 1, self.d))
+                               rank=min(k - 1, self.d), rank_num=(s2 > 0).sum(2))
 
 
 # derived scores ("smaller is better" unless stated)
@@ -259,17 +292,18 @@ def score_O2(L, k, m):
 
 
 def score_hull2(L, k):
+    """Squared distance to the affine hull of the neighbourhood: |r|^2 minus the squared
+    projection on the span of the directions with non-zero singular value."""
     g = L.geo[k]
-    return np.maximum(g["r2"] - g["t2"][:, :, :g["rank"]].sum(2), 0.0)
+    return np.maximum(g["r2"] - g["t2"].sum(2), 0.0)
 
 
 def score_hknn2(L, k, lam):
     """Penalised local-hyperplane distance: sum_j lam t_j^2/(s_j^2+lam) + O_hull^2."""
     g = L.geo[k]
-    rk = g["rank"]
     if lam == 0.0:
         return score_hull2(L, k)
-    return (lam * g["t2"][:, :, :rk] / (g["s2"][:, :, :rk] + lam)).sum(2) + score_hull2(L, k)
+    return (lam * g["t2"] / (g["s2"] + lam)).sum(2) + score_hull2(L, k)
 
 
 def logit_features(L, k, m, which):
@@ -356,8 +390,11 @@ def run_fold(Xtr, ytr, Xte, yte, classes, grids):
     K_GRID = grids["k_grid"]
     KNN_GRID = grids["knn_grid"]
     Ltr = LocalGeometry(Xtr, ytr, classes, K_GRID, Xtr, exclude_self=True)
-    Lte = LocalGeometry(Xtr, ytr, classes, K_GRID, Xte)
+
+    class _Dist:                                   # test-to-training distances for kNN
+        D2 = sqdist(Xte, Xtr)
     out = {}
+    chosen = {}                                    # selections, evaluated on the test fold at the end
 
     # ---- kNN (majority vote; ties broken towards the class of the nearest neighbour)
     def knn_scores(L, k):
@@ -378,7 +415,7 @@ def run_fold(Xtr, ytr, Xte, yte, classes, grids):
         acc = float((knn_scores(Ltr, k)[0] == ytr_i).mean())
         if best is None or acc > best[0]:
             best = (acc, k)
-    pred, conf = knn_scores(Lte, best[1])
+    pred, conf = knn_scores(_Dist, best[1])
     corr = (pred == yte_i)
     out["kNN"] = result_entry(corr, conf, best[0], {"k": best[1]})
 
@@ -387,7 +424,7 @@ def run_fold(Xtr, ytr, Xte, yte, classes, grids):
     scale = {}
     for k in K_GRID:
         rk = Ltr.geo[k]["rank"]
-        s2 = Ltr.geo[k]["s2"][np.arange(ntr), ytr_i, :rk]
+        s2 = Ltr.geo[k]["s2"][np.arange(ntr), ytr_i, :rk]          # null directions count as 0
         scale[k] = float(np.median(s2.mean(1)))
 
     # ---- argmin-of-score reference classifiers
@@ -415,10 +452,7 @@ def run_fold(Xtr, ytr, Xte, yte, classes, grids):
             acc = float((fn(Ltr).argmin(1) == ytr_i).mean())
             if best is None or acc > best[0]:
                 best = (acc, params, fn)
-        sc = best[2](Lte)
-        pred = sc.argmin(1)
-        corr = (pred == yte_i)
-        out[name] = result_entry(corr, relative_margin(sc), best[0], dict(zip(param_names[name], best[1])))
+        chosen[name] = best
 
     # ---- conditional-logit decomposition models
     for name in LOGIT_MODELS:
@@ -436,11 +470,22 @@ def run_fold(Xtr, ytr, Xte, yte, classes, grids):
                 acc = float((clogit_predict(Fz, w)[0] == ytr_i).mean())
                 if best is None or acc > best[0]:
                     best = (acc, (k, m), fm, fs, w)
-        acc0, (k, m), fm, fs, w = best
-        Fte = (logit_features(Lte, k, m, which) - fm) / fs
+        chosen[name] = best
+
+    # ---- test fold: local geometry only at the neighbourhood sizes actually selected
+    needed = sorted({b[1][0] for nm, b in chosen.items()})
+    Lte = LocalGeometry(Xtr, ytr, classes, needed, Xte)
+    for name in ["NFL", "HKNN", "LPH", "LCD", "SD", "T"]:
+        acc0, params, fn = chosen[name]
+        sc = fn(Lte)
+        corr = (sc.argmin(1) == yte_i)
+        out[name] = result_entry(corr, relative_margin(sc), acc0, dict(zip(param_names[name], params)))
+    for name in LOGIT_MODELS:
+        acc0, (k, m), fm, fs, w = chosen[name]
+        Fte = (logit_features(Lte, k, m, name) - fm) / fs
         pred, conf, _ = clogit_predict(Fte, w)
         corr = (pred == yte_i)
-        out[name] = result_entry(corr, conf, acc0, {"k": k, "m": m}, weights={f: float(x) for f, x in zip(which, w)})
+        out[name] = result_entry(corr, conf, acc0, {"k": k, "m": m}, weights={f: float(x) for f, x in zip(name, w)})
     return out
 
 
@@ -483,7 +528,7 @@ def paired_stats(a, b, n_test_over_n_train):
 
 def evaluate_dataset(name, X, y, n_splits, n_repeats, log):
     classes = np.unique(y)
-    grids = dataset_grids(y, n_splits)
+    grids = dataset_grids(y, n_splits, name.split("_p")[0] if name.startswith("moons_p") else name)
     rskf = RepeatedStratifiedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=SEED)
     folds = []
     t0 = time.time()
@@ -662,7 +707,7 @@ def main():
     data, regime_data = make_datasets(SEED, fast=args.fast)
     if args.profile:
         X, y, _ = data[args.profile] if args.profile in data else regime_data[int(args.profile.split("_p")[-1])]
-        grids = dataset_grids(y, 5)
+        grids = dataset_grids(y, 5, args.profile)
         tr, te = next(RepeatedStratifiedKFold(n_splits=5, n_repeats=1, random_state=SEED).split(X, y))
         c0 = time.process_time()
         run_fold(X[tr], y[tr], X[te], y[te], np.unique(y), grids)

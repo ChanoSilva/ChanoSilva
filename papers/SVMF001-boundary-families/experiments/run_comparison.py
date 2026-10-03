@@ -337,7 +337,12 @@ def main():
     ap.add_argument("--fast", action="store_true")
     ap.add_argument("--datasets", nargs="*", default=None)
     ap.add_argument("--resummarise", action="store_true", help="rebuild summaries from results/results.json without refitting")
+    ap.add_argument("--figure-only", action="store_true", help="redraw figures/fig_paired.* from results/results.json (no refit, no rewrite)")
     args = ap.parse_args()
+    if args.figure_only:
+        out = json.load(open(os.path.join(ROOT, "results", "results.json")))
+        make_figures(out, None, list(out["results"].keys()))
+        return
     if args.resummarise:
         resummarise(os.path.join(ROOT, "results", "results.json"))
         return
@@ -468,8 +473,10 @@ def make_figures(out, records, names):
         ax.set_title(CPRETTY.get(cname, cname))
         ax.set_xlabel("accuracy difference vs best global reference (pp)")
         ax.invert_yaxis()
-    axes[0].legend(fontsize=8, loc="lower left")
-    fig.tight_layout()
+    # legend outside the axes (referee 2, m8: inside it covered the moons/checkerboard intervals)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=len(LOCAL), fontsize=8, frameon=False)
+    fig.tight_layout(rect=(0, 0, 1, 0.92))
     fig.savefig(os.path.join(figdir, "fig_paired.png"), dpi=160)
     fig.savefig(os.path.join(figdir, "fig_paired.pdf"))
     plt.close(fig)
