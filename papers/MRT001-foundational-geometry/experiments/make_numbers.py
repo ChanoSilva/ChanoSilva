@@ -444,6 +444,47 @@ if os.path.exists(so_path) and os.path.exists(so_json_path) and os.path.exists(s
     macro("SecFitHi", m_.group(3))
     L.append(r"\newcommand{\HasSecond}{1}")
 
+# v0.9 (round 6, m4/m7/m8): experiments/check_second_order_precision.py checks Theorem 5.11(ii) for every
+# 3 <= n <= NMAX with ceil(log10((n+1)!)) + 30 digits and evaluates B(n) of Proposition 5.13 from n = 14;
+# its output (no timing lines) and JSON are read only after both SHA-256 match the meta file
+pr_path = os.path.join(ROOT, "results", "check_second_order_precision_output.txt")
+pr_json_path = os.path.join(ROOT, "results", "check_second_order_precision.json")
+pr_meta_path = os.path.join(ROOT, "results", "check_second_order_precision_meta.json")
+if os.path.exists(pr_path) and os.path.exists(pr_json_path) and os.path.exists(pr_meta_path):
+    import hashlib
+    pr_raw = open(pr_path, "rb").read()
+    pr_jraw = open(pr_json_path, "rb").read()
+    pr_meta = json.load(open(pr_meta_path))
+    pr_sha = hashlib.sha256(pr_raw).hexdigest()
+    pr_rec = open(os.path.join(ROOT, "results", "check_second_order_precision_output.sha256")).read().split()[0]
+    if pr_sha != pr_rec or pr_sha != pr_meta["sha256_output"]:
+        raise SystemExit(f"check_second_order_precision_output.txt: SHA-256 {pr_sha} != recorded {pr_rec}")
+    if hashlib.sha256(pr_jraw).hexdigest() != pr_meta["sha256_json"]:
+        raise SystemExit("check_second_order_precision.json: SHA-256 does not match the meta file")
+    if "ALL CHECKS PASSED: True" not in pr_raw.decode():
+        raise SystemExit("check_second_order_precision: a check failed")
+    pj = json.loads(pr_jraw)
+
+    def pmacro(name, val):
+        L.append(rf"\newcommand{{\{name}}}{{{val}}}")
+
+    pmacro("SecPrecNmax", str(pj["NMAX"]))
+    pmacro("SecPrecDigitsLo", str(pj["digits_lo"]))
+    pmacro("SecPrecDigitsHi", str(pj["digits_hi"]))
+    pmacro("SecPrecRatio", up(pj["S1_maxratio_all"], 3))
+    pmacro("SecPrecRatioN", str(pj["S1_maxratio_n"]))
+    pmacro("SecPrecRmax", up(pj["r_max"], 3))
+    exc = pj["pos_exceptions"]
+    pmacro("SecPrecPosNlo", str(max(e_[0] for e_ in exc) + 1 if exc else 3))
+    sets = [r"$\{" + ",".join(str(k_) for k_ in e_[1]) + r"\}$" for e_ in exc]
+    pmacro("SecPrecPosSets", (", ".join(sets[:-1]) + " and " + sets[-1]) + " for $n=" + ",".join(str(e_[0]) for e_ in exc) + "$")
+    pmacro("SecPrecBNmax", str(pj["NB"]))
+    pmacro("SecPrecBfourteen", f"{pj['n2B']['14']:.2f}")
+    pmacro("SecPrecCfourteen", str(math.ceil(pj["n2B"]["14"])))
+    pmacro("SecPrecSeconds", str(int(round(pr_meta["seconds"]))))
+    pmacro("SecPrecSha", pr_sha[:16])
+    L.append(r"\newcommand{\HasPrec}{1}")
+
 # v0.7 (round 4): frozen output of theory/check_sharp_rate.py (numerical check of the sharp rates),
 # read only after its SHA-256 matches the recorded one; the frozen copy has no timing lines
 sh_path = os.path.join(ROOT, "results", "check_sharp_rate_output.txt")

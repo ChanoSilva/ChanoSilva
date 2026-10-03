@@ -123,8 +123,9 @@ rows = {}
 for n in range(1, NMAX + 1):
     dps = math.ceil(math.log10(fact[n + 1])) + 30
     mp.dps = dps
-    digits_lo = dps if digits_lo is None else min(digits_lo, dps)
-    digits_hi = dps if digits_hi is None else max(digits_hi, dps)
+    if n >= 3:
+        digits_lo = dps if digits_lo is None else min(digits_lo, dps)
+        digits_hi = dps if digits_hi is None else max(digits_hi, dps)
     nf = mpf(fact[n])
     x = mpf(1) / n
     lam = 1 - x
