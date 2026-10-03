@@ -12,7 +12,7 @@ La ficha pública de SPD001 planteaba explorar las componentes *ortogonal*, *tan
 
 | Ruta | Contenido |
 |---|---|
-| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés, 10 páginas con bibliografía, cuerpo de 10 pt) y bibliografía (27 entradas reales, todas citadas). |
+| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés, 10 páginas con bibliografía, cuerpo de 10 pt) y bibliografía (29 entradas reales, todas citadas). |
 | `manuscript/main.pdf` | PDF compilado con pdflatex + bibtex (sin errores ni referencias indefinidas). |
 | `manuscript/numbers.tex`, `manuscript/table_*.tex` | Macros y cuerpos de tabla **generados** desde los resultados; ningún número del texto está tipeado a mano. Desde v0.2 incluyen los IC con varianza de Nadeau–Bengio, las fracciones de pliegues en el borde de la rejilla y la moda determinista de hiperparámetros, recalculados desde las listas por pliegue. |
 | `manuscript/build.sh` | Regenera macros y compila. |

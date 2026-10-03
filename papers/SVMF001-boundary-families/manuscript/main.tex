@@ -261,7 +261,8 @@ family & CI $>0$ & CI $<0$ & majority (A) & named regime (B) & added value\\
 
 \section{What can be claimed}\label{sec:claims}
 
-\begin{center}\small
+\begin{table}[tb]
+\centering\small
 \begin{tabular}{p{0.72\linewidth}p{0.20\linewidth}}
 \toprule
 claim & status\\
@@ -277,9 +278,9 @@ Under label noise and subsampling \NPosRobustCells{} of \NRobustCells{} interval
 General superiority of any family in accuracy or robustness; the original variants, larger samples, other kernels & not claimed / not addressed\\
 \bottomrule
 \end{tabular}
-\captionof{table}{Claims and their status. ``Verified'' and ``measured'' mean produced by the scripts of Appendix~\ref{app:repro} with the fixed seed; neither is a proof.}
+\caption{Claims and their status. ``Verified'' and ``measured'' mean produced by the scripts of Appendix~\ref{app:repro} with the fixed seed; neither is a proof.}
 \label{tab:claims}
-\end{center}
+\end{table}
 
 \paragraph{Limitations.} The families are reconstructions chosen for transparency, not the strongest versions in the literature (local SVMs linear with a fixed $C$, partitions from a single $k$-means run, subsampled inner validation for kNN-SVM, three values of the bandwidth exponent). The data sets are small by design (a total budget of about \MetaSecondsTotal{} CPU-seconds), so the comparison speaks to the regime of a few hundred training points, where the variance mechanism of Section~\ref{sec:theory} is strongest and local methods are at a disadvantage; with much larger samples the balance may differ, and nothing here says otherwise. The hyper-parameter grids are finite, and where Table~\ref{tab:edge} shows selections at an edge the corresponding comparison is between methods limited by their grids. The bootstrap intervals treat the outer folds as exchangeable, which they are not, and no correction for the \NCellsMain{} simultaneous intervals is applied beyond the majority clause. Proposition~\ref{prop:thin} covers partitions independent of the labels; data-dependent partitions and neighbourhoods are only illustrated. The criterion's regime clause admitted a single-data-set regime, a design flaw reported above. The predefinition of the v0.1 protocol is not independently verifiable (Section~\ref{sec:protocol}).
 
@@ -296,7 +297,8 @@ The middle and right panels of Figure~\ref{fig:exact} report simulations in the 
 \section{Nested comparison and decision regions}\label{app:tables}
 The mean accuracy of every method in every condition, the per-data-set paired differences of the two robustness conditions, the fraction of folds in which a local configuration was selected, and the grid-saturation counts of the robustness conditions are in \path{results/tables.md}; the post-hoc comparisons against the oracle reference are in \path{results/posthoc_oracle.md}. Table~\ref{tab:nested} and Figure~\ref{fig:regions} are kept here because the text relies on them.
 
-\begin{center}\footnotesize
+\begin{table}[tb]
+\centering\footnotesize
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrr}
 \toprule
@@ -306,15 +308,16 @@ data set & vs.\ linear SVM & vs.\ linear SVM & vs.\ RBF-SVM & vs.\ linear SVM\\
 \input{table_nested_main.tex}\\
 \bottomrule
 \end{tabular}
-\captionof{table}{Nested comparison, main condition: each family against its own fixed global reference (the tuned linear SVM for the three local linear families, the tuned RBF-SVM for VB-RBF-SVM), percentage points with 95\% intervals, bold when the interval excludes zero. For kNN-SVM the member actually contained in its grid is the linear SVM with $C=\KnnC$ fixed, so its column is an approximation of the nested comparison. \NestNPosMain{} intervals are above zero and \NestNNegMain{} below.}
+\caption{Nested comparison, main condition: each family against its own fixed global reference (the tuned linear SVM for the three local linear families, the tuned RBF-SVM for VB-RBF-SVM), percentage points with 95\% intervals, bold when the interval excludes zero. For kNN-SVM the member actually contained in its grid is the linear SVM with $C=\KnnC$ fixed, so its column is an approximation of the nested comparison. \NestNPosMain{} intervals are above zero and \NestNNegMain{} below.}
 \label{tab:nested}
-\end{center}
+\end{table}
 
-\begin{center}
+\begin{figure}[tb]
+\centering
 \includegraphics[width=0.92\linewidth]{../figures/fig_regions.pdf}
-\captionof{figure}{Decision regions on the first outer training fold of the two multiscale data sets, for the configurations selected by inner cross-validation in that fold (given in the panel titles).}
+\caption{Decision regions on the first outer training fold of the two multiscale data sets, for the configurations selected by inner cross-validation in that fold (given in the panel titles).}
 \label{fig:regions}
-\end{center}
+\end{figure}
 
 \renewcommand{\bibfont}{\small}
 \bibliographystyle{plainnat}
