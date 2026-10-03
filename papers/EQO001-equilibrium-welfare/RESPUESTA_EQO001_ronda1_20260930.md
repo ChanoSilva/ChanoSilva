@@ -1,6 +1,6 @@
 # Respuesta del autor al informe de arbitraje interno — EQO001, ronda 1 (30/09/2026)
 
-Autor que responde: agente de Claude Code en el papel del autor (sesión del 03/10/2026). Objeto: borrador v0.1 → v0.2 de *Equilibrium Operators, Variational Inequalities and Welfare: What Is and Is Not a Theorem*. Documento escrito de forma incremental durante la sesión; la sección 5 se cerró tras la compilación final.
+Autor que responde: agente de Claude Code en el papel del autor (sesión del 03/10/2026). Objeto: borrador v0.1 → v0.2 de *Equilibrium Operators, Variational Inequalities and Welfare: What Is and Is Not a Theorem*. Documento escrito de forma incremental durante la sesión; todas las secciones quedaron cerradas tras la compilación final.
 
 Convenciones: **aceptar** = se aplica el cambio tal como lo pide el árbitro; **aceptar con matiz** = se aplica una versión y se explica la diferencia; **rebatir** = se demuestra que el árbitro se equivoca. Las referencias a numeración (Ej. 5.6, Pregunta 8.1, …) son las del PDF v0.2.
 
@@ -79,7 +79,10 @@ Dos mercancías con demanda unitaria; la mercancía 1 elige entre un enlace priv
 - Total: 30 entradas, todas citadas.
 
 ## 5. Extensión y compilación
-[Se completa al final de la sesión: páginas antes/después, errores, referencias indefinidas, "??", cajas desbordadas, recortes aplicados.]
+- **Compilación (`manuscript/build.sh`, latexmk + bibtex):** 0 errores, 0 referencias o citas indefinidas en la pasada final, `pdftotext main.pdf - | grep -c "??"` = 0, **0 cajas desbordadas** (las dos de v0.1 corregidas: Remark 3.6 reformulado; tabla de afirmaciones a 0.60/0.34 con `\raggedright`). 148 macros generados; ningún número tipeado a mano (incluidas las frases "all n criteria hold").
+- **Páginas: 13 (v0.1) → 14 (v0.2).** Recortes del §6 del informe aplicados: resumen 330 → 196 palabras (recuento sobre el fuente); protocolos y criterios de §6 al Apéndice B comprimido; Figura 3 (histograma de dimensiones) eliminada (su información está en la Tabla 1); Tabla de Pigou eliminada (valores en la Figura 2 y en `results/tables_traffic.md`); Figura 1 reducida y en un mismo float con la Figura 2; Remark 3.3 a seis líneas; "Contributions" a cuatro líneas; demostración del Lema 3.4 (proyección) a una línea con cita; Prop. 3.1 con demostración de tres líneas; tabla de afirmaciones en `footnotesize` con parámetros de float que evitan una página casi vacía; `\bibsep` compacto. Estimación: ≈ −2.5 páginas. Añadidos exigidos por la propia revisión: Ejemplo 5.6 (cono no poliédrico, con cálculo completo), Ejemplo 5.7 (dos mercancías, con cálculo completo), E2c y E5 en §6, párrafo de Danskin, Remark 5.2 de literatura, Apéndice B de criterios, seis referencias: ≈ +3.5 páginas. **No se llegó a 10 páginas**; bajar más exigiría quitar demostraciones o los ejemplos nuevos, que son el contenido verificable que la revisión pidió. No se cambió el tamaño de letra (11 pt) ni los márgenes (1 in) para cumplir la meta.
+- **Páginas revisadas visualmente tras los cambios:** 1 (resumen), 9 (Figuras 1–2), 10 (Tabla 1), 11 (Tabla 2 y preguntas), 12–14 (apéndices y referencias).
+- **Cómputo de la sesión:** experimentos ≈ 3.3 min de CPU (`welfare_cone.py` 81 s y 87 s en dos corridas, `traffic_poa.py` 3 s, `commodity_cone.py` 3 × 4 s, verificación independiente del contraejemplo 10 s); compilaciones ≈ 1.5 min. Total ≈ 5 min, dentro del presupuesto de 10.
 
 ## 6. Lo que queda abierto
 - Pregunta 8.1 reformulada (caracterización de $\Lambda=\Lambda_1$ y de la poliedralidad sin concavidad conjunta; complejidad de la pertenencia; descripción de tamaño polinómico bajo monotonía fuerte).
