@@ -112,7 +112,7 @@ fig.savefig(os.path.join(FIG, "fig_bracket.png"), dpi=200)
 plt.close(fig)
 
 # ------------------------------------------------------------------ Figure 3 (manuscript): both in one 2 x 2 figure
-fig, axes = plt.subplots(2, 2, figsize=(7.2, 5.4))
+fig, axes = plt.subplots(2, 2, figsize=(7.2, 4.7))
 for ax, fam in zip(axes[0], ["A", "B"]):
     panel_distribution(ax, fam)
 axes[0, 1].sharey(axes[0, 0])

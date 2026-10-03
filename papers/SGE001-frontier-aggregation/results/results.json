@@ -7,10 +7,10 @@
   "scipy": "1.17.1",
   "matplotlib": "3.11.2",
   "rng": "SeedSequence(SEED).spawn, one generator per experiment",
-  "script_sha256": "ba6d21c6aed1bff24263b4102b90ca983426d102b4d029694b1360d900454c9a",
-  "date_utc": "2026-10-03 04:09",
-  "seconds": 25.383949995040894,
-  "cpu_seconds": 25.226487439
+  "script_sha256": "44f421345df78cd07ea2db6ca2517c742ba80a2faee6f72670a6716f44e64ed8",
+  "date_utc": "2026-10-03 04:23",
+  "seconds": 26.0878643989563,
+  "cpu_seconds": 25.962747426
  },
  "E0": {
   "CD": {

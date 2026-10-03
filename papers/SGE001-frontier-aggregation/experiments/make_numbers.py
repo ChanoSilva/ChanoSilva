@@ -191,7 +191,7 @@ tr = []
 for s in sgs:
     a, c = sm4[s], c0[s]
     tr.append(f"{s} & {pct(a['rev1'])} {ci_pct(a['rev1_ci'])} & {pct(a['rev2'])} {ci_pct(a['rev2_ci'])} & {pct(a['rev3'])} & {pct(a['certified_frac'], 0)} & {a['certified_reversals']} & "
-              f"{pct(c['rev1'])} {ci_pct(c['rev1_ci'])} & {pct(c['rev2'])} {ci_pct(c['rev2_ci'])} & {pct(c['rev3'])}")
+              f"{pct(c['rev1'])} {ci_pct(c['rev1_ci'])} & {pct(c['rev2'])} {ci_pct(c['rev2_ci'])}")
 write_table("e4", tr)
 
 # ---------------------------------------------------------------- E5

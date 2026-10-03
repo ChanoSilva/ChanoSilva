@@ -8,13 +8,17 @@ Convención: **aceptado** = se aplicó tal como lo propone el árbitro; **acepta
 
 | Id | Decisión | Estado |
 |---|---|---|
-| B1 | aceptado | pendiente |
-| M1 | aceptado | pendiente |
-| M2 | aceptado con matiz: opción (b), declarar las fracciones en el borde; la ampliación se midió y no cabe en el presupuesto (ver detalle) | pendiente |
-| M3 | aceptado con matiz | pendiente |
-| M4 | aceptado | pendiente |
-| M5 | aceptado | pendiente |
-| m1–m15 | ver tabla detallada | pendiente |
+| B1 | aceptado | aplicado |
+| M1 | aceptado | aplicado |
+| M2 | aceptado con matiz: opción (b), declarar las fracciones en el borde; la ampliación se midió (≈ 1.9× la corrida, k = 50 inviable en iris/wine) y no cabe en el presupuesto | aplicado; ampliación anotada como paso siguiente |
+| M3 | aceptado con matiz: lectura única declarada + fórmula alternativa; observación h₀ ≡ 0 añadida; cotejo del original imposible (red bloqueada) | aplicado; cotejo abierto |
+| M4 | aceptado | aplicado |
+| M5 | aceptado (12 → 10 páginas; con cuerpo de 10 pt, ver Estado) | aplicado |
+| m1–m15 | 13 aceptados, 2 con matiz (m8: texto en lugar de código; m14: k_NN sí, W se deja) | aplicados |
+
+**Recuento global:** 18 aceptados, 3 aceptados con matiz (M2, M3, m8; m14 parcialmente), 0 rebatidos. Ningún resultado numérico de la corrida cambia; cambian la lectura de la cota de potencia y de los recuentos (ahora siempre bootstrap/NB), tres celdas descriptivas de la tabla de hiperparámetros y la extensión. El veredicto C1 (0 de 8) se mantiene en ambas lecturas.
+
+**Lo que queda abierto** (también en CONTINUIDAD): cotejo de Vincent–Bengio §3 en el PDF original; ampliación de rejillas en moons/moons+ruido como tercer protocolo (≈ 9 min de CPU); cotejo de tres entradas bibliográficas añadidas de memoria (bouckaertfrank2004, milasevicducharme1987, uci 2023) y de las páginas de vincentbengio2002; prerregistro con hash para líneas futuras.
 
 ## Verificaciones propias previas (03/10/2026, scratchpad `spd001/verify_m1_b1.py`, `time_grids.py`)
 
@@ -71,5 +75,6 @@ Notación: "boot" = IC percentil bootstrap sobre los 25 pliegues; "NB" = IC con 
 
 ## Estado
 
+- 03/10/2026, paso 3: compila con `manuscript/build.sh` (latexmk, 0 errores, 0 referencias o citas indefinidas, `pdftotext | grep -c "??"` = 0, 0 cajas desbordadas). **Páginas: 12 (v0.1, 11 pt) → 10 (v0.2)**, con bibliografía. Nota sobre M5: con los recortes 1–9 del árbitro y el texto nuevo que exigen B1, M1, M3 y m9 el manuscrito quedaba en 13 páginas a 11 pt; se bajó a 10 pasando el cuerpo a 10 pt, la bibliografía a `\footnotesize` con `\bibsep` de 2.5 pt y reduciendo las figuras (0.56, 0.78 y 0.40 del ancho), sin eliminar ningún número ni demostración (las tablas retiradas del PDF están en `results/tables_appendix.md`). FICHA, CONTINUIDAD y README actualizados.
 - 03/10/2026, paso 2: `main.tex` reescrito a v0.2 (B1, M1, M3, M4, m1–m6, m8–m9, m11, m13–m15 y recortes 1–9); `results/tables_appendix.md` generado por `make_numbers.py` con las tablas que salen del PDF; forest plot con intervalos NB finos. Pendiente de compilar y contar páginas.
 - 03/10/2026, paso 1: `make_numbers.py` reescrito con los IC NB, fracciones en el borde, `sel_vs_best_by_sel`, moda determinista y nuevas tablas; `support_geometry.py` con `nb_lo`/`nb_hi` y moda determinista (sin recorrer; `results.json` intacto); `refs.bib` corregido. Manuscrito aún v0.1 hasta el paso 2.

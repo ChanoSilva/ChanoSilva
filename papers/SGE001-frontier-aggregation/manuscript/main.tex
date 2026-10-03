@@ -283,17 +283,17 @@ $G=\EthreeG$ firms of $n=\Ethreen$ units ($N=\EthreeN$), firm means log-normal a
 Two sectors of $N=\EfourN$ units each. Sector $A$ has mean $\bar x$ and dispersion $\sigma$; sector $B$ has mean $\bar x(1+\gamma)^{1/0.8}$, so that $f(\bar x_B)=(1+\gamma)f(\bar x_A)$ with $\gamma$ uniform on $\pm\EfourGammaMax\%$, and dispersion $\sigma/2$. Inputs log-normal; $\EfourTrials$ trials per cell; $\sigma\in\{\EfourSigmaMin,\dots,\EfourSigmaMax\}$; capacity at $+50,+20,+10,+5,+0\%$ of $f(\bar x_A)$ or absent. A trial is a reversal at order $k$ when $\operatorname{sign}(\Yh_k^A-\Yh_k^B)\ne\operatorname{sign}(Y^A-Y^B)$. In the smooth cells a comparison is \emph{certified} when the margin condition of Proposition~\ref{prop:margin} holds with the bounds $B_2$ of the two samples. Table~\ref{tab:e4} (with Wilson 95\% intervals) and Figure~\ref{fig:decision}.
 
 \begin{table}[t]
-\centering\footnotesize\setlength{\tabcolsep}{3pt}
-\begin{tabular}{rlllrrlll}
+\centering\scriptsize\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{rlllrrll}
 \toprule
-& \multicolumn{5}{c}{no capacity} & \multicolumn{3}{c}{capacity $+0\%$}\\
-\cmidrule(lr){2-6}\cmidrule(lr){7-9}
-$\sigma$ & rev.~1 & rev.~2 & rev.~3 & certified & cert.\ rev. & rev.~1 & rev.~2 & rev.~3\\
+& \multicolumn{5}{c}{no capacity} & \multicolumn{2}{c}{capacity $+0\%$}\\
+\cmidrule(lr){2-6}\cmidrule(lr){7-8}
+$\sigma$ & rev.~1 & rev.~2 & rev.~3 & certified & cert.\ rev. & rev.~1 & rev.~2\\
 \midrule
 \input{table_e4.tex}\\
 \bottomrule
 \end{tabular}
-\caption{E4. Rank-reversal rates in percent at orders $1$--$3$ over \EfourTrials{} trials per cell, with Wilson 95\% intervals for the rates that enter C2; ``certified'' is the percentage of trials satisfying the margin condition with second-order bounds and ``cert.\ rev.'' the number of reversals among them. The other capacity positions are in Figure~\ref{fig:decision} and \texttt{results/tables.md}.}
+\caption{E4. Rank-reversal rates in percent at orders $1$--$3$ over \EfourTrials{} trials per cell, with Wilson 95\% intervals for the rates that enter C2 (order 3 with the capacity is in Figure~\ref{fig:decision}); ``certified'' is the percentage of trials satisfying the margin condition with second-order bounds and ``cert.\ rev.'' the number of reversals among them. The other capacity positions are in Figure~\ref{fig:decision} and \texttt{results/tables.md}.}
 \label{tab:e4}
 \end{table}
 
@@ -358,13 +358,13 @@ Table~\ref{tab:claims} is the deliverable of the research line: it separates wha
 
 \paragraph{Limitations.} The frontier is known exactly; estimation error in $f$ or in the moments is not modelled, and would add to every error reported. The certified bounds are computed only for Cobb--Douglas, where the derivative suprema have closed forms; for CES a bound would need a numerical supremum, which we did not certify. The bounds are loose by a factor of about $50$--$1000$ at moderate dispersion because they use absolute third moments where the actual error cancels. Two input laws and two frontiers are a controlled design, not a survey of shapes; the crossing analysis covers the capacity kink $\min(f,c)$ and, by the same proof, any frontier with a first-derivative jump along a hypersurface, but not regime switches that also change the level. The hierarchy has two levels; deeper hierarchies compose Lemma~\ref{lem:hier}. The decision experiment uses one margin distribution ($\pm\EfourGammaMax\%$), one dispersion ratio between sectors and $\EfourTrials$ trials per cell, which leaves two of its $\EfourEligible$ eligible cells undecided.
 
-\paragraph{Next steps.} (a) A sharper certificate that exploits cancellation, for instance a bound of $E_2$ by the third central moment tensor plus a fourth-order remainder, which would extend the certified region beyond $\sigma\approx\EoneCertSigmaCDLN$. (b) The crossing term $\Tu$ is the Jensen gap of the hinge; estimating it from a parametric family fitted to $(\bar x,\Sigma)$ is exact within the family and should be tested out of family, with Example~\ref{ex:moments} as the worst case. (c) Efficiency terms correlated with inputs, where $C$ acquires a mean that the moment expansion must model. (d) The dynamic element the line's name promises: a trajectory $\sigma_t$ or a mean $\bar x_t$ approaching the capacity ($\delta_t\to0$), for which Proposition~\ref{prop:cap} and Remark~\ref{rem:hyp}(i) already give $E_2(t)$ and the regime switch; E2 is a static cut through that trajectory. (e) If the line is to speak about any real sector, an estimated frontier and its sampling error must be brought in first; nothing here licenses that step.
+\paragraph{Next steps.} (a) A sharper certificate that exploits cancellation, for instance a bound of $E_2$ by the third central moment tensor plus a fourth-order remainder, which would extend the certified region beyond $\sigma\approx\EoneCertSigmaCDLN$. (b) The crossing term $\Tu$ is the Jensen gap of the hinge; estimating it from a parametric family fitted to $(\bar x,\Sigma)$ is exact within the family and should be tested out of family, with Example~\ref{ex:moments} as the worst case. (c) Efficiency terms correlated with inputs, where $C$ acquires a mean that the moment expansion must model. (d) The dynamic element the line's name promises: a trajectory $\sigma_t$ or $\bar x_t$ approaching the capacity, for which Proposition~\ref{prop:cap} and Remark~\ref{rem:hyp}(i) already give $E_2(t)$ and the regime switch. (e) Any statement about a real sector needs an estimated frontier and its sampling error first; nothing here licenses that step.
 
 \appendix
 \section{Reproducibility}\label{app:repro}
 {\sloppy The directory contains \path{experiments/frontier_aggregation.py} (E0--E6, flag \texttt{--fast} for a reduced run; one random generator per experiment spawned from the master seed) and \path{experiments/make_numbers.py}, which converts \path{results/results.json} into the macros and table bodies used by this document, so that every number in the text is generated and none is typed. The reference run used seed \MetaSeed, Python \MetaPython, NumPy \MetaNumpy{} \citep{harris2020} and SciPy \MetaScipy{} \citep{virtanen2020}; it took \MetaSeconds{} seconds of wall time (\MetaCpuSeconds{} s of CPU) on shared cores, and its script hash is \MetaScriptSha. The closed-form gradient, Hessian and third-derivative tensor of both frontiers are implemented in the classes \texttt{CobbDouglas} and \texttt{CES} and checked by E0 against central differences. Bounds: for each unit the coordinate box spanned by $\bar x$ and $x_i$; each entry of $D^2\!f$, $D^3\!f$ bounded at the corner given by the sign of its exponent; Frobenius norm of the entrywise bounds; $B_1=\frac12\sum M_2^{(i)}\|h_i\|^2$, $B_2=\frac16\sum M_3^{(i)}\|h_i\|^3$. Input laws: standard shocks $z$ with correlation $\EoneCorr$ (Cholesky); LN $x=\bar x\odot\exp(\sigma z-\sigma^2/2)$; SU $w=\sqrt3(2\Phi(z)-1)$ on half the sample and $-w$ on the other half, $x=\bar x\odot(1+\sigma w)$. E3: firm means $\bar x\odot\exp(\sigma_B\zeta-\sigma_B^2/2)$, units $\bar x_g\odot\exp(\sigma_Wz-\sigma_W^2/2)$, capacity $c=f(\bar x)$. E4: $\gamma\sim U(-0.05,0.05)$, $\bar x_B=\bar x_A(1+\gamma)^{1/0.8}$, $\sigma_B=\sigma_A/2$, capacity $c=f(\bar x_A)(1+p)$, certification with $|\Yh_2^A-\Yh_2^B|>B_2^A+B_2^B$, Wilson intervals with $z=1.96$. E5: $\lambda=\sum E_1Q_2/\sum Q_2^2$ over the training cells, globally or within each regime; evaluation on fresh shocks. Uncertainty: percentile bootstrap over replications ($1000$ resamples) for medians, and over replications with refitting ($500$ resamples) for exponents.\par}
 
-\providecommand{\bibfont}{}\renewcommand{\bibfont}{\small}
+\providecommand{\bibfont}{}\renewcommand{\bibfont}{\footnotesize}
 \bibliographystyle{plainnat}
 \bibliography{refs}
 \end{document}

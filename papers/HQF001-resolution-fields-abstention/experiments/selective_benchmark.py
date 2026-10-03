@@ -701,6 +701,17 @@ def write_markdown(res, path):
                 f"W/T/L {c['wins']}/{c['ties']}/{c['losses']} p_W={c['wilcoxon_p']:.3f} "
                 f"({c['verdict']}; t: {c['verdict_t']}; NB: {c['verdict_nb']}{'; BORDERLINE' if c['borderline'] else ''})")
 
+    L.append("## Geometry-only scores: error rate x 100 of the variant's own tuned classifier (= expected AURC of a random ordering) and its AURC x 100")
+    L.append("")
+    L.append("| dataset | margin err | margin AURC | volume err | volume AURC | anisotropy err | anisotropy AURC |")
+    L.append("|---|---|---|---|---|---|---|")
+    for ds, S in res["summary"].items():
+        cells = []
+        for mth in ["Field-aniso", "Field-vol", "Field-anis"]:
+            v = S["methods"][mth]
+            cells.append(f"{100*v['error_rate']:.1f} | {100*v['aurc_mean']:.2f}")
+        L.append(f"| {ds} | " + " | ".join(cells) + " |")
+    L.append("")
     L.append("## Field variants vs best reference: paired difference of AURC x 100 (field - reference); 95% intervals: percentile bootstrap over folds (boot, predefined), Student t over folds (t), Nadeau-Bengio corrected t (NB); wins/ties/losses over folds; Wilcoxon p (descriptive)")
     L.append("")
     fields = [mm for mm in methods if mm.startswith("Field")]

@@ -12,8 +12,8 @@ seed = 20260930; fast = False; repeats x folds = 3 x 5; CPU time = 284.5 s; wall
 | digits | 1797 | 20 | 10 | PCA to 20 components |
 | synth_informative | 1200 | 10 | 2 | make_classification(10 features: 5 informative, 3 redundant, 2 noise; 2 clusters/class; flip_y=0.03; class_sep=0.8) |
 | moons_aniso | 1200 | 5 | 2 | two moons + anisotropic Gaussian noise (sd 0.30 x 0.06, rotated 30 deg) + 3 nuisance N(0,1) dimensions |
-| synth_classcov | 1200 | 6 | 2 | two Gaussians in d=6 with different (rotated) covariances sharing the eigenvalues geomspace(2, 0.25, 6); mean shift chosen by bisection in [0.05, 20] towards a 10% Bayes error (v0.1 used eigenvalues 2, 1, 0.5, 0.25, 0.1, 0.05 and the bisection hit the lower bound: coinciding means, Bayes error 7.7%) Bayes error 9.92%, shift 1.5436, calibration at bound: False. |
-| synth_lda | 1200 | 6 | 3 | three Gaussians in d=6 with one shared covariance (eigenvalues geomspace(2, 0.05, 6)); mean shift chosen by bisection in [0.05, 20] towards a 10% Bayes error Bayes error 9.84%, shift 1.2021, calibration at bound: False. |
+| synth_classcov | 1200 | 6 | 2 | two Gaussians in d=6 with different (rotated) covariances sharing the eigenvalues geomspace(2, 0.25, 6); mean shift chosen by bisection in [0.05, 20] towards a 10% Bayes error (v0.1 used eigenvalues 2, 1, 0.5, 0.25, 0.1, 0.05 and the bisection hit the lower bound: coinciding means, Bayes error 7.7%) Bayes error 9.92%; shift 1.5436316544277133; calibration at bound: False. |
+| synth_lda | 1200 | 6 | 3 | three Gaussians in d=6 with one shared covariance (eigenvalues geomspace(2, 0.05, 6)); mean shift chosen by bisection in [0.05, 20] towards a 10% Bayes error Bayes error 9.84%; shift 1.20207477950205; calibration at bound: False. |
 
 ## AURC x 100 (mean +- sd over folds; lower is better). The error rate x 100 (= AURC of a random ordering) is in the accuracy table below
 
@@ -40,6 +40,19 @@ seed = 20260930; fast = False; repeats x folds = 3 x 5; CPU time = 284.5 s; wall
 | moons_aniso | 94.3 / 97.5 / 98.9 | 85.9 / 90.4 / 94.5 | 87.9 / 91.5 / 94.7 | 87.8 / 91.5 / 94.6 | 88.4 / 91.9 / 94.8 | 96.0 / 98.5 / 99.3 | 91.6 / 96.1 / 98.7 | 91.0 / 95.0 / 98.2 | 91.0 / 95.2 / 97.8 | 90.7 / 94.7 / 97.3 | 90.9 / 91.8 / 92.7 | 91.1 / 90.7 / 90.3 | 87.8 / 91.5 / 95.9 |
 | synth_classcov | 89.6 / 92.7 / 94.8 | 82.8 / 85.6 / 88.1 | 84.1 / 87.9 / 90.8 | 90.4 / 94.6 / 96.7 | 85.0 / 88.0 / 90.5 | 88.8 / 91.8 / 93.9 | 89.1 / 92.3 / 94.5 | 88.6 / 91.9 / 94.3 | 89.4 / 92.7 / 95.3 | 89.4 / 92.7 / 95.1 | 88.2 / 87.3 / 86.4 | 86.5 / 86.4 / 85.8 | 80.8 / 83.6 / 86.2 |
 | synth_lda | 88.8 / 92.9 / 95.5 | 84.8 / 88.5 / 91.6 | 91.1 / 94.8 / 97.5 | 90.9 / 94.8 / 97.5 | 90.5 / 94.8 / 97.3 | 87.6 / 91.5 / 93.9 | 90.1 / 93.8 / 96.5 | 88.2 / 91.8 / 95.0 | 88.1 / 92.1 / 94.7 | 88.2 / 91.9 / 94.3 | 87.0 / 87.1 / 87.0 | 87.7 / 87.7 / 87.2 | 85.7 / 89.2 / 91.7 |
+
+## Geometry-only scores: error rate x 100 of the variant's own tuned classifier (= expected AURC of a random ordering) and its AURC x 100
+
+| dataset | margin err | margin AURC | volume err | volume AURC | anisotropy err | anisotropy AURC |
+|---|---|---|---|---|---|---|
+| iris | 3.8 | 0.37 | 4.2 | 1.54 | 4.9 | 6.79 |
+| wine | 1.7 | 0.08 | 2.6 | 0.65 | 2.2 | 0.64 |
+| breast_cancer | 6.7 | 0.83 | 6.6 | 4.73 | 6.6 | 4.35 |
+| digits | 2.3 | 0.26 | 2.2 | 0.66 | 2.1 | 1.42 |
+| synth_informative | 13.6 | 4.81 | 14.0 | 17.10 | 14.1 | 15.60 |
+| moons_aniso | 9.0 | 1.19 | 9.1 | 4.67 | 8.9 | 10.18 |
+| synth_classcov | 11.4 | 2.77 | 11.8 | 16.70 | 13.5 | 15.10 |
+| synth_lda | 11.8 | 2.83 | 13.0 | 15.02 | 12.3 | 14.42 |
 
 ## Field variants vs best reference: paired difference of AURC x 100 (field - reference); 95% intervals: percentile bootstrap over folds (boot, predefined), Student t over folds (t), Nadeau-Bengio corrected t (NB); wins/ties/losses over folds; Wilcoxon p (descriptive)
 

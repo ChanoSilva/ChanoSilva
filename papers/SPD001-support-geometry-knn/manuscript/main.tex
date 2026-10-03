@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -56,18 +56,18 @@
 
 \begin{abstract}
 \noindent
-For a query point $q$ and its $k$ nearest training neighbours of a class $c$, the residual $q-\mu$ from the neighbourhood centroid splits into a \emph{tangential} component along the local principal subspace and an \emph{orthogonal} component normal to it, and the position of $q$ inside the neighbourhood can be summarised by a \emph{depth}. The research line SPD001 asked whether this three-part description carries information for classification beyond what nearest feature lines, local hulls and depth measures already use. We show that the regularised local-hyperplane distance of Vincent and Bengio is exactly a data-weighted sum of the orthogonal component and of the squared tangential coordinates, $h_\lambda^2=O^2+\sum_j \lambda t_j^2/(s_j^2+\lambda)$, while the local spatial depth is not a function of the two distances. We then run the isolating comparison the line had left pending: \NDatasets{} datasets, $\MetaSplits\times\MetaRepeats$ repeated cross-validation, six tuned reference classifiers and a conditional-logit combination of the three components with its ablations, under a criterion fixed before the first complete run (a paired bootstrap interval above zero against the best reference on at least \NRequired{} of \NDatasets{} datasets). The combination met it on \NSigWins{} datasets; its difference to the best reference ranged from \DeltaBestMin{} to \DeltaBestMax{} accuracy points. The largest bootstrap upper limit over datasets is \CiHiBestMax{} points, and \CiHiBestMaxNb{} points with the Nadeau--Bengio variance that accounts for the dependence between folds, so the study excludes gains of a few points, not of one. Removing the orthogonal component costs \AblOrthMin{} to \AblOrthMax{} points (bootstrap interval above zero on \NAblOrthCiAboveZero{} of \NDatasets{} datasets, Nadeau--Bengio interval on \NAblOrthNbAboveZero); removing the depth or the tangential component never does so significantly in either reading. The decomposition is a useful bookkeeping device for describing local-hull classifiers, but it does not add predictive information beyond them.
+For a query $q$ and its $k$ nearest training neighbours of a class, the residual from the neighbourhood centroid splits into a \emph{tangential} component along the local principal subspace and an \emph{orthogonal} component normal to it, and the position of $q$ among the neighbours can be summarised by a \emph{depth}. The research line SPD001 asked whether this description carries information for classification beyond nearest feature lines, local hulls and depth measures. We show that the regularised local-hyperplane distance of Vincent and Bengio is exactly a data-weighted sum of the orthogonal component and the squared tangential coordinates, $h_\lambda^2=O^2+\sum_j \lambda t_j^2/(s_j^2+\lambda)$, while the local spatial depth is not a function of the two distances. We then run the isolating comparison the line had left pending (\NDatasets{} datasets, $\MetaSplits\times\MetaRepeats$ repeated cross-validation, six tuned references, a conditional-logit combination of the three components and its ablations) under a criterion fixed before the first complete run: a paired bootstrap interval above zero against the best reference on at least \NRequired{} of \NDatasets{} datasets. The combination met it on \NSigWins; its difference to the best reference ranged from \DeltaBestMin{} to \DeltaBestMax{} accuracy points, and the largest upper limit is \CiHiBestMax{} points with the bootstrap and \CiHiBestMaxNb{} with the Nadeau--Bengio variance, so the study excludes gains of a few points, not of one. Removing the orthogonal component costs \AblOrthMin{} to \AblOrthMax{} points (interval above zero on \NAblOrthCiAboveZero{} of \NDatasets{} datasets with the bootstrap, \NAblOrthNbAboveZero{} with Nadeau--Bengio); removing the depth or the tangential component never does so significantly. The decomposition describes local-hull classifiers well, but it does not add predictive information beyond them.
 \end{abstract}
 
 \section{Introduction}\label{sec:intro}
 
 Nearest-neighbour classification~\citep{fixhodges1989,coverhart1967} uses only distances from the query to individual training points. A family of extensions replaces the point by a local set built from the query's neighbours in each class: the line through two prototypes (nearest feature line, \citealp{lilu1999}), the affine hull of the $k$ nearest same-class neighbours with a ridge penalty (HKNN, \citealp{vincentbengio2002}), bounded hulls and hyperdisks~\citep{cevikalp2008}, local principal subspaces~\citep{kambhatlaleen1997} or locally adapted metrics~\citep{hastietibshirani1996}. All of them measure, in one way or another, how far the query lies \emph{off} the local class support. A separate tradition, statistical depth~\citep{tukey1975,liu1990,zuoserfling2000}, measures how central a point is \emph{inside} a cloud, and depth-based classifiers assign the query to the class in which it is deepest~\citep{ghoshchaudhuri2005,licuestaliu2012}, with local versions for multimodal classes~\citep{paindaveinevanbever2013}.
 
-The research line SPD001 (``support geometry and nearest neighbours'') set out from the observation that these quantities are components of one decomposition. If $\mu$ is the centroid of the $k$ nearest neighbours of $q$ in class $c$ and $T_m$ is the $m$-dimensional principal subspace of that neighbourhood, then $q-\mu$ splits orthogonally into a tangential part in $T_m$ and an orthogonal part normal to it, and a depth measures where $q$ falls relative to the neighbours. The line's public record states its objective as \emph{determining whether this decomposition adds information beyond feature lines, hulls and depth measures}, and its findings as \emph{a comparison isolating a specific contribution remains pending; no improvement in predictive accuracy has been validated}. This paper runs that comparison and writes down the answer, together with the elementary facts that explain it.
+The research line SPD001 (``support geometry and nearest neighbours'') set out from the observation that these quantities are components of one decomposition: if $\mu$ is the centroid of the $k$ nearest neighbours of $q$ in class $c$ and $T_m$ the $m$-dimensional principal subspace of that neighbourhood, $q-\mu$ splits orthogonally into a tangential part in $T_m$ and an orthogonal part normal to it, and a depth measures where $q$ falls relative to the neighbours. The line's public record states its objective as \emph{determining whether this decomposition adds information beyond feature lines, hulls and depth measures}, and its findings as \emph{a comparison isolating a specific contribution remains pending; no improvement in predictive accuracy has been validated}. This paper runs that comparison and writes down the answer, with the elementary facts that explain it.
 
 \paragraph{Contributions.} (i)~Precise definitions of the tangential, orthogonal and depth components of a query with respect to a class neighbourhood (Section~\ref{sec:defs}). (ii)~Elementary propositions (Section~\ref{sec:theory}): the regularised HKNN distance is an explicit weighted combination of the orthogonal component and the tangential coordinates, monotone in the penalty and bounded by the hull distance and the centroid distance; the nearest-feature-line distance restricted to the same neighbours is sandwiched between the hull distance and the nearest-neighbour distance; the local spatial depth is not a function of the two distances, so it \emph{could} carry information. (iii)~The isolating comparison with a criterion stated before the first complete run (Section~\ref{sec:protocol}) and its outcome (Section~\ref{sec:results}), which is negative under that criterion. (iv)~A list of claims with their status (Section~\ref{sec:claims}).
 
-\paragraph{Scope.} The paper is a methodological study on small public and synthetic datasets; it makes no claim about any application domain. ``Adds information'' is given one operational meaning (Section~\ref{sec:protocol}); other meanings, such as usefulness for visualisation or for describing existing methods, are not tested and are not denied. Every number is produced by the scripts described in Appendix~\ref{app:repro} with a fixed seed; none is typed by hand.
+\paragraph{Scope.} The paper is a methodological study on small public and synthetic datasets; it makes no claim about any application domain. ``Adds information'' is given one operational meaning (Section~\ref{sec:protocol}); other meanings, such as usefulness for visualisation or description, are not tested and not denied. Every number is produced by the scripts of Appendix~\ref{app:repro} with a fixed seed; none is typed by hand.
 
 \section{Definitions}\label{sec:defs}
 
@@ -182,7 +182,7 @@ Propositions~\ref{prop:pyth}--\ref{prop:nonredundant} are elementary \status{pro
 
 \begin{figure}[tb]
 \centering
-\includegraphics[width=0.62\linewidth]{../figures/decomposition.pdf}
+\includegraphics[width=0.56\linewidth]{../figures/decomposition.pdf}
 \caption{The decomposition on the two-moons data for one query $q$ (star) with respect to each class: circles are the $k=10$ class neighbours, the square their centroid, the line the one-dimensional tangent subspace $T_1$; the solid segment is the tangential component, the dashed segment the orthogonal one; the short rays are the unit vectors $S(x_i-q)$ whose mean defines the spatial depth.}
 \label{fig:schematic}
 \end{figure}
@@ -234,7 +234,7 @@ dataset & $-$ depth (vs TO) & $-$ orthogonal (vs TD) & NB 95\% CI (vs TD) & $-$ 
 
 \begin{figure}[tb]
 \centering
-\includegraphics[width=0.84\linewidth]{../figures/forest.pdf}
+\includegraphics[width=0.78\linewidth]{../figures/forest.pdf}
 \caption{Left: TOD minus the best reference per dataset (C1). Right: the three ablations (C2). Thick segments: bootstrap 95\% intervals; thin segments: intervals with the Nadeau--Bengio variance; black (left) marks a bootstrap interval excluding zero.}
 \label{fig:forest}
 \end{figure}
@@ -247,7 +247,7 @@ The ablations (Table~\ref{tab:ablation}, Figure~\ref{fig:forest}) say where the 
 
 \begin{figure}[tb]
 \centering
-\includegraphics[width=0.44\linewidth]{../figures/regime.pdf}
+\includegraphics[width=0.4\linewidth]{../figures/regime.pdf}
 \caption{E2: accuracy against the number $p$ of appended noise coordinates for five references and TOD (dashed); the best reference at each $p$ is the highest line (\RegBestSet).}
 \label{fig:regime}
 \end{figure}
@@ -283,7 +283,7 @@ Table~\ref{tab:claims} lists the claims with their status. The answer to the lin
 
 \appendix
 \section{Reproducibility}\label{app:repro}
-{\sloppy The directory contains \path{experiments/support_geometry.py} (the whole experiment, E1 and E2; flag \texttt{--fast} for a reduced run), \path{experiments/make_figures.py} and \path{experiments/make_numbers.py}, which converts \path{results/results.json} and \path{results/results_regime.json} into the macros and table bodies used by this document and into \path{results/tables_appendix.md}, so that every number in the text is generated and none is typed; the Nadeau--Bengio intervals, the grid-edge fractions and the modal hyper-parameters are recomputed by that script from the per-fold lists. The run used seed \MetaSeed, Python \MetaPython, NumPy \MetaNumpy~\citep{harris2020}, SciPy \MetaScipy~\citep{virtanen2020} and scikit-learn \MetaSklearn~\citep{pedregosa2011}, single-threaded BLAS, and took \MetaSecondsWall{} s wall / \MetaSecondsCpu{} s CPU on a shared four-core machine. The first run with the narrower grids is kept as \path{results/tables_run1_narrow_grids.md}. Computation: per fold, all squared distances are computed once; for each class and $k$ the $k$ nearest same-class points are found by partial sorting and decomposed by a batched thin SVD, from which every score of Definitions~\ref{def:TO}--\ref{def:depth} and the closed form of Proposition~\ref{prop:hknn} are evaluated (checked against brute-force minimisation and \texttt{lstsq} before the runs); logit weights are fitted by L-BFGS-B with the analytic gradient; the corrected $t$ uses $J-1$ degrees of freedom.\par}
+{\sloppy The directory contains \path{experiments/support_geometry.py} (the whole experiment, E1 and E2; flag \texttt{--fast} for a reduced run), \path{experiments/make_figures.py} and \path{experiments/make_numbers.py}, which converts \path{results/results.json} and \path{results/results_regime.json} into the macros and table bodies used by this document and into \path{results/tables_appendix.md}, so that every number in the text is generated and none is typed; the Nadeau--Bengio intervals, the grid-edge fractions and the modal hyper-parameters are recomputed by that script from the per-fold lists. The run used seed \MetaSeed, Python \MetaPython, NumPy \MetaNumpy~\citep{harris2020}, SciPy \MetaScipy~\citep{virtanen2020} and scikit-learn \MetaSklearn~\citep{pedregosa2011}, single-threaded BLAS, and took \MetaSecondsWall{} s wall / \MetaSecondsCpu{} s CPU on a shared four-core machine. The first run with the narrower grids is kept as \path{results/tables_run1_narrow_grids.md}. Computation: per fold, all squared distances are computed once; for each class and $k$ the $k$ nearest same-class points are found by partial sorting and decomposed by a batched thin SVD, from which all scores and the closed form of Proposition~\ref{prop:hknn} are evaluated (checked against brute force and \texttt{lstsq} before the runs); logit weights are fitted by L-BFGS-B with the analytic gradient.\par}
 
 \section{Hyper-parameters}\label{app:tables}
 \begin{table}[htb]
@@ -299,7 +299,8 @@ dataset & $\kNN$ & HKNN $(k,\lambda_{\rm rel})$ & LPH $(k,m)$ & SD $k$ & TOD $(k
 \label{tab:params}
 \end{table}
 
-\renewcommand{\bibfont}{\small}
+\renewcommand{\bibfont}{\footnotesize}
+\setlength{\bibsep}{2.5pt}
 \bibliographystyle{plainnat}
 \bibliography{refs}
 \end{document}
