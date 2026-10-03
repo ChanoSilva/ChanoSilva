@@ -130,6 +130,8 @@ for c in chains:
 mac("ConvMaxRelRop", f"{100*maxrel_rop:.2f}")
 mac("ConvMaxRelTau", f"{100*maxrel_tau:.2f}")
 mac("WrDiffMax", f"{wr_diff_max:.3f}")
+_c05 = chain("(2,3)", 0.5, fine)
+mac("WrMarginHalf", f"{abs(_c05['levels'][1]['writhe'] - 3.5):.3f}")   # distance of Wr(K_1), f = 1/2, to the half-integer 3.5
 mac("WrDiffMaxWhere", wr_diff_where)
 mac("WrDiffDefaultOne", f"{wr_diff_default_one:.0e}".replace("e-0", r"\cdot10^{-").replace("e-", r"\cdot10^{-") + "}"
     if wr_diff_default_one > 0 else "0")
@@ -305,8 +307,8 @@ for lv in hc:
     k = (FN[lv["f"]] if pat == "(2,3)" else PN[pat]) + DN[d]
     c1_by_level[k] = lv["c1d"]
     mac("HcCone" + k, floor_fmt(lv["c1d"], 3))
-    mac("HcCzero" + k, f"{lv['c0']:.2f}")
-    mac("HcCkappa" + k, f"{lv['c_kappa']:.2f}")
+    mac("HcCzero" + k, floor_fmt(lv["c0"], 2))
+    mac("HcCkappa" + k, floor_fmt(lv["c_kappa"], 2))
     mac("HcTheta" + k, f"{lv['Theta_min']:.2f}")
     if pat == "(2,3)" and abs(lv["f"] - 0.5) < 1e-9 and d == 1:
         mac("HcConeBase", floor_fmt(lv["c1d"], 4))          # c_1(1/2, 2/3): grid value with an estimated Lipschitz correction

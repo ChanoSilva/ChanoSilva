@@ -1,4 +1,4 @@
-# EQO001 — Continuidad interna, 30/09/2026 (actualizada el 03/10/2026 tras la ronda 1 de revisión interna)
+# EQO001 — Continuidad interna, 30/09/2026 (actualizada el 03/10/2026 tras las rondas 1 y 2 de revisión interna)
 
 Documento de trabajo interno. No incorporar al manuscrito ni a entregas institucionales. Las secciones originales (v0.1) se conservan con correcciones marcadas **[corregido 03/10]**; la sección final recoge la ronda 1.
 
@@ -73,10 +73,45 @@ Informe: `REFEREE_EQO001_ronda1_20260930.md` (cambios mayores; 1 bloqueante, 5 m
 - **E1 y E3–E4:** idénticos a v0.1 salvo el campo nuevo de E1c y los contadores de PoA $=1$ (86/200).
 
 ### Lo que queda abierto tras la ronda 1
-1. Pregunta 8.1 reformulada: caracterización de $\Lambda=\Lambda_1$ y de la poliedralidad por patrón de caras y hessianos; complejidad de decidir $\lambda\in\Lambda(x^*)$ (sólo se cita la dureza de la optimalidad local, Murty–Kabadi 1987; la complejidad exacta de la pertenencia no se ha establecido); descripción de tamaño polinómico bajo monotonía fuerte. Próximo paso concreto: análisis de las 27 caras para $N=3$ con el Ej. 5.6 como guía.
-2. Pregunta 8.2 reformulada: $m\ge3$ mercancías (para $m=2$ el cono es poliédrico por trivialidad); estructuras de red con $\Lambda=\Lambda_1$ (sin enlaces compartidos es inmediato).
-3. La variante fuertemente monótona del Ej. 5.6 está verificada sólo numéricamente.
+1. **[Resuelto en la ronda 2: Prop. 5.9 y Remark 5.10 de la v0.3]** Pregunta 8.1 reformulada: caracterización de $\Lambda=\Lambda_1$ y de la poliedralidad por patrón de caras y hessianos; complejidad de decidir $\lambda\in\Lambda(x^*)$ (sólo se cita la dureza de la optimalidad local, Murty–Kabadi 1987; la complejidad exacta de la pertenencia no se ha establecido); descripción de tamaño polinómico bajo monotonía fuerte. Próximo paso concreto: análisis de las 27 caras para $N=3$ con el Ej. 5.6 como guía.
+2. **[Resuelto en la ronda 2: Ej. 5.8 de la v0.3; la segunda parte se sustituye por la Pregunta 7.1]** Pregunta 8.2 reformulada: $m\ge3$ mercancías (para $m=2$ el cono es poliédrico por trivialidad); estructuras de red con $\Lambda=\Lambda_1$ (sin enlaces compartidos es inmediato).
+3. **[Resuelto en la ronda 2: forma cerrada $\varphi$ demostrada]** La variante fuertemente monótona del Ej. 5.6 está verificada sólo numéricamente.
 4. Prerregistro: los criterios se evalúan por máquina desde v0.2, pero no hay evidencia externa de que se fijaran antes de la primera corrida (sólo las marcas de tiempo de la sesión del 30/09).
 5. Extensión: 14 páginas; bajar a 10 exigiría quitar demostraciones o los ejemplos nuevos.
 6. Ronda 2 de arbitraje sobre la v0.2 (atención a los Ej. 5.6–5.7, E5 y las preguntas reformuladas); después, actualizar la ficha del CV con `FICHA_EQO001_propuesta.md`.
 7. Pendiente 4 de v0.1 (E4 con $N=5,6$ y solver global) sigue abierto; E5 con $m=3$ también.
+
+
+## Ronda 2 de revisión interna (03/10/2026) — respuesta aplicada el 03/10/2026 (v0.3)
+
+Informe: `REFEREE_EQO001_ronda2_20261003.md` (cambios mayores de alcance acotado; 0 bloqueantes, 4 mayores, 12 menores; reproducción completa idéntica; Ej. 5.7 verificado). Respuesta punto por punto: `RESPUESTA_EQO001_ronda2_20261003.md`. Recuento: 13 aceptados, 3 aceptados con matiz (M2, M4, m6), 0 rebatidos. Numeración del PDF v0.3 (la Prop. 3.1 de la v0.2 pasó a un párrafo, de modo que el Teorema 3.2 es ahora 3.1, etc.).
+
+| Hallazgo | Acción |
+|---|---|
+| M1 Pregunta 8.1(ii) no abierta | Nueva **Prop. 5.9** (co-NP-completitud de decidir $\lambda\in\Lambda(x^*)$ y $\Lambda=\Lambda_1$; difícil aun con $F$ fuertemente monótono, $x^*$ vértice, $\lambda$ unitario, $\Lambda_1=\mathbb R^N_+$, y con $N=2$ y acciones vectoriales), con pertenencia a co-NP demostrada (cara del maximizador + vértice de un politopo racional, Schrijver 1986; Vavasis 1990 cotejado en línea) y reducción desde MAX-CUT (Karp 1972). E6 nuevo (`hardness_maxcut.py`): 1696 grafos, 13 686 pares $(G,k)$, 0 discrepancias. Pregunta 8.1 retirada (Remark 5.10): la parte (i) no tiene respuesta comprobable eficientemente salvo P = NP. |
+| M2 expectativa $m\ge3$ | Instancia del árbitro verificada (`confirm_m3.py`: $v''\approx0.0055$–$0.0115$ en $[1.6,2.6]$; brecha 0.00321 con L-BFGS-B independiente). Se encontró una instancia racional y se **demostró** a mano (Ej. 5.8): $\Lambda(y^*)=\{\lambda_3+m\ge0\}$, frontera $\psi(\lambda_1)=\lambda_1(\lambda_1+1)/(4(4-\lambda_1)(4\lambda_1-1))$. E7 nuevo (`three_commodity.py`). La reformulación sugerida por el árbitro ("¿$\Lambda=\Lambda_1$ con $b\equiv0$?") **no** se adoptó: E5b ya contiene 4 contraejemplos (de 27 instancias con $b\equiv0$). Nueva Pregunta 7.1: complejidad de la pertenencia en ruteo multimercancía. |
+| M3 variante fuertemente monótona | Forma cerrada $\varphi$ demostrada en el Ej. 5.6 (sin la restricción "mientras el hessiano sea indefinido": el caso semidefinido negativo se cubre con $\lambda\in\Lambda_1$); E2c compara con $\varphi$ ($1.1\times10^{-8}$; criterio $10^{-7}$ nuevo). |
+| M4 extensión | 14 → 13 páginas. Todos los recortes propuestos aplicados, más figuras remitidas por ruta y bibliografía a dos columnas; no se llega a 11 porque la ronda pidió ≈2 páginas de demostraciones nuevas. |
+| m1 E1c | Fusionado con E1b (código, criterio y texto); E1 pasa de 5 a 4 criterios. |
+| m2 $\gamma=\mu/L^2$ | Remark 3.5 y §6: excepción de E2c ($\gamma=1$, unicidad por dominancia). |
+| m3 "never determines" | Prop. 5.3 ampliada con el argumento general ($N\ge2$, algún $K_{-i}$ no puntual); resumen: "does not determine it". |
+| m4/m5/m9 Motzkin, Dubey, Morris–Ui | Teorema 5.1(e): eficiencia débil local ⇒ $\Lambda_1\ne\{0\}$ (Gordan–Motzkin); Remark 5.2 reescrito (alcance de Dubey; Prop. 5.3 como reempaquetado; Morris–Ui 2004). |
+| m6 E5b | Desglose por patrón de caras; $\dim\Lambda_1$ por PL (16 bidimensionales, 75 rayos); testigos: 8 instancias con alguna dirección de pesos positivos, 13 sólo en ejes; porcentaje retirado. |
+| m7, m8 | Coordenadas reducidas en el Ej. 5.7; observación de separabilidad en la Pregunta 7.1. |
+| m10–m12 | Ficha con estado condicional y preguntas actualizadas; `table_pigou.tex` ya no se genera; recuento de macros corregido (177). |
+| Bibliografía | `roughgarden2005` citada (Teorema 3.7); Danskin con `number={4}` y DOI; Murty–Kabadi con `number={2}` (de memoria; cotejo pendiente); Bochnak–Coste–Roy con serie "(3)"; añadidas Morris–Ui 2004 y Vavasis 1990 (cotejadas en línea), Karp 1972 y Schrijver 1986 (de conocimiento del autor, no cotejadas en línea). 34 entradas, todas citadas. |
+
+### Resultados de referencia añadidos en v0.3 (semilla 20260930)
+- **E2c variante:** frontera bisecada a $1.1\times10^{-8}$ de $\varphi$ en 9 puntos $\lambda_1\in[0.35,0.75]$ ($\varepsilon=0.2$).
+- **E5b desglose:** $\Lambda_1$ bidimensional en 16 (ortante en 9), rayo en 75, trivial en 109; 21 instancias con testigo (8 con dirección interior, 13 sólo de eje); 0 de 62 con equilibrio interior; 4 de 27 con $b\equiv0$.
+- **E6:** todos los grafos de 3, 4, 5 nodos con pesos unitarios (8, 64, 1024) y 300 + 300 grafos aleatorios de 6 nodos (pesos unitarios; pesos en {1,2,3}); 13 686 pares, 3598 miembros, 10 088 no miembros, 0 discrepancias; cruce vértices/caras en 36 casos, diferencia 0; 85 s.
+- **E7:** $y^*=(0,0,1)$, residuo 0; frontera a $1.0\times10^{-8}$ de $\psi$ en 16 puntos de $[0.7,1.45]$; 0 discrepancias en 1878 puntos; brecha del testigo $(1,1,1/20)$ igual a $1/180$.
+- **E1, E2–E4, E5a:** idénticos a la v0.2 campo a campo (se comprobó contra una copia de los JSON de la v0.2).
+- **Cómputo de la sesión:** ≈ 4 min de CPU (E2–E4 106 s, E6 76 s, E5 8 s, E1 3 s, E7 3 s, verificación de la instancia del árbitro 38 s) más compilaciones.
+
+### Lo que queda abierto tras la ronda 2
+1. Pregunta 7.1: ¿es co-NP-difícil decidir $\lambda\in\Lambda(f^*)$ en ruteo multimercancía con costos afines? (La pertenencia a co-NP sí está demostrada.)
+2. Extensión: 13 páginas frente a la meta de 10–11; bajar más exige quitar demostraciones.
+3. Bibliografía no cotejada en línea en esta ronda: Karp 1972, Schrijver 1986 (datos de conocimiento del autor), `number={2}` de Murty–Kabadi.
+4. Pendientes antiguos: E4 con $N=5,6$ y solver global; prerregistro externo inexistente; confirmar con el autor qué era la "formulación revisada".
+5. Decisión del autor sobre la ficha propuesta (`FICHA_EQO001_propuesta.md`, estado condicional).

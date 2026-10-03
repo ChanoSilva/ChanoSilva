@@ -474,6 +474,7 @@ mac("HardDPRandAgree", hj["dp_random"]["agree"])
 mac("HardDPRandTotal", hj["dp_random"]["total"])
 mac("HardAblInstances", hj["ablations"]["u_C"]["n_instances"])
 mac("HardSeconds", int(round(hj["meta"]["seconds"])))
+mac("HardSeed", hj["meta"]["seed"])
 mac("HardSha", hsha[:16])
 assert hr["equiv_ok"] == hr["pairs"] == 2 * hr["n_source"] and hr["dp_agree"] == hr["pairs"], "312/312"
 assert hr["char_fail"] == hr["undetermined"] == hr["ties"] == 0 and hr["full_data_ok"] == hr["pairs"], \
