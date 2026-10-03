@@ -38,7 +38,7 @@ Línea RTK001, "Geometría de nudos recursivos" / "Geometry of recursive knots",
 
 ## Lo que NO se afirma
 - No se certifica el grosor suave de ninguna curva: τ es un proxy poligonal (pares de vértices, test de mínimo local). La evidencia es la estabilidad en N y la coincidencia con τ_pt.
-- La cota inferior del grosor de K_d (v0.4, Teorema 3.12; p = 2, familia (2,3), f ≤ 1/2): **demostrado** que todo par doblemente crítico con bases distintas está a distancia ≥ min(2(τ − r), r) en toda profundidad (hebras distintas, Lema 3.7, c_1 ≥ 1/2; misma hebra, Prop. 3.10/Cor. 3.11, c_0′ ≥ 1/2, ronda 2) y que grosor(K_1) ≥ r_1/2 (d = 1 completo). Para d ≥ 2 falta la curvatura: minRad(K_d) ≥ r_d/2 se deduce de (H_3) (derivadas de la velocidad y del vector de curvatura del marco paralelo de la base) y para d ≥ 3 solo está **evaluada en malla con entradas medidas en los polígonos** (1/(rκ̂) = 0.998 en f = 1/2, d = 3), no demostrada; **en d = 2 está demostrada por computador** (ronda 4, Prop. 3.19: r_2 κ_max(K_2) ≤ 1.187, aritmética de intervalos; verificada por el autor, aún no revisada por un árbitro independiente). En la ronda 3 se integró un resultado **parcial** (Lema 3.14, Prop. 3.15, Cor. 3.16, Prop. 3.17): para d ≥ 3 la curvatura se sigue de una condición de crecimiento explícita sobre ν(K_{d−1}), μ(K_{d−1}), y se demuestra que la cota de derivadas no puede propagarse de un nivel al siguiente usando solo esos datos para una base arbitraria (ninguna función localmente acotada de los datos (H_3) acota μ(K_d)); en la familia, μ crece despacio (4.5 → 7.0 de d = 1 a 4, valores lisos). **(H_3) uniforme en d, y por tanto d ≥ 3, sigue abierto**. Los valores refinados (c_1 ≈ 0.6117, c_0′ = 0.509 / 0.845 / 0.988, etc.) son ínfimos en malla; solo los umbrales ≥ 1/2 y 1/(rκ̄_1) > 0.561 son analíticos. La hipótesis (H_c) es **sobre la familia** (la versión de v0.1, para una base arbitraria, era falsa: Obs. 3.13). La recursión Rop_d ≤ 2πΛ^d es condicional a (H_c).
+- La cota inferior del grosor de K_d (v0.4, Teorema 3.12; p = 2, familia (2,3), f ≤ 1/2): **demostrado** que todo par doblemente crítico con bases distintas está a distancia ≥ min(2(τ − r), r) en toda profundidad (hebras distintas, Lema 3.7, c_1 ≥ 1/2; misma hebra, Prop. 3.10/Cor. 3.11, c_0′ ≥ 1/2, ronda 2) y que grosor(K_1) ≥ r_1/2 (d = 1 completo). Para d ≥ 2 falta la curvatura: minRad(K_d) ≥ r_d/2 se deduce de (H_3) (derivadas de la velocidad y del vector de curvatura del marco paralelo de la base) y para d ≥ 3 solo está **evaluada en malla con entradas medidas en los polígonos** (1/(rκ̂) = 0.998 en f = 1/2, d = 3), no demostrada; **en d = 2 está demostrada por computador** (ronda 4, Prop. 3.19: r_2 κ_max(K_2) ≤ 1.187, aritmética de intervalos; verificada por el autor y, en la ronda 5, por un árbitro interno independiente: «computer-assisted proof (interval arithmetic); checked by an independent internal referee (round 5)»). En la ronda 3 se integró un resultado **parcial** (Lema 3.14, Prop. 3.15, Cor. 3.16, Prop. 3.17): para d ≥ 3 la curvatura se sigue de una condición de crecimiento explícita sobre ν(K_{d−1}), μ(K_{d−1}), y se demuestra que la cota de derivadas no puede propagarse de un nivel al siguiente usando solo esos datos para una base arbitraria (ninguna función localmente acotada de los datos (H_3) acota μ(K_d)); en la familia, μ crece despacio (4.5 → 7.0 de d = 1 a 4, valores lisos). **(H_3) uniforme en d, y por tanto d ≥ 3, sigue abierto**. Los valores refinados (c_1 ≈ 0.6117, c_0′ = 0.509 / 0.845 / 0.988, etc.) son ínfimos en malla; solo los umbrales ≥ 1/2 y 1/(rκ̄_1) > 0.561 son analíticos. La hipótesis (H_c) es **sobre la familia** (la versión de v0.1, para una base arbitraria, era falsa: Obs. 3.13). La recursión Rop_d ≤ 2πΛ^d es condicional a (H_c).
 - No se afirma estacionariedad, optimalidad ni ley de flujo recursiva; f no se optimizó.
 - La única cota inferior nueva es interna a la familia (Prop. 3.5: thick(K_d) ≤ r_d para p = 2, luego Rop(K_d) ≥ L(K_d)/r_d ≥ 2π(p(1−f)/f)^d); para el tipo de nudo se citan Buck–Simon (Rop ≥ c_BS Cr^{3/4}) y Cantarella–Kusner–Sullivan; Cr(K_2) ≥ 13 por Kalfagianni–McConkey 2024 (que además determinan Cr de los 2-cables de nudos adecuados; no se han cotejado sus convenciones con el Lema 3.2, así que no se da el valor exacto) y, para d ≥ 3, solo cotas generales de satélites (Lackenby 2014).
 - "τ_d = r_d para f ≤ f_*(d)" es conjetura (Conj. 3.25, enunciada desde v0.5 de forma uniforme en las fases; en f = 1/2, d = 2, 3 los márgenes poligonales son 1.4 % y 2.1 % con las fases por defecto, y sus mínimos sobre las fases probadas son ≈ 1.37 % y 0.233 % (barrido conjunto; 0.232 % a N_0 = 512) — evaluaciones de malla sesgadas hacia arriba, no cotas inferiores: en curvas lisas 1.369 % y 0.214 %); el cociente límite Rop_d/Rop_{d−1} → p/f (4.0 en f = 1/2) es consecuencia de esa conjetura y de L_d/L_{d−1} → p, no una constante empírica independiente (v0.1 lo presentaba como tal; corregido en la ronda 1).
@@ -186,11 +186,11 @@ Informe: `REFEREE_RTK001_ronda4_20261003.md` (cambios menores; 0 bloqueantes, 2 
 | m8 (CONTINUIDAD:97) | Aceptado: calificador «arco base < πτ y bases distintas». |
 | Estado del bloque (H_3) | «proved here; checked by an independent internal referee (round 4)» en el texto, la tabla de afirmaciones, el README y la FICHA. |
 | Extensión | Recortes 3, 4 y 5 del árbitro, más compresiones menores; 13 → 14 páginas con la Prop. 3.19 añadida. |
-| Integración d = 2 | Prop. 3.19 + Obs. 3.20 [computer-assisted proof (interval arithmetic); not yet checked by an independent referee]. Hip. 3.21 demostrada en d ≤ 2 y Cor. 3.22 incondicional para d ≤ 2. Scripts congelados con SHA-256. Chequeo propio en `check_certify_d2.py`. |
+| Integración d = 2 | Prop. 3.19 + Obs. 3.20 [en v0.5: computer-assisted proof (interval arithmetic); not yet checked by an independent referee; desde v0.6: «checked by an independent internal referee (round 5)»]. Hip. 3.21 demostrada en d ≤ 2 y Cor. 3.22 incondicional para d ≤ 2. Scripts congelados con SHA-256. Chequeo propio en `check_certify_d2.py`. |
 
 **Abierto tras la ronda 4.**
 1. (H_3) uniforme en d, y con ello (H_c) para d ≥ 3. La ruta concreta para d = 3 está en Next steps (1): intervalos en cajas (s, ángulo, r_2).
-2. Revisión independiente de la prueba asistida d = 2 (Prop. 3.19). Hasta ahora solo la ha verificado el autor.
+2. Revisión independiente de la prueba asistida d = 2 (Prop. 3.19). Hasta ahora solo la ha verificado el autor. → **Cerrado en la ronda 5** (auditoría línea a línea y encierro independiente del árbitro: correcta).
 3. Una cota d = 2 más fina, que permitiría minRad(K_2) > r_2 en f = 1/2. Hoy está certificado solo para f ≤ 0.484375; la cota pierde un factor ≈ 3 frente al valor liso.
 4. Márgenes de la Conj. 3.25:
    - solo en f = 1/2 se barren fases, y en d = 3 con rejilla y refinamiento local, sin minimización global;
@@ -198,3 +198,48 @@ Informe: `REFEREE_RTK001_ronda4_20261003.md` (cambios menores; 0 bloqueantes, 2 
    - en d = 3 el margen liso es ≈ 0.21 %, estrecho.
 5. Opcional m5: tercer término de la Prop. 3.15.
 6. Extensión: 14 páginas frente al objetivo de 10.
+
+## Ronda 5 de revisión interna (03/10/2026)
+
+Informe: `REFEREE_RTK001_ronda5_20261003.md` (cambios menores; 0 bloqueantes, 1 mayor, 8 menores). Respuesta punto por punto:
+`RESPUESTA_RTK001_ronda5_20261003.md`. Manuscrito v0.5 → **v0.6** (fecha fija 3 October 2026), 14 → **13 páginas** (márgenes y
+letra sin cambios; ninguna demostración suprimida).
+
+**Veredicto del árbitro sobre la prueba asistida d = 2.** Correcta: cadena lógica comprobada paso a paso, código de intervalos
+auditado línea a línea (ninguna operación sin redondeo hacia fuera, ningún encierro inválido) y una implementación propia solo con
+`mpmath.iv` que certifica la misma desigualdad (< 2) en todo el rango. Desde v0.6 la Prop. 3.19 y la Obs. 3.20 llevan
+**«computer-assisted proof (interval arithmetic); checked by an independent internal referee (round 5)»** en el enunciado, la tabla
+de afirmaciones, la Limitación (1), el README, la FICHA (ES/EN) y esta nota (l. 41, tabla de la ronda 4, abierto 2 de la ronda 4).
+
+| Hallazgo | Acción |
+|---|---|
+| M1 (extensión, 14 pp.) | Aceptado con matiz: 13 pp. Recortes del árbitro (1) Obs. 3.20 acortada (segunda corrida y lista de `check_certify_d2.py` → README), (2) §4 «Three further observations» a una frase por resultado (barridos, periodos, refinamientos → README), (3) lista de ν, μ de la Obs. 3.18 abreviada (→ `results/theory_constants.md`), (5) Tabla 1 solo f = ½ (f = 0.25, 0.35 → `results/theory_constants.md`). **No** se fundieron el Lema 3.14 y la Prop. 3.15 (recorte 4): renumeraría la Prop. 3.19 recién arbitrada y todo lo posterior (3.19 → 3.18, 3.20 → 3.19, 3.21 → 3.20, 3.22 → 3.21, 3.25 → 3.24), y el ahorro (≈ 3 líneas efectivas) no compensa la confusión. Para llegar a 13 pp. se comprimieron además: resumen, introducción (historia de revisiones), §2.4 (cocientes segmento–segmento → `aux_checks.json`), historia de v0.2 en la misma hebra, párrafo tras la Prop. 3.6, Obs. 3.4, Obs. 3.23, 3.24, Limitaciones, Next steps, apéndice; la Obs. «growth rate» (antigua 3.26, la última numerada: no renumera nada) pasa a una frase tras la Conj. 3.25; las filas f = 0.25 y la sonda f = 0.6 de la Tabla 2 pasan a `results/tables.md` (ya estaban allí). |
+| m1 («K₁ has κ > 0» falso en r₁ = 4/13) | Aceptado. Docstring y comentario de `experiments/certify_d2.py` corregidos (κ(K₁)(π/2) = \|4 − 13r₁\|/(4(1−r₁)² + 9r₁²); el encierro de torsión solo se evalúa en r₁ = 0.25, 0.35, 0.5, donde κ_min = 0.267, 0.197, 0.769, `results/smooth_d2_phases.json`; el encierro de α₂ en r₁ = ½ cruza −π y el «m₂» impreso no es un encierro). Manuscrito: «… where κ > 0» en la Prop. 3.8. **Nota de corrección para `theory/d2_certified_derivation.md:159`** (no editado, regla de no tocar `theory/`): la frase «Como κ(K_1) > 0, el marco de Frenet es periódico» es falsa en r₁ = 4/13 (κ se anula en s = π/2 + 2πk/3); el bono de holonomía por torsión solo vale donde κ > 0 (en r₁ = 0.25, 0.35, 0.5 sí) y su intervalo «reducido a (−π, π]» en r₁ = ½ solo encierra α₂ módulo 2π. Lo mismo vale para el docstring de `theory/certify_d2.py:24–25`. El bono no interviene en la cota ni en el manuscrito. |
+| m2 (Prop. 3.15 fuera de f ≤ ½) | Aceptado. La Prop. 3.15 (y el Lema 3.14) se enuncian para todo r > 0 con ε = rκ_max(K) < 1 (sus pruebas no usan τ ni f); la prueba de la Prop. 3.19 lo dice, con «r₂/thick(K₁) may exceed ½» y «ε ≤ 0.355 on every box» (macro `\DtwoCertEpsMax`, de `certify_d2.json["B"]["max_eps_hi"]` = 0.35470, clave añadida en v0.6). |
+| m3 (no agudeza) | Aceptado. Obs. 3.20: la pérdida viene de separar los cuatro supremos y del reparto de Minkowski; en r₁ = ½ el m₂ real es 1.98 (macro de `smooth_d2_phases.json`), así que m₂ ≤ 2 apenas cuesta. Valores lisos con r₂ = r₁/2: 0.40 (r₁ = ½, fases por defecto), ≈ 0.41 (máximo sobre 48 fases en r₁ = ½) y ≈ 0.48 (máximo sobre las fases y r₁ ≤ ½ muestreados, 0.4767 en r₁ = 0.4903, justo antes de r₁* ≈ 0.4904, donde α₂ cruza π), de `experiments/smooth_d2_phases.py` (nuevo). Opcional: «The printed constant is that of this interval extension». |
+| m4 (base de confianza; fallo explícito) | Aceptado. Obs. 3.20 y docstring: binary64 con redondeo al más cercano sin *flush-to-zero*, `float()` de `mpf` al más cercano, `mpmath.iv`. `certify_d2.py`: `assert_finite` sobre todos los encierros y `assert res["ok"] and np.isfinite(res["total"])` en cada caja (también en el bloque (A) y en el bucle de f_c). Re-ejecutado: salida idéntica salvo tiempos; JSON idéntico salvo tiempos y claves añadidas. SHA-256 re-congelados. Sobre la RESPUESTA de ronda 4, §4.4: el «caso límite ζ' entre SQ2_LO y √2» no puede ocurrir, porque `SQ2_LO` es el mayor flotante < √2. |
+| m5 (README sin salvedad) | Aceptado: README con la salvedad y la nueva etiqueta. |
+| m6 (`smooth_margin.py`, `phase_margin.py`) | Aceptado: ventana de exclusión documentada (\|ds − π\| ≤ 0.05; el árbitro comprobó que una ventana de 0.004 da los mismos cinco márgenes); atribución de `phase_margin.py` corregida (cálculo del árbitro de la ronda 4, no `smooth_margin.py`). `smooth_margin.py` re-ejecutado: idéntico salvo tiempos. |
+| m7 (Limitación (1), fila de la tabla) | Aceptado: «completely at d = 1 and, computer-assisted, at d = 2 …; for d ≥ 3 …»; fila de la Prop. 3.8: «at d = 2 superseded by Prop. 3.19». |
+| m8 (salto de m₂ en r₁ ≈ 0.49) | Aceptado: frase en la prueba de la Prop. 3.19. |
+| m5 de la ronda 4 (tercer término) | No aplicado: cambiaría la Prop. 3.15 y la cota certificada recién arbitrada; queda abierto. |
+
+**Numeración.** Sin cambios respecto de v0.5 para todo lo numerado hasta la Conj. 3.25 (Lema 3.14, Prop. 3.15, Cor. 3.16,
+Prop. 3.17, Obs. 3.18, Prop. 3.19, Obs. 3.20, Hip. 3.21, Cor. 3.22, Obs. 3.23, 3.24, Conj. 3.25). Solo desaparece la antigua
+Obs. 3.26 (growth rate), que era la última y pasa a ser texto sin número.
+
+**Código y hashes.** `certify_d2.py` (docstring, comentarios, `assert`, clave `max_eps_hi`), `smooth_margin.py` y
+`phase_margin.py` (docstrings), `make_numbers.py` (macros nuevas `\DtwoCertEpsMax` = 0.355, `\DtwoSmoothHalfMax` = 0.41,
+`\DtwoSmoothMax` = 0.48, `\DtwoSmoothMaxRone` = 0.490, `\DtwoSmoothMtwoHalf` = 1.98; escribe `results/theory_constants.md`;
+la Tabla 2 omite f = 0.25 y 0.6) y el nuevo `smooth_d2_phases.py`. Las 556 macros de v0.5 conservan su valor (comprobado por
+programa). `results/FROZEN_THEORY_SHA256.txt` actualizado (hashes v0.5 comentados, nuevos activos);
+`sha256sum -c` pasa. `theory/` no se tocó.
+
+**Abierto tras la ronda 5.**
+1. (H_3) uniforme en d, y con ello (H_c) para d ≥ 3 (ruta para d = 3: Next steps (1)).
+2. Cota d = 2 más fina (la certificada, 1.187, frente a ≈ 0.48 liso): minRad(K_2) > r_2 en f = ½ sigue sin certificar.
+3. Márgenes de la Conj. 3.25: solo f = ½, rejilla y refinamiento local, sin certificación; en d = 3 ≈ 0.21 % liso.
+4. Opcional m5 de la ronda 4 (tercer término más fino de la Prop. 3.15).
+5. Extensión: 13 páginas frente al objetivo original de 5–10; bajar más exigiría quitar demostraciones o tablas de evidencia.
+6. Las erratas de `theory/` (m1) quedan anotadas aquí; corregirlas en `theory/` corresponde a quien mantenga esa carpeta.
+
