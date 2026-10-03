@@ -1,6 +1,6 @@
 # Derivación de (H_c) para la familia RTK001 — caso p = 2
 
-Estado: documento de trabajo (2026-10-02). Cada paso está o bien justificado o bien
+Estado: documento de trabajo (2026-10-02, completado 2026-10-03). Cada paso está o bien justificado o bien
 marcado **[BRECHA]**. Las desigualdades intermedias se verifican numéricamente en
 `check_Hc.py` (salida en `check_Hc_output.txt`).
 
@@ -21,7 +21,11 @@ marcado **[BRECHA]**. Las desigualdades intermedias se verifican numéricamente 
   `α = 0`). `h_min = v_min/m`, `h_max = v_max/m`; `η_min = h_min/r`, `η_max = h_max/r`.
 - Dos puntos `X_i = K(t_i) + r U_i`, `U_i = U(t_i)`. Diferencia de parámetro en `K_d`:
   `Δ = t_2 - t_1 ∈ (-πp, πp]`; diferencia de base `s = Δ mod 2π ∈ (-π, π]`, índice de
-  hebra `k = (Δ-s)/2π ∈ {0,…,p-1}`. Entonces `ψ_2 - ψ_1 = m s + 2π q k/p (mod 2π)`.
+  hebra `k = (Δ-s)/2π ∈ {0,…,p-1}`. Entonces el ángulo relativo de `U_2` respecto de `U_1`,
+  medido en el marco paralelo transportado desde `t_1` a lo largo del arco corto, es
+  `Δψ = m s + 2π q k/p (mod 2π)`. (Comprobación: `N_0(t+2π) = R_α N_0(t)`, así que el ángulo de
+  `U_2` en el marco `N_0(t_1+s)` es `ψ_2 + kα = ψ_1 + m s + 2πk(q/p - α/2π) + kα`; los términos en `α`
+  se cancelan. En el marco cerrado en `t_1` el ángulo de `U_2` es `θ_2 - α s/2π`, que es lo que usa `check_Hc.py`.)
   Para `p = 2`: `k = 0` (misma hebra) o `k = 1` (hebra antipodal, desfase `π`).
 - `σ := ∫_{t_1}^{t_2} v dt` longitud de arco de base entre los puntos base (por el arco
   corto), `δ := σ/τ`. `u := m|s|` giro angular de la hebra entre los dos puntos.
@@ -114,68 +118,190 @@ donde `Δψ = ψ_2 - ψ_1 = m s + π k` (p = 2).
 
 Y simultáneamente la cota de cuerda `|X_2-X_1| ≥ ℓ_0(δ) - 2r`.
 
-## 4. Caso antipodal (k = 1), p = 2 — demostrado
+## 4. Caso antipodal (k = 1), p = 2 — demostrado (incondicional)
 
-Para `k = 1`, `|sin(Δψ/2)| = |cos(u/2)|`. Definimos
+Para `k = 1`, `|sin(Δψ/2)| = |cos(u/2)|` con `u = m|s|`. Escribimos `Θ := h/τ = v/(mτ) = fη`
+("paso sobre grosor de la base"), `Θ_min = h_min/τ`, `Θ_max = h_max/τ`; la relación `σ ∈ [v_min|s|, v_max|s|]`
+da `u ∈ [δ/Θ_max, δ/Θ_min]`.
 
-    c_1(f, η_min, η_max) := (1/2r) · inf_{δ∈(0,π), u∈[δ/(fη_max), δ/(fη_min)]} max{ D_1(δ,u), ℓ_0(δ) - 2r }.
+**4.0 Constante bidimensional.**
 
-Todas las cantidades están en unidades de `r` (dividir por `r`: `τ = 1/f`), así que
-`c_1` depende solo de `(f, η_min, η_max)`. Para `δ → 0`, `D_1 → 2r` (par antipodal en el
-mismo disco: `c_1 ≤ 1`). La función es continua en el compacto (cerrando en `δ = π`),
-el ínfimo se alcanza y se calcula numéricamente sobre una malla fina (ver §7 para los
-valores en la familia). **Toda pareja de puntos de `K_d` en hebras distintas (p = 2) está
-a distancia `≥ min(2(τ-r), 2 c_1 r)`.** Combinado con la Proposición (a) y la
-clasificación del §1, esto cubre completamente el caso `k = 1`.
+    c_1(f, Θ_min, Θ_max) := (1/2r) · inf_{δ∈(0,π), u∈[δ/Θ_max, δ/Θ_min]} max{ D_1(δ,u), ℓ_0(δ) - 2r },
 
-Comentario sobre la forma cerrada: en el tubo recto (`δ²`-términos nulos, `Λ` sustituida
-por `h u`) la cota se reduce a `min_u √(h²u² + 4r² cos²(u/2))`, que es `2r` si `h ≥ r`
-(el par antipodal es mínimo local exactamente cuando `h ≥ r`, como dice el manuscrito).
-La curvatura de la base entra por dos vías: el paso efectivo `h(1-f)` en el lado interior
-(contenido en `Λ`, que para la circunferencia es exacto) y el defecto de transporte
-paralelo `δ²/3` (nulo para la circunferencia plana, pero no en general sin control de `κ'`).
+con `D_1` de (3.3) (`k = 1`). Todas las cantidades son homogéneas de grado 1 en longitud, así que
+`c_1` depende solo de `(f, Θ_min, Θ_max)`. Por §1–§3, **todo par de puntos de `K_d` en hebras
+distintas está a distancia `≥ min(2(τ-r), 2 c_1 r)`** (los pares con `δ ≥ π` o cuerda de base `≥ 2τ`
+dan `≥ 2(τ-r)` por la Proposición (b) y la clasificación de §1; los demás tienen `δ < π`,
+`ℓ ≥ ℓ_0(δ)` y satisfacen (3.3)). El ínfimo es de una función elemental explícita sobre un compacto
+(cerrando en `δ = π`); `check_Hc.py` lo evalúa en malla (`[c1]`).
 
-## 5. Curvatura de K_d — derivada; cota condicional **[BRECHA parcial]**
+**4.1 Reducción a una variable (η_max no interviene).** En la cota (3.3) con `k = 1` la única
+dependencia en `u` es a través de `|cos(u/2)|`, que es decreciente en `u ∈ [0, π]`. Como `u ≤ δ/Θ_min`,
 
-Con `W := -sin ψ N_0 + cos ψ B_0` (unitario, `U' = m W - κ_⊥ v T`), `κ_W := -κ_1 sin ψ + κ_2 cos ψ`
-(`κ_⊥² + κ_W² = κ²`), `T' = v(κ_1 N_0 + κ_2 B_0)`:
+    |cos(u/2)| ≥ cos(δ/(2Θ_min))  si  δ ≤ πΘ_min,     y  ≥ 0 en otro caso.
 
-    K_d'  = v(1 - rκ_⊥) T + r m W                                   (deriv)
-    K_d'' = [v(1-rκ_⊥)]' T + v²(1-rκ_⊥)(κ_1 N_0 + κ_2 B_0) - r m² U - r m κ_W v T
+Definimos `P_1(δ) := [2 cos(δ/2Θ_min) √(1-β(δ)²) - δ²/3]_+` (`:= 0` si `δ > πΘ_min`) y
 
-con `[v(1-rκ_⊥)]' = v'(1-rκ_⊥) - r v (κ_1' cos ψ + κ_2' sin ψ) - r v m κ_W`.
-Curvatura: `κ_d = |K_d' × K_d''| / |K_d'|³`. Como `|K_d'|² = v²(1-rκ_⊥)² + r²m² ≥ v_min²(1-f)² + r²m²`,
-y `|K_d' × K_d''| ≤ |K_d'| · |K_d''_{⊥K_d'}| ≤ |K_d'| |K_d''|`:
+    c_1^{1D}(f, Θ_min) := (1/2r) · inf_{δ∈(0,π)} max{ √(Λ(δ)_+² + r² P_1(δ)²),  ℓ_0(δ) - 2r }.
 
-    κ_d ≤ |K_d''| / |K_d'|²  ≤  [ |v'|(1+f) + r v_max(|κ_1'|+|κ_2'|)_max + 2 r v_max m κ_max + v_max² (1+f) κ_max + r m² ] / ( v_min²(1-f)² + r²m² ).
+Entonces `c_1 ≥ c_1^{1D}` y **todo par antipodal está a distancia `≥ min(2(τ-r), 2 c_1^{1D} r)`**.
+Numéricamente `c_1^{1D} = c_1` en todos los niveles de la familia (el mínimo 2-D se alcanza en
+`u = δ/Θ_min`): no se pierde nada. `c_1^{1D}` es un ínfimo de una función explícita de **una**
+variable en `(0, π]`; `check_Hc.py` lo evalúa en una malla de 20 000 puntos y resta `2·Lip·paso`
+(Lipschitz estimada por diferencias finitas) — valor "certificado" en `[c1-1D]` y en la tabla
+`c_1^(1D)(f, Θ)`.
 
-(Para una cota ligeramente mejor se descarta la componente de `K_d''` paralela a `K_d'`;
-no se hace aquí.) **Hallazgo:** `κ_d` depende de `v'` y de `(κ_1', κ_2')`, es decir de
-`K'''`, que **no** está controlado por `thick(K)` ni por `κ_max`. Contraejemplo: si `K`
-es `C^{1,1}` con un salto de `κ` de `0` a `1/τ` (segmento recto seguido de un arco de
-radio `τ`, grosor `τ`), la hebra interior de `K_d` tiene velocidad `v T + r m W` antes
-del salto y `v(1-f) T + r m W` después: la dirección de `K_d'` salta, `K_d` tiene una
-esquina y `thick(K_d) = 0`. Por tanto **(H_c) es falsa para una base `K` general con
-las solas hipótesis `thick(K) = τ`, `r ≤ τ/2`**; necesita una hipótesis sobre `K'''`.
-Para la familia, `v'` y `κ'` de `K_{d-1}` están determinados por `K_{d-2}` hasta orden 4,
-etc.: la recursión no se cierra con un número fijo de derivadas, y la uniformidad en `d`
-de la constante queda **abierta**. Lo que sí se tiene: con la hipótesis explícita
-`(H_3)`: `|v'| ≤ V_1`, `|κ_i'| ≤ Κ_1`, la cota anterior es explícita y se verifica
-numéricamente (§7).
+**Monotonía.** `ℓ_0/r - 2 = (2/f) sin(δ/2) - 2` y `Λ/r` (para `δ ≤ π/2`: `2(1/f - 1) sin(δ/2)`;
+para `δ > π/2`: `(2/f) sin(δ/2) - (1 + δ - π/2)/sin(δ/2)`) son decrecientes en `f`; `P_1` no depende de `f`
+y es no decreciente en `Θ_min`. Por tanto `c_1^{1D}(f, Θ_min)` es **no creciente en `f` y no decreciente
+en `Θ_min`**, y para `f ≤ 1/2`, `Θ_min ≥ 2/3`:
 
-## 6. Misma hebra (k = 0) **[BRECHA parcial, condicional a §5]**
+    c_1^{1D}(f, Θ_min) ≥ c_1^{1D}(1/2, 2/3) = 0.6117  (certificado; valor en malla 0.6119).
 
-Pares doblemente críticos en la misma hebra. Si `κ_d ≤ κ̄_d` (§5), un par doblemente
-crítico `X_1, X_2` satisface `(X_2-X_1)·T_d(X_1) = 0`; pero
-`(X_2-X_1)·T_d(X_1) = ∫_0^{σ_d} T_d·T_d(X_1) dσ ≥ sin(κ̄_d σ_d)/κ̄_d > 0` si
-`σ_d < π/κ̄_d` (`σ_d` = longitud de arco de `K_d` entre ellos). Luego
-`σ_d ≥ π/κ̄_d`, y como `|K_d'| ≤ V_d := v_max(1+f) + r m`, la separación de base es
-`|s| ≥ s_0 := π/(κ̄_d V_d)`, `u ≥ m s_0`, `δ ≥ v_min s_0/τ`. Entonces
-`|X_2-X_1| ≥ max{ D_0(δ,u), ℓ_0(δ)-2r }` sobre la región `δ ≥ v_min s_0/τ`,
-`u ∈ [δ/(fη_max), δ/(fη_min)]`, `u ≥ m s_0`. Se define `c_0` como el ínfimo
-correspondiente dividido por `2r`. Esto es una demostración **condicional a una cota
-de curvatura `κ̄_d`**, que a su vez requiere `(H_3)`. Sin `(H_3)` no hay cota.
+**4.2 Régimen cerrado para `c = 1/2`, `f ≤ 1/2`.** (i) `δ ∈ [π/3, π]`: `Λ(δ) ≥ r`. Para
+`δ ∈ [π/3, π/2]`, `Λ = 2(τ-r) sin(δ/2) ≥ τ - r ≥ r`. Para `δ ∈ [π/2, π]`, `Λ/r ≥ 4 sin(δ/2) - (1+δ-π/2)/sin(δ/2) =: φ(δ)`
+(peor caso `f = 1/2`), con `φ(π/2) = √2`, `φ(π) = 4 - (1+π/2) = 1.43` y `φ ≥ 1.41` en todo `[π/2, π]`
+(comprobado en malla). En total, `min_{[π/3,π]} Λ/r = 1.0000` para `f = 1/2`, alcanzado en `δ = π/3`
+(`Λ(π/3) = τ - r = r`); `1.857` para `f = 0.35`, `3.000` para `f = 0.25` (`check_Hc.py`). (ii) `δ < π/3`: `β(δ) ≤ 0.5236 δ` (máximo de
+`β/δ = (δ/2)/sin(δ/2)·(1/2)` en `δ = π/3`), `√(1-β²) ≥ 1 - 0.15 δ²`, `Λ ≥ 0.954 (τ-r) δ`, y la cota es
+`max{(2/f) sin(δ/2) - 2, √((0.954(1/f-1)δ)² + [2cos(δ/2Θ_min)(1-0.15δ²) - δ²/3]_+²)} ≥ 1` — una
+desigualdad explícita en una variable con parámetros `(f, Θ_min)`; para `f = 1/2`, `Θ_min = 2/3`
+se cumple con margen (el ínfimo real de la función completa es `2·0.6117 = 1.22`).
 
-## 7. Resultado y valores numéricos
+**4.3 Cota a priori de `Θ_min` en la familia por defecto `(2,3)`, `f ≤ 1/2`.** (a) `thick(K_d) ≤ r_d`:
+el par antipodal del mismo disco normal (`t`, `t+2π`) es doblemente crítico (`X_2 - X_1 = -2rU_1 ⊥ K_d'`
+en ambos extremos por (deriv)) a distancia `2r`, luego `dcsd ≤ 2r`. Por tanto
+`τ_{d-1} ≤ r_{d-1} = f τ_{d-2} ≤ 2^{-(d-1)}`. (b) Velocidad: tras reparametrizar a periodo `2π`
+(`t ↦ t/p`), `v_d ≥ p (1-f) v_{d-1,min} ≥ v_{d-1,min}` para `p = 2`, `f ≤ 1/2`; `v_0 = 1`, así que
+`v_min ≥ 1` a toda profundidad. (c) `m = q/p - α/2π ≤ 3/2 + 1/2 = 2`. Luego para `d ≥ 2`:
+`Θ_min = v_min/(m τ_{d-1}) ≥ 2^{d-1}/2 ≥ 1`; para `d = 1`: `α = 0`, `m = 3/2`, `v = 1`, `τ_0 = 1`,
+`Θ = 2/3`. **En la familia `(2,3)` con `f ≤ 1/2`, `Θ_min ≥ 2/3` a toda profundidad**, y por 4.1:
 
-Ver `check_Hc_output.txt` (generado por `check_Hc.py`). Resumen al final de este archivo.
+    todo par de puntos de K_d en hebras distintas dista ≥ min(2(τ-r), 1.223 r)   (c_1 = 0.6117 > 1/2).
+
+Para `(2,5)`, `f = 1/2`, `d = 1`: `Θ = 2/5`, `c_1^{1D} = 0.4882 < 1/2` (medido `dcsd/2r = 0.5646`): la
+cota **no** alcanza `c = 1/2` ahí (sí `c = 0.488`); para `d ≥ 2` de `(2,5)`, `c_1 ≥ 0.70`.
+
+**4.4 Por qué `c_1 < 1` y su límite.** En el tubo recto la cota se reduce a `min_u √(h²u² + 4r²cos²(u/2)) = 2r`
+si `h ≥ r`. En el tubo curvado el paso efectivo interior es `h(1-f)` (contenido en `Λ`, exacto para la
+circunferencia) y los términos `β(δ)`, `δ²/3` de (E3), (E5c) son los que bajan `c_1` a `≈ 0.61–0.71`
+para `f = 1/2` (el mínimo se alcanza en `δ ≈ 1.2–1.5`, donde `δ²/3 ≈ 0.5–0.75` anula `P`). Con `Θ_min → ∞`,
+`c_1^{1D}(1/2, ·) → 0.7070` (función solo de `f`). Afinar (E5c) con control de `κ'` (nula para la
+circunferencia) permitiría acercarse a `c = 0.83` (valor medido en `d = 1`), pero no se hace aquí.
+
+## 5. Curvatura de K_d — identidad exacta y cota cerrada (demostradas); dependencia en K''' (hallazgo)
+
+**5.1 Identidad.** Con `x := rκ_⊥ ∈ [-f, f]`, `c_T := v(1-x)`, `c_W := rm`, `A := v²(1-x)²`, `Bm := r²m²`
+(`|K_d'|² = A + Bm`), y `κ_1 N_0 + κ_2 B_0 = κ_⊥ U + κ_W W`, la fórmula de §5 (versión anterior) se reescribe
+
+    K_d'  = c_T T + c_W W,
+    K_d'' = a T + b_U U + b_W W,   a = v'(1-x) - r v (κ_1' cos ψ + κ_2' sin ψ) - 2 r v m κ_W,
+                                  b_U = v²(1-x) κ_⊥ - r m²,   b_W = v²(1-x) κ_W,
+
+y como `T × U = W`, `W × T = U`, `U × W = T`:
+
+    |K_d' × K_d''|² = b_U² |K_d'|² + (c_W a - c_T b_W)².                              (5.1)
+
+(Verificada en `check_Hc.py` `[K2]` frente al producto vectorial directo: error relativo `10^{-15}`.)
+
+**5.2 Cota cerrada.** Sea `a_0 := v'(1-x) - r v(κ_1' cos ψ + κ_2' sin ψ)` (la parte de `a` que depende de
+`K'''`), de modo que `c_W a - c_T b_W = r m a_0 - κ_W v (A + 2Bm)`. Por Minkowski,
+
+    κ_d = √(5.1)/|K_d'|³ ≤ √(β_1²|K_d'|² + κ_W² v² (A+2Bm)²)/|K_d'|³ + √(r²m⁴|K_d'|² + r²m²a_0²)/|K_d'|³,
+
+con `β_1 := v²(1-x)κ_⊥`. Primer sumando: `β_1²(A+Bm) + κ_W² v²(A+2Bm)² = v²[κ_⊥² A(A+Bm) + κ_W²(A+2Bm)²]
+≤ v² κ² (A+2Bm)²` (porque `A(A+Bm) ≤ (A+2Bm)²`), luego `≤ v κ (A+2Bm)/(A+Bm)^{3/2}`; la función
+`A ↦ (A+2B)/(A+B)^{3/2}` es decreciente, y `A ≥ v²(1-f)²`, así que con `ζ := v(1-f)/(rm)` (paso efectivo
+interior en unidades de `r`; `ζ = (1-f)η`):
+
+    primer sumando ≤ (κ/(1-f)) · g(ζ),   g(ζ) := ζ(ζ²+2)/(ζ²+1)^{3/2},   sup g = g(√2) = 1.0887,  g → 1 (ζ→∞).
+
+Segundo sumando `≤ r m²/|K_d'|² + r m |a_0|/|K_d'|³ ≤ 1/(r(1+ζ²)) + r m |a_0|/(v²(1-f)² + r²m²)^{3/2}`.
+Con `κ ≤ κ_max ≤ 1/τ`, `τ(1-f) = τ - r`, y `G(ζ_min) := sup_{ζ ≥ ζ_min} g = 1.0887` si `ζ_min ≤ √2`,
+`= g(ζ_min)` si no:
+
+    κ_d ≤ κ̄_d := G(ζ_min)/(τ - r) + 1/(r(1+ζ_min²)) + Γ_3,
+    Γ_3 := r m [ V_1 (1+f) + r v_max K_1 ] / ( v_min²(1-f)² + r²m² )^{3/2},                 (5.2)
+    V_1 := sup|v'|,  K_1 := sup √(κ_1'² + κ_2'²) (marco paralelo; ≤ sup √(κ_1^c'²+κ_2^c'²) + |ω'| κ_max en el cerrado).
+
+Interpretación: `1/(τ-r)` es la curvatura de la hebra interior sobre el tubo curvado (exacta en el
+límite de paso grande), `1/(r(1+ζ²))` la curvatura de la hélice de paso `h(1-f)`, y `Γ_3` el único
+término que ve `K'''`, suprimido por el factor `rm/|K_d'| ≈ 1/η`. **Consecuencia:**
+`minRad(K_d) ≥ 1/κ̄_d`, y `1/κ̄_d ≥ ρ_d = min(τ-r, r/2)` (es decir `c_κ := 1/(rκ̄_d) ≥ 1/2`) si y solo si
+`f·G/(1-f) + 1/(1+ζ_min²) + r Γ_3 ≤ 2` (para `f ≤ 1/2`, donde `ρ_d = r/2`). Sin el término `Γ_3`
+(p.ej. base circular) basta `ζ_min ≥ 0.32` para `f = 1/2`; para `f ≤ 0.35`, cualquier `ζ_min ≥ 0`.
+
+**5.3 Hallazgo: (H_c) necesita una hipótesis sobre K'''.** `Γ_3` no está controlado por `thick(K)`
+ni por `κ_max`. Si `K` es `C^{1,1}` con `κ` saltando de `0` a `1/τ` (segmento seguido de arco de radio
+`τ`; `thick(K) = τ`), por (deriv) la dirección de `K_d'` salta de `vT + rmW` a `v(1-f)T + rmW` en la hebra
+interior: `K_d` tiene una esquina y `thick(K_d) = 0`. Suavizando el salto en una longitud `ε`,
+`thick(K) → τ` y `κ_d ~ r v κ'/|K_d'|² ~ r/(τ ε |K_d'|) → ∞`. Luego **no existe `c > 0` dependiente solo de
+`(p, q, f)` tal que (H_c) valga para toda base `K` con `thick(K) = τ`, ni siquiera suave**. La hipótesis
+(H_c) del manuscrito (c dependiente solo de `(p,q,f)`) debe leerse para la familia concreta, y la
+uniformidad en `d` de la constante requiere controlar `r_d Γ_3^{(d)}` en `d`, lo cual no se hace aquí
+(véase §7). Hipótesis explícita usada: **(H_3)**: `sup|v'| ≤ V_1`, `sup|κ'| ≤ K_1` para `K = K_{d-1}`.
+
+## 6. Misma hebra (k = 0) — demostrado condicionalmente a (5.2), constante débil
+
+Un par doblemente crítico `X_1, X_2` de `K_d` cumple `(X_2-X_1)·T_d(X_1) = ∫_0^{σ_d} T_d·T_d(X_1) dσ = 0`,
+y con `κ_d ≤ κ̄_d`, `T_d(σ)·T_d(0) ≥ cos(κ̄_d σ)`, así que `∫ ≥ sin(κ̄_d σ_d)/κ̄_d > 0` si `σ_d < π/κ̄_d`.
+Luego `σ_d ≥ π/κ̄_d`, y como `|K_d'| ≤ V_d := v_max(1+f) + rm`, la separación de parámetro de base es
+`|s| ≥ s_0 := π/(κ̄_d V_d)`, `u ≥ m s_0`. Para `k = 0`, `Δψ = u`, y
+
+    c_0 := (1/2r) inf { max(D_0(δ,u), ℓ_0(δ) - 2r) : δ ∈ (0,π), u ∈ [δ/Θ_max, δ/Θ_min], u ≥ m s_0 }.
+
+**Todo par doblemente crítico en la misma hebra dista `≥ min(2(τ-r), 2 c_0 r)`.** Aquí sí interviene
+`Θ_max` (para `δ` dado, `u` pequeño es lo peor). Valores (`[c0]`): `c_0 ≥ 0.65` para `f ≤ 0.35`
+(todas las profundidades), `c_0 ≥ 1.33` para `f = 0.25`, pero `c_0 = 0.32, 0.13, 0.16` para `f = 1/2`,
+`d = 1, 2, 3`. **Limitación estructural:** `c_0 ≈ (π/2)(1-f)/f · (v_min/V_d)/(τκ̄_d)`, y como el primer término
+de (5.2) ya da `τκ̄_d ≥ τ/(τ-r) = 2` para `f = 1/2`, esta vía **no puede** dar `c_0 ≥ 1/2` en `f = 1/2`
+(con el `κ_d,max` medido en vez de `κ̄_d` sí saldría `c_0 ≈ 0.7`, pero eso no es una demostración).
+Los términos de orden `s²` del par (que deciden si es doblemente crítico) involucran `K_d''`, de modo que
+un argumento sin curvatura no es posible aquí.
+
+## 7. Enunciado demostrado, constantes y brechas
+
+**Teorema (p = 2).** Sea `K` cerrada `C^∞` regular con `thick(K) = τ`, `κ ≤ 1/τ`, parametrizada con
+periodo `2π` y velocidad `v ∈ [v_min, v_max]`; `K_d` dado por (Kd) con `p = 2`, `q` impar, `r = fτ`,
+`f ≤ 1/2`, `m = q/2 - α/2π`, `h_min = v_min/m`, `Θ_min = h_min/τ`, `ζ_min = (1-f)h_min/r`.
+
+(A) [incondicional] Todo par de puntos de `K_d` en hebras distintas dista
+`≥ min(2(τ-r), 2 c_1^{1D}(f, Θ_min) r)`, con `c_1^{1D}` definido en 4.1. Si `Θ_min ≥ 2/3`,
+`c_1^{1D} ≥ 0.6117 > 1/2`. En la familia `(2,3)` con `f ≤ 1/2` se tiene `Θ_min ≥ 2/3` a toda profundidad (4.3).
+
+(B) [bajo (H_3)] `minRad(K_d) ≥ 1/κ̄_d` con `κ̄_d` de (5.2).
+
+(C) [bajo (H_3)] Todo par doblemente crítico en la misma hebra dista `≥ min(2(τ-r), 2 c_0 r)`, `c_0` de §6.
+
+(D) Por LSDR/GM, `thick(K_d) = min(minRad, dcsd/2) ≥ min(τ - r, c r)` con
+`c = min(c_1^{1D}, c_0, 1/(rκ̄_d))`.
+
+**Valores en la familia (polígonos de `recursive_knots.py`, datos (H_3) medidos en el polígono):**
+`(2,3)`: `f = 0.25`: `c = 1.00, 1.00, 1.00` (`d = 1,2,3`); `f = 0.35`: `c = 0.65, 0.66, 0.67`; `f = 0.5`:
+`c = 0.32, 0.13, 0.16` (limitado por `c_0`; `c_1 = 0.61, 0.70, 0.71`; `c_κ = 0.56, 0.48, 0.85`).
+`(2,5)`, `f = 0.5`: `c = 0.37, 0.26, 0.23` (`c_1 = 0.49, 0.70, 0.71`).
+
+**Lo que queda abierto (exacto):**
+1. `c = 1/2` para `f = 1/2` en el caso misma hebra (k = 0): la exclusión `σ_d ≥ π/κ̄_d` con la cota a priori
+   (5.2) es demasiado débil (§6). Hace falta o una cota de `κ_d` más fina que `1/(τ-r)` lejos del lado
+   interior (p.ej. evaluar el supremo sobre el ángulo `ψ` de la expresión exacta (5.1) en vez de usar
+   `κ_⊥² + κ_W² = κ²`), o un argumento de criticidad doble que use la curvatura local y no la global.
+2. El término `Γ_3` de (5.2) requiere (H_3) (`sup|v'|`, `sup|κ'|` de `K_{d-1}`), que no se deduce de
+   `thick(K_{d-1})`; la uniformidad en `d` de `r_d Γ_3^{(d)}` (y por tanto de `c`) está **abierta**. En los
+   polígonos, `r Γ_3 = 0, 0.006, 0.0002` (`f = 0.25`), `0, 0.065, 0.003` (`f = 0.35`), `0, 0.82, 0.155` (`f = 0.5`).
+3. `c_1 = 1/2` falla en `(2,5)`, `f = 1/2`, `d = 1` (`c_1 = 0.488`, medido `0.565`): afinar (E3)/(E5c).
+4. `p ≥ 3`: no tratado (la reducción 4.1 usa `|sin(Δψ/2)| = |cos(u/2)|`, específica de `p = 2`).
+5. Nada de lo anterior es una cota certificada para los **polígonos** (los ínfimos 1-D/2-D se evalúan en
+   malla con control Lipschitz estimado numéricamente, no con aritmética de intervalos).
+
+## 8. Comprobaciones numéricas (check_Hc.py → check_Hc_output.txt)
+
+Por nivel (`d = 1..3`, cadenas `(2,3)` con `f = 0.25, 0.35, 0.5` a `N_0 = 256`, `(2,3)` `f = 0.5` a
+`N_0 = 512`, `(2,5)` `f = 0.5`): `[A]` Lema A en la base (ninguna pareja con cuerda `< 2τ` tiene arco
+`≥ πτ`; `cuerda/(2τ sin(σ/2τ)) ≥ 1`); `[E]` holguras de (E3), (E4), (E5c), (E6+E3) `≥ 0` salvo (E4) a
+`-4·10^{-5}` (`-10^{-5}` al duplicar `M`: discretización); `[C]` `A ≥ Λ`, `|Q| ≥ rP` en todos los pares
+locales; `[D]` `dist/cota ≥ 1.0001` para `k = 1` y `≥ 1.0012` para `k = 0` en todos los pares locales;
+`[c1]`, `[c1-1D]` constantes antipodales (coinciden); `[K]` fórmula de `K_d''` vs diferencias finitas
+(`10^{-3}`–`10^{-4}`); `[K2]` identidad (5.1) (`10^{-15}`); `[K3]` cota (5.2) `≥ κ_d,max` medido en todos los
+niveles (holgura factor 1.9–18); `[c0]` constante misma hebra; `[RESULT]` `c` del nivel y
+`min(τ-r, c r)` frente a `τ_d` medido (cociente `1.00`–`7.4`, siempre `≥ 1`). Tiempo total `≈ 40 s`.

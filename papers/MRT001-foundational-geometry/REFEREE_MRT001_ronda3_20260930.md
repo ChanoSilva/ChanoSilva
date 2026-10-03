@@ -24,23 +24,121 @@ Archivos de trabajo del árbitro: `/tmp/claude-0/-home-user-ChanoSilva/6d28bda3-
 
 ## Verificación matemática, línea por línea
 
-`[en curso]`
+Convención: "✓" = enunciado y prueba correctos tal como están; se anota solo lo que falta o sobra.
+
+### Prop. 3.2 (vacuidad genérica), main.tex:148–157
+✓. Comprobado paso a paso: (a) colinealidad = anulación de los menores 2×2, conjunto algebraico propio para d ≥ 2 (cerrado, nunca denso, nulo); (b) igualdad de distancias al cuadrado para dos pares distintos = una ecuación polinómica no constante (el argumento para pares que comparten un punto es correcto); (c) G = complemento de una unión finita de tales conjuntos ⇒ abierto, denso, de medida plena; (d) D_ab + D_bc = D_ac con a,b,c distintos ⇒ colinealidad por el caso de igualdad de la desigualdad triangular (convexidad estricta de la norma euclidiana) ✓; (e) congruencia ⇒ empate de distancias ✓. La hipótesis d ≥ 2 solo se usa para betweenness; la observación "The line" (l.159–161) lo dice correctamente. Nada que corregir.
+
+### Prop. 3.4 (no unicidad finita), main.tex:189–194
+✓. Las desigualdades estrictas que definen el patrón persisten en un entorno; mover x_b a lo largo del rayo x_a→x_b cambia D_ab/D_ac, invariante de semejanza; requiere n ≥ 3 (hay un c), que está en la hipótesis. La conclusión "not faithful up to Sim(d) on any open set" se sigue porque las configuraciones con distancias distintas son densas. El Ejemplo 3.5 (E3) es correcto: ángulos (36.9, 53.1, 90.0) y (26.4, 36.3, 117.3) verificados con la ley de cosenos. La cuenta de la recta (l.200) la reproduje por fuerza bruta: exactamente 10 ordenaciones de {u,v,w,u+v,v+w,u+v+w} y 120 patrones etiquetados para n=4, d=1 (`scratchpad/referee_MRT001/check_math.py`).
+
+### Teorema 3.7 (Kleindessner–von Luxburg, enunciado informal), main.tex:204–207
+Véase la subsección "Cotejo con el teorema real" más abajo (depende de la lectura del PDF original; se rellena al final de esta sección).
+
+### Prop. 3.8 (grosor de la clase ordinal), main.tex:239–244
+- (i) ✓: cada distancia se mueve < g/2, luego dos distancias consecutivas (separadas ≥ g) conservan el orden estrictamente, y por transitividad todas; sin empates ⇒ mismo orden total. La inyectividad de Y se sigue de g ≤ D_min (prueba correcta: |D_13 − D_23| ≤ D_12 ⇒ alguna brecha consecutiva ≤ D_12).
+- (ii) ✓ con pares disjuntos: separar a,b en g/4 cada uno (+g/2) y acercar c,d en g/4 cada uno (−g/2) produce el empate exacto; D_cd − g/2 ≥ g/2 > 0 mantiene la inyectividad. Y está fuera de la clase (su preorden tiene un empate) y todo entorno de Y contiene inversiones estrictas ✓. Con (i): la bola abierta de radio g/4 está dentro y la cerrada no ⇒ radio inscrito = g/4 ✓.
+- Cota superior g/2 en el caso compartido ✓ (mover x_b lejos y x_c hacia x_a en g/2 cada uno).
+- **Imprecisión** (l.243, paréntesis): "in this shared-point case the true inradius generally lies strictly inside the interval, since moving x_a as well closes the gap sooner". Comprobación explícita (`check_math.py`, 6 puntos, D_ab = 1, D_ac = 1 + g, ángulo θ en a): el desplazamiento mínimo en sup-norma que empata las dos distancias es, a primer orden en g, **g/(2(1+sin(θ/2)))**: θ=180° → 0.2500 g (exactamente g/4, confirmado numéricamente con bisección: 2.500000e-4 para g = 1e-3), 150° → 0.2543 g, 120° → 0.2679 g, 90° → 0.2929 g. Es decir, el radio inscrito **puede ser exactamente g/4 también con punto compartido** (b, a, c colineales con a en medio, configuración admitida por la proposición, que no exige no colinealidad) y tiende a g/2 cuando θ→0. Corrección propuesta del paréntesis: "in the shared-point case the closing displacement is, to first order in g, g/(2(1+sin(θ/2))) with θ the angle at the shared point; it equals g/4 when θ = π and approaches g/2 as θ → 0; the inradius itself is the minimum of the closing displacements over all consecutive pairs, hence still in [g/4, g/2]".
+- Observación menor (l.248): "displacing every point by g/4 produces a disparity of at most 3g²/8". El 3/8 sale de ‖Y−X‖²_F / ‖X_c‖²_F con E‖X_c‖²_F = n/6 (uniforme en el cuadrado unidad) y e = g/4: 6e² = 3g²/8. Es una estimación de orden de magnitud con el valor esperado de la norma, no una cota válida para cada X; escribir "of order 3g²/8" o "approximately".
+
+### Sección 4 (profundidad de formalismo), main.tex:271–290
+- Filas ordinales ✓ (par diametral = argmax; k-NN por comparaciones dentro de la fila; MST por Kruskal sobre la lista ordenada; RNG por la condición max(D_ik, D_jk) < D_ij). Todas requieren distancias distintas, dicho en la tabla de afirmaciones.
+- Filas métricas ✓: diámetro no es invariante de semejanza; dimensión afín y Gabriel son invariantes de semejanza pero no ordinales, con los testigos de E4b verificados a mano: (1) configuración colineal con distancias distintas + perturbación genérica pequeña ⇒ mismo patrón (Prop. 3.4) y dimensiones 1 y 2 ✓; (2) triángulo rectángulo en k: D_ik² + D_jk² = D_ij² es la frontera de la condición de Gabriel; perturbar a agudo/obtuso sin alterar el orden de lados (D_ij sigue siendo el mayor) añade/quita la arista ij ✓.
+- La fracción 0.35 para la dimensión afín es consistente con P(p ∈ (1,2)) = 1/2.7 = 0.37 para p ~ U[0.3, 3] ✓.
+- **Cita faltante** (l.288): "for p<1 it is a Euclidean metric of dimension at most n−1 (Schoenberg)". El resultado (d euclidiana ⇒ d^α euclidiana para 0 < α < 1) es de Schoenberg 1937, Ann. of Math. 38(4), 787–793 ("On certain metric spaces arising from Euclidean spaces by a change of metric…"), no del artículo de 1935 que está en refs.bib. Añadir la entrada y citarla.
+
+### Prop. 5.1 (núcleo de la traducción al orden causal), main.tex:302–308
+✓. (f,g) crecientes y el swap preservan el orden producto; el boost (λu, v/λ) preserva Δu·Δv; el ejemplo f(u)=u² da u√v ✓. El párrafo siguiente es correcto: el grupo (Homeo⁺(0,1))² ⋊ Z₂ es de automorfismos causales del diamante; Zeeman requiere dimensión ≥ 3 ✓; el enunciado de Hawking–King–McCarthy/Malament (biyección que preserva ≪ en ambos sentidos entre espaciotiempos past- y future-distinguishing ⇒ isometría conforme suave) es correcto.
+
+### Prop. 5.2 (clase del núcleo = unión de órbitas sobre realizadores), main.tex:310–316
+- Clase abierta ✓. Dos configuraciones con el mismo par (<_u, <_v) están relacionadas por un (f,g) (interpolación lineal a trozos, fijando 0 y 1) ✓; (f,g) preserva ambos órdenes y el swap los intercambia ✓. La clase del núcleo es la unión sobre los realizadores (módulo swap) de las órbitas correspondientes ✓: todo Y en la clase tiene (<_u, <_v) realizador del orden (el orden es la intersección de los dos órdenes lineales), y todo realizador se realiza.
+- Dirección "solo si" de "una sola órbita sii un único realizador módulo swap" ✓: órbitas de realizadores distintos módulo swap son disjuntas porque el grupo preserva el par {<_u, <_v} como conjunto; con ≥ 2 realizadores la clase es unión de ≥ 2 órbitas disjuntas. El papel del swap está bien tratado (identifica (L1,L2) con (L2,L1)); el ejemplo de la anticadena de 3 puntos es correcto (verifiqué las tres incomparabilidades y que (2,1,3) ∉ {(1,2,3),(3,2,1)}).
+- Correspondencia realizadores ↔ orientaciones transitivas del grafo de incomparabilidad: **correcta, pero la prueba tiene un hueco y el enunciado una excepción.**
+  (a) Hueco (l.314): se afirma que "<_u is the order together with a transitive orientation of its incomparability graph" y el paréntesis que sigue no demuestra la transitividad de T = <_u ∩ inc como orientación del grafo de incomparabilidad. Lo que falta (una línea): si a ∥ b, b ∥ c y a <_u b <_u c entonces v_a > v_b > v_c, luego a ∥ c y a <_u c, es decir, (a,c) ∈ T. Recíprocamente, para cualquier orientación transitiva T de inc(≺), ≺ ∪ T es automáticamente un orden lineal (si a ≺ b y (b,c) ∈ T, no puede ser c ≺ a ni (c,a) ∈ T, pues (c,a),(b,c) ∈ T ⇒ (b,a) ∈ T, pero a,b son comparables), de modo que la cláusula "for which ≺ ∪ T is transitive" es redundante; no es un error, pero conviene decir que es automática o suprimirla.
+  (b) Excepción (l.311): "The number of realizers modulo the swap equals half the number of transitive orientations of the incomparability graph … it is … 1 for a chain". Para la cadena el grafo de incomparabilidad es vacío, tiene exactamente **una** orientación transitiva (la vacía) y la mitad sería 1/2; el único realizador (≺,≺) es su propio swap. Corrección: "equals half the number of transitive orientations of the incomparability graph when the order is not a chain, and 1 for a chain". El código (`lorentzian_chain.py:411–412`) ya trata la cadena como caso especial, así que solo cambia el texto.
+- Afirmación heurística en E5e (l.375): "The extra realizers come from pairs of points adjacent in both coordinate orders with opposite directions, whose expected number in a random permutation tends to one". Correcta como heurística del caso típico (cada par así es un módulo gemelo del grafo de incomparabilidad y duplica el número de orientaciones), y los datos encajan muy bien con "número de realizadores = 2^N, N → Poisson(1)": P(1) = P(2) = e⁻¹ = 0.368, P(≤8) = 0.981, frente a 0.34 / 0.37 / 0.98 observados en n = 300. Pero no es la única fuente (en n = 10 el máximo observado es 72 = 2·3!·3!, que no es potencia de 2: módulos de tres puntos). Escribir "typically come from" y, si se quiere, enunciar la ley 2^Poisson(1) como conjetura con esos números de apoyo.
 
 ## Verificación de que las correcciones de las rondas 1 y 2 se aplicaron
 
-`[en curso]`
+Cotejo de cada punto de las actas (CONTINUIDAD_MRT001_20260930.md) con texto y código. "✓" = aplicado y comprobado en la línea indicada.
+
+Ronda 1 (18 puntos): 1 ✓ (resumen l.63 "contains the conformal group and coincides with it for some but not all"; Prop. 5.2 l.310). 2 ✓ (l.359 ambos tipos de pares; `lorentzian_chain.py:296–313` usa comparables e incomparables; ablación l.307–309 y JSON `rmse_median_unrelated_votes_only`). 3 ✓ (tolerancia 1e-13 l.210 y l.448; discordancia de Kendall en tabla E2; exponentes locales; el resumen ya no da un exponente único). 4 ✓ (l.288 mecanismo por rango de p; E4b con dos testigos; leyenda de la Tabla E4 explica la columna de distorsión). 5 ✓ (l.233 "checks the pipeline"). 6 ✓ (l.303 "as maps of R^{1,1}"; l.308 "orthochronous Lorentz group"). 7 ✓ (l.359 n^{-0.39}, "rate not established"). 8 ✓ (l.124 inyectivas; Prop. 3.4 "distinct points"). 9 ✓ (l.179). 10 ✓ (l.298–300). 11 ✓ (l.290 "continuous"). 12 ✓ (l.339–343: N=(n−2)τ², pendiente por el origen, BDJ, τ' como ilustración). 13 ✓ (l.95, l.106, l.116). 14 ✓ (l.204 "informal statement"; l.207 hipótesis de Terada–von Luxburg). 15 ✓ (l.308). 16 ✓ (l.339). 17 ✓ (l.323). 18 ✓ (refs.bib klein1872 con nota de la reimpresión; l.68 eslogan atribuido a Sorkin; Kronheimer–Penrose l.300; Dushnik–Miller l.297).
+
+Ronda 2 (8 puntos): 1 ✓ (Prop. 5.2 reescrita; E5e l.374–388 con validación por fuerza bruta `lorentzian_chain.py:434–446`; tabla de afirmaciones l.426–427). 2 **parcial**: el texto dice "walk range" (l.248, l.254, l.259, l.266) y ya no infiere nada sobre el residuo del solver ✓, pero la **leyenda de la Figura 3 sigue diciendo "walk radius (slope −7.9)"** (`figures/ordinal_class.png/pdf`, generada por `ordinal_class.py:179`), las claves del JSON son `walk_radius_*`, el encabezado de `results/tables_class.md` dice "median walk radius" y el docstring del script (l.14–17) sigue llamándolo "lower bound on the class radius". 3 ✓ (`ordinal_class.py:76–80`: dirección uniforme en la esfera, radio eps·U^{1/d}; relanzado: script 08:40:24 → `results_class.json` 08:50:12). 4 ✓ (l.248 "centred at X"; "bounds the thickness, not its diameter modulo similarity"). 5 ✓ (resumen l.63; tabla l.421). 6 ✓ (l.240 "Y therefore lies outside the kernel class"; l.243 inyectividad; `ordinal_class.py:87` margen por encima de g/4; observación del punto compartido —véase la imprecisión señalada en la sección matemática—). 7 ✓ (l.311 "pairwise distinct u- and v-coordinates"; ejemplo con desigualdades l.314). 8 **parcial**: "two sequences" ✓ (l.402), tres scripts ✓ (l.78, l.445), semillas ✓ (l.445), "of dimension at most n−1" ✓ (l.288), Kronheimer–Penrose con revista ✓; pero (a) la **portada sigue diciendo "Working draft v0.3"** (main.tex:55) mientras la ficha dice v0.4 y el README v0.2 con "revisado una vez"; (b) la frase "less than one percent" se sustituyó por una ablación real y reproducible ✓ (JSON: 0.03117 vs 0.03131 en n=2000, +0.44 %), pero `make_numbers.py:205` vuelve a imprimir literalmente "less than one percent" cuando |Δ| < 1 %, de modo que el texto final es el mismo de antes; imprimir el número ("+0.4 %") es más informativo y evita la apariencia de que no cambió nada.
+
+Otras incoherencias detectadas entre acta y datos: la nota de continuidad dice "92/92 desplazamientos explícitos lo rompen"; el JSON y las macros dicen 91/91 (10+15+16+19+20+11). La nota dice "E5 en 149 s" (corrida anterior a E5e); la corrida actual tardó 315 s (macro `\EfiveSeconds` correcta). Son errores de la nota, no del manuscrito.
 
 ## Bibliografía (37 entradas)
 
-`[en curso]`
+Método y limitación de red: desde este contenedor, `curl` a api.crossref.org, export.arxiv.org, proceedings.mlr.press y doi.org devuelve 403 (CONNECT rechazado por el proxy), y la herramienta WebFetch tiene bloqueados arxiv.org, proceedings.mlr.press, dspace.mit.edu y semanticscholar.org. La verificación se hizo con WebSearch (resultados que citan DOI, JSTOR, Project Euclid, AIP, Springer, PubMed, CDS del CERN, etc.) y, cuando fue posible, WebFetch de espejos. "Verificada" = volumen, número, páginas, año y editorial/revista coinciden con al menos una fuente de catálogo o la página del editor devuelta por la búsqueda. Las entradas no verificadas en línea se indican; ninguna de ellas me parece dudosa.
+
+| # | clave | estado | observación / corrección |
+|---|---|---|---|
+| 1 | klein1872 | verificada | Deichert, Erlangen, 1872; reimpresión Math. Ann. 43 (1893) 63–100 ✓. Tipo `@book` aceptable (opúsculo). |
+| 2 | hilbert1899 | no buscada | Teubner, Leipzig, 1899: datos estándar, sin duda razonable. |
+| 3 | tarski1959 | verificada | North-Holland 1959, pp. 16–29 ✓ (simposio Berkeley 1957–58). |
+| 4 | tarskigivant1999 | verificada | Bull. Symbolic Logic 5(2), 175–214 ✓; DOI 10.2307/421089 (opcional). |
+| 5 | menger1928 | verificada | Math. Ann. 100, 75–163 ✓; DOI 10.1007/BF01448840 (opcional). |
+| 6 | schoenberg1935 | verificada | Ann. of Math. 36(3), 724–732 ✓. El título impreso dice "d'une classe d'espace distanciés" (singular, sic en Annals); el .bib tiene "d'espaces": opcional conservar como está. |
+| 7 | younghouseholder1938 | verificada | Psychometrika 3(1), 19–22 ✓. |
+| 8 | blumenthal1953 | verificada | Clarendon Press, Oxford, 1953 ✓. |
+| 9 | stevens1946 | verificada | Science 103(2684), 677–680 ✓. |
+| 10 | krantz1971 | verificada | Academic Press, New York, 1971 ✓. |
+| 11 | narens2002 | verificada | Lawrence Erlbaum, Mahwah NJ, 2002 ✓. |
+| 12 | shepard1962 | verificada | Psychometrika 27(2), 125–140 ✓ (parte I; la parte II es 27, 219–246). |
+| 13 | kruskal1964 | verificada | Psychometrika 29(1), 1–27 ✓. |
+| 14 | kleindessner2014 | verificada (datos) | COLT 2014, JMLR W&CP 35, pp. 40–67 ✓. Cotejo del enunciado: véase la subsección siguiente. |
+| 15 | terada2014 | verificada (datos) | ICML 2014, JMLR W&CP 32, pp. 847–855 ✓ (PMLR v32(2)). Cotejo de la afirmación que respalda: véase la subsección siguiente. |
+| 16 | schonemann1966 | verificada | Psychometrika 31(1), 1–10 ✓. |
+| 17 | gower1975 | verificada | Psychometrika 40(1), 33–51 ✓. |
+| 18 | kruskal1956 | verificada | Proc. AMS 7(1), 48–50 ✓. |
+| 19 | malament1977 | verificada | J. Math. Phys. 18(7), 1399–1404 ✓. |
+| 20 | hawking1976 | verificada | J. Math. Phys. 17(2), 174–181 ✓; DOI 10.1063/1.522874. |
+| 21 | bombelli1987 | verificada | Phys. Rev. Lett. 59(5), 521–524 ✓. |
+| 22 | pedregosa2011 | verificada | JMLR 12, 2825–2830 ✓. |
+| 23 | virtanen2020 | verificada | Nature Methods 17, 261–272 ✓ (número 3, opcional). |
+| 24 | zeeman1964 | verificada | J. Math. Phys. 5(4), 490–493 ✓. |
+| 25 | kronheimer1967 | verificada | Proc. Cambridge Philos. Soc. 63(2), 481–501 ✓ (nombre de la revista correcto para 1967). |
+| 26 | myrheim1978 | verificada | CERN TH-2538 (1978) ✓; registro CDS 293594. Sugerencia: `number = {CERN-TH-2538}` y URL `https://cds.cern.ch/record/293594`. |
+| 27 | meyer1988 | **corregir año o aclarar** | El registro oficial del MIT (handle 1721.1/14328, Dept. of Mathematics) fecha la tesis en **1989**; buena parte de la literatura de causal sets la cita como 1988. Recomendación: `year = {1989}` con `note = {Often cited as 1988}`, o al menos añadir `note = {MIT handle 1721.1/14328}`. Véase también la comprobación con la bibliografía de Cameron (más abajo si se obtuvo). |
+| 28 | brightwell1991 | verificada | Phys. Rev. Lett. 66(3), 260–263 ✓. |
+| 29 | bollobas1992 | verificada | Ann. Appl. Probab. 2(4), 1009–1018 ✓ (Project Euclid). |
+| 30 | vershik1977 | verificada | Soviet Math. Dokl. 18, 527–531 ✓; original Dokl. Akad. Nauk SSSR 233(6), 1024–1027 (opcional en `note`). |
+| 31 | loganshepp1977 | verificada | Adv. Math. 26(2), 206–222 ✓. |
+| 32 | dushnik1941 | verificada | Amer. J. Math. 63(3), 600–610 ✓. |
+| 33 | toussaint1980 | verificada | Pattern Recognition 12(4), 261–268 ✓; DOI 10.1016/0031-3203(80)90066-7. |
+| 34 | gabriel1969 | verificada | Systematic Zoology 18(3), 259–278 ✓; DOI 10.2307/2412323. |
+| 35 | sorkin2005 | verificada | Lectures on Quantum Gravity (Gomberoff, Marolf eds.), Springer 2005, pp. 305–327 ✓; DOI 10.1007/0-387-24992-3_7; arXiv gr-qc/0309009 (opcional). |
+| 36 | baik1999 | verificada | J. Amer. Math. Soc. 12(4), 1119–1178 ✓. |
+| 37 | bollobas1991 | verificada | Trans. AMS 324(1), 59–72 ✓ (JSTOR 2001495). |
+
+Recuento: 34 verificadas, 1 a corregir/aclarar (meyer1988), 1 no buscada (hilbert1899), y para 2 (kleindessner2014, terada2014) los datos bibliográficos están verificados pero el cotejo del enunciado se trata aparte. **Entradas que faltan en refs.bib y que el texto necesita:**
+- `golumbic1977`: M. C. Golumbic, "Comparability graphs and a new matroid", J. Combin. Theory Ser. B 22(1) (1977) 68–90 (verificada: ScienceDirect; es el artículo donde se definen las clases de implicación/Γ y se cuenta el número de orientaciones transitivas como producto de factoriales). El texto dice "Golumbic's Γ-relation" (l.375) y el apéndice "implication classes" (l.452) sin cita. Alternativa o complemento: M. C. Golumbic, *Algorithmic Graph Theory and Perfect Graphs*, Academic Press 1980 (2.ª ed. Elsevier 2004), cap. 5.
+- `schoenberg1937`: I. J. Schoenberg, "On certain metric spaces arising from Euclidean spaces by a change of metric and their imbedding in Hilbert space", Ann. of Math. 38(4) (1937) 787–793 (verificada), para la afirmación "(Schoenberg)" de l.288 sobre D^p con p < 1.
+
+Comprobación "cada cita respalda su afirmación" (muestra): Sorkin 2005 para el eslogan "order + number = geometry" ✓ (la frase aparece en esas notas); Zeeman 1964 para dimensión ≥ 3 ✓; Dushnik–Miller 1941 para la dimensión de orden ✓; BDJ 1999 para la corrección N^{1/6} con constante negativa ✓; Vershik–Kerov / Logan–Shepp para 2√N ✓; Bollobás–Brightwell 1992 para concentración ✓; Brightwell–Gregory 1991 para cadenas en Minkowski de cualquier dimensión ✓; Kruskal 1956 para el MST por lista ordenada ✓; Toussaint 1980 (RNG) y Gabriel–Sokal 1969 (grafo de Gabriel) ✓; Schoenberg 1935 / Young–Householder 1938 para el criterio de la matriz doblemente centrada ✓.
 
 ## Macros frente a `results/*.json` (muestreo)
 
-`[en curso]`
+Script propio (no guardado en la carpeta del paper) que recarga los tres JSON, recomputa 48 macros de `numbers.tex` con las mismas fórmulas que `make_numbers.py` (totales de E1, medianas/caídas/exponentes locales de E2, E2b, E3, E4, E5a–E5e, E2c incluidos `\EtwocBoundNsixtyfour` = 3g²/8 y los tiempos) y compara con tolerancia de redondeo: **48/48 coinciden, 0 discrepancias**. Los cuerpos de tabla `table_e1*.tex`, `table_e2.tex`, `table_e2c.tex`, `table_e4.tex`, `table_e5b–e5e.tex` coinciden fila a fila con `results/tables*.md` y con los JSON (comprobado a mano). 39 macros definidas no se usan en `main.tex` (inocuo; p. ej. `\EtwoSlopeDtwo`, `\EfiveDsqrt*`, `\EtwocGapNmax`). Ningún número del texto está tipeado a mano: confirmado.
+
+Reproducción rápida (hecha en la sesión anterior interrumpida de esta ronda, archivos en `scratchpad/referee_MRT001/repro/`, copias de los scripts sin tocar la carpeta del paper): `ordinal_class.py --fast` 7.3 s (gap mediano n^{-4.06}, 720/720 perturbaciones conservadas, 31/31 desplazamientos rompen el patrón); `lorentzian_chain.py --fast` 37.7 s (E5e: realizador único 0.14/0.38/0.37/0.50 para n=10/20/50/100 con 50/50/30/20 muestras; fuerza bruta 10/10). Magnitudes compatibles con las publicadas dentro del ruido de muestras pequeñas. No se relanzó `formalism_chain.py` (11 min en corrida completa; fuera del foco de esta ronda).
 
 ## Código de E2c y E5e
 
-`[en curso]`
+### `experiments/ordinal_class.py` (E2c)
+- `min_gap` (l.49–62): brecha mínima entre distancias ordenadas, pares extremos y disyunción ✓.
+- `check_inradius` (l.65–97): (i) 20 desplazamientos de todos los puntos con dirección uniforme en la esfera y radio eps·U^{1/d}, eps = 0.999·g/4 → uniforme en la bola euclidiana ✓ (corrección de ronda 2 aplicada); (ii) solo si los pares son disjuntos: separa a,b y acerca c,d a lo largo de sus rectas en e = g/4 + max(10⁻⁶·g/4, 10⁻¹²) ✓, detecta cambio de patrón con `argsort` estable ✓. Coincide con la Prop. 3.8 y con el apéndice (l.449).
+- `class_walk` (l.100–120): paseo gaussiano aceptado sii el patrón no cambia; adaptación σ×1.05/×0.98 → aceptación de equilibrio 0.293 ("about 0.3" ✓). Las aceptaciones medias observadas caen a 0.24 (n=128) y 0.16 (n=256): con 3000/1500 pasos el paso no llega a equilibrarse, otra señal de que el "rango del paseo" depende del presupuesto, como ya dice el texto. Registra el máximo de la disparidad de Procrustes ✓. Nombres internos aún "radius" (véase arriba).
+- Pendientes de log-log con `polyfit` sobre las 6 medianas ✓. Sin errores que invaliden resultados.
+
+### `experiments/lorentzian_chain.py` (E5e, l.353–481)
+- `implication_colour_classes`: implementa la relación Γ de Golumbic sobre las aristas dirigidas del grafo de incomparabilidad: (v,b) ~ (v,b') y (b,v) ~ (b',v) cuando b, b' son comparables, cerrada transitivamente con componentes conexas ✓; empareja cada clase con su reversa y lanza excepción si una clase fuese su propia reversa (no ocurre para grafos de comparabilidad) ✓.
+- `count_realizers_mod_swap`: enumera las 2^k elecciones de orientación sobre las k clases de color y acepta las que hacen transitivo P ∪ T (test por producto booleano; la antisimetría está garantizada por construcción) ✓. Es exhaustivo porque toda orientación transitiva contiene cada clase de implicación o su reversa (Golumbic 1977) y, como demostré en la sección matemática, toda orientación transitiva de inc(≺) da un orden lineal P ∪ T, así que el test de transitividad no descarta nada legítimo. Divide por 2 (T y su reversa = swap) ✓; cadena (k=0) devuelve 1 ✓ (el enunciado de la Prop. 5.2, no el código, necesita la excepción). Límite k ≤ 14 nunca alcanzado (`not_enumerated` = 0 en todas las filas).
+- `brute_force_realizers_mod_swap`: cuenta pares ordenados (L1, L2) de extensiones lineales con L1 ∩ L2 = R y corrige el caso de la cadena con `(count + symmetric)//2` ✓; 30/30 coincidencias en n=6 ✓.
+- E5a–E5d releídos por si acaso: fórmula de Myrheim–Meyer (`myrheim_meyer_fraction`) verificada numéricamente (0.5, 0.22857, 0.1 para D = 2, 3, 4) ✓; `longest_chain` usa solo puntos estrictamente interiores al rectángulo y LIS estrictamente creciente, +1 por eslabones ✓; `reconstruct_from_counts` s = 1 − (fut − past)/(n−1), p = past/(n−1) ✓; RMSE con mínimo sobre el swap global, como declara el texto ✓.
+- Sin errores que invaliden resultados.
 
 ## Lista de acciones (prioridad descendente, imperativo)
 
