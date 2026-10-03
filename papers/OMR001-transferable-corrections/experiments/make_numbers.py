@@ -361,7 +361,8 @@ with open(os.path.join(out_dir, "table_worst_refit.tex"), "w") as fh:
             cells += [v, f"{c['split_exact']:.4f}"]
         fh.write(" & ".join(cells) + " \\\\\n")
 with open(os.path.join(out_dir, "table_worst_split.tex"), "w") as fh:
-    fh.write(" & ".join(r"\multicolumn{2}{c}{" + f"{RC[(0.1, m)]['split']:.4f}" + "}" for m in cfg["m_grid"]) + "\n")
+    # whole row (label included): \multicolumn cannot follow \input at the start of a cell
+    fh.write("split cost & " + " & ".join(r"\multicolumn{2}{c}{" + f"{RC[(0.1, m)]['split']:.4f}" + "}" for m in cfg["m_grid"]) + "\n")
 # oracle correction C = theta (round 3, M1): exact excess over Xbar_n, refit vs split (bold: refit better)
 _ora_harm, _ora_split_better = [], []
 with open(os.path.join(out_dir, "table_oracle.tex"), "w") as fh:

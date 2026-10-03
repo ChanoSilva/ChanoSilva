@@ -1,0 +1,10 @@
+[explicit] graphs 18, pairs 54 (non-members 36)
+  max rel |C_W generic - closed form (eq:CW)| at 20 random points/pair: 6.21e-16
+  multistart SLSQP (25 starts, no lemma): pairs with a point below predicted min: 0; predicted min attained: 39/54; membership mismatches: 0
+  projected-gradient Wardrop from 3 random starts converges to f*: 54/54
+  rem:interior witness gap <= -1/4 and C_h(y)<=Gamma: 36/36
+  CPU so far 140.4s
+[DAG] pairs 16; structure ok 16/16
+  LP max over all feasible flows of c_P_i - c_S_i: -449.000 (<0 needed); of c_Z1 - c_other: -52.500 (<0 needed)
+  max over feasible flows of f(e2_m) - D: 2.000  (theorem's bound uses D+1; 84 arcs e2_m reach D+2)
+total CPU 141.1s
