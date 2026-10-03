@@ -1,0 +1,130 @@
+check_H3.py -- RTK001 round 3; (2,3), r_d = f tau_meas(K_(d-1)); derivatives by central differences in t
+
+=== (2,3) f=0.5 N0=256 depth=3 [f=1/2, N0=256] ===
+[D] j=0 N=256 tau=1.00000 v=[0.9999,0.9999] kappa_max=1.0002 nu=0.0000 mu=0.0000 M_v=0.0000 M_kappa=0.0000 |K'''|max=1.000 | r_(j+1) M_v/v_min=0.0000 r_(j+1)^2 M_kappa=0.00000 r_(j+1) kappa_max=0.5001
+[D] j=1 N=512 tau=0.41582 v=[1.8028,3.3531] kappa_max=1.3985 nu=0.4183 mu=4.5367 M_v=2.4325 M_kappa=8.1789 |K'''|max=41.240 | r_(j+1) M_v/v_min=0.2805 r_(j+1)^2 M_kappa=0.35355 r_(j+1) kappa_max=0.2908
+[D] j=2 N=1024 tau=0.20791 v=[3.0164,8.0491] kappa_max=1.5658 nu=0.7168 mu=5.0060 M_v=13.2413 M_kappa=15.8080 |K'''|max=453.798 | r_(j+1) M_v/v_min=0.4563 r_(j+1)^2 M_kappa=0.17083 r_(j+1) kappa_max=0.1628
+[D] j=3 N=2048 tau=nan v=[5.2192,17.3303] kappa_max=1.8377 nu=1.1225 mu=6.2110 M_v=62.7674 M_kappa=34.7053 |K'''|max=3913.024 | r_(j+1) M_v/v_min=nan r_(j+1)^2 M_kappa=nan r_(j+1) kappa_max=nan
+[W]  d=1: |w|-identity rel.err 2.66e-04; w'-identity (1.2) rel.err 9.06e-04 (m=1.5000)
+[NU] d=1: measured nu_d=0.4183 <= bound 3.0017 ? True  (ratio 0.139; eps=0.5001, lam=0.75008)
+[KA] d=1: measured kappa_max(K_d)=1.3985 <= bound 3.5628 ? True  (ratio 0.393); r_d*bound = 1.7814 (<= 2 needed), measured r_d kappa_max = 0.6992
+[TOL] d=1: sharp S_d = 1.7814 <= 2 ? True   (zeta'=0.666)
+[LOSS] d=1: sup sin(chi)=0.83211, sup r sin(chi)|v kpar''.U + v'' x/r| = 0.0000 vs sup|Pi_perp K_d'''| = 3.377 (parameter t of K_(d-1))
+[W]  d=2: |w|-identity rel.err 1.30e-04; w'-identity (1.2) rel.err 1.25e-03 (m=1.9822)
+[NU] d=2: measured nu_d=0.7168 <= bound 3.1005 ? True  (ratio 0.231; eps=0.2908, lam=0.22860)
+[KA] d=2: measured kappa_max(K_d)=1.5658 <= bound 3.4563 ? True  (ratio 0.453); r_d*bound = 0.7186 (<= 2 needed), measured r_d kappa_max = 0.3255
+[TOL] d=2: sharp S_d = 0.7186 <= 2 ? True   (zeta'=3.103)
+[LOSS] d=2: sup sin(chi)=0.27331, sup r sin(chi)|v kpar''.U + v'' x/r| = 4.6434 vs sup|Pi_perp K_d'''| = 36.380 (parameter t of K_(d-1))
+[W]  d=3: |w|-identity rel.err 5.66e-05; w'-identity (1.2) rel.err 1.23e-03 (m=1.5122)
+[NU] d=3: measured nu_d=1.1225 <= bound 1.7149 ? True  (ratio 0.655; eps=0.1628, lam=0.05211)
+[KA] d=3: measured kappa_max(K_d)=1.8377 <= bound 2.0311 ? True  (ratio 0.905); r_d*bound = 0.2111 (<= 2 needed), measured r_d kappa_max = 0.1910
+[TOL] d=3: sharp S_d = 0.2111 <= 2 ? True   (zeta'=16.065)
+[TOL] d=3: a-priori LHS 26.63*4^-d*nu_(d-1) + 17.75*8^-d*mu_(d-1) = 0.4717 <= 0.896 ? True; checks of the a-priori inputs: r_d=0.10396 <= 2^-d=0.12500 ? True; lam=0.05211 <= 2^(3-d)/sqrt13=0.27735 ? True; eps=0.1628 <= f ? True
+[LOSS] d=3: sup sin(chi)=0.06025, sup r sin(chi)|v kpar''.U + v'' x/r| = 3.3142 vs sup|Pi_perp K_d'''| = 339.233 (parameter t of K_(d-1))
+[growth] nu: 0.000, 0.418, 0.717, 1.123 | mu: 0.000, 4.537, 5.006, 6.211 | kappa_max: 1.000, 1.398, 1.566, 1.838 | M_v: 0.000, 2.433, 13.241, 62.767 | M_kappa: 0.000, 8.179, 15.808, 34.705
+(f=1/2, N0=256 done in 1.4s)
+
+=== (2,3) f=0.5 N0=512 depth=3 [f=1/2, N0=512 (resolution)] ===
+[D] j=0 N=512 tau=1.00000 v=[1.0000,1.0000] kappa_max=1.0000 nu=0.0000 mu=0.0000 M_v=0.0000 M_kappa=0.0000 |K'''|max=1.000 | r_(j+1) M_v/v_min=0.0000 r_(j+1)^2 M_kappa=0.00000 r_(j+1) kappa_max=0.5000
+[D] j=1 N=1024 tau=0.41582 v=[1.8028,3.3538] kappa_max=1.3984 nu=0.4182 mu=4.5425 M_v=2.4325 M_kappa=8.1891 |K'''|max=41.263 | r_(j+1) M_v/v_min=0.2805 r_(j+1)^2 M_kappa=0.35399 r_(j+1) kappa_max=0.2907
+[D] j=2 N=2048 tau=0.20791 v=[3.0161,8.0514] kappa_max=1.5657 nu=0.7172 mu=5.0128 M_v=13.2417 M_kappa=15.8270 |K'''|max=454.098 | r_(j+1) M_v/v_min=0.4564 r_(j+1)^2 M_kappa=0.17104 r_(j+1) kappa_max=0.1628
+[D] j=3 N=4096 tau=nan v=[5.2185,17.3356] kappa_max=1.8375 nu=1.1232 mu=6.2184 M_v=62.8235 M_kappa=34.7442 |K'''|max=3915.582 | r_(j+1) M_v/v_min=nan r_(j+1)^2 M_kappa=nan r_(j+1) kappa_max=nan
+[W]  d=1: |w|-identity rel.err 6.65e-05; w'-identity (1.2) rel.err 2.26e-04 (m=1.5000)
+[NU] d=1: measured nu_d=0.4182 <= bound 3.0004 ? True  (ratio 0.139; eps=0.5000, lam=0.75002)
+[KA] d=1: measured kappa_max(K_d)=1.3984 <= bound 3.5622 ? True  (ratio 0.393); r_d*bound = 1.7811 (<= 2 needed), measured r_d kappa_max = 0.6992
+[TOL] d=1: sharp S_d = 1.7811 <= 2 ? True   (zeta'=0.667)
+[LOSS] d=1: sup sin(chi)=0.83207, sup r sin(chi)|v kpar''.U + v'' x/r| = 0.0000 vs sup|Pi_perp K_d'''| = 3.380 (parameter t of K_(d-1))
+[W]  d=2: |w|-identity rel.err 3.26e-05; w'-identity (1.2) rel.err 3.14e-04 (m=1.9819)
+[NU] d=2: measured nu_d=0.7172 <= bound 3.1024 ? True  (ratio 0.231; eps=0.2907, lam=0.22856)
+[KA] d=2: measured kappa_max(K_d)=1.5657 <= bound 3.4563 ? True  (ratio 0.453); r_d*bound = 0.7186 (<= 2 needed), measured r_d kappa_max = 0.3255
+[TOL] d=2: sharp S_d = 0.7186 <= 2 ? True   (zeta'=3.103)
+[LOSS] d=2: sup sin(chi)=0.27325, sup r sin(chi)|v kpar''.U + v'' x/r| = 4.6615 vs sup|Pi_perp K_d'''| = 36.429 (parameter t of K_(d-1))
+[W]  d=3: |w|-identity rel.err 1.42e-05; w'-identity (1.2) rel.err 3.09e-04 (m=1.5116)
+[NU] d=3: measured nu_d=1.1232 <= bound 1.7164 ? True  (ratio 0.654; eps=0.1628, lam=0.05210)
+[KA] d=3: measured kappa_max(K_d)=1.8375 <= bound 2.0311 ? True  (ratio 0.905); r_d*bound = 0.2111 (<= 2 needed), measured r_d kappa_max = 0.1910
+[TOL] d=3: sharp S_d = 0.2111 <= 2 ? True   (zeta'=16.070)
+[TOL] d=3: a-priori LHS 26.63*4^-d*nu_(d-1) + 17.75*8^-d*mu_(d-1) = 0.4722 <= 0.896 ? True; checks of the a-priori inputs: r_d=0.10396 <= 2^-d=0.12500 ? True; lam=0.05210 <= 2^(3-d)/sqrt13=0.27735 ? True; eps=0.1628 <= f ? True
+[LOSS] d=3: sup sin(chi)=0.06022, sup r sin(chi)|v kpar''.U + v'' x/r| = 3.3246 vs sup|Pi_perp K_d'''| = 339.808 (parameter t of K_(d-1))
+[growth] nu: 0.000, 0.418, 0.717, 1.123 | mu: 0.000, 4.542, 5.013, 6.218 | kappa_max: 1.000, 1.398, 1.566, 1.838 | M_v: 0.000, 2.433, 13.242, 62.824 | M_kappa: 0.000, 8.189, 15.827, 34.744
+(f=1/2, N0=512 (resolution) done in 3.5s)
+
+=== (2,3) f=0.35 N0=256 depth=3 [f=0.35] ===
+[D] j=0 N=256 tau=1.00000 v=[0.9999,0.9999] kappa_max=1.0002 nu=0.0000 mu=0.0000 M_v=0.0000 M_kappa=0.0000 |K'''|max=1.000 | r_(j+1) M_v/v_min=0.0000 r_(j+1)^2 M_kappa=0.00000 r_(j+1) kappa_max=0.3501
+[D] j=1 N=512 tau=0.35000 v=[1.6712,2.8962] kappa_max=1.2555 nu=0.4046 mu=3.4137 M_v=1.8642 M_kappa=5.7050 |K'''|max=31.145 | r_(j+1) M_v/v_min=0.1366 r_(j+1)^2 M_kappa=0.08561 r_(j+1) kappa_max=0.1538
+[D] j=2 N=1024 tau=0.12250 v=[3.1859,6.4325] kappa_max=1.4177 nu=0.4944 mu=3.6218 M_v=8.2598 M_kappa=11.7200 |K'''|max=285.187 | r_(j+1) M_v/v_min=0.1112 r_(j+1)^2 M_kappa=0.02154 r_(j+1) kappa_max=0.0608
+[D] j=3 N=2048 tau=nan v=[6.1114,13.2162] kappa_max=1.4808 nu=0.5610 mu=3.8765 M_v=36.2551 M_kappa=24.2668 |K'''|max=2340.742 | r_(j+1) M_v/v_min=nan r_(j+1)^2 M_kappa=nan r_(j+1) kappa_max=nan
+[W]  d=1: |w|-identity rel.err 2.16e-04; w'-identity (1.2) rel.err 9.83e-04 (m=1.5000)
+[NU] d=1: measured nu_d=0.4046 <= bound 1.2431 ? True  (ratio 0.325; eps=0.3501, lam=0.52505)
+[KA] d=1: measured kappa_max(K_d)=1.2555 <= bound 2.8035 ? True  (ratio 0.448); r_d*bound = 0.9812 (<= 2 needed), measured r_d kappa_max = 0.4394
+[TOL] d=1: sharp S_d = 0.9812 <= 2 ? True   (zeta'=1.238)
+[LOSS] d=1: sup sin(chi)=0.62841, sup r sin(chi)|v kpar''.U + v'' x/r| = 0.0000 vs sup|Pi_perp K_d'''| = 2.296 (parameter t of K_(d-1))
+[W]  d=2: |w|-identity rel.err 5.92e-05; w'-identity (1.2) rel.err 1.03e-03 (m=1.2435)
+[NU] d=2: measured nu_d=0.4944 <= bound 1.2219 ? True  (ratio 0.405; eps=0.1538, lam=0.09115)
+[KA] d=2: measured kappa_max(K_d)=1.4177 <= bound 1.7188 ? True  (ratio 0.825); r_d*bound = 0.2106 (<= 2 needed), measured r_d kappa_max = 0.1737
+[TOL] d=2: sharp S_d = 0.2106 <= 2 ? True   (zeta'=9.284)
+[LOSS] d=2: sup sin(chi)=0.09563, sup r sin(chi)|v kpar''.U + v'' x/r| = 0.6108 vs sup|Pi_perp K_d'''| = 22.230 (parameter t of K_(d-1))
+[W]  d=3: |w|-identity rel.err 2.25e-05; w'-identity (1.2) rel.err 9.70e-04 (m=1.0084)
+[NU] d=3: measured nu_d=0.5610 <= bound 0.7243 ? True  (ratio 0.775; eps=0.0608, lam=0.01357)
+[KA] d=3: measured kappa_max(K_d)=1.4808 <= bound 1.5257 ? True  (ratio 0.971); r_d*bound = 0.0654 (<= 2 needed), measured r_d kappa_max = 0.0635
+[TOL] d=3: sharp S_d = 0.0654 <= 2 ? True   (zeta'=69.209)
+[TOL] d=3: a-priori LHS 26.63*4^-d*nu_(d-1) + 17.75*8^-d*mu_(d-1) = 0.3313 <= 0.896 ? True; checks of the a-priori inputs: r_d=0.04287 <= 2^-d=0.12500 ? True; lam=0.01357 <= 2^(3-d)/sqrt13=0.27735 ? True; eps=0.0608 <= f ? True
+[LOSS] d=3: sup sin(chi)=0.01415, sup r sin(chi)|v kpar''.U + v'' x/r| = 0.2557 vs sup|Pi_perp K_d'''| = 188.691 (parameter t of K_(d-1))
+[growth] nu: 0.000, 0.405, 0.494, 0.561 | mu: 0.000, 3.414, 3.622, 3.877 | kappa_max: 1.000, 1.256, 1.418, 1.481 | M_v: 0.000, 1.864, 8.260, 36.255 | M_kappa: 0.000, 5.705, 11.720, 24.267
+(f=0.35 done in 0.9s)
+
+=== (2,3) f=0.25 N0=256 depth=3 [f=0.25] ===
+[D] j=0 N=256 tau=1.00000 v=[0.9999,0.9999] kappa_max=1.0002 nu=0.0000 mu=0.0000 M_v=0.0000 M_kappa=0.0000 |K'''|max=1.000 | r_(j+1) M_v/v_min=0.0000 r_(j+1)^2 M_kappa=0.00000 r_(j+1) kappa_max=0.2500
+[D] j=1 N=512 tau=0.25000 v=[1.6771,2.6095] kappa_max=1.1626 nu=0.3339 mu=1.9879 M_v=1.4050 M_kappa=3.3340 |K'''|max=24.434 | r_(j+1) M_v/v_min=0.0524 r_(j+1)^2 M_kappa=0.01302 r_(j+1) kappa_max=0.0727
+[D] j=2 N=1024 tau=0.06250 v=[3.2986,5.5167] kappa_max=1.2229 nu=0.3461 mu=2.0755 M_v=6.0893 M_kappa=6.8588 |K'''|max=211.943 | r_(j+1) M_v/v_min=0.0288 r_(j+1)^2 M_kappa=0.00167 r_(j+1) kappa_max=0.0191
+[D] j=3 N=2048 tau=nan v=[6.5596,11.1418] kappa_max=1.2373 nu=0.3541 mu=2.0973 M_v=24.9052 M_kappa=13.7972 |K'''|max=1712.396 | r_(j+1) M_v/v_min=nan r_(j+1)^2 M_kappa=nan r_(j+1) kappa_max=nan
+[W]  d=1: |w|-identity rel.err 1.71e-04; w'-identity (1.2) rel.err 1.02e-03 (m=1.5000)
+[NU] d=1: measured nu_d=0.3339 <= bound 0.6669 ? True  (ratio 0.501; eps=0.2500, lam=0.37504)
+[KA] d=1: measured kappa_max(K_d)=1.1626 <= bound 2.2316 ? True  (ratio 0.521); r_d*bound = 0.5579 (<= 2 needed), measured r_d kappa_max = 0.2907
+[TOL] d=1: sharp S_d = 0.5579 <= 2 ? True   (zeta'=2.000)
+[LOSS] d=1: sup sin(chi)=0.44727, sup r sin(chi)|v kpar''.U + v'' x/r| = 0.0000 vs sup|Pi_perp K_d'''| = 1.617 (parameter t of K_(d-1))
+[W]  d=2: |w|-identity rel.err 3.08e-05; w'-identity (1.2) rel.err 9.05e-04 (m=1.3732)
+[NU] d=2: measured nu_d=0.3461 <= bound 0.5738 ? True  (ratio 0.603; eps=0.0727, lam=0.05117)
+[KA] d=2: measured kappa_max(K_d)=1.2229 <= bound 1.3351 ? True  (ratio 0.916); r_d*bound = 0.0834 (<= 2 needed), measured r_d kappa_max = 0.0764
+[TOL] d=2: sharp S_d = 0.0834 <= 2 ? True   (zeta'=18.121)
+[LOSS] d=2: sup sin(chi)=0.05204, sup r sin(chi)|v kpar''.U + v'' x/r| = 0.0934 vs sup|Pi_perp K_d'''| = 14.236 (parameter t of K_(d-1))
+[W]  d=3: |w|-identity rel.err 5.71e-06; w'-identity (1.2) rel.err 8.19e-04 (m=1.2508)
+[NU] d=3: measured nu_d=0.3541 <= bound 0.3940 ? True  (ratio 0.899; eps=0.0191, lam=0.00592)
+[KA] d=3: measured kappa_max(K_d)=1.2373 <= bound 1.2515 ? True  (ratio 0.989); r_d*bound = 0.0196 (<= 2 needed), measured r_d kappa_max = 0.0193
+[TOL] d=3: sharp S_d = 0.0196 <= 2 ? True   (zeta'=165.555)
+[TOL] d=3: a-priori LHS 26.63*4^-d*nu_(d-1) + 17.75*8^-d*mu_(d-1) = 0.2159 <= 0.896 ? True; checks of the a-priori inputs: r_d=0.01562 <= 2^-d=0.12500 ? True; lam=0.00592 <= 2^(3-d)/sqrt13=0.27735 ? True; eps=0.0191 <= f ? True
+[LOSS] d=3: sup sin(chi)=0.00596, sup r sin(chi)|v kpar''.U + v'' x/r| = 0.0239 vs sup|Pi_perp K_d'''| = 116.221 (parameter t of K_(d-1))
+[growth] nu: 0.000, 0.334, 0.346, 0.354 | mu: 0.000, 1.988, 2.076, 2.097 | kappa_max: 1.000, 1.163, 1.223, 1.237 | M_v: 0.000, 1.405, 6.089, 24.905 | M_kappa: 0.000, 3.334, 6.859, 13.797
+(f=0.25 done in 0.7s)
+
+=== (2,3) f=0.5 N0=128 depth=4 [f=1/2, d=4, reduced N0=128] ===
+[D] j=0 N=128 tau=1.00000 v=[0.9996,0.9996] kappa_max=1.0006 nu=0.0000 mu=0.0000 M_v=0.0000 M_kappa=0.0000 |K'''|max=0.999 | r_(j+1) M_v/v_min=0.0000 r_(j+1)^2 M_kappa=0.00000 r_(j+1) kappa_max=0.5003
+[D] j=1 N=256 tau=0.41585 v=[1.8029,3.3500] kappa_max=1.3990 nu=0.4187 mu=4.5139 M_v=2.4325 M_kappa=8.1382 |K'''|max=41.149 | r_(j+1) M_v/v_min=0.2805 r_(j+1)^2 M_kappa=0.35183 r_(j+1) kappa_max=0.2909
+[D] j=2 N=512 tau=0.20792 v=[3.0196,8.0396] kappa_max=1.5660 nu=0.7151 mu=4.9820 M_v=13.2397 M_kappa=15.7320 |K'''|max=452.579 | r_(j+1) M_v/v_min=0.4558 r_(j+1)^2 M_kappa=0.17003 r_(j+1) kappa_max=0.1628
+[D] j=3 N=1024 tau=0.10396 v=[5.2215,17.3116] kappa_max=1.8371 nu=1.1181 mu=6.1836 M_v=62.6118 M_kappa=34.5387 |K'''|max=3902.894 | r_(j+1) M_v/v_min=0.6233 r_(j+1)^2 M_kappa=0.09332 r_(j+1) kappa_max=0.0955
+[D] j=4 N=2048 tau=nan v=[9.7241,35.7467] kappa_max=2.0251 nu=1.3547 mu=6.9272 M_v=290.3569 M_kappa=72.8049 |K'''|max=32127.202 | r_(j+1) M_v/v_min=nan r_(j+1)^2 M_kappa=nan r_(j+1) kappa_max=nan
+[W]  d=1: |w|-identity rel.err 1.06e-03; w'-identity (1.2) rel.err 3.63e-03 (m=1.5000)
+[NU] d=1: measured nu_d=0.4187 <= bound 3.0066 ? True  (ratio 0.139; eps=0.5003, lam=0.75030)
+[KA] d=1: measured kappa_max(K_d)=1.3990 <= bound 3.5654 ? True  (ratio 0.392); r_d*bound = 1.7827 (<= 2 needed), measured r_d kappa_max = 0.6995
+[TOL] d=1: sharp S_d = 1.7827 <= 2 ? True   (zeta'=0.666)
+[LOSS] d=1: sup sin(chi)=0.83231, sup r sin(chi)|v kpar''.U + v'' x/r| = 0.0000 vs sup|Pi_perp K_d'''| = 3.367 (parameter t of K_(d-1))
+[W]  d=2: |w|-identity rel.err 5.21e-04; w'-identity (1.2) rel.err 5.02e-03 (m=1.9836)
+[NU] d=2: measured nu_d=0.7151 <= bound 3.0934 ? True  (ratio 0.231; eps=0.2909, lam=0.22876)
+[KA] d=2: measured kappa_max(K_d)=1.5660 <= bound 3.4568 ? True  (ratio 0.453); r_d*bound = 0.7188 (<= 2 needed), measured r_d kappa_max = 0.3256
+[TOL] d=2: sharp S_d = 0.7188 <= 2 ? True   (zeta'=3.100)
+[LOSS] d=2: sup sin(chi)=0.27339, sup r sin(chi)|v kpar''.U + v'' x/r| = 4.5867 vs sup|Pi_perp K_d'''| = 36.182 (parameter t of K_(d-1))
+[W]  d=3: |w|-identity rel.err 2.26e-04; w'-identity (1.2) rel.err 4.91e-03 (m=1.5146)
+[NU] d=3: measured nu_d=1.1181 <= bound 1.7096 ? True  (ratio 0.654; eps=0.1628, lam=0.05215)
+[KA] d=3: measured kappa_max(K_d)=1.8371 <= bound 2.0313 ? True  (ratio 0.904); r_d*bound = 0.2112 (<= 2 needed), measured r_d kappa_max = 0.1910
+[TOL] d=3: sharp S_d = 0.2112 <= 2 ? True   (zeta'=16.055)
+[TOL] d=3: a-priori LHS 26.63*4^-d*nu_(d-1) + 17.75*8^-d*mu_(d-1) = 0.4702 <= 0.896 ? True; checks of the a-priori inputs: r_d=0.10396 <= 2^-d=0.12500 ? True; lam=0.05215 <= 2^(3-d)/sqrt13=0.27735 ? True; eps=0.1628 <= f ? True
+[LOSS] d=3: sup sin(chi)=0.06033, sup r sin(chi)|v kpar''.U + v'' x/r| = 3.2541 vs sup|Pi_perp K_d'''| = 336.966 (parameter t of K_(d-1))
+[W]  d=4: |w|-identity rel.err 1.21e-04; w'-identity (1.2) rel.err 5.19e-03 (m=1.5513)
+[NU] d=4: measured nu_d=1.3547 <= bound 1.6637 ? True  (ratio 0.814; eps=0.0955, lam=0.01544)
+[KA] d=4: measured kappa_max(K_d)=2.0251 <= bound 2.0692 ? True  (ratio 0.979); r_d*bound = 0.1076 (<= 2 needed), measured r_d kappa_max = 0.1053
+[TOL] d=4: sharp S_d = 0.1076 <= 2 ? True   (zeta'=58.568)
+[TOL] d=4: a-priori LHS 26.63*4^-d*nu_(d-1) + 17.75*8^-d*mu_(d-1) = 0.1431 <= 0.896 ? True; checks of the a-priori inputs: r_d=0.05198 <= 2^-d=0.06250 ? True; lam=0.01544 <= 2^(3-d)/sqrt13=0.13868 ? True; eps=0.0955 <= f ? True
+[LOSS] d=4: sup sin(chi)=0.01659, sup r sin(chi)|v kpar''.U + v'' x/r| = 3.1166 vs sup|Pi_perp K_d'''| = 2884.365 (parameter t of K_(d-1))
+[growth] nu: 0.000, 0.419, 0.715, 1.118, 1.355 | mu: 0.000, 4.514, 4.982, 6.184, 6.927 | kappa_max: 1.001, 1.399, 1.566, 1.837, 2.025 | M_v: 0.000, 2.432, 13.240, 62.612, 290.357 | M_kappa: 0.000, 8.138, 15.732, 34.539, 72.805
+(f=1/2, d=4, reduced N0=128 done in 1.6s)
+
+total 8.2s
