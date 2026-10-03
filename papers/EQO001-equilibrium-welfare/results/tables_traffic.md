@@ -1,6 +1,6 @@
 # E1: traffic (Pigou, affine price of anarchy, marginal-cost tolls)
 
-Seed 20260930; 3.9 s.
+Seed 20260930; 2.2 s.
 
 ## E1a Pigou, c_1 = 1, c_2 = x^d
 
@@ -19,6 +19,16 @@ Seed 20260930; 3.9 s.
 - bound violations (PoA > 4/3): 0
 - max VI residual: 3.39e-11
 - max |solver - water-filling|: 8.83e-11
-- max |tolled equilibrium - optimum|: 2.22e-16
+- max |tolled equilibrium (solver) - optimum (water-filling, independent)|: 8.80e-11
 - max iterations: 2649
 - fraction of instances with PoA > 1.01: 0.410; > 1.10: 0.120
+- instances with PoA = 1 exactly (equilibrium = optimum): 86/200
+
+## Criteria
+
+- residuals_le_1e-8: PASS (value 3.39e-11, threshold 1e-08)
+- solver_vs_waterfill_le_1e-7: PASS (value 8.83e-11, threshold 1e-07)
+- poa_bound_violations_zero: PASS (value 0, threshold 0)
+- pigou_d1_poa_minus_4_3_le_1e-12: PASS (value 0, threshold 1e-12)
+- tolled_vs_waterfill_optimum_le_1e-7: PASS (value 8.8e-11, threshold 1e-07)
+- all_pass: PASS

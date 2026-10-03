@@ -202,8 +202,10 @@ if os.path.exists(lz_path):
     if "rmse_median_unrelated_votes_only" in dd[-1]:
         a_all, a_inc = dd[-1]["rmse_median"], dd[-1]["rmse_median_unrelated_votes_only"]
         rel = 100.0 * (a_inc - a_all) / a_all
-        abl = "less than one percent" if abs(rel) < 1 else (f"{rel:+.0f}" + "\\%")
-        L.append(rf"\newcommand{{\EfiveDablation}}{{{abl}}}")
+        # always print the signed percentage (round 3: no verbal substitute for the number)
+        L.append(rf"\newcommand{{\EfiveDablation}}{{{rel:+.1f}\%}}")
+        L.append(rf"\newcommand{{\EfiveDrmseLastFour}}{{{a_all:.4f}}}")
+        L.append(rf"\newcommand{{\EfiveDrmseAblLastFour}}{{{a_inc:.4f}}}")
     if "E5e" in lz:
         e5e = lz["E5e"]
         rows_e = e5e["rows"]
@@ -216,10 +218,41 @@ if os.path.exists(lz_path):
         L.append(rf"\newcommand{{\EfiveEnmax}}{{{rows_e[-1]['n']}}}")
         L.append(rf"\newcommand{{\EfiveEuniqueNmax}}{{{rows_e[-1]['fraction_unique']:.2f}}}")
         L.append(rf"\newcommand{{\EfiveEleEightNmax}}{{{rows_e[-1]['fraction_le_eight']:.2f}}}")
+        L.append(rf"\newcommand{{\EfiveEtwoNmax}}{{{rows_e[-1]['fraction_two']:.2f}}}")
+        L.append(rf"\newcommand{{\EfiveEmaxCountNten}}{{{rows_e[0]['max_count']}}}")
         L.append(rf"\newcommand{{\EfiveEcrossAgree}}{{{e5e['crosscheck_n6_agree']}}}")
         L.append(rf"\newcommand{{\EfiveEcrossTested}}{{{e5e['crosscheck_n6_tested']}}}")
     L.append(rf"\newcommand{{\EfiveSeconds}}{{{int(round(lz['meta']['seconds']))}}}")
     L.append(r"\newcommand{\HasLorentz}{1}")
+
+# E5f (law of the realizer count), if available
+rl_path = os.path.join(ROOT, "results", "results_realizer_law.json")
+if os.path.exists(rl_path):
+    rl = json.load(open(rl_path))
+    rr = rl["rows"]
+    with open(os.path.join(out_dir, "table_e5f.tex"), "w") as fh:
+        body = []
+        for r in rr:
+            body.append(f"{r['n']} & {r['samples']} & {r['equal_to_two_pow_N']}/{r['samples']} & {r['mean_N']:.2f} & "
+                        f"{r['fraction_unique']:.2f} & {r['fraction_two']:.2f} & {r['fraction_le_eight']:.2f}")
+        fh.write(" \\\\\n".join(body) + "\n")
+    last = rr[-1]
+    L.append(rf"\newcommand{{\RlawNmin}}{{{rr[0]['n']}}}")
+    L.append(rf"\newcommand{{\RlawNmax}}{{{last['n']}}}")
+    L.append(rf"\newcommand{{\RlawSamplesNmax}}{{{last['samples']}}}")
+    L.append(rf"\newcommand{{\RlawEqualNmax}}{{{last['equal_to_two_pow_N']}}}")
+    L.append(rf"\newcommand{{\RlawEqualFracNmin}}{{{rr[0]['fraction_equal']:.2f}}}")
+    L.append(rf"\newcommand{{\RlawEqualTotal}}{{{rl['total_equal']}}}")
+    L.append(rf"\newcommand{{\RlawSamplesTotal}}{{{rl['total_samples']}}}")
+    big = [r for r in rr if r["n"] >= 100]
+    L.append(rf"\newcommand{{\RlawBigNmin}}{{{big[0]['n']}}}")
+    L.append(rf"\newcommand{{\RlawEqualBig}}{{{sum(r['equal_to_two_pow_N'] for r in big)}}}")
+    L.append(rf"\newcommand{{\RlawSamplesBig}}{{{sum(r['samples'] for r in big)}}}")
+    p = rl["poisson_predictions"]
+    L.append(rf"\newcommand{{\RlawPoissonOne}}{{{p['P_N_eq_0']:.3f}}}")
+    L.append(rf"\newcommand{{\RlawPoissonLeThree}}{{{p['P_N_le_3']:.3f}}}")
+    L.append(rf"\newcommand{{\RlawSeconds}}{{{int(round(rl['meta']['seconds']))}}}")
+    L.append(r"\newcommand{\HasRlaw}{1}")
 
 import glob
 for t in glob.glob(os.path.join(out_dir, "table_*.tex")):
@@ -239,11 +272,11 @@ if os.path.exists(cls_path):
                         f"{r['disjoint_extremal_pairs']}/{r['configurations']} & "
                         f"{r['perturbations_below_quarter_gap_kept']}/{r['perturbations_total']} & "
                         f"{r['quarter_gap_displacement_changed']}/{r['quarter_gap_displacement_tested']} & "
-                        f"{r['walk_steps']} & {sci(r['walk_radius_median'])}")
+                        f"{r['walk_steps']} & {sci(r['walk_range_median'])}")
     with open(os.path.join(out_dir, "table_e2c.tex"), "w") as fh:
         fh.write(" \\\\\n".join(rows_tex) + "\n")     # last row without terminator
     L.append(rf"\newcommand{{\EtwocSlopeGap}}{{{-cl['slope_gap']:.1f}}}")
-    L.append(rf"\newcommand{{\EtwocSlopeWalk}}{{{-cl['slope_walk_radius']:.1f}}}")
+    L.append(rf"\newcommand{{\EtwocSlopeWalk}}{{{-cl['slope_walk_range']:.1f}}}")
     L.append(rf"\newcommand{{\EtwocNmax}}{{{rows_c[-1]['n']}}}")
     L.append(rf"\newcommand{{\EtwocConfigsTotal}}{{{sum(r['configurations'] for r in rows_c)}}}")
     L.append(rf"\newcommand{{\EtwocKeptTotal}}{{{sum(r['perturbations_below_quarter_gap_kept'] for r in rows_c)}}}")
@@ -253,10 +286,11 @@ if os.path.exists(cls_path):
     for r in rows_c:
         if r["n"] == 64:
             L.append(rf"\newcommand{{\EtwocGapNsixtyfour}}{{{sci(r['gap_median'])}}}")
-            L.append(rf"\newcommand{{\EtwocWalkNsixtyfour}}{{{sci(r['walk_radius_median'])}}}")
-            L.append(rf"\newcommand{{\EtwocBoundNsixtyfour}}{{{sci(3 * r['gap_median'] ** 2 / 8)}}}")
+            L.append(rf"\newcommand{{\EtwocWalkNsixtyfour}}{{{sci(r['walk_range_median'])}}}")
+            # order-of-magnitude estimate n(g/4)^2 / (n/6) = 3 g^2 / 8 of the disparity after displacing every point by g/4
+            L.append(rf"\newcommand{{\EtwocDispEstNsixtyfour}}{{{sci(3 * r['gap_median'] ** 2 / 8)}}}")
     L.append(rf"\newcommand{{\EtwocGapNmax}}{{{sci(rows_c[-1]['gap_median'])}}}")
-    L.append(rf"\newcommand{{\EtwocWalkNmax}}{{{sci(rows_c[-1]['walk_radius_median'])}}}")
+    L.append(rf"\newcommand{{\EtwocWalkNmax}}{{{sci(rows_c[-1]['walk_range_median'])}}}")
     L.append(rf"\newcommand{{\EtwocSeconds}}{{{int(round(cl['meta']['seconds']))}}}")
     L.append(r"\newcommand{\HasClass}{1}")
     # solver disparity at n = 64 from E2, for the comparison sentence

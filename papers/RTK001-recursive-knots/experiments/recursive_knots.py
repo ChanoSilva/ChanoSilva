@@ -211,12 +211,16 @@ def build_chain(N0, f, pq, depth, phi=0.0):
         s = 2 * r * np.sin(np.pi / p)
         rho_half = min(tau_prev - r, 0.5 * r * np.sin(np.pi / p))   # c = 1/2 (used in the text)
         rho_one = min(tau_prev - r, 1.0 * r * np.sin(np.pi / p))    # c = 1 (sharp on a straight tube, p = 2)
-        n_frame = int(np.rint(out[-1]["writhe"]))  # linking number of the closed Bishop frame
+        # linking number of the closed Bishop frame with its core: Lk = Wr(K_{d-1}) - alpha/2pi (CWF);
+        # this is an integer up to discretisation error, and the residual is a consistency check (round 1, M3)
+        lk_real = out[-1]["writhe"] - alpha / (2 * np.pi)
+        n_frame = int(np.rint(lk_real))
         m.update(d=d, r=r, p=p, q=q, f=f, alpha=float(alpha),
                  strand_sep=float(s), rho_pred=float(rho_half), rho_pred_cone=float(rho_one),
                  ratio_tau_r=float(m["tau"] / r),
                  L_bound=float(p * Lprev * (1 + r / tau_prev) + r * (2 * np.pi * q + p * abs(alpha))),
-                 Lk_frame=n_frame, cable_slope=int(q + p * n_frame))
+                 L_lower=float(p * Lprev * (1 - r / tau_prev)),   # Prop. (p=2 lower bound): |K_d'| >= |K'|(1 - r kappa)
+                 Lk_frame=n_frame, Lk_residual=float(lk_real - n_frame), cable_slope=int(q + p * n_frame))
         out.append(m)
         P, tau_prev = Q, m["tau"]
     return out

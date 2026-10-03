@@ -4,7 +4,7 @@
   "python": "3.11.15",
   "numpy": "2.4.6",
   "scipy": "1.17.1",
-  "seconds": 127.92846202850342
+  "seconds": 85.70337986946106
  },
  "E2_two_player": {
   "beta1": 0.5,
@@ -1220,6 +1220,212 @@
     0.0
    ],
    "x_star_optimal_for_all_lambda": true
+  }
+ },
+ "E2_nonpolyhedral": {
+  "H3": [
+   [
+    1.0,
+    -0.5,
+    0.0
+   ],
+   [
+    -0.5,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ]
+  ],
+  "h": [
+   [
+    1.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    1.0,
+    0.0
+   ],
+   [
+    0.25,
+    -0.5,
+    1.0
+   ]
+  ],
+  "x_star": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "F_at_x_star": [
+   -1.0,
+   -1.0,
+   -1.0
+  ],
+  "residual_at_x_star": 0.0,
+  "fixed_point_from_half": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "best_responses_at_one": true,
+  "G_at_x_star": [
+   [
+    1.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    1.0,
+    0.0
+   ],
+   [
+    -0.25,
+    0.0,
+    1.0
+   ]
+  ],
+  "jointly_concave": false,
+  "slice_points": 7381,
+  "slice_mismatches": 0,
+  "bisection": [
+   {
+    "lambda1": 0.25,
+    "boundary_lambda2": 0.12499999000000006,
+    "parabola": 0.125
+   },
+   {
+    "lambda1": 0.3,
+    "boundary_lambda2": 0.1012499899999999,
+    "parabola": 0.10125
+   },
+   {
+    "lambda1": 0.35,
+    "boundary_lambda2": 0.07999999000000013,
+    "parabola": 0.08000000000000002
+   },
+   {
+    "lambda1": 0.4,
+    "boundary_lambda2": 0.06124999000000031,
+    "parabola": 0.06124999999999999
+   },
+   {
+    "lambda1": 0.45,
+    "boundary_lambda2": 0.044999990000000434,
+    "parabola": 0.045
+   },
+   {
+    "lambda1": 0.5,
+    "boundary_lambda2": 0.03124999000000006,
+    "parabola": 0.03125
+   },
+   {
+    "lambda1": 0.55,
+    "boundary_lambda2": 0.01999999000000008,
+    "parabola": 0.01999999999999999
+   },
+   {
+    "lambda1": 0.6000000000000001,
+    "boundary_lambda2": 0.011249990000000043,
+    "parabola": 0.011249999999999987
+   },
+   {
+    "lambda1": 0.65,
+    "boundary_lambda2": 0.004999990000000398,
+    "parabola": 0.0049999999999999975
+   },
+   {
+    "lambda1": 0.7,
+    "boundary_lambda2": 0.0012499900000002562,
+    "parabola": 0.0012500000000000022
+   },
+   {
+    "lambda1": 0.75,
+    "boundary_lambda2": 4.440892098500626e-16,
+    "parabola": 0.0
+   }
+  ],
+  "max_abs_bisection_minus_parabola": 1.0000000105758744e-08,
+  "witness_lambda": [
+   0.3,
+   0.0,
+   1.0
+  ],
+  "witness_in_Lambda1": true,
+  "witness_in_Lambda": false,
+  "witness_gap": 0.10124999999999984,
+  "witness_better_x": [
+   0.55,
+   0.0,
+   1.0
+  ],
+  "strongly_monotone_variant": {
+   "eps": 0.2,
+   "mu": 0.2,
+   "L": 0.2,
+   "x_star": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "residual": 0.0,
+   "lambda1_grid": [
+    0.35,
+    0.39999999999999997,
+    0.44999999999999996,
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75
+   ],
+   "boundary_lambda2": [
+    0.11469365451713465,
+    0.09511315761316919,
+    0.07752292466870614,
+    0.06186867575757571,
+    0.04809808698698692,
+    0.036160703174603626,
+    0.026007855162242244,
+    0.017592581481482128,
+    0.010869554106280432
+   ],
+   "second_differences": [
+    0.001990263959502414,
+    0.0019359840333326161,
+    0.001883660140541643,
+    0.0018332049582054921,
+    0.0017845358000219136,
+    0.001737574331601266,
+    0.0016922463055584203
+   ],
+   "min_abs_second_difference": 0.0016922463055584203,
+   "all_second_differences_positive": true,
+   "A_ub": [
+    [
+     -0.8,
+     -0.0,
+     0.25
+    ],
+    [
+     -0.0,
+     -0.8,
+     -0.0
+    ],
+    [
+     -0.0,
+     -0.0,
+     -0.8
+    ]
+   ],
+   "A_eq": []
   }
  },
  "E3_E4_summary": [
@@ -11819,5 +12025,56 @@
     1.0
    ]
   }
- ]
+ ],
+ "criteria": {
+  "E2_wedge_agreement_all": {
+   "pass": true,
+   "value": "181/181"
+  },
+  "E2_cournot_interior_none_in_Lambda": {
+   "pass": true,
+   "value": 0
+  },
+  "E2_cournot_boundary_agreement_all": {
+   "pass": true,
+   "value": "61/61"
+  },
+  "E2_nikaido_isoda_max_le_1e-12": {
+   "pass": true,
+   "value": 2.7755575615628914e-17
+  },
+  "E2c_slice_mismatches_zero": {
+   "pass": true,
+   "value": 0
+  },
+  "E2c_bisection_vs_parabola_le_1e-7": {
+   "pass": true,
+   "value": 1.0000000105758744e-08
+  },
+  "E2c_witness_in_L1_not_L_gap_0.10125": {
+   "pass": true,
+   "value": 0.10124999999999984
+  },
+  "E3_cone_points_in_Lambda": {
+   "pass": true,
+   "value": "268/268"
+  },
+  "E3_grid_in_L1_in_Lambda": {
+   "pass": true,
+   "value": "882/882"
+  },
+  "E3_grid_out_L1_out_Lambda": {
+   "pass": true,
+   "value": "24718/24718"
+  },
+  "E4_grid_out_L1_out_Lambda": {
+   "pass": true,
+   "value": "23200/23200"
+  },
+  "E3_E4_residuals_le_1e-8": {
+   "pass": true,
+   "value": 7.718992112160095e-12
+  },
+  "all_pass": true
+ }
 }

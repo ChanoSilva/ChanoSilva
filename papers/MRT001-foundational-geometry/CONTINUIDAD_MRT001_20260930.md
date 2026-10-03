@@ -23,7 +23,7 @@ No se encontró ningún manuscrito previo titulado "Foundational Geometry". Se a
 2. Dos scripts de experimentos con semilla fija y salida JSON/Markdown, más `make_numbers.py`, que inyecta cada número del texto como macro LaTeX. Ningún número del paper está escrito a mano.
 3. Este README y esta nota.
 
-## Resultados de referencia (corrida completa v0.2, semilla 20260930; E1–E4 en 1201 s, E5 en 149 s con contención de CPU)
+## Resultados de referencia (corrida completa, semilla 20260930; E1–E4 en 1201 s con contención de CPU, E2c en 168 s, E5 en 315 s en la corrida v0.4 que incluye E5e, E5f en 128 s)
 - E1 (aritmética exacta int64, rejilla 2^30): 0 instancias de betweenness y 0 de congruencia en 4000 configuraciones aleatorias (n ∈ {5,10,20,50}, d ∈ {2,3}); rejillas enteras 3×3/4×4/5×5: 8/44/152 betweenness y 138/976/4242 congruencias.
 - E2 (MDS no métrico sobre rangos, tolerancia 1e-13, + Procrustes): disparidad mediana en el plano 8.2e-3 (n=8) → 2.1e-10 (n=256), 7.6 órdenes de magnitud; en el espacio 4.2e-2 (n=8) → 4.1e-9 (n=128). Exponentes locales entre duplicaciones: 6.7 → 3.0 (no hay una ley de potencia única). Discordancia de Kendall entre el orden de entrada y el de la salida: 2.1e-2 (n=8) → 4.3e-6 (n=256): la reconstrucción está solo aproximadamente en la clase. E2b: la identidad de las reconstrucciones ordinales bajo D^p es tautológica (mismo rango de entrada); la métrica cambia (disparidad mediana 0.045).
 - E3: en la recta, 4 puntos realizan 120 de los 720 órdenes de sus 6 distancias; en el plano y el espacio, los 720. Ejemplos: {0,1,3} vs {0,1,2.5}; triángulos (3,4,5) vs (3,4,6).
@@ -56,7 +56,7 @@ Un subagente revisor independiente leyó el borrador v0.1 completo (texto, códi
 
 ## Añadido tras la revisión (v0.3): medición directa de la clase ordinal (E2c)
 - Nueva Proposición (radio inscrito de la clase ordinal): si g(X) es la brecha mínima entre distancias consecutivas ordenadas, toda perturbación de cada punto menor que g/4 conserva el patrón; con pares extremos disjuntos, un desplazamiento explícito de g/4 produce un empate. Radio inscrito en [g/4, g/2], igual a g/4 en el caso disjunto. Demostración elemental (desigualdad triangular).
-- Script `experiments/ordinal_class.py`: verifica ambas partes numéricamente, mide g(X) frente a n (corrida completa: escala ~n^-4.2, coherente con el espaciamiento mínimo entre ~n²/2 valores: ~n^-4; 2240/2240 perturbaciones bajo g/4 conservan el patrón y 92/92 desplazamientos explícitos lo rompen) y corre un paseo aleatorio restringido a la clase que da una cota inferior del radio en disparidad de Procrustes (~n^-8.0). En n=64 esa cota es dos órdenes de magnitud menor que la disparidad a la que se detuvo el solver de E2: el residuo del solver es pertenencia aproximada, no tamaño de clase.
+- Script `experiments/ordinal_class.py`: verifica ambas partes numéricamente, mide g(X) frente a n (corrida completa: escala ~n^-4.2, coherente con el espaciamiento mínimo entre ~n²/2 valores: ~n^-4; 2240/2240 perturbaciones bajo g/4 conservan el patrón y 91/91 desplazamientos explícitos lo rompen; la cifra "92/92" de versiones anteriores de esta nota era un error de transcripción) y corre un paseo aleatorio restringido a la clase que da una cota inferior del radio en disparidad de Procrustes (~n^-8.0). En n=64 esa cota es dos órdenes de magnitud menor que la disparidad a la que se detuvo el solver de E2: el residuo del solver es pertenencia aproximada, no tamaño de clase.
 - Interpretación cuidada: el radio inscrito acota el grosor de la clase por arriba (ninguna bola de radio > g/2 cabe dentro); el paseo solo da una cota inferior del radio y muestra anisotropía. No hay cota superior del diámetro.
 - Pendiente teórico: demostrar la ley n^-4 de la brecha mínima y una cota superior del diámetro de la clase.
 - Segunda ronda de revisión arbitral interna realizada sobre v0.3 (véase la sección siguiente).
@@ -73,6 +73,35 @@ Hallazgos confirmados y acciones:
 8. Consistencia: "dos secuencias" en vez de "dos cadenas"; tres scripts; semillas (E5: +1, E2c: +2); fecha v0.3; "less than one percent" reemplazado por una ablación reproducible (E5d con votos solo de pares incomparables); revista de Kronheimer–Penrose; "of dimension at most n−1".
 Verificado por el árbitro sin cambios: numeración y referencias cruzadas, macros frente a JSON, parámetros del apéndice, las 10 ordenaciones de la recta, n!/2 para la anticadena, fracciones esperadas de E5b, las tres referencias nuevas y Klein 1872.
 
+## Ronda 3 de revisión arbitral interna (v0.4 → v0.5, 03/10/2026)
+Informe: `REFEREE_MRT001_ronda3_20260930.md` (veredicto "cambios menores": 0 bloqueantes, 4 mayores, 9 menores, 13 acciones). Respuesta punto por punto: `RESPUESTA_MRT001_ronda3_20260930.md`. Recuento: 11 hallazgos aceptados, 2 aceptados con matiz (M4, m8), 0 rebatidos; las 13 acciones aplicadas (la 13, opcional, también).
+
+| hallazgo | acción aplicada |
+|---|---|
+| M1 Prop. 5.2: la fórmula de conteo falla para la cadena | enunciado: "1 for a chain and otherwise equals half the number of transitive orientations" (el código ya devolvía 1) |
+| M2 hueco en la prueba de la Prop. 5.2 | prueba completada: T = <_u ∩ inc(≺) es orientación transitiva (a∥b, b∥c, a<_u b<_u c ⇒ v_a>v_b>v_c ⇒ a∥c); para toda orientación transitiva T, ≺ ∪ T es un orden lineal (caso mixto excluido por contradicción); la cláusula "for which ≺ ∪ T is transitive" se eliminó por automática |
+| M3 Golumbic usado sin cita | `golumbic1977` (y `golumbic1980`) añadidos y citados en E5e y en el apéndice; E5e explica por qué la enumeración 2^k es exhaustiva |
+| M4 Teorema 3.7 más débil que el original | añadidos la condición de regularidad de Ω, "all comparisons over quadruples" y "same dimension d"; identificación con la Def. 2.6 con C_n = segmentos iniciales de una sucesión densa fija y alineación uniforme en i ≤ n; Terada–vL con "at a rate specified there"; tabla de afirmaciones: "literature (informal statement)". **Cotejo con los PDF originales pendiente**: desde el contenedor están bloqueados tml.cs.uni-tuebingen.de, proceedings.mlr.press, dl.acm.org y projecteuclid.org; el cotejo se hizo con resúmenes secundarios (reformulación de Arias-Castro), que coinciden con las hipótesis añadidas |
+| m1 observación del caso de punto compartido (Prop. 3.8) | sustituida por la fórmula g/(2(1+sin(θ/2))) a primer orden, g/4 exacto en el caso colineal con a en medio, → g/2 cuando θ → 0, y el argumento de que el radio inscrito es el mínimo de los desplazamientos de cierre sobre pares consecutivos; verificada numéricamente por el autor (coincidencia a 5 cifras en 180°, 150°, 120°, 90°, 60°) |
+| m2 "at most 3g²/8" | "of order 3g²/8" con la justificación E‖X_c‖²_F = n/6; macro `\EtwocBoundNsixtyfour` renombrado `\EtwocDispEstNsixtyfour` (mismo valor) |
+| m3 "(Schoenberg)" sin referencia | `schoenberg1937` añadido y citado |
+| m4 fuente de los realizadores extra | "typically come from"; mecanismo formulado con la fórmula producto de Golumbic sobre módulos (par de gemelos incomparables = módulo; factor 2 cuando esos pares son los únicos módulos no triviales y el cociente es primo); nueva **Conjetura 5.3**: realizadores = 2^N con probabilidad → 1, N → Poisson(1) (predicciones 0.368/0.368/0.981 frente a 0.34/0.37/0.98 en n = 300); nuevo experimento **E5f** (`experiments/realizer_law.py`, semilla 20260933, 128 s): count = 2^N en 151/200, 179/200, 192/200, 98/100, 98/100, 49/50 para n = 20, 50, 100, 200, 300, 500 (767/850; 437/450 con n ≥ 100); las excepciones difieren de 2^N por factores 3/2, 2 o 3 (módulos mayores). Tabla E5f, párrafo E5f del apéndice, fila "conjectural" en la tabla de afirmaciones, cita `kaplansky1945` para la ley de Poisson de las sucesiones |
+| m5 versiones, tiempos y recuentos | portada "v0.5 — 3 October 2026" (fecha fija, sin `\today`); README y ficha a v0.5 con tres rondas; en esta nota 92/92 → 91/91 y 149 s → 315 s |
+| m6 restos de "walk radius" | `ordinal_class.py`: docstring, mensajes, leyenda de la figura, cabecera de `tables_class.md` y claves JSON (`walk_range_*`, `slope_walk_range`, `raw.ranges`); `make_numbers.py` adaptado; nuevo modo `--replot` que regenera figura y tablas desde el JSON existente y migra las claves antiguas (anotado en `meta.keys_renamed`; valores intactos). La corrida de 168 s no se relanzó porque ningún valor cambia |
+| m7 `\EfiveDablation` imprimía "less than one percent" | imprime siempre el porcentaje con signo y un decimal (+0.4 %); el texto da además los dos RMSE (0.0312 → 0.0313) |
+| m8 `meyer1988` | año 1989 con `note = {MIT handle 1721.1/14328; often cited as 1988}`; clave renombrada `meyer1989`; el registro del MIT no pudo consultarse desde el contenedor (dato tomado del informe) |
+| m9 inyectividad en Prop. 3.8(ii) | adelantada al enunciado ("an injective configuration Y … because g ≤ min D_ab") |
+| acción 13 (opcional) | DOI de `sorkin2005`; número `CERN-TH-2538` y URL del registro CDS 293594 en `myrheim1978` |
+
+Los dos puntos "parciales" de la verificación del árbitro sobre las rondas 1 y 2 (leyenda "walk radius"; portada v0.3 y "less than one percent") quedan cerrados con m6, m5 y m7.
+
+Estado tras la ronda 3: manuscrito v0.5 de 20 páginas (v0.4: 18; el aumento son la prueba completa de la Prop. 5.2, el párrafo del caso compartido, la conjetura con la Tabla E5f y una página de flotantes con la Figura 3 y la tabla de afirmaciones); 0 errores, 0 referencias o citas indefinidas, 0 cajas desbordadas; 41 entradas en `refs.bib` (37 + golumbic1977, golumbic1980, schoenberg1937, kaplansky1945). Ningún número previo del texto cambió; se añadieron los de E5f. Cómputo de la ronda: ≈ 4 min de CPU (E5f 128 s, verificaciones del autor, `--replot` y cinco compilaciones), sin relanzar E1–E5.
+
+Queda abierto tras la ronda 3:
+1. Cotejar el Teorema 3.7 (número de teorema, condición exacta de regularidad, modo de convergencia: uniforme en i ≤ n o puntual) y la frase sobre Terada–von Luxburg (condición exacta sobre k) con los PDF originales.
+2. Confirmar en el registro del MIT el año de la tesis de Meyer y, en Kaplansky 1945, el parámetro (1 para sucesiones en una dirección fija; 2 en cualquier orden según las fuentes secundarias consultadas).
+3. Demostrar la Conjetura 5.3: con probabilidad → 1 los únicos módulos no triviales del grafo de incomparabilidad de una permutación uniforme son las sucesiones descendentes (bloques de tamaño 2) y el cociente es primo; el conteo esperado de bloques de tamaño ≥ 3 es O(1/n).
+
 ## Decisiones tomadas
 - Objetos etiquetados en todos los formalismos (sin cociente por reetiquetado), para mantener las demostraciones elementales.
 - E1 con aritmética exacta y no con tolerancia flotante: la tolerancia 1e-9 produce ~1 triple espurio por configuración en n=50 (la brecha de betweenness es cuadrática en la distancia a la recta). Se menciona en el texto como advertencia metodológica.
@@ -81,8 +110,9 @@ Verificado por el árbitro sin cambios: numeración y referencias cruzadas, macr
 
 ## Pendientes y próximos pasos sugeridos
 1. Confirmar con el autor la identificación paper ≡ MRT001 y si existe un manuscrito previo que deba integrarse.
-2. Revisión del autor de las Proposiciones 3.2, 3.4 y 5.1 y de la redacción del Teorema 3.5 (enunciado informal de Kleindessner–von Luxburg; cotejar con el enunciado exacto del artículo).
+2. Revisión del autor de las Proposiciones 3.2, 3.4 y 5.1 (verificadas línea a línea por el árbitro en la ronda 3) y cotejo del Teorema 3.7 (enunciado informal de Kleindessner–von Luxburg) con el enunciado exacto del artículo (véase "Queda abierto tras la ronda 3").
 3. Cota finita para el diámetro de las clases ordinales bajo muestreo uniforme (explicaría la caída ~n^-3.6 observada en E2).
 4. Extender E5d a 2+1 dimensiones (grupo conforme finito-dimensional) y a densidades no uniformes.
 5. Decidir destino: arXiv (math.MG / math.HO) o revista; ajustar formato.
-6. Actualizar la ficha MRT001 del CV web: de "En pausa" a "En desarrollo — borrador v0.1".
+6. Actualizar la ficha MRT001 del CV web: de "En pausa" a "En desarrollo — borrador v0.5" (texto en `FICHA_MRT001_propuesta.md`).
+7. Intentar demostrar la Conjetura 5.3 (ley 2^Poisson(1) del número de realizadores).

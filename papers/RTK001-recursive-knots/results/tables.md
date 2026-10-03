@@ -1,6 +1,6 @@
 # RTK001 results (polygonal measurements)
 
-seed 20260930; total 278 s; N0 in [512, 1024]
+seed 20260930; total 184 s; N0 in [512, 1024]
 
 | pattern | f | N0 | d | N | r_d | L | minRad | dcsd/2 | tau | tau_pt | Rop | Rop_pt | Wr | alpha | rho_pred | tau/r | L_bound | Lk_frame | slope |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|

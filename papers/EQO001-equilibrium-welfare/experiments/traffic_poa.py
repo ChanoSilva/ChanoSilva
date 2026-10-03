@@ -8,13 +8,19 @@ E1b  Random parallel-link networks with affine costs c_e(x) = a_e x + b_e (a_e >
      on the simplex and, independently, by exact water-filling on the cost level;
      the price of anarchy is checked against the bound 4/3.
 E1c  Marginal-cost tolls tau_e(f) = f_e c_e'(f_e) = a_e f_e: the equilibrium of the
-     tolled operator c + tau = grad C is compared with the social optimum.
+     tolled operator c + tau, computed by the projected-gradient solver, is compared with
+     the social optimum computed INDEPENDENTLY by water-filling on the marginal costs
+     2 a_e f + b_e.  (For affine costs c + tau and grad C are the same function, so
+     comparing two runs of the same solver on them is vacuous; v0.1 did exactly that and
+     the internal review of 30/09/2026 caught it.)
 
-Predefined criteria (stated before the run):
+Criteria (stated in this docstring and evaluated by check_criteria() below, which writes a
+pass/fail flag and the margins into results/results_traffic.json; there is no external
+pre-registration record):
   * every VI residual <= 1e-8;
-  * solver and water-filling agree to 1e-7 in flow;
-  * PoA <= 4/3 + 1e-9 in every affine instance; Pigou (d = 1) gives exactly 4/3;
-  * tolled equilibrium equals the optimum to 1e-7 in every instance.
+  * solver and water-filling agree to 1e-7 in flow (equilibrium and optimum);
+  * PoA <= 4/3 + 1e-9 in every affine instance; Pigou (d = 1) gives 4/3 to 1e-12;
+  * tolled equilibrium equals the water-filling optimum to 1e-7 in every instance.
 """
 import json
 import os
@@ -98,7 +104,7 @@ def run_affine_instances(rng, n_instances=200):
             "contraction_factor_eq": info_eq["contraction_factor"],
             "dev_eq_vs_waterfill": float(np.max(np.abs(f_eq - f_eq_wf))),
             "dev_opt_vs_waterfill": float(np.max(np.abs(f_opt - f_opt_wf))),
-            "dev_tolled_vs_opt": float(np.max(np.abs(f_toll - f_opt))),
+            "dev_tolled_vs_opt_wf": float(np.max(np.abs(f_toll - f_opt_wf))),   # independent of the solver
             "used_links_eq": int(np.sum(f_eq > 1e-9)),
             "used_links_opt": int(np.sum(f_opt > 1e-9)),
             "equal_cost_spread_eq": float(np.ptp(cost(f_eq)[f_eq > 1e-9])),
@@ -143,6 +149,26 @@ def make_figure(out):
     plt.close(fig)
 
 
+def check_criteria(out):
+    """Evaluate the docstring criteria; returns per-criterion pass flags, values and thresholds."""
+    e = out["E1b_affine"]
+    pig = {r["d"]: r for r in out["E1a_pigou"]}
+    crit = {
+        "residuals_le_1e-8": {"value": e["max_residual"], "threshold": 1e-8},
+        "solver_vs_waterfill_le_1e-7": {"value": e["max_dev_vs_waterfill"], "threshold": 1e-7},
+        "poa_bound_violations_zero": {"value": e["bound_violations"], "threshold": 0},
+        "pigou_d1_poa_minus_4_3_le_1e-12": {"value": abs(pig[1]["price_of_anarchy"] - 4.0 / 3.0), "threshold": 1e-12},
+        "tolled_vs_waterfill_optimum_le_1e-7": {"value": e["max_dev_tolled_vs_opt_wf"], "threshold": 1e-7},
+    }
+    for v in crit.values():
+        v["pass"] = bool(v["value"] <= v["threshold"])
+    crit["all_pass"] = all(v["pass"] for v in crit.values())
+    for k, v in crit.items():
+        if k != "all_pass" and not v["pass"]:
+            print(f"CRITERION FAILED: {k}: {v}")
+    return crit
+
+
 def main():
     rng = np.random.default_rng(SEED)
     out = {"meta": {"seed": SEED, "python": platform.python_version(), "numpy": np.__version__}}
@@ -158,14 +184,15 @@ def main():
         "bound_violations": int(np.sum(poa > 4.0 / 3.0 + 1e-9)),
         "max_residual": float(max(max(r["residual_eq"], r["residual_opt"]) for r in rows)),
         "max_dev_vs_waterfill": float(max(max(r["dev_eq_vs_waterfill"], r["dev_opt_vs_waterfill"]) for r in rows)),
-        "max_dev_tolled_vs_opt": float(max(r["dev_tolled_vs_opt"] for r in rows)),
+        "max_dev_tolled_vs_opt_wf": float(max(r["dev_tolled_vs_opt_wf"] for r in rows)),
         "max_iterations": int(max(max(r["iterations_eq"], r["iterations_opt"]) for r in rows)),
         "max_equal_cost_spread_eq": float(max(r["equal_cost_spread_eq"] for r in rows)),
-        "fraction_eq_equals_opt_flow": float(np.mean([r["dev_tolled_vs_opt"] < 1e-7 and
-                                                       abs(r["price_of_anarchy"] - 1) < 1e-9 for r in rows])),
+        "n_poa_equals_one": int(np.sum(np.abs(poa - 1.0) < 1e-9)),
+        "fraction_poa_equals_one": float(np.mean(np.abs(poa - 1.0) < 1e-9)),
         "argmax_instance": rows[int(np.argmax(poa))],
         "rows": rows,
     }
+    out["criteria"] = check_criteria(out)
     out["meta"]["seconds"] = time.time() - T0
     os.makedirs(os.path.join(ROOT, "results"), exist_ok=True)
     with open(os.path.join(ROOT, "results", "results_traffic.json"), "w") as fh:
@@ -185,9 +212,14 @@ def main():
           f"- bound violations (PoA > 4/3): {e['bound_violations']}",
           f"- max VI residual: {e['max_residual']:.2e}",
           f"- max |solver - water-filling|: {e['max_dev_vs_waterfill']:.2e}",
-          f"- max |tolled equilibrium - optimum|: {e['max_dev_tolled_vs_opt']:.2e}",
+          f"- max |tolled equilibrium (solver) - optimum (water-filling, independent)|: {e['max_dev_tolled_vs_opt_wf']:.2e}",
           f"- max iterations: {e['max_iterations']}",
-          f"- fraction of instances with PoA > 1.01: {e['fraction_poa_above_1p01']:.3f}; > 1.10: {e['fraction_poa_above_1p10']:.3f}"]
+          f"- fraction of instances with PoA > 1.01: {e['fraction_poa_above_1p01']:.3f}; > 1.10: {e['fraction_poa_above_1p10']:.3f}",
+          f"- instances with PoA = 1 exactly (equilibrium = optimum): {e['n_poa_equals_one']}/{e['instances']}", "",
+          "## Criteria", ""]
+    for k, v in out["criteria"].items():
+        L.append(f"- {k}: {'PASS' if (v if k == 'all_pass' else v['pass']) else 'FAIL'}" +
+                 ("" if k == "all_pass" else f" (value {v['value']:.3g}, threshold {v['threshold']:.3g})"))
     with open(os.path.join(ROOT, "results", "tables_traffic.md"), "w") as fh:
         fh.write("\n".join(L) + "\n")
     print("\n".join(L))

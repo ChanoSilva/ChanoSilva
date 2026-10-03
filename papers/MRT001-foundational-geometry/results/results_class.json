@@ -5,7 +5,8 @@
     "python": "3.11.15",
     "numpy": "2.4.6",
     "scipy": "1.17.1",
-    "seconds": 167.7
+    "seconds": 167.7,
+    "keys_renamed": "walk_radius_* -> walk_range_* and raw 'radii' -> 'ranges' (renamed by --replot; values unchanged)"
   },
   "rows": [
     {
@@ -20,11 +21,11 @@
       "perturbations_total": 400,
       "quarter_gap_displacement_changed": 10,
       "quarter_gap_displacement_tested": 10,
-      "walk_radius_median": 0.005515949967230871,
-      "walk_radius_q1": 0.003439512742185424,
-      "walk_radius_q3": 0.006794604284946909,
       "walk_acceptance_mean": 0.29379999999999995,
-      "seconds": 10.9
+      "seconds": 10.9,
+      "walk_range_median": 0.005515949967230871,
+      "walk_range_q1": 0.003439512742185424,
+      "walk_range_q3": 0.006794604284946909
     },
     {
       "n": 16,
@@ -38,11 +39,11 @@
       "perturbations_total": 400,
       "quarter_gap_displacement_changed": 15,
       "quarter_gap_displacement_tested": 15,
-      "walk_radius_median": 4.431977056326363e-05,
-      "walk_radius_q1": 3.091204254109573e-05,
-      "walk_radius_q3": 5.141768397338365e-05,
       "walk_acceptance_mean": 0.2883625000000001,
-      "seconds": 12.1
+      "seconds": 12.1,
+      "walk_range_median": 4.431977056326363e-05,
+      "walk_range_q1": 3.091204254109573e-05,
+      "walk_range_q3": 5.141768397338365e-05
     },
     {
       "n": 32,
@@ -56,11 +57,11 @@
       "perturbations_total": 400,
       "quarter_gap_displacement_changed": 16,
       "quarter_gap_displacement_tested": 16,
-      "walk_radius_median": 2.6552994338163676e-07,
-      "walk_radius_q1": 2.0249824793074613e-07,
-      "walk_radius_q3": 3.292422388282489e-07,
       "walk_acceptance_mean": 0.2802916666666667,
-      "seconds": 10.7
+      "seconds": 10.7,
+      "walk_range_median": 2.6552994338163676e-07,
+      "walk_range_q1": 2.0249824793074613e-07,
+      "walk_range_q3": 3.292422388282489e-07
     },
     {
       "n": 64,
@@ -74,11 +75,11 @@
       "perturbations_total": 400,
       "quarter_gap_displacement_changed": 19,
       "quarter_gap_displacement_tested": 19,
-      "walk_radius_median": 1.0489380764968525e-09,
-      "walk_radius_q1": 8.518297138961687e-10,
-      "walk_radius_q3": 1.3238804068063712e-09,
       "walk_acceptance_mean": 0.263275,
-      "seconds": 17.4
+      "seconds": 17.4,
+      "walk_range_median": 1.0489380764968525e-09,
+      "walk_range_q1": 8.518297138961687e-10,
+      "walk_range_q3": 1.3238804068063712e-09
     },
     {
       "n": 128,
@@ -92,11 +93,11 @@
       "perturbations_total": 400,
       "quarter_gap_displacement_changed": 20,
       "quarter_gap_displacement_tested": 20,
-      "walk_radius_median": 3.803665088462102e-12,
-      "walk_radius_q1": 2.8924783929112214e-12,
-      "walk_radius_q3": 4.63635722474152e-12,
       "walk_acceptance_mean": 0.24025000000000002,
-      "seconds": 51.2
+      "seconds": 51.2,
+      "walk_range_median": 3.803665088462102e-12,
+      "walk_range_q1": 2.8924783929112214e-12,
+      "walk_range_q3": 4.63635722474152e-12
     },
     {
       "n": 256,
@@ -110,11 +111,11 @@
       "perturbations_total": 240,
       "quarter_gap_displacement_changed": 11,
       "quarter_gap_displacement_tested": 11,
-      "walk_radius_median": 6.380864446921354e-15,
-      "walk_radius_q1": 5.288161283226242e-15,
-      "walk_radius_q3": 7.039712206043071e-15,
       "walk_acceptance_mean": 0.16127777777777774,
-      "seconds": 65.3
+      "seconds": 65.3,
+      "walk_range_median": 6.380864446921354e-15,
+      "walk_range_q1": 5.288161283226242e-15,
+      "walk_range_q3": 7.039712206043071e-15
     }
   ],
   "raw": {
@@ -141,7 +142,7 @@
         0.0005759496568191746,
         0.003812017623972319
       ],
-      "radii": [
+      "ranges": [
         0.007368355707095057,
         0.0028236713527465818,
         0.003536354006978437,
@@ -187,7 +188,7 @@
         5.418906153414893e-05,
         2.69680256423932e-05
       ],
-      "radii": [
+      "ranges": [
         6.471770670431188e-05,
         4.791760673770607e-05,
         5.9207768332080824e-05,
@@ -233,7 +234,7 @@
         4.941103568911753e-06,
         8.614801089268376e-06
       ],
-      "radii": [
+      "ranges": [
         3.292441260318213e-07,
         3.608270470097505e-07,
         2.0569098702976354e-07,
@@ -279,7 +280,7 @@
         9.627127717237727e-08,
         6.816915104623789e-08
       ],
-      "radii": [
+      "ranges": [
         1.7616655893887042e-09,
         1.1569185414168656e-09,
         6.399060872140787e-10,
@@ -325,7 +326,7 @@
         6.545214203956817e-09,
         5.022287585809693e-09
       ],
-      "radii": [
+      "ranges": [
         4.9973676316750474e-12,
         2.6350406065416916e-12,
         4.321220825975167e-12,
@@ -363,7 +364,7 @@
         7.195896656320144e-10,
         2.0619078111572264e-09
       ],
-      "radii": [
+      "ranges": [
         6.382283692117332e-15,
         4.495112652935321e-15,
         6.921940361762236e-15,
@@ -380,5 +381,5 @@
     }
   },
   "slope_gap": -4.00111435175548,
-  "slope_walk_radius": -7.904884140498964
+  "slope_walk_range": -7.904884140498964
 }

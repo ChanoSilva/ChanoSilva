@@ -30,7 +30,7 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [c1-1D] c_1^(1D)(f=0.250, Theta_min=h_min/tau=4.8852) = 1.0000 at delta=0.0000 (certified >= 0.9997, Lip~2.08); 2-D value c_1 = 1.0000; >= 1/2? True
 [c0] same-strand (conditional on kappa_d <= 5.518): s_0 = pi/(kbar V_d) = 0.1701, u >= 0.2335; c_0 = 1.6218 at (delta,u)=(1.142270444433914, 0.2335387643416149); >= 1/2? True
 [RESULT] provable constants at this level: c_1=0.9997 (k=1, unconditional), c_0=1.6218 (k=0, needs H_3), c_kappa=1/(r kbar)=2.8995 (needs H_3) -> c = 0.9997; thick >= min(tau-r, c r) = 0.0625; measured tau_d = 0.0625 (ratio 1.000)
-    time 1.7s
+    time 1.8s
 
 === (2,3) f=0.25 N0=256 d=3: M=1024, N_d=2048, r=0.01562, tau_base=0.06250, f=0.2500, alpha=+1.5658, m=1.2508, v in [3.2986,5.5167], h in [2.6372,4.4105], eta=h/r in [168.780,282.274], r*kappa_max=0.0191
 [A] Lemma A on base: pairs with chord<2tau: 9012; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.004383 (must be >= 1 - O(1/M^2))
@@ -46,7 +46,7 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [c1-1D] c_1^(1D)(f=0.250, Theta_min=h_min/tau=42.1951) = 1.0000 at delta=0.0000 (certified >= 0.9997, Lip~2.07); 2-D value c_1 = 1.0000; >= 1/2? True
 [c0] same-strand (conditional on kappa_d <= 21.349): s_0 = pi/(kbar V_d) = 0.0213, u >= 0.0266; c_0 = 1.5979 at (delta,u)=(1.1234089141588586, 0.026616483418679244); >= 1/2? True
 [RESULT] provable constants at this level: c_1=0.9997 (k=1, unconditional), c_0=1.5979 (k=0, needs H_3), c_kappa=1/(r kbar)=2.9979 (needs H_3) -> c = 0.9997; thick >= min(tau-r, c r) = 0.0156; measured tau_d = 0.0156 (ratio 1.000)
-    time 4.1s
+    time 4.0s
 
 === (2,3) f=0.35 N0=256 d=1: M=256, N_d=512, r=0.35000, tau_base=1.00000, f=0.3500, alpha=+0.0000, m=1.5000, v in [0.9999,0.9999], h in [0.6666,0.6666], eta=h/r in [1.905,1.905], r*kappa_max=0.3501
 [A] Lemma A on base: pairs with chord<2tau: 65024; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.000000 (must be >= 1 - O(1/M^2))
@@ -62,7 +62,7 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [c1-1D] c_1^(1D)(f=0.350, Theta_min=h_min/tau=0.6666) = 0.9661 at delta=0.6943 (certified >= 0.9659, Lip~1.42); 2-D value c_1 = 0.9661; >= 1/2? True
 [c0] same-strand (conditional on kappa_d <= 2.803): s_0 = pi/(kbar V_d) = 0.5978, u >= 0.8967; c_0 = 0.6528 at (delta,u)=(0.5994775176295402, 0.8993065630313816); >= 1/2? True
 [RESULT] provable constants at this level: c_1=0.9659 (k=1, unconditional), c_0=0.6528 (k=0, needs H_3), c_kappa=1/(r kbar)=1.0193 (needs H_3) -> c = 0.6528; thick >= min(tau-r, c r) = 0.2285; measured tau_d = 0.3500 (ratio 1.532)
-    time 0.3s
+    time 0.4s
 
 === (2,3) f=0.35 N0=256 d=2: M=512, N_d=1024, r=0.12250, tau_base=0.35000, f=0.3500, alpha=+1.6116, m=1.2435, v in [1.6712,2.8962], h in [1.3439,2.3291], eta=h/r in [10.971,19.013], r*kappa_max=0.1538
 [A] Lemma A on base: pairs with chord<2tau: 26652; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.000143 (must be >= 1 - O(1/M^2))
@@ -78,7 +78,7 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [c1-1D] c_1^(1D)(f=0.350, Theta_min=h_min/tau=3.8398) = 1.0000 at delta=0.0000 (certified >= 0.9998, Lip~1.29); 2-D value c_1 = 1.0000; >= 1/2? True
 [c0] same-strand (conditional on kappa_d <= 5.122): s_0 = pi/(kbar V_d) = 0.1510, u >= 0.1878; c_0 = 0.6551 at (delta,u)=(0.721029601624342, 0.18775640169624827); >= 1/2? True
 [RESULT] provable constants at this level: c_1=0.9998 (k=1, unconditional), c_0=0.6551 (k=0, needs H_3), c_kappa=1/(r kbar)=1.5938 (needs H_3) -> c = 0.6551; thick >= min(tau-r, c r) = 0.0803; measured tau_d = 0.1225 (ratio 1.526)
-    time 0.8s
+    time 1.0s
 
 === (2,3) f=0.35 N0=256 d=3: M=1024, N_d=2048, r=0.04287, tau_base=0.12250, f=0.3500, alpha=+3.0888, m=1.0084, v in [3.1859,6.4325], h in [3.1594,6.3790], eta=h/r in [73.688,148.780], r*kappa_max=0.0608
 [A] Lemma A on base: pairs with chord<2tau: 17866; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.001062 (must be >= 1 - O(1/M^2))
@@ -94,7 +94,7 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [c1-1D] c_1^(1D)(f=0.350, Theta_min=h_min/tau=25.7908) = 1.0000 at delta=0.0000 (certified >= 0.9998, Lip~1.28); 2-D value c_1 = 1.0000; >= 1/2? True
 [c0] same-strand (conditional on kappa_d <= 12.642): s_0 = pi/(kbar V_d) = 0.0285, u >= 0.0287; c_0 = 0.6733 at (delta,u)=(0.7419868574855147, 0.028713513266176455); >= 1/2? True
 [RESULT] provable constants at this level: c_1=0.9998 (k=1, unconditional), c_0=0.6733 (k=0, needs H_3), c_kappa=1/(r kbar)=1.8449 (needs H_3) -> c = 0.6733; thick >= min(tau-r, c r) = 0.0289; measured tau_d = 0.0429 (ratio 1.485)
-    time 4.6s
+    time 4.5s
 
 === (2,3) f=0.50 N0=256 d=1: M=256, N_d=512, r=0.50000, tau_base=1.00000, f=0.5000, alpha=+0.0000, m=1.5000, v in [0.9999,0.9999], h in [0.6666,0.6666], eta=h/r in [1.333,1.333], r*kappa_max=0.5001
 [A] Lemma A on base: pairs with chord<2tau: 65024; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.000000 (must be >= 1 - O(1/M^2))
@@ -126,7 +126,7 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [c1-1D] c_1^(1D)(f=0.500, Theta_min=h_min/tau=2.1872) = 0.6993 at delta=1.4862 (certified >= 0.6991, Lip~0.70); 2-D value c_1 = 0.6993; >= 1/2? True
 [c0] same-strand (conditional on kappa_d <= 9.916): s_0 = pi/(kbar V_d) = 0.0582, u >= 0.1154; c_0 = 0.1348 at (delta,u)=(0.25368279592019005, 0.1154043203216955); >= 1/2? False
 [RESULT] provable constants at this level: c_1=0.6991 (k=1, unconditional), c_0=0.1348 (k=0, needs H_3), c_kappa=1/(r kbar)=0.4850 (needs H_3) -> c = 0.1348; thick >= min(tau-r, c r) = 0.0280; measured tau_d = 0.2079 (ratio 7.420)
-    time 0.9s
+    time 0.8s
 
 === (2,3) f=0.50 N0=256 d=3: M=1024, N_d=2048, r=0.10396, tau_base=0.20791, f=0.5000, alpha=-0.0767, m=1.5122, v in [3.0164,8.0491], h in [1.9947,5.3228], eta=h/r in [19.188,51.203], r*kappa_max=0.1628
 [A] Lemma A on base: pairs with chord<2tau: 28144; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.000330 (must be >= 1 - O(1/M^2))
@@ -142,7 +142,7 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [c1-1D] c_1^(1D)(f=0.500, Theta_min=h_min/tau=9.5942) = 0.7068 at delta=1.5153 (certified >= 0.7067, Lip~0.69); 2-D value c_1 = 0.7068; >= 1/2? True
 [c0] same-strand (conditional on kappa_d <= 11.265): s_0 = pi/(kbar V_d) = 0.0228, u >= 0.0345; c_0 = 0.1649 at (delta,u)=(0.3312246426065292, 0.03448161774489665); >= 1/2? False
 [RESULT] provable constants at this level: c_1=0.7067 (k=1, unconditional), c_0=0.1649 (k=0, needs H_3), c_kappa=1/(r kbar)=0.8540 (needs H_3) -> c = 0.1649; thick >= min(tau-r, c r) = 0.0171; measured tau_d = 0.1040 (ratio 6.066)
-    time 4.1s
+    time 4.4s
 
 === (2,3) f=0.50 N0=512 d=1: M=512, N_d=1024, r=0.50000, tau_base=1.00000, f=0.5000, alpha=+0.0000, m=1.5000, v in [1.0000,1.0000], h in [0.6666,0.6666], eta=h/r in [1.333,1.333], r*kappa_max=0.5000
 [A] Lemma A on base: pairs with chord<2tau: 261120; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.000000 (must be >= 1 - O(1/M^2))
@@ -158,7 +158,7 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [c1-1D] c_1^(1D)(f=0.500, Theta_min=h_min/tau=0.6666) = 0.6119 at delta=1.2331 (certified >= 0.6117, Lip~0.99); 2-D value c_1 = 0.6119; >= 1/2? True
 [c0] same-strand (conditional on kappa_d <= 3.562): s_0 = pi/(kbar V_d) = 0.3920, u >= 0.5880; c_0 = 0.3236 at (delta,u)=(0.3920006846039301, 0.5880157858149496); >= 1/2? False
 [RESULT] provable constants at this level: c_1=0.6117 (k=1, unconditional), c_0=0.3236 (k=0, needs H_3), c_kappa=1/(r kbar)=0.5615 (needs H_3) -> c = 0.3236; thick >= min(tau-r, c r) = 0.1618; measured tau_d = 0.4158 (ratio 2.570)
-    time 0.8s
+    time 1.2s
 
 === (2,3) f=0.50 N0=512 d=2: M=1024, N_d=2048, r=0.20791, tau_base=0.41582, f=0.5000, alpha=-3.0277, m=1.9819, v in [1.8028,3.3538], h in [0.9096,1.6923], eta=h/r in [4.375,8.139], r*kappa_max=0.2907
 [A] Lemma A on base: pairs with chord<2tau: 117218; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.000029 (must be >= 1 - O(1/M^2))
@@ -174,7 +174,7 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [c1-1D] c_1^(1D)(f=0.500, Theta_min=h_min/tau=2.1876) = 0.6993 at delta=1.4862 (certified >= 0.6991, Lip~0.70); 2-D value c_1 = 0.6993; >= 1/2? True
 [c0] same-strand (conditional on kappa_d <= 9.922): s_0 = pi/(kbar V_d) = 0.0582, u >= 0.1153; c_0 = 0.1347 at (delta,u)=(0.25368279592019005, 0.1152924743405343); >= 1/2? False
 [RESULT] provable constants at this level: c_1=0.6991 (k=1, unconditional), c_0=0.1347 (k=0, needs H_3), c_kappa=1/(r kbar)=0.4848 (needs H_3) -> c = 0.1347; thick >= min(tau-r, c r) = 0.0280; measured tau_d = 0.2079 (ratio 7.421)
-    time 5.1s
+    time 3.5s
 
 === (2,5) f=0.50 N0=256 d=1: M=256, N_d=512, r=0.50000, tau_base=1.00000, f=0.5000, alpha=+0.0000, m=2.5000, v in [0.9999,0.9999], h in [0.4000,0.4000], eta=h/r in [0.800,0.800], r*kappa_max=0.5001
 [A] Lemma A on base: pairs with chord<2tau: 65024; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.000000 (must be >= 1 - O(1/M^2))
@@ -222,7 +222,7 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [c1-1D] c_1^(1D)(f=0.500, Theta_min=h_min/tau=10.8234) = 0.7069 at delta=1.5156 (certified >= 0.7068, Lip~0.69); 2-D value c_1 = 0.7069; >= 1/2? True
 [c0] same-strand (conditional on kappa_d <= 15.215): s_0 = pi/(kbar V_d) = 0.0148, u >= 0.0421; c_0 = 0.2265 at (delta,u)=(0.4569681777735656, 0.042089805133785727); >= 1/2? False
 [RESULT] provable constants at this level: c_1=0.7068 (k=1, unconditional), c_0=0.2265 (k=0, needs H_3), c_kappa=1/(r kbar)=0.9313 (needs H_3) -> c = 0.2265; thick >= min(tau-r, c r) = 0.0160; measured tau_d = 0.0706 (ratio 4.415)
-    time 4.8s
+    time 4.0s
 
 === c_1 table, depth 1 (v = 1, alpha = 0, eta_min = eta_max = (1/f)(p/q)) ===
   (p,q)=(2,3) f=0.25: eta=2.667  c_1=1.0000  at (delta,u)=(0.0, 0.0)
@@ -272,4 +272,4 @@ level | f | zeta_min | Theta_min | c_1 (2D) | c_1 (1D, cert.) | measured dcsd/2/
 (2,5) f=0.50 N0=256 d=2 | 0.500 | 3.620 | 3.620 | 0.7044 | 0.7043 | 1.0000 | 1.327 | 0.271 | 0.7537 | 0.2551 | 0.2551 | 0.0360 | 0.1412 | 1.0088 | 1.5212
 (2,5) f=0.50 N0=256 d=3 | 0.500 | 10.823 | 10.823 | 0.7069 | 0.7068 | 1.0000 | 1.074 | 0.152 | 0.9313 | 0.2265 | 0.2265 | 0.0160 | 0.0706 | 1.0235 | 1.7415
 
-total time 38.6s
+total time 36.0s

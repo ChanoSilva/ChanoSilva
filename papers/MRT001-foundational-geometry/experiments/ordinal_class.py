@@ -14,9 +14,11 @@ solver-based reconstruction of E2.
   (b) Anisotropy.  A random walk constrained to the class (proposals are
       accepted iff the ranking is unchanged) records the farthest member
       found, measured by the similarity-invariant Procrustes disparity from
-      X.  This is a lower bound on the class radius at X in that metric.
+      X.  This *walk range* is a lower bound on the extent of the class at X
+      in that metric; it depends on the step budget and is not a radius.
 
-Usage:   python3 ordinal_class.py [--fast]
+Usage:   python3 ordinal_class.py [--fast] [--replot]
+         (--replot regenerates figure and tables from the existing JSON)
 Outputs: ../results/results_class.json, ../results/tables_class.md,
          ../figures/ordinal_class.{png,pdf}
 """
@@ -123,7 +125,20 @@ def class_walk(X, rng, steps):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--fast", action="store_true")
+    ap.add_argument("--replot", action="store_true",
+                    help="regenerate figure and tables from the existing results_class.json without recomputing")
     args = ap.parse_args()
+    if args.replot:
+        path = os.path.join(RESULTS, "results_class.json")
+        res = json.load(open(path))
+        if migrate_keys(res):
+            res["meta"]["keys_renamed"] = ("walk_radius_* -> walk_range_* and raw 'radii' -> 'ranges' "
+                                           "(renamed by --replot; values unchanged)")
+            with open(path, "w") as fh:
+                json.dump(res, fh, indent=2)
+        write_outputs(res)
+        print("replotted from results_class.json", file=sys.stderr)
+        return
     rng = np.random.default_rng(MASTER_SEED + 2)
     os.makedirs(RESULTS, exist_ok=True)
     os.makedirs(FIGURES, exist_ok=True)
@@ -133,7 +148,7 @@ def main():
     rows, raw = [], {}
     t_all = time.time()
     for n, reps, steps in plan:
-        gaps, disj, kept_all, changed_all, radii, acc = [], 0, 0, [0, 0], [], []
+        gaps, disj, kept_all, changed_all, ranges, acc = [], 0, 0, [0, 0], [], []
         t0 = time.time()
         for _ in range(reps):
             X = rng.random((n, d))
@@ -144,9 +159,9 @@ def main():
             if chk["changed"] is not None:
                 changed_all[0] += int(chk["changed"]); changed_all[1] += 1
             r, a = class_walk(X, rng, steps)
-            radii.append(r); acc.append(a)
-        gaps, radii = np.array(gaps), np.array(radii)
-        raw[n] = {"gaps": gaps.tolist(), "radii": radii.tolist()}
+            ranges.append(r); acc.append(a)
+        gaps, ranges = np.array(gaps), np.array(ranges)
+        raw[n] = {"gaps": gaps.tolist(), "ranges": ranges.tolist()}
         rows.append({"n": n, "configurations": reps, "walk_steps": steps,
                      "gap_median": float(np.median(gaps)), "gap_q1": float(np.percentile(gaps, 25)),
                      "gap_q3": float(np.percentile(gaps, 75)),
@@ -155,50 +170,77 @@ def main():
                      "perturbations_total": reps * 20,
                      "quarter_gap_displacement_changed": changed_all[0],
                      "quarter_gap_displacement_tested": changed_all[1],
-                     "walk_radius_median": float(np.median(radii)),
-                     "walk_radius_q1": float(np.percentile(radii, 25)),
-                     "walk_radius_q3": float(np.percentile(radii, 75)),
+                     "walk_range_median": float(np.median(ranges)),
+                     "walk_range_q1": float(np.percentile(ranges, 25)),
+                     "walk_range_q3": float(np.percentile(ranges, 75)),
                      "walk_acceptance_mean": float(np.mean(acc)),
                      "seconds": round(time.time() - t0, 1)})
-        print(f"  n={n:4d} gap median {np.median(gaps):.2e}  walk radius median {np.median(radii):.2e}  "
+        print(f"  n={n:4d} gap median {np.median(gaps):.2e}  walk range median {np.median(ranges):.2e}  "
               f"kept {kept_all}/{reps*20}  changed {changed_all[0]}/{changed_all[1]}", file=sys.stderr)
     # log-log slopes
     ns = np.array([r["n"] for r in rows], dtype=float)
     slope_gap = float(np.polyfit(np.log(ns), np.log([r["gap_median"] for r in rows]), 1)[0])
-    slope_rad = float(np.polyfit(np.log(ns), np.log([r["walk_radius_median"] for r in rows]), 1)[0])
+    slope_rng = float(np.polyfit(np.log(ns), np.log([r["walk_range_median"] for r in rows]), 1)[0])
     res = {"meta": {"seed": MASTER_SEED + 2, "fast": args.fast, "python": platform.python_version(),
                     "numpy": np.__version__, "scipy": scipy.__version__,
                     "seconds": round(time.time() - t_all, 1)},
-           "rows": rows, "raw": raw, "slope_gap": slope_gap, "slope_walk_radius": slope_rad}
+           "rows": rows, "raw": raw, "slope_gap": slope_gap, "slope_walk_range": slope_rng}
     with open(os.path.join(RESULTS, "results_class.json"), "w") as fh:
         json.dump(res, fh, indent=2)
-    # figure
+    write_outputs(res)
+    print(f"done in {res['meta']['seconds']} s", file=sys.stderr)
+
+
+LEGACY_KEYS = {"walk_radius_median": "walk_range_median", "walk_radius_q1": "walk_range_q1",
+               "walk_radius_q3": "walk_range_q3"}
+
+
+def migrate_keys(res):
+    """Rename the keys of a results file written with the pre-v0.5 'walk radius'
+    naming; values are unchanged.  Returns True if anything was renamed."""
+    changed = False
+    for r in res["rows"]:
+        for old, new in LEGACY_KEYS.items():
+            if old in r:
+                r[new] = r.pop(old); changed = True
+    if "slope_walk_radius" in res:
+        res["slope_walk_range"] = res.pop("slope_walk_radius"); changed = True
+    for v in res.get("raw", {}).values():
+        if "radii" in v:
+            v["ranges"] = v.pop("radii"); changed = True
+    return changed
+
+
+def write_outputs(res):
+    """Figure and Markdown table from the results dictionary."""
+    rows = res["rows"]
+    ns = np.array([r["n"] for r in rows], dtype=float)
+    slope_gap, slope_rng = res["slope_gap"], res["slope_walk_range"]
     fig, ax = plt.subplots(figsize=(4.8, 3.2), dpi=150)
     ax.plot(ns, [r["gap_median"] for r in rows], "o-", color="#08519c", label=f"minimal gap $g$ (slope {slope_gap:.1f})")
     ax.fill_between(ns, [r["gap_q1"] for r in rows], [r["gap_q3"] for r in rows], color="#9ecae1", alpha=0.6)
-    ax.plot(ns, [r["walk_radius_median"] for r in rows], "s--", color="#a63603", label=f"walk radius (slope {slope_rad:.1f})")
-    ax.fill_between(ns, [r["walk_radius_q1"] for r in rows], [r["walk_radius_q3"] for r in rows], color="#fdae6b", alpha=0.6)
+    ax.plot(ns, [r["walk_range_median"] for r in rows], "s--", color="#a63603", label=f"walk range (slope {slope_rng:.1f})")
+    ax.fill_between(ns, [r["walk_range_q1"] for r in rows], [r["walk_range_q3"] for r in rows], color="#fdae6b", alpha=0.6)
     ax.set_xscale("log", base=2); ax.set_yscale("log")
-    ax.set_xlabel("sample size $n$"); ax.set_title("E2c: size of the ordinal class", fontsize=10)
+    ax.set_xlabel("sample size $n$"); ax.set_title("E2c: thickness and walk range of the ordinal class", fontsize=10)
     ax.grid(True, which="both", lw=0.3, alpha=0.5); ax.legend(frameon=False, fontsize=8)
     fig.tight_layout()
     fig.savefig(os.path.join(FIGURES, "ordinal_class.png")); fig.savefig(os.path.join(FIGURES, "ordinal_class.pdf"))
     plt.close(fig)
-    # tables
+    meta = res["meta"]
     L = ["# E2c tables (generated by experiments/ordinal_class.py)\n",
-         f"seed = {MASTER_SEED + 2}; fast = {args.fast}; runtime = {res['meta']['seconds']} s\n",
-         f"log-log slope of median gap vs n: {slope_gap:.2f}; of median walk radius vs n: {slope_rad:.2f}\n",
-         "| n | configs | median gap g | Q1 | Q3 | disjoint pairs | kept below g/4 | changed at g/4 | walk steps | median walk radius | Q1 | Q3 | acceptance |",
+         f"seed = {meta['seed']}; fast = {meta['fast']}; runtime = {meta['seconds']} s\n",
+         f"log-log slope of median gap vs n: {slope_gap:.2f}; of median walk range vs n: {slope_rng:.2f} "
+         "(the walk range is a budget-dependent lower bound on the extent of the class, not a radius)\n",
+         "| n | configs | median gap g | Q1 | Q3 | disjoint pairs | kept below g/4 | changed at g/4 | walk steps | median walk range | Q1 | Q3 | acceptance |",
          "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
         L.append(f"| {r['n']} | {r['configurations']} | {r['gap_median']:.2e} | {r['gap_q1']:.2e} | {r['gap_q3']:.2e} | "
                  f"{r['disjoint_extremal_pairs']}/{r['configurations']} | {r['perturbations_below_quarter_gap_kept']}/{r['perturbations_total']} | "
                  f"{r['quarter_gap_displacement_changed']}/{r['quarter_gap_displacement_tested']} | {r['walk_steps']} | "
-                 f"{r['walk_radius_median']:.2e} | {r['walk_radius_q1']:.2e} | {r['walk_radius_q3']:.2e} | {r['walk_acceptance_mean']:.2f} |")
+                 f"{r['walk_range_median']:.2e} | {r['walk_range_q1']:.2e} | {r['walk_range_q3']:.2e} | {r['walk_acceptance_mean']:.2f} |")
     with open(os.path.join(RESULTS, "tables_class.md"), "w") as fh:
         fh.write("\n".join(L) + "\n")
-    print(f"done in {res['meta']['seconds']} s", file=sys.stderr)
-
 
 if __name__ == "__main__":
     main()

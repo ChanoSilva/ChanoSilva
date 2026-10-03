@@ -11,6 +11,8 @@ ROOT = os.path.dirname(HERE)
 OUT = os.path.join(ROOT, "manuscript")
 tr = json.load(open(os.path.join(ROOT, "results", "results_traffic.json")))
 wf = json.load(open(os.path.join(ROOT, "results", "results_welfare.json")))
+_cm_path = os.path.join(ROOT, "results", "results_commodity.json")
+cm = json.load(open(_cm_path)) if os.path.exists(_cm_path) else None
 
 
 def sci(x, digits=1):
@@ -36,6 +38,21 @@ mac("MetaNumpy", tr["meta"]["numpy"])
 mac("MetaScipy", wf["meta"]["scipy"])
 mac("MetaSecondsTraffic", f"{tr['meta']['seconds']:.0f}")
 mac("MetaSecondsWelfare", f"{wf['meta']['seconds']:.0f}")
+mac("MetaSecondsCommodity", f"{cm['meta']['seconds']:.0f}" if cm else "--")
+
+
+def crit_phrase(d):
+    """'All criteria hold' is generated from the pass/fail flags written by the scripts."""
+    if d is None:
+        return "no criteria record"
+    n = len([k for k in d if k != "all_pass"])
+    failed = [k for k, v in d.items() if k != "all_pass" and not v["pass"]]
+    return f"all {n} criteria hold" if not failed else f"{len(failed)} of {n} criteria FAIL ({', '.join(failed)})"
+
+
+mac("CritTraffic", crit_phrase(tr.get("criteria")))
+mac("CritWelfare", crit_phrase(wf.get("criteria")))
+mac("CritCommodity", crit_phrase(cm.get("criteria")) if cm else "no run")
 
 # E1a Pigou
 with open(os.path.join(OUT, "table_pigou.tex"), "w") as fh:
@@ -46,7 +63,7 @@ with open(os.path.join(OUT, "table_pigou.tex"), "w") as fh:
 p = {r["d"]: r for r in tr["E1a_pigou"]}
 mac("PigouPoAOne", f"{p[1]['price_of_anarchy']:.6f}")
 mac("PigouPoATwo", f"{p[2]['price_of_anarchy']:.4f}")
-mac("PigouPoASixteen", f"{p[16]['price_of_anarchy']:.2f}")
+mac("PigouPoASixteen", f"{p[16]['price_of_anarchy']:.4f}")
 mac("PigouDmax", max(p))
 mac("PigouGridGap", sci(max(abs(r["optimum_cost"] - r["optimum_cost_grid_search"]) for r in tr["E1a_pigou"])))
 
@@ -59,7 +76,9 @@ mac("AffPoAMedian", f"{e['poa_median']:.4f}")
 mac("AffViolations", e["bound_violations"])
 mac("AffMaxResidual", sci(e["max_residual"]))
 mac("AffMaxDevWaterfill", sci(e["max_dev_vs_waterfill"]))
-mac("AffMaxDevToll", sci(e["max_dev_tolled_vs_opt"]))
+mac("AffMaxDevTollWf", sci(e["max_dev_tolled_vs_opt_wf"]))
+mac("AffPoAOneCount", e["n_poa_equals_one"])
+mac("AffPoAOnePct", pct(e["fraction_poa_equals_one"]))
 mac("AffMaxIter", e["max_iterations"])
 mac("AffFracAboveOnePct", pct(e["fraction_poa_above_1p01"]))
 mac("AffFracAboveTenPct", pct(e["fraction_poa_above_1p10"]))
@@ -133,6 +152,7 @@ for key, name in (("c", "Conc"), ("n", "Nonc")):
     mac(f"Rnd{name}Gin", T["gin"]); mac(f"Rnd{name}GinIn", T["gin_in"])
     mac(f"Rnd{name}Wit", T["wit"]); mac(f"Rnd{name}MaxRes", sci(T["res"]))
     mac(f"Rnd{name}WitPct", pct(T["wit"] / T["nontriv"]) if T["nontriv"] else "--")
+    mac(f"Rnd{name}GinOut", T["gin"] - T["gin_in"])
     mac(f"Rnd{name}NontrivPct", pct(T["nontriv"] / T["inst"]))
 mac("RndPgaDiff", sci(pga_diff) if pga_diff > 0 else "0")
 mac("RndPgaChecks", sum(a.get("pga_checks", 0) for a in wf["E3_E4_summary"]))
@@ -146,10 +166,50 @@ if w:
     mac("WitLambda", vec(w[0]["lambda"]))
     mac("WitXstar", vec(w[0]["x_star"]))
     mac("WitBetter", vec(w[0]["better_x"]))
-    mac("WitGap", sci(w[0]["gap"], 2))
+    mac("WitGap", f"{w[0]['gap']:.3f}")
     mac("HasWitness", "1")
 else:
     mac("HasWitness", "0")
+
+# E2c non-polyhedral example
+npx = wf.get("E2_nonpolyhedral")
+if npx:
+    sm = npx["strongly_monotone_variant"]
+    mac("NPslicePts", npx["slice_points"]); mac("NPmismatch", npx["slice_mismatches"])
+    mac("NPbisDiff", sci(npx["max_abs_bisection_minus_parabola"]))
+    mac("NPwitGap", f"{npx['witness_gap']:.5f}")
+    mac("NPwitLambda", "(" + ", ".join(f"{t:g}" for t in npx["witness_lambda"]) + ")")
+    mac("NPwitX", "(" + ", ".join(f"{t:g}" for t in npx["witness_better_x"]) + ")")
+    mac("NPresidual", sci(npx["residual_at_x_star"]))
+    mac("NPsmEps", f"{sm['eps']:g}"); mac("NPsmMu", f"{sm['mu']:g}"); mac("NPsmNpts", len(sm["lambda1_grid"]))
+    mac("NPsmLow", f"{sm['lambda1_grid'][0]:g}"); mac("NPsmHigh", f"{sm['lambda1_grid'][-1]:g}")
+    mac("NPsmMinD", sci(sm["min_abs_second_difference"]))
+    mac("NPsmSign", "all positive" if sm["all_second_differences_positive"] else "not all of one sign")
+    mac("HasNP", "1")
+else:
+    mac("HasNP", "0")
+
+# E5 commodity cones
+if cm:
+    fx, ag = cm["E5a_fixed"], cm["E5b_random"]
+    mac("CmDirs", fx["n_dirs"]); mac("CmDirsInLone", fx["dirs_in_L1"]); mac("CmDirsInL", fx["dirs_in_L"])
+    mac("CmResidual", sci(fx["residual"]))
+    mac("CmBoundary", f"{fx['boundary_lambda1_at_lambda2_1']:.6f}")
+    mac("CmBoundaryInv", f"{1.0 / fx['boundary_lambda1_at_lambda2_1']:.3f}")
+    mac("CmWitGap", f"{fx['witness_lambda_0_1']['gap']:.4f}")
+    mac("CmWitY", "(" + ", ".join(f"{t:.4g}" for t in fx["witness_lambda_0_1"]["better_y"]) + ")")
+    mac("CmCostsEq", "(" + ", ".join(f"{t:.4g}" for t in fx["costs_at_eq"]) + ")")
+    mac("CmCostsWit", "(" + ", ".join(f"{t:.4g}" for t in fx["witness_lambda_0_1"]["costs_at_better_y"]) + ")")
+    mac("CmRandInst", ag["instances"]); mac("CmRandCorner", ag["corner_equilibria"])
+    mac("CmRandLoneAny", ag["dirs_in_L1_any"]); mac("CmRandLoneFull", ag["L1_full_orthant"])
+    mac("CmRandWit", ag["witness_instances"]); mac("CmRandViol", ag["violations_L_not_L1"])
+    mac("CmRandTolDis", ag["tolerance_disagreements"])
+    mac("CmRandTolDisViol", sci(ag["max_tolerance_disagreement_violation"]))
+    mac("CmRandMaxRes", sci(ag["max_residual"]))
+    mac("CmRandWitPct", pct(ag["witness_instances"] / ag["dirs_in_L1_any"]) if ag["dirs_in_L1_any"] else "--")
+    mac("HasCommodity", "1")
+else:
+    mac("HasCommodity", "0")
 
 with open(os.path.join(OUT, "numbers.tex"), "w") as fh:
     fh.write("% generated by experiments/make_numbers.py -- do not edit\n")

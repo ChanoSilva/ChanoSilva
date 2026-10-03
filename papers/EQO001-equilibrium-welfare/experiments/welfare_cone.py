@@ -13,15 +13,34 @@ Theorem (manuscript, Thm 5.1): Lambda is a closed convex cone, Lambda <= Lambda_
 with equality when every u_i is concave on K (jointly).  Without joint concavity the
 inclusion can be strict.
 
-E2  Two-player example with exact cone (wedge beta_2 lambda_2 <= lambda_1 <= lambda_2 / beta_1),
-    Cournot duopoly (interior equilibrium, cone {0}; boundary equilibrium, cone = a ray),
-    and the Nikaido-Isoda modification u_i' = u_i - v_i(x_{-i}) which makes the same
-    equilibrium optimal for every lambda >= 0 (Prop. 5.3).
-E3  Random jointly concave games (N = 3, 4): predefined criterion = every tested lambda in
-    Lambda_1 (vertices and a relative-interior point of Lambda_1 on the simplex, plus grid
-    points) is in Lambda, and every grid point outside Lambda_1 is outside Lambda.
+E2  Two-player example with exact cone (wedge (alpha-1) lambda_1 >= beta_2 lambda_2,
+    (alpha-1) lambda_2 >= beta_1 lambda_1), Cournot duopoly (interior equilibrium, cone {0};
+    boundary equilibrium, cone = a ray), and the Nikaido-Isoda modification
+    u_i' = u_i - v_i(x_{-i}) which makes the same equilibrium optimal for every lambda >= 0.
+E2c Three-player example whose exact cone is NOT polyhedral (pointed out in the internal
+    review of v0.1): u1 = x1, u2 = x2, u3 = x3 - x1^2/2 + x1/4 + x1 x2/2 - x2/2 on [0,1]^3,
+    x* = (1,1,1).  Hand calculation: on the slice lambda_3 = 1, Lambda = {l1 >= 1/4,
+    l2 >= (3/4 - l1)_+^2 / 2} (parabolic boundary) while Lambda_1 = {l1 >= 1/4, l2 >= 0}.
+    A strongly monotone variant (own payoffs minus eps/2 x_i^2) is also bisected.
+E3  Random jointly concave games (N = 3, 4): every tested lambda in Lambda_1 (vertices and a
+    relative-interior point of Lambda_1 on the simplex, plus grid points) must be in Lambda,
+    and every grid point outside Lambda_1 outside Lambda.
 E4  Random non-concave games (same monotone F structure): count instances where a lambda in
     Lambda_1 is certified NOT to be in Lambda (a feasible x with W_lambda(x) > W_lambda(x*)).
+    Witnesses are searched only among the <= 13 cone points of each instance, so the count
+    is a lower bound on the number of instances with Lambda != Lambda_1.
+
+Criteria (stated here and evaluated by check_criteria() below, which writes pass/fail flags
+and margins into results/results_welfare.json; there is no external pre-registration):
+  E2  closed form = linear test = exact test on all directions of the wedge example; no grid
+      direction in Lambda for the interior Cournot game; linear = exact on all grid
+      directions for the boundary Cournot game; Nikaido-Isoda max W' <= 1e-12.
+  E2c exact test = closed-form parabola on every slice point; bisected boundary within 1e-7
+      of the parabola; (0.3, 0, 1) in Lambda_1 \ Lambda with gap 0.10125 (to 1e-9).
+  E3  every tested cone point and every grid point in Lambda_1 is in Lambda; every grid point
+      outside Lambda_1 is outside Lambda.  E3-E4: all equilibrium residuals <= 1e-8.
+  E4  every grid point outside Lambda_1 is outside Lambda (Theorem 5.1(b)); the number of
+      certified witnesses is recorded with no prediction.
 
 Lambda-membership is decided exactly (up to floating point) by enumerating the 3^N faces
 of the box and solving the stationarity system of W_lambda restricted to each face; the
@@ -337,7 +356,8 @@ def two_player_example(rng, beta1=0.5, beta2=0.5, alpha=2.0, n_angles=181):
     rec = []
     for th in thetas:
         lam = np.array([np.cos(th), np.sin(th)])
-        pred = (lam[0] >= beta2 * lam[1] - 1e-12) and (lam[1] >= beta1 * lam[0] - 1e-12)   # closed form
+        pred = ((alpha - 1) * lam[0] >= beta2 * lam[1] - 1e-12) and \
+               ((alpha - 1) * lam[1] >= beta1 * lam[0] - 1e-12)          # closed form of the wedge example
         l1 = in_Lambda1(lam, A_eq, A_ub)
         ll = in_Lambda(g, xs, lam)
         rec.append((float(th), bool(pred), bool(l1), bool(ll)))
@@ -346,7 +366,8 @@ def two_player_example(rng, beta1=0.5, beta2=0.5, alpha=2.0, n_angles=181):
     member, gap, xw = in_Lambda(g, xs, lam_w, return_witness=True)
     return {"beta1": beta1, "beta2": beta2, "alpha": alpha, "x_star": xs.tolist(), "F_at_x_star": g.F(xs).tolist(),
             "residual": info["residual"], "mu": g.mu, "L": g.L,
-            "boundary_angles_deg": [float(np.degrees(np.arctan(beta1))), float(np.degrees(np.arctan(1 / beta2)))],
+            "boundary_angles_deg": [float(np.degrees(np.arctan(beta1 / (alpha - 1)))),
+                                    float(np.degrees(np.arctan((alpha - 1) / beta2)))],
             "angles_tested": n_angles, "agreement": agree,
             "in_cone_count": sum(1 for r in rec if r[3]),
             "witness_lambda": lam_w.tolist(), "witness_member": bool(member), "witness_gap": gap,
@@ -420,6 +441,129 @@ def cournot_examples(rng):
     return out
 
 
+# ----------------------------------------------------------------------------- E2c non-polyhedral cone
+def nonpolyhedral_example(eps_sm=0.2):
+    """E2c: three-player game on [0,1]^3 whose exact cone Lambda(x*) is not polyhedral.
+
+    u1 = x1, u2 = x2, u3 = x3 - x1^2/2 + x1/4 + x1 x2/2 - x2/2; each u_i is linear in the own
+    variable (own-concave), x* = (1,1,1) is the unique Nash equilibrium and F = (-1,-1,-1).
+    On the slice lambda_3 = 1: Lambda = {l1 >= 1/4, l2 >= (3/4 - l1)_+^2 / 2} (hand calculation
+    in the manuscript), Lambda_1 = {l1 >= 1/4, l2 >= 0}.  Pointed out in the internal review.
+    """
+    H = [np.zeros((3, 3)), np.zeros((3, 3)),
+         np.array([[1.0, -0.5, 0.0], [-0.5, 0.0, 0.0], [0.0, 0.0, 0.0]])]
+    h = [np.array([1.0, 0.0, 0.0]), np.array([0.0, 1.0, 0.0]), np.array([0.25, -0.5, 1.0])]
+    g = QuadGame(H, h)
+    xs = np.ones(3)
+    # F is constant (mu = L = 0), so the step mu/L^2 is undefined: use gamma = 1, which reaches
+    # the fixed point in one step; the natural residual at x* certifies the equilibrium.
+    x_fp, _ = solve_vi(g.F, proj_box, np.full(3, 0.5), 0.0, 0.0, tol=1e-13, gamma=1.0)
+    residual = vi_residual(g.F, proj_box, xs)
+    br_ok = True                                   # best responses on a fine grid (independent check)
+    for i in range(3):
+        ts = np.linspace(0.0, 1.0, 1001)
+        vals = [g.payoffs(np.where(np.arange(3) == i, t, xs))[i] for t in ts]
+        br_ok &= bool(ts[int(np.argmax(vals))] == 1.0)
+    pat = active_pattern(xs)
+    G = g.grad_matrix(xs)
+    A_eq, A_ub = cone_constraints(G, pat)
+
+    def closed_form(l1, l2):
+        return l1 >= 0.25 - 1e-12 and l2 >= 0.5 * max(0.0, 0.75 - l1) ** 2 - 1e-9
+
+    l1s, l2s = np.linspace(0.0, 1.2, 121), np.linspace(0.0, 0.3, 61)
+    mism = 0
+    for l1 in l1s:
+        for l2 in l2s:
+            mism += int(in_Lambda(g, xs, np.array([l1, l2, 1.0])) != closed_form(l1, l2))
+    bis = []
+    for l1 in np.linspace(0.25, 0.75, 11):
+        lo, hi = 0.0, 0.5
+        for _ in range(50):
+            mid = 0.5 * (lo + hi)
+            if in_Lambda(g, xs, np.array([l1, mid, 1.0])):
+                hi = mid
+            else:
+                lo = mid
+        bis.append({"lambda1": float(l1), "boundary_lambda2": hi, "parabola": 0.5 * (0.75 - l1) ** 2})
+    max_bis_diff = max(abs(b["boundary_lambda2"] - b["parabola"]) for b in bis)
+    lam_w = np.array([0.3, 0.0, 1.0])
+    in_l1 = in_Lambda1(lam_w, A_eq, A_ub)
+    member, gap, xw = in_Lambda(g, xs, lam_w, return_witness=True)
+    # strongly monotone variant: own payoffs minus eps/2 x_i^2, F(x) = eps x - 1
+    Hs = [Hi.copy() for Hi in H]
+    for i in range(3):
+        Hs[i][i, i] += eps_sm
+    gs = QuadGame(Hs, h)
+    xs_s, info_s = gs.equilibrium()
+    pat_s = active_pattern(xs_s)
+    A_eq_s, A_ub_s = cone_constraints(gs.grad_matrix(xs_s), pat_s)
+    l1_grid = np.linspace(0.35, 0.75, 9)       # inside Lambda_1 of the variant (lambda_1 >= 0.3125 for eps = 0.2)
+    bd = []
+    for l1 in l1_grid:
+        lo, hi = 0.0, 1.0
+        for _ in range(50):
+            mid = 0.5 * (lo + hi)
+            if in_Lambda(gs, xs_s, np.array([l1, mid, 1.0])):
+                hi = mid
+            else:
+                lo = mid
+        bd.append(hi)
+    d2 = np.diff(np.array(bd), 2)
+    return {"H3": H[2].tolist(), "h": [hi.tolist() for hi in h], "x_star": xs.tolist(),
+            "F_at_x_star": g.F(xs).tolist(), "residual_at_x_star": float(residual),
+            "fixed_point_from_half": x_fp.tolist(), "best_responses_at_one": br_ok,
+            "G_at_x_star": G.tolist(), "jointly_concave": bool(g.jointly_concave()),
+            "slice_points": len(l1s) * len(l2s), "slice_mismatches": int(mism),
+            "bisection": bis, "max_abs_bisection_minus_parabola": float(max_bis_diff),
+            "witness_lambda": lam_w.tolist(), "witness_in_Lambda1": bool(in_l1),
+            "witness_in_Lambda": bool(member), "witness_gap": float(gap), "witness_better_x": xw.tolist(),
+            "strongly_monotone_variant": {
+                "eps": eps_sm, "mu": gs.mu, "L": gs.L, "x_star": xs_s.tolist(), "residual": info_s["residual"],
+                "lambda1_grid": l1_grid.tolist(), "boundary_lambda2": [float(b) for b in bd],
+                "second_differences": d2.tolist(), "min_abs_second_difference": float(np.min(np.abs(d2))),
+                "all_second_differences_positive": bool(np.all(d2 > 0)),
+                "A_ub": A_ub_s.tolist(), "A_eq": A_eq_s.tolist()}}
+
+
+# ----------------------------------------------------------------------------- criteria
+def check_criteria(out):
+    """Evaluate the docstring criteria of E2--E4; pass/fail flags and values go into the JSON."""
+    t, c, npx = out["E2_two_player"], out["E2_cournot"], out["E2_nonpolyhedral"]
+    aggs = out["E3_E4_summary"]
+    conc = [a for a in aggs if a["concave"]]
+    nonc = [a for a in aggs if not a["concave"]]
+    ni = c["nikaido_isoda"]["max_W_prime_over_grid_all_lambda"]
+    crit = {
+        "E2_wedge_agreement_all": (t["agreement"] == t["angles_tested"], f"{t['agreement']}/{t['angles_tested']}"),
+        "E2_cournot_interior_none_in_Lambda": (c["interior"]["grid_points_in_Lambda"] == 0,
+                                               c["interior"]["grid_points_in_Lambda"]),
+        "E2_cournot_boundary_agreement_all": (c["boundary"]["agreement"] == c["boundary"]["grid_points"],
+                                              f"{c['boundary']['agreement']}/{c['boundary']['grid_points']}"),
+        "E2_nikaido_isoda_max_le_1e-12": (ni <= 1e-12, ni),
+        "E2c_slice_mismatches_zero": (npx["slice_mismatches"] == 0, npx["slice_mismatches"]),
+        "E2c_bisection_vs_parabola_le_1e-7": (npx["max_abs_bisection_minus_parabola"] <= 1e-7,
+                                              npx["max_abs_bisection_minus_parabola"]),
+        "E2c_witness_in_L1_not_L_gap_0.10125": (npx["witness_in_Lambda1"] and not npx["witness_in_Lambda"]
+                                                and abs(npx["witness_gap"] - 0.10125) <= 1e-9, npx["witness_gap"]),
+        "E3_cone_points_in_Lambda": (all(a["tested_in_L1_in_L"] == a["tested_in_L1"] for a in conc),
+                                     f"{sum(a['tested_in_L1_in_L'] for a in conc)}/{sum(a['tested_in_L1'] for a in conc)}"),
+        "E3_grid_in_L1_in_Lambda": (all(a["grid_in_L1_in_L"] == a["grid_in_L1"] for a in conc),
+                                    f"{sum(a['grid_in_L1_in_L'] for a in conc)}/{sum(a['grid_in_L1'] for a in conc)}"),
+        "E3_grid_out_L1_out_Lambda": (all(a["grid_out_L1_out_L"] == a["grid_out_L1"] for a in conc),
+                                      f"{sum(a['grid_out_L1_out_L'] for a in conc)}/{sum(a['grid_out_L1'] for a in conc)}"),
+        "E4_grid_out_L1_out_Lambda": (all(a["grid_out_L1_out_L"] == a["grid_out_L1"] for a in nonc),
+                                      f"{sum(a['grid_out_L1_out_L'] for a in nonc)}/{sum(a['grid_out_L1'] for a in nonc)}"),
+        "E3_E4_residuals_le_1e-8": (all(a["max_residual"] <= 1e-8 for a in aggs), max(a["max_residual"] for a in aggs)),
+    }
+    crit = {k: {"pass": bool(v[0]), "value": v[1]} for k, v in crit.items()}
+    crit["all_pass"] = all(v["pass"] for v in crit.values())
+    for k, v in crit.items():
+        if k != "all_pass" and not v["pass"]:
+            print(f"CRITERION FAILED: {k}: {v}")
+    return crit
+
+
 # ----------------------------------------------------------------------------- figures
 def make_figures(ex2, aggs):
     import matplotlib
@@ -433,21 +577,23 @@ def make_figures(ex2, aggs):
     os.makedirs(figdir, exist_ok=True)
 
     # Figure 1: the exact wedge in the two-player example
-    fig, ax = plt.subplots(figsize=(3.6, 3.6))
-    r = 1.0
-    for th, pred, l1, ll in ex2["records"]:
-        ax.plot([0, r * np.cos(th)], [0, r * np.sin(th)], color=BLUE if ll else GRAY,
-                lw=0.9 if ll else 0.5, alpha=0.9 if ll else 0.6, solid_capstyle="round")
-    b1, b2 = ex2["beta1"], ex2["beta2"]
-    for slope, lab in ((b1, r"$\lambda_2=\beta_1\lambda_1$"), (1 / b2, r"$\lambda_1=\beta_2\lambda_2$")):
-        t = np.linspace(0, 1.15, 2)
-        ax.plot(t / np.sqrt(1 + slope**2), slope * t / np.sqrt(1 + slope**2), color=ORANGE, lw=1.6)
-    ax.text(0.98, 0.42, r"$\lambda_2=\beta_1\lambda_1$", color=INK, fontsize=8, ha="right")
-    ax.text(0.30, 1.02, r"$\lambda_1=\beta_2\lambda_2$", color=INK, fontsize=8)
-    ax.text(0.62, 0.62, r"$\Lambda(x^*)$", color=INK, fontsize=10, ha="center")
+    fig, ax = plt.subplots(figsize=(3.2, 3.2))
+    b1, b2, al = ex2["beta1"], ex2["beta2"], ex2["alpha"]
+    lo_ang, hi_ang = np.arctan(b1 / (al - 1)), np.arctan((al - 1) / b2)
+    arc = np.linspace(lo_ang, hi_ang, 80)                       # closed-form wedge, filled
+    ax.fill(np.concatenate([[0.0], 1.08 * np.cos(arc)]), np.concatenate([[0.0], 1.08 * np.sin(arc)]),
+            color=BLUE, alpha=0.15, lw=0)
+    for i, (th, pred, l1, ll) in enumerate(ex2["records"]):  # every fifth tested direction
+        if i % 5 == 0:
+            ax.plot([0, np.cos(th)], [0, np.sin(th)], color=BLUE if ll else GRAY,
+                    lw=1.0 if ll else 0.6, solid_capstyle="round")
+    for ang in (lo_ang, hi_ang):                                # closed-form boundaries
+        ax.plot([0, 1.15 * np.cos(ang)], [0, 1.15 * np.sin(ang)], color=ORANGE, lw=1.6)
+    ax.text(1.0, 0.40, r"$(\alpha-1)\lambda_2=\beta_1\lambda_1$", color=INK, fontsize=7.5, ha="right")
+    ax.text(0.22, 1.08, r"$(\alpha-1)\lambda_1=\beta_2\lambda_2$", color=INK, fontsize=7.5)
+    ax.text(0.60, 0.60, r"$\Lambda(x^*)=\Lambda_1(x^*)$", color=INK, fontsize=9, ha="center")
     ax.set_xlim(0, 1.2); ax.set_ylim(0, 1.2); ax.set_aspect("equal")
     ax.set_xlabel(r"$\lambda_1$"); ax.set_ylabel(r"$\lambda_2$")
-    ax.set_title(r"Welfare-weight cone, $\beta_1=\beta_2=1/2$", fontsize=9, color=INK)
     ax.grid(True, color="#e6e5e0", lw=0.5)
     fig.tight_layout()
     fig.savefig(os.path.join(figdir, "fig_cone_2player.png"), dpi=200)
@@ -491,6 +637,7 @@ def main():
     ex2 = two_player_example(rng)
     out["E2_two_player"] = dict(ex2)
     out["E2_cournot"] = cournot_examples(rng)
+    out["E2_nonpolyhedral"] = nonpolyhedral_example()
     aggs, allrows = [], {}
     for N, concave, grid_k, n_inst in ((3, True, 12, 100), (4, True, 8, 100), (3, False, 12, 100), (4, False, 8, 100)):
         agg, rows = run_random(rng, N, n_inst, concave, grid_k, pga_check=25 if concave else 0)
@@ -507,6 +654,7 @@ def main():
                 if r["witness"] is not None:
                     wit.append({"game": key, "instance": r["instance"], **r["witness"], "x_star": r["x_star"]})
     out["E4_witness_examples"] = wit[:5]
+    out["criteria"] = check_criteria(out)
     out["meta"]["seconds"] = time.time() - T0
     with open(os.path.join(ROOT, "results", "results_welfare.json"), "w") as fh:
         json.dump(out, fh, indent=1)
@@ -529,6 +677,17 @@ def main():
          f"{out['E2_cournot']['boundary']['agreement']}/{out['E2_cournot']['boundary']['grid_points']}",
          f"- Nikaido-Isoda: x* optimal for all lambda: {out['E2_cournot']['nikaido_isoda']['x_star_optimal_for_all_lambda']} "
          f"(max W' over grid {out['E2_cournot']['nikaido_isoda']['max_W_prime_over_grid_all_lambda']:.2e})", "",
+         "## E2c non-polyhedral cone (three players)",
+         f"- x* = {out['E2_nonpolyhedral']['x_star']}, residual {out['E2_nonpolyhedral']['residual_at_x_star']:.1e}, "
+         f"jointly concave: {out['E2_nonpolyhedral']['jointly_concave']}",
+         f"- slice lambda_3 = 1: {out['E2_nonpolyhedral']['slice_points']} points, mismatches exact test vs parabola: "
+         f"{out['E2_nonpolyhedral']['slice_mismatches']}; max |bisected boundary - parabola| = "
+         f"{out['E2_nonpolyhedral']['max_abs_bisection_minus_parabola']:.1e}",
+         f"- witness lambda = {out['E2_nonpolyhedral']['witness_lambda']}: in Lambda_1 {out['E2_nonpolyhedral']['witness_in_Lambda1']}, "
+         f"in Lambda {out['E2_nonpolyhedral']['witness_in_Lambda']}, gap {out['E2_nonpolyhedral']['witness_gap']:.5f}, "
+         f"better x = {out['E2_nonpolyhedral']['witness_better_x']}",
+         f"- strongly monotone variant eps = {out['E2_nonpolyhedral']['strongly_monotone_variant']['eps']}: boundary second "
+         f"differences {np.round(out['E2_nonpolyhedral']['strongly_monotone_variant']['second_differences'], 5).tolist()}", "",
          "## E3/E4 random games", "",
          "| N | concave | instances | nontrivial | dims | tested in L1 | of which in L | grid out L1 | out L | grid in L1 | in L | witness inst. | max resid |",
          "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
@@ -536,6 +695,10 @@ def main():
         L.append(f"| {a['N']} | {a['concave']} | {a['instances']} | {a['nontrivial']} | {a['dims']} | {a['tested_in_L1']} | "
                  f"{a['tested_in_L1_in_L']} | {a['grid_out_L1']} | {a['grid_out_L1_out_L']} | {a['grid_in_L1']} | "
                  f"{a['grid_in_L1_in_L']} | {a['witness_instances']} | {a['max_residual']:.1e} |")
+    L += ["", "## Criteria", ""]
+    for k, v in out["criteria"].items():
+        L.append(f"- {k}: {'PASS' if (v if k == 'all_pass' else v['pass']) else 'FAIL'}" +
+                 ("" if k == "all_pass" else f" (value {v['value']})"))
     with open(os.path.join(ROOT, "results", "tables_welfare.md"), "w") as fh:
         fh.write("\n".join(L) + "\n")
     print("\n".join(L))

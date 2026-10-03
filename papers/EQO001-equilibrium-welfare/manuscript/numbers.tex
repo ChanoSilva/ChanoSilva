@@ -3,11 +3,15 @@
 \newcommand{\MetaPython}{3.11.15}
 \newcommand{\MetaNumpy}{2.4.6}
 \newcommand{\MetaScipy}{1.17.1}
-\newcommand{\MetaSecondsTraffic}{4}
-\newcommand{\MetaSecondsWelfare}{128}
+\newcommand{\MetaSecondsTraffic}{2}
+\newcommand{\MetaSecondsWelfare}{86}
+\newcommand{\MetaSecondsCommodity}{4}
+\newcommand{\CritTraffic}{all 5 criteria hold}
+\newcommand{\CritWelfare}{all 12 criteria hold}
+\newcommand{\CritCommodity}{all 5 criteria hold}
 \newcommand{\PigouPoAOne}{1.333333}
 \newcommand{\PigouPoATwo}{1.6258}
-\newcommand{\PigouPoASixteen}{4.73}
+\newcommand{\PigouPoASixteen}{4.7268}
 \newcommand{\PigouDmax}{16}
 \newcommand{\PigouGridGap}{\ensuremath{1.5\times 10^{-11}}}
 \newcommand{\AffInstances}{200}
@@ -17,7 +21,9 @@
 \newcommand{\AffViolations}{0}
 \newcommand{\AffMaxResidual}{\ensuremath{3.4\times 10^{-11}}}
 \newcommand{\AffMaxDevWaterfill}{\ensuremath{8.8\times 10^{-11}}}
-\newcommand{\AffMaxDevToll}{\ensuremath{2.2\times 10^{-16}}}
+\newcommand{\AffMaxDevTollWf}{\ensuremath{8.8\times 10^{-11}}}
+\newcommand{\AffPoAOneCount}{86}
+\newcommand{\AffPoAOnePct}{43}
 \newcommand{\AffMaxIter}{2649}
 \newcommand{\AffFracAboveOnePct}{41}
 \newcommand{\AffFracAboveTenPct}{12}
@@ -82,6 +88,7 @@
 \newcommand{\RndConcWit}{0}
 \newcommand{\RndConcMaxRes}{\ensuremath{7.7\times 10^{-12}}}
 \newcommand{\RndConcWitPct}{0}
+\newcommand{\RndConcGinOut}{0}
 \newcommand{\RndConcNontrivPct}{30}
 \newcommand{\RndNoncInst}{200}
 \newcommand{\RndNoncNontriv}{103}
@@ -94,6 +101,7 @@
 \newcommand{\RndNoncWit}{58}
 \newcommand{\RndNoncMaxRes}{\ensuremath{2.1\times 10^{-12}}}
 \newcommand{\RndNoncWitPct}{56}
+\newcommand{\RndNoncGinOut}{110}
 \newcommand{\RndNoncNontrivPct}{52}
 \newcommand{\RndPgaDiff}{\ensuremath{1.4\times 10^{-17}}}
 \newcommand{\RndPgaChecks}{13}
@@ -103,5 +111,41 @@
 \newcommand{\WitLambda}{(0.000, 0.552, 0.448)}
 \newcommand{\WitXstar}{(1.000, 1.000, 1.000)}
 \newcommand{\WitBetter}{(0.000, 1.000, 1.000)}
-\newcommand{\WitGap}{\ensuremath{2.15\times 10^{-1}}}
+\newcommand{\WitGap}{0.215}
 \newcommand{\HasWitness}{1}
+\newcommand{\NPslicePts}{7381}
+\newcommand{\NPmismatch}{0}
+\newcommand{\NPbisDiff}{\ensuremath{1.0\times 10^{-8}}}
+\newcommand{\NPwitGap}{0.10125}
+\newcommand{\NPwitLambda}{(0.3, 0, 1)}
+\newcommand{\NPwitX}{(0.55, 0, 1)}
+\newcommand{\NPresidual}{\ensuremath{0}}
+\newcommand{\NPsmEps}{0.2}
+\newcommand{\NPsmMu}{0.2}
+\newcommand{\NPsmNpts}{9}
+\newcommand{\NPsmLow}{0.35}
+\newcommand{\NPsmHigh}{0.75}
+\newcommand{\NPsmMinD}{\ensuremath{1.7\times 10^{-3}}}
+\newcommand{\NPsmSign}{all positive}
+\newcommand{\HasNP}{1}
+\newcommand{\CmDirs}{91}
+\newcommand{\CmDirsInLone}{91}
+\newcommand{\CmDirsInL}{89}
+\newcommand{\CmResidual}{\ensuremath{0}}
+\newcommand{\CmBoundary}{0.025000}
+\newcommand{\CmBoundaryInv}{40.000}
+\newcommand{\CmWitGap}{0.0500}
+\newcommand{\CmWitY}{(0, 0.2)}
+\newcommand{\CmCostsEq}{(1, 0.25)}
+\newcommand{\CmCostsWit}{(3, 0.2)}
+\newcommand{\CmRandInst}{200}
+\newcommand{\CmRandCorner}{33}
+\newcommand{\CmRandLoneAny}{90}
+\newcommand{\CmRandLoneFull}{9}
+\newcommand{\CmRandWit}{21}
+\newcommand{\CmRandViol}{0}
+\newcommand{\CmRandTolDis}{3}
+\newcommand{\CmRandTolDisViol}{\ensuremath{5.1\times 10^{-5}}}
+\newcommand{\CmRandMaxRes}{\ensuremath{3.8\times 10^{-12}}}
+\newcommand{\CmRandWitPct}{23}
+\newcommand{\HasCommodity}{1}

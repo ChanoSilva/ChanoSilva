@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -46,37 +46,38 @@
 \author{Luciano Silva Alarco\\
 \small Pontificia Universidad Cat\'olica del Per\'u\\
 \small ORCID 0000-0002-3395-3129}
-\date{\small Working draft v0.1 --- research line RTK001 --- \today}
+\date{\small Working draft v0.2 (one round of internal review applied) --- research line RTK001 --- \today}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-We study a concrete family of \emph{recursive knots}: starting from a round circle $K_0$, the curve $K_d$ is the $(p_d,q_d)$ torus pattern placed on the tube of radius $r_d$ around $K_{d-1}$, using a rotation-minimising (Bishop) frame closed by a linear twist. The question of the research line is how much rope (length divided by thickness) such nested knots need. We prove three elementary facts for this family: $K_d$ is an embedded smooth closed curve whenever $r_d\le\thick(K_{d-1})/2$ (Lemma~\ref{lem:embed}); the closed Bishop frame has linking number $\operatorname{round}(\Wr K_{d-1})$ with its core, which identifies $K_d$ as an explicit cable of $K_{d-1}$ (Lemma~\ref{lem:frame}); and $L(K_d)\le p_d L(K_{d-1})(1+r_d\kappa_{d-1})+r_d(2\pi q_d+p_d|\alpha_d|)$ (Lemma~\ref{lem:length}). A lower bound on the thickness of $K_d$ of the form $\min(\thick K_{d-1}-r_d,\ c\,r_d\sin(\pi/p_d))$ is proved only for pairs of points in the same normal disc or over distant base points; the remaining local case is stated as a hypothesis $(\mathrm H_c)$ and checked numerically. Under $(\mathrm H_c)$ the ropelength bound satisfies a linear recursion whose solution grows geometrically, $\Rop_d\le 2\pi\Lambda^d$ with an explicit $\Lambda$. Numerically, explicit polygons with up to $\NvHalfThree$ vertices give $L/\tau=\RopHalfOne$, $\RopHalfTwo$ and $\RopHalfThree$ at depths $1,2,3$ for the default pattern $(2,3)$ and offset fraction $f=1/2$, stable to $\ConvMaxRelRop\%$ under doubling of the resolution. These are numerically verified upper bounds for explicit polygons, not certified smooth thicknesses; no stationarity, optimality or recursive flow law is claimed.
+We study a concrete family of \emph{recursive knots}: starting from a round circle $K_0$, the curve $K_d$ is the $(p_d,q_d)$ torus pattern placed on the tube of radius $r_d$ around $K_{d-1}$, using a rotation-minimising (Bishop) frame closed by a linear twist. The question of the research line is how much rope (length divided by thickness) such nested knots need. We prove elementary facts for this family: $K_d$ is an embedded smooth closed curve whenever $r_d<\thick(K_{d-1})$ (Lemma~\ref{lem:embed}); the closed Bishop frame has linking number $\Wr K_{d-1}-\alpha_d/2\pi$ with its core, which identifies $K_d$ as an explicit cable of $K_{d-1}$ (Lemma~\ref{lem:frame}); $p_dL(K_{d-1})(1-r_d\kappa_{d-1})\le L(K_d)\le p_d L(K_{d-1})(1+r_d\kappa_{d-1})+r_d(2\pi q_d+p_d|\alpha_d|)$ (Lemma~\ref{lem:length}); and, for $p_d=2$, $\thick(K_d)\le r_d$, so that $\Rop(K_d)\ge L(K_d)/r_d$ inside the family (Proposition~\ref{prop:upper}). For the lower bound $\thick(K_d)\ge\min(\thick K_{d-1}-r_d,\ c\,r_d\sin(\pi/p_d))$ we prove, for $p_d=2$ and $r_d\le\thick(K_{d-1})/2$, that every pair of points of $K_d$ on different strands is at distance $\ge\min(2(\thick K_{d-1}-r_d),\,2c_1r_d)$ with an explicit $c_1$ depending on $f=r_d/\thick K_{d-1}$ and on the pitch of the strands; in the default family $(2,3)$ this gives $c_1\ge\HcConeBase>1/2$ at every depth (Lemma~\ref{lem:Hc1}). The curvature of $K_d$ and the same-strand pairs are controlled only under an additional bound on $|K_{d-1}'|'$ and $|\kappa_{d-1}'|$ (Propositions~\ref{prop:Hccurv}--\ref{prop:Hcsame}), and we show that without such a bound no constant $c>0$ works (Remark~\ref{rem:Hcfalse}); the remaining case---same-strand pairs at $f=1/2$, and uniformity in the depth---is stated as a hypothesis $(\mathrm H_c)$ on the family and checked numerically. Under $(\mathrm H_c)$ the ropelength bound satisfies a linear recursion whose solution grows geometrically, $\Rop_d\le 2\pi\Lambda^d$ with an explicit $\Lambda$. Numerically, explicit polygons with up to $\NvHalfThree$ vertices give $L/\tau=\RopHalfOne$, $\RopHalfTwo$ and $\RopHalfThree$ at depths $1,2,3$ for the default pattern $(2,3)$ and offset fraction $f=1/2$, stable to $\ConvMaxRelRop\%$ under doubling of the resolution. These are numerically verified upper bounds for explicit polygons, not certified smooth thicknesses; no stationarity, optimality or recursive flow law is claimed.
 \end{abstract}
 
 \section{Introduction and status}
 
-\paragraph{The research line.} Line RTK001 (``Geometry of recursive knots'') asks how nested knots---knots tied on the tube of other knots, recursively---can be represented as tubes without self-intersection, and how much length that costs. Its public record states one finding (a feasible upper bound at depth one) and an explicit scope restriction: neither stationarity nor optimality of any configuration is certified, and no general recursive flow law has been established. No manuscript of the line existed before this draft; the family below was fixed from the record and this document is a first written pass, with every number produced by the code in the reproducibility appendix.
+\paragraph{The research line.} Line RTK001 (``Geometry of recursive knots'') asks how nested knots---knots tied on the tube of other knots, recursively---can be represented as tubes without self-intersection, and how much length that costs. Its public record states one finding (a feasible upper bound at depth one) and an explicit scope restriction: neither stationarity nor optimality of any configuration is certified, and no general recursive flow law has been established. No manuscript of the line existed before this draft; the family below was fixed from the record. Version 0.2 incorporates one round of internal review (30/09/2026): the thickness hypothesis of v0.1 was false as stated for an arbitrary base curve (Remark~\ref{rem:Hcfalse}) and is now a statement about the family, partially proved (Theorem~\ref{thm:Hc}); the review also corrected the description of the uncovered case and of the numerical criteria (Section~\ref{sec:exp}).
 
-\paragraph{What is done here.} We (i) fix a definite family of recursive knots (Section~\ref{sec:setting}); (ii) prove what is elementary about it---embeddedness, the framing it uses, and a length recursion---and isolate in one hypothesis what is not proved (Section~\ref{sec:theory}); (iii) compute explicit polygonal configurations at depths $1$ to $3$, their polygonal thickness and ropelength, with a resolution check (Section~\ref{sec:exp}); (iv) tabulate every claim with its status (Section~\ref{sec:claims}). Lower bounds are only quoted from the literature: the crossing number of iterated cables is not known in general, so we derive no new lower bound.
+\paragraph{What is done here.} We (i) fix a definite family of recursive knots (Section~\ref{sec:setting}); (ii) prove what is elementary about it---embeddedness, the framing it uses, two-sided length bounds, an upper bound on the thickness---and prove part of the thickness lower bound, isolating in one hypothesis on the family what is not proved (Section~\ref{sec:theory}); (iii) compute explicit polygonal configurations at depths $1$ to $3$, their polygonal thickness and ropelength, with a resolution check (Section~\ref{sec:exp}); (iv) tabulate every claim with its status (Section~\ref{sec:claims}). Lower bounds for general knots are only quoted from the literature: the crossing number of iterated cables is not known in general, so the only lower bound we derive is internal to the family (Proposition~\ref{prop:upper}).
 
 \section{Setting}\label{sec:setting}
 
 \subsection{Thickness and ropelength}
 
-Let $K\subset\R^3$ be a closed $C^{1,1}$ curve of length $L(K)$. Its \emph{thickness} $\thick(K)$ is the supremum of $\rho$ such that the open tube of radius $\rho$ about $K$ is embedded (normal injectivity radius). Two equivalent descriptions are classical. Litherland, Simon, Durumeric and Rawdon \cite{LSDR1999} show, for $C^2$ curves (see \cite{CKS2002} for the $C^{1,1}$ case),
+Let $K\subset\R^3$ be a closed $C^{1,1}$ curve of length $L(K)$. Its \emph{thickness} $\thick(K)$ is the supremum of $\rho$ such that the open tube of radius $\rho$ about $K$ is embedded (normal injectivity radius). Two equivalent descriptions are classical. Litherland, Simon, Durumeric and Rawdon \cite{LSDR1999} show, for $C^2$ curves (extended to the $C^{1,1}$ case in \cite{CKS2002}; all curves $K_d$ below are $C^\infty$),
 \begin{equation}\label{eq:lsdr}
 \thick(K)=\min\bigl(\minRad(K),\ \tfrac12\dcsd(K)\bigr),
 \end{equation}
-where $\minRad$ is the minimal radius of curvature and $\dcsd$ the \emph{doubly critical self distance}, the minimal distance between pairs $x\neq y$ of $K$ whose chord is perpendicular to $K$ at both ends. Gonzalez and Maddocks \cite{GonzalezMaddocks1999} show $\thick(K)=\inf_{x\neq y}\rho_{pt}(x,y)$, with $\rho_{pt}(x,y)=|x-y|/(2\sin\angle(T_x,\,y-x))$ the radius of the circle through $y$ tangent to $K$ at $x$. The \emph{ropelength} is $\Rop(K)=L(K)/\thick(K)$; it is scale invariant, $\Rop(K)\ge 2\pi$ for every closed curve (total curvature $\ge2\pi$ and $\kappa\le1/\thick$), with equality only for the circle, and $\thick(K)\le\minRad(K)$ always.
+where $\minRad$ is the minimal radius of curvature and $\dcsd$ the \emph{doubly critical self distance}, the minimal distance between pairs $x\neq y$ of $K$ whose chord is perpendicular to $K$ at both ends. Gonzalez and Maddocks \cite{GonzalezMaddocks1999} show $\thick(K)=\inf_{x\neq y}\rho_{pt}(x,y)$, with $\rho_{pt}(x,y)=|x-y|/(2\sin\angle(T_x,\,y-x))$ the radius of the circle through $y$ tangent to $K$ at $x$. The \emph{ropelength} is $\Rop(K)=L(K)/\thick(K)$; it is scale invariant, $\Rop(K)\ge 2\pi$ for every closed curve (Fenchel's theorem \cite{Fenchel1929}, total curvature $\ge2\pi$, together with $\kappa\le1/\thick$), with equality only for the circle, and $\thick(K)\le\minRad(K)$ always.
 
 \subsection{Frames, holonomy and the closing twist}
 
 Let $K$ be a closed $C^2$ regular curve parametrised on $[0,2\pi)$ (not necessarily by arclength), with unit tangent $T$ and curvature $\kappa$. A \emph{rotation-minimising} or Bishop frame \cite{Bishop1975} is an orthonormal frame $(T,N_0,B_0)$ with $N_0'=-\kappa_1|K'|\,T$, $B_0'=-\kappa_2|K'|\,T$, $\kappa_1^2+\kappa_2^2=\kappa^2$; it is unique up to a constant rotation in the normal plane and is in general \emph{not} periodic: after one turn the transported normal is rotated by a holonomy angle $\alpha\in(-\pi,\pi]$. We close it by the linear twist $\omega(t)=-\alpha t/2\pi$, i.e.\ $N=\cos\omega\,N_0+\sin\omega\,B_0$, $B=T\times N$. The closed frame satisfies
 \begin{equation}\label{eq:frame}
-N'=-\kappa_1|K'|\,T+\omega' B,\qquad B'=-\kappa_2|K'|\,T-\omega' N,\qquad |\omega'|=\frac{|\alpha|}{2\pi}\le\frac12 .
+N'=-\tilde\kappa_1|K'|\,T+\omega' B,\qquad B'=-\tilde\kappa_2|K'|\,T-\omega' N,\qquad |\omega'|=\frac{|\alpha|}{2\pi}\le\frac12 ,
 \end{equation}
+with the rotated curvature components $\tilde\kappa_1=\kappa_1\cos\omega+\kappa_2\sin\omega$, $\tilde\kappa_2=-\kappa_1\sin\omega+\kappa_2\cos\omega$ (same norm $\kappa$); below we write $\kappa_1,\kappa_2$ for whichever frame is in use.
 
 \subsection{The family of recursive knots}\label{sec:family}
 
@@ -88,7 +89,7 @@ K_d(t)=K_{d-1}(t\bmod 2\pi)+r_d\bigl[\cos\theta_d(t)\,N_{d-1}(t)+\sin\theta_d(t)
 The default is $(p_d,q_d)=(2,3)$, $\varphi_d=0$ at every depth; $r_d$ is a fraction $f$ of the thickness of $K_{d-1}$ (the guaranteed lower bound $\rho_{d-1}$ in the theory, the measured polygonal value in the experiments).
 \end{definition}
 
-$K_1$ is the $(p_1,q_1)$ torus knot on the round torus of radii $(1,r_1)$; the knot type of $K_d$ for $d\ge2$ depends on the framing, which Lemma~\ref{lem:frame} makes explicit.
+$K_1$ is the $(p_1,q_1)$ torus knot on the round torus of radii $(1,r_1)$; the knot type of $K_d$ for $d\ge2$ depends on the framing, which Lemma~\ref{lem:frame} makes explicit. The pattern angle advances in the parameter $t$, not in arclength; since the parametrisation of $K_{d-1}$ is the one inherited from the construction, the \emph{pitch} of the strands relative to the base (the quantity $h$ of Section~\ref{sec:theory}) is a property of the family, not a free parameter.
 
 \subsection{Polygonal measurements}\label{sec:poly}
 
@@ -96,175 +97,255 @@ Numerically a curve is a closed polygon $P=(x_0,\dots,x_{N-1})$. We use $L(P)=\s
 \begin{equation}\label{eq:tau}
 \tau(P)=\min\bigl(\minRad(P),\ \tfrac12\dcsd(P)\bigr),\qquad \Rop(P)=L(P)/\tau(P).
 \end{equation}
-As a cross-check we also compute $\tau_{pt}(P)=\min_{i\ne j}|x_j-x_i|^2/(2|T_i\times(x_j-x_i)|)$ with central-difference tangents $T_i$. Neither $\tau$ nor $\tau_{pt}$ is a certified thickness of a smooth curve; they are the quantities of \eqref{eq:lsdr} evaluated on an explicit polygon, and their stability under doubling of $N$ is the only evidence offered that they approximate the smooth values. Writhe is the Gauss double sum over pairs of edges (midpoint rule).
+The local-minimum test could miss doubly critical pairs of saddle type; as a safeguard we also compute $\tau_{pt}(P)=\min_{i\ne j}|x_j-x_i|^2/(2|T_i\times(x_j-x_i)|)$ with central-difference tangents $T_i$, which uses no criticality test. Neither $\tau$ nor $\tau_{pt}$ is a certified thickness of a smooth curve (for the thickness of polygons themselves see \cite{Rawdon2003}); they are the quantities of \eqref{eq:lsdr} evaluated on an explicit polygon, and their stability under doubling of $N$ is the main evidence offered that they approximate the smooth values. Vertex pairs may overestimate the polygon--polygon distance; the minimal segment--segment distance over pairs of edges with cyclic index separation $>N/10$, divided by the vertex $\dcsd$, is $\SegRatioQuarterOne$, $\SegRatioHalfOne$ ($d=1$, $f=0.25,0.5$) and $\SegRatioHalfTwo$ ($d=2$, $f=0.5$), and near the critical pair the ratio is $\ge\SegLocalMin$ in every level examined (\texttt{experiments/aux\_checks.py}). Writhe is the Gauss double sum over pairs of edges (midpoint rule); its accuracy is discussed in Section~\ref{sec:exp}.
 
 \section{Results}\label{sec:theory}
 
-Throughout, $K=K_{d-1}$ is a closed $C^\infty$ regular curve of thickness $\tau=\thick(K)>0$ and maximal curvature $\kappa_{\max}\le1/\tau$, and $K_d$ is built by \eqref{eq:Kd} with $r=r_d$, $p=p_d$, $q=q_d$.
+Throughout, $K=K_{d-1}$ is a closed $C^\infty$ regular curve of thickness $\tau=\thick(K)>0$, hence of maximal curvature $\kappa_{\max}\le1/\tau$, carrying the parametrisation of period $2\pi$ inherited from Definition~\ref{def:family}, with speed $v=|K'|\in[v_{\min},v_{\max}]$; $K_d$ is built by \eqref{eq:Kd} with $r=r_d$, $p=p_d$, $q=q_d$, and $f=r/\tau$.
 
 \begin{lemma}[embedding]\label{lem:embed}\status{proved here}
-If $r\le\tau/2$ then $K_d$ is a regular $C^\infty$ closed curve, injective on $[0,2\pi p)$, contained in the torus $\partial\{x:\operatorname{dist}(x,K)<r\}$.
+If $r<\tau$ then $K_d$ is a regular $C^\infty$ closed curve, injective on $[0,2\pi p)$, contained in the torus $\partial\{x:\operatorname{dist}(x,K)<r\}$.
 \end{lemma}
 \begin{proof}
 Smoothness: the Bishop frame of a $C^\infty$ curve is $C^\infty$ (it solves a linear ODE with smooth coefficients), and \eqref{eq:Kd} is a smooth expression in it; periodicity of $K_d$ in $t$ with period $2\pi p$ holds because $\theta_d(t+2\pi p)=\theta_d(t)+2\pi q$ and the closed frame has period $2\pi$. Regularity: differentiating \eqref{eq:Kd} with \eqref{eq:frame},
 \begin{equation}\label{eq:deriv}
 K_d'=|K'|\bigl(1-r(\kappa_1\cos\theta+\kappa_2\sin\theta)\bigr)\,T+r(\theta'+\omega')(-\sin\theta\,N+\cos\theta\,B),
 \end{equation}
-and $|\kappa_1\cos\theta+\kappa_2\sin\theta|\le\kappa\le1/\tau$, so the tangential coefficient is at least $|K'|(1-r/\tau)\ge|K'|/2>0$. Injectivity: let $t_1\neq t_2$ in $[0,2\pi p)$. If $t_1\not\equiv t_2\pmod{2\pi}$, the two points lie in the normal discs of radius $r<\tau$ at distinct points of $K$; by definition of thickness these discs are disjoint, so the points differ. If $t_1\equiv t_2\pmod{2\pi}$, then $t_1-t_2=2\pi k$ with $0<|k|<p$ and $\theta_d(t_1)-\theta_d(t_2)=2\pi qk/p\notin2\pi\Z$ because $\gcd(p,q)=1$; the two points lie in the same normal disc at the same radius $r>0$ but at different angles, hence differ. Containment in the torus is immediate from \eqref{eq:Kd}.
+and $|\kappa_1\cos\theta+\kappa_2\sin\theta|\le\kappa\le1/\tau$, so the tangential coefficient is at least $|K'|(1-r/\tau)>0$. Injectivity: let $t_1\neq t_2$ in $[0,2\pi p)$. If $t_1\not\equiv t_2\pmod{2\pi}$, the two points lie in the normal discs of radius $r<\tau$ at distinct points of $K$; by definition of thickness these discs are disjoint, so the points differ. If $t_1\equiv t_2\pmod{2\pi}$, then $t_1-t_2=2\pi k$ with $0<|k|<p$ and $\theta_d(t_1)-\theta_d(t_2)=2\pi qk/p\notin2\pi\Z$ because $\gcd(p,q)=1$; the two points lie in the same normal disc at the same radius $r>0$ but at different angles, hence differ. Containment in the torus is immediate from \eqref{eq:Kd}.
 \end{proof}
+
+The constant $1/2$ in $r\le\tau/2$, used from Lemma~\ref{lem:length} on, is what the estimates below need; embeddedness only needs $r<\tau$.
 
 \begin{lemma}[the framing used, and the knot type]\label{lem:frame}\status{proved here, from classical results}
-Let $\alpha\in(-\pi,\pi]$ be the holonomy of the Bishop frame of $K$ and $n=\operatorname{round}(\Wr K)$ (well defined when $\alpha\neq\pi$, i.e.\ when $\Wr K$ is not a half-odd integer). Then the closed frame $(N,B)$ is a framing of $K$ with linking number $\Lk=n$, $\alpha\equiv2\pi\Wr K\pmod{2\pi}$, and $K_d$ is the $(p,\,q+pn)$-cable of $K$ (meridional winding measured against the Seifert framing). In particular $K_1$ is the torus knot $T(p_1,q_1)$.
+Let $\alpha\in(-\pi,\pi]$ be the holonomy of the Bishop frame of $K$. Then the closed frame $(N,B)$ is a framing of $K$ with linking number $n:=\Lk=\Wr K-\alpha/2\pi\in\Z$; in particular $\alpha\equiv2\pi\Wr K\pmod{2\pi}$, and $n=\operatorname{round}(\Wr K)$ whenever $\Wr K\notin\Z+\tfrac12$ (if $\Wr K\in\Z+\frac12$ then $\alpha=\pi$ and $n=\Wr K-\frac12$). With the convention that a $(p,q')$-cable of $K$ winds $p$ times along $K$ and $q'$ times around it relative to a framing of linking number $0$ (the Seifert framing), $K_d$ is the $(p,\,q+pn)$-cable of $K$ \cite{Lickorish1997}. In particular $K_1$ is the torus knot $T(p_1,q_1)$.
 \end{lemma}
 \begin{proof}
-By the C\u{a}lug\u{a}reanu--White--Fuller formula \cite{Calugareanu1961,White1969,Fuller1971}, $\Lk=\operatorname{Tw}+\Wr$ for any framing. The Bishop frame has zero twist density; the closing rotation adds total twist $\operatorname{Tw}=-\alpha/2\pi\in[-\tfrac12,\tfrac12)$. Since $\Lk\in\Z$, $\alpha\equiv2\pi\Wr\pmod{2\pi}$ and $\Lk=\Wr-\alpha/2\pi$ is the integer nearest to $\Wr$. The pattern \eqref{eq:Kd} winds $q$ times around the meridian relative to the frame $(N,B)$ while going $p$ times along $K$; relative to a framing of linking number $0$ it winds $q+pn$ times, which is the definition of the $(p,q+pn)$-cable \cite[Ch.~1]{Lickorish1997}. For $K_0$ a planar circle, $\Wr=0=\alpha$ and $K_1$ is the standard torus knot.
+By the C\u{a}lug\u{a}reanu--White--Fuller formula \cite{Calugareanu1961,White1969,Fuller1971}, $\Lk=\operatorname{Tw}+\Wr$ for any framing. The Bishop frame has zero twist density; the closing rotation $\omega$ adds total twist $\operatorname{Tw}=\frac1{2\pi}\int\omega'\,dt=-\alpha/2\pi\in[-\tfrac12,\tfrac12)$. Hence $\Lk=\Wr-\alpha/2\pi$, and since $\Lk\in\Z$ the congruence and the rounding rule follow. The pattern \eqref{eq:Kd} winds $q$ times around the meridian relative to the frame $(N,B)$ while going $p$ times along $K$; relative to a framing of linking number $0$ it winds $q+pn$ times, which is the stated cable. For $K_0$ a planar circle, $\Wr=0=\alpha$ and $K_1$ is the standard torus knot.
 \end{proof}
 
-\begin{lemma}[length]\label{lem:length}\status{proved here}
-Under the hypotheses of Lemma~\ref{lem:embed},
+\begin{lemma}[length, two-sided]\label{lem:length}\status{proved here}
+If $r\le\tau/2$ then
 \begin{equation}\label{eq:length}
-L(K_d)\ \le\ p\,L(K)\,(1+r\kappa_{\max})+r\,(2\pi q+p|\alpha|)\ \le\ p\,L(K)\,(1+r/\tau)+r\,(2\pi q+\pi p).
+p\,L(K)\,(1-r\kappa_{\max})\ \le\ L(K_d)\ \le\ p\,L(K)\,(1+r\kappa_{\max})+r\,(2\pi q+p|\alpha|)\ \le\ p\,L(K)\,(1+r/\tau)+r\,(2\pi q+\pi p).
 \end{equation}
 \end{lemma}
 \begin{proof}
-From \eqref{eq:deriv} and the triangle inequality, $|K_d'|\le|K'|(1+r\kappa)+r(|\theta'|+|\omega'|)=|K'|(1+r\kappa)+r(q/p+|\alpha|/2\pi)$. Integrate over $[0,2\pi p)$: the first term gives $p\int_0^{2\pi}|K'|(1+r\kappa)\,dt\le pL(K)(1+r\kappa_{\max})$, the second $r(2\pi q+p|\alpha|)$. Then use $\kappa_{\max}\le1/\tau$ and $|\alpha|\le\pi$.
+From \eqref{eq:deriv} and the triangle inequality, $|K_d'|\le|K'|(1+r\kappa)+r(|\theta'|+|\omega'|)=|K'|(1+r\kappa)+r(q/p+|\alpha|/2\pi)$. Integrate over $[0,2\pi p)$: the first term gives $p\int_0^{2\pi}|K'|(1+r\kappa)\,dt\le pL(K)(1+r\kappa_{\max})$, the second $r(2\pi q+p|\alpha|)$. Then use $\kappa_{\max}\le1/\tau$ and $|\alpha|\le\pi$. For the lower bound, $|K_d'|$ is at least its tangential component $|K'|(1-r\kappa)\ge|K'|(1-r\kappa_{\max})$; integrate.
 \end{proof}
 
 \begin{remark}
-The term $p|\alpha|r$ from the closing twist is absent from a naive count ``$p$ copies plus $q$ meridians''; it is at most $\pi p r$ and is needed because the Bishop frame of a non-planar $K$ does not close.
+The term $p|\alpha|r$ from the closing twist is absent from a naive count ``$p$ copies plus $q$ meridians''; it is at most $\pi p r$ and is needed for the proof via \eqref{eq:deriv} because the Bishop frame of a non-planar $K$ does not close. Numerically the upper bound without it also holds in all $\AllLevels$ measured levels (minimal ratio bound$/L$ equal to $\NoTwistMinRatio$), so the term is a proof device, not a numerical necessity.
 \end{remark}
+
+\begin{proposition}[upper bound on the thickness and a lower bound on the ropelength, $p=2$]\label{prop:upper}\status{proved here}
+Let $p=2$ ($q$ odd) and $r<\tau$. Then $\thick(K_d)\le r$, hence $\Rop(K_d)\ge L(K_d)/r\ge pL(K)(1-r\kappa_{\max})/r$. In the family with $r_d=f\,\thick(K_{d-1})$ and $f\le1/2$ this gives $\Rop(K_d)\ge\frac{p(1-f)}{f}\Rop(K_{d-1})$, so $\Rop(K_d)\ge2\pi\bigl(p(1-f)/f\bigr)^d$.
+\end{proposition}
+\begin{proof}
+The two points $K_d(t)$ and $K_d(t+2\pi)$ lie in the same normal disc of $K$ at antipodal angles ($\theta$ and $\theta+\pi q$, $q$ odd), so their chord is $-2r(\cos\theta\,N+\sin\theta\,B)$, orthogonal to $T$ and to $-\sin\theta\,N+\cos\theta\,B$, hence by \eqref{eq:deriv} orthogonal to $K_d'$ at both ends: the pair is doubly critical at distance $2r$, so $\dcsd(K_d)\le2r$ and $\thick(K_d)\le r$ by \eqref{eq:lsdr} (equivalently, $\rho_{pt}=r$ for this pair). The rest is Lemma~\ref{lem:length} with $\kappa_{\max}\le1/\tau$, $r=f\tau$ and $\Rop(K_{d-1})=L(K_{d-1})/\tau$.
+\end{proof}
+
+For the default family at $f=1/2$ the internal lower bound is $2\pi\cdot2^d$, i.e.\ $\LowerAprioriHalfOne$, $\LowerAprioriHalfTwo$, $\LowerAprioriHalfThree$ at $d=1,2,3$, against the measured $\RopHalfOne$, $\RopHalfTwo$, $\RopHalfThree$; with the measured $L(K_d)$ the bound $L(K_d)/r_d$ is attained whenever $\thick(K_d)=r_d$ (Section~\ref{sec:exp}). The lower bound of \eqref{eq:length} holds in all $\AllLevels$ measured levels ($\AllLenLowerOk$ of $\AllLevels$).
 
 \paragraph{Thickness of $K_d$: what is proved and what is not.} Write $s=2r\sin(\pi/p)$ for the chord between adjacent strands in a normal disc of $K$ (the $p$ points $K_d(t+2\pi k)$, $k=0,\dots,p-1$, sit at the $p$ equally spaced angles $\theta+2\pi qk/p$, since $\gcd(p,q)=1$).
 
 \begin{proposition}[two of the three cases]\label{prop:partial}\status{proved here}
-Under the hypotheses of Lemma~\ref{lem:embed}: (a) two points of $K_d$ in the same normal disc of $K$ are at distance $\ge s$; (b) two points of $K_d$ whose base points on $K$ are at distance $\ge2\tau$ are at distance $\ge2(\tau-r)$.
+If $r\le\tau/2$: (a) two points of $K_d$ in the same normal disc of $K$ are at distance $\ge s$; (b) two points of $K_d$ whose base points on $K$ are at distance $\ge2\tau$ are at distance $\ge2(\tau-r)$.
 \end{proposition}
 \begin{proof}
 (a) They are at the same radius $r$ and at angles differing by $2\pi qk/p$, $0<k<p$, so their distance is $2r|\sin(\pi qk/p)|\ge2r\sin(\pi/p)=s$ because $qk\not\equiv0\pmod p$. (b) Triangle inequality: $|K_d(t_1)-K_d(t_2)|\ge|K(t_1)-K(t_2)|-2r$.
 \end{proof}
 
-What Proposition~\ref{prop:partial} does not cover are pairs whose base points are close but distinct (the local geometry of $p$ strands on a \emph{bent} tube), and the curvature of $K_d$. For a straight tube the $p$ strands are helices with pitch parameter $h=|K'|p/q$ and the antipodal pair ($p=2$) is a local minimum of the strand distance exactly when $h\ge r$; the bending of $K$ changes this by relative terms of order $r\kappa\le1/2$, which we have not controlled with explicit constants. We therefore state:
+Not covered by Proposition~\ref{prop:partial} are the pairs with $0<|K(t_1)-K(t_2)|<2\tau$, and the curvature of $K_d$. These pairs include (i) nearby base points (the local helix geometry of $p$ strands on a bent tube) and (ii) base points on different arcs of $K$ at distance $<2\tau$, e.g.\ facing each other across the hole of a torus. Case (ii) is not a curiosity: at $f=1/2$, $d=1$ the doubly critical vertex pair that realises $\dcsd$ has base points $\CritSepHalf^\circ$ apart on $K_0$, at Euclidean distance $\CritBaseDistHalf<2\tau_0=2$ (\texttt{aux\_checks.py}), while for $f\le0.35$ it is the antipodal pair of one normal disc. For a straight tube the $p$ strands are helices with pitch parameter $h=|K'|p/q$ (arclength of the base per radian of strand rotation) and the antipodal pair ($p=2$) is a local minimum of the strand distance exactly when $h\ge r$; at depth one the relevant pitch on the inner equator is $(1-r)p/q$, and $(1-r)p/q\ge r$ iff $r\le p/(p+q)=0.4$ for $(2,3)$, which matches the observed $\thick(K_1)=r_1$ for $f\le0.35$ and $\thick(K_1)<r_1$ for $f=0.5$. What follows makes part of this quantitative.
 
-\begin{hypothesis}[$\mathrm H_c$]\label{hyp}\status{not proved; verified numerically for $c=1/2$}
-There is a constant $c\in(0,1]$, depending only on $(p,q)$ and on $f=r/\tau\le1/2$, such that
+\paragraph{Notation for the local case.} Let $(T,N_0,B_0)$ be the (non-periodic) Bishop frame of $K$ and $\alpha$ its holonomy, and set
+\[
+m:=\frac qp-\frac{\alpha}{2\pi},\qquad h_{\min}:=\frac{v_{\min}}{m},\qquad
+\Theta_{\min}:=\frac{h_{\min}}{\tau},\qquad \zeta_{\min}:=\frac{(1-f)\,h_{\min}}{r},\qquad f=\frac r\tau\le\frac12 .
+\]
+In the parallel frame the strand of \eqref{eq:Kd} turns at the constant rate $m$ (its angle is $\psi=\theta+\omega=mt+\varphi$), so $h=v/m$ is the pitch parameter above ($|K'|p/q$ when $\alpha=0$) and $\Theta_{\min}$ is the smallest pitch in units of the base thickness. For two points $X_i=K(t_i)+rU_i$ of $K_d$ with distinct base points, let $\sigma$ be the length of the \emph{shorter} base arc between $K(t_1)$ and $K(t_2)$, $\delta=\sigma/\tau$, $s$ the base-parameter difference along that arc and $u=m|s|$ the relative turning of the strands along it. The integer $k=(t_2-t_1-s)/2\pi\bmod p$ is the strand index of $X_2$ relative to $X_1$ \emph{along that arc} (for $p=2$ the two strands are exchanged by one turn around $K$, so ``same strand'' is meaningful only relative to a base arc). With $\ell_0(\delta)=2\tau\sin(\delta/2)$, $E(\delta)=\tau(1-\cos\delta)$ for $\delta\le\pi/2$ and $E(\delta)=\tau(1+\delta-\pi/2)$ for $\delta>\pi/2$, $\beta(\delta)=\delta^2/(4\sin(\delta/2))$, define
+\begin{equation}\label{eq:HcLP}
+\Lambda(\delta)=\ell_0-\frac{2rE}{\ell_0},\qquad
+P_1(\delta)=\Bigl[\,2\cos\!\Bigl(\tfrac{\delta}{2\Theta_{\min}}\Bigr)\sqrt{1-\beta(\delta)^2}-\tfrac{\delta^2}{3}\Bigr]_+
+\end{equation}
+(with $P_1:=0$ if $\delta>\pi\Theta_{\min}$ or $\beta>1$), and
+\begin{equation}\label{eq:Hcc1}
+c_1(f,\Theta_{\min}):=\frac1{2r}\,\inf_{0<\delta<\pi}\ \max\Bigl\{\sqrt{\Lambda(\delta)_+^2+r^2P_1(\delta)^2},\ \ell_0(\delta)-2r\Bigr\}.
+\end{equation}
+All lengths in \eqref{eq:Hcc1} scale with $r$, so $c_1$ depends only on $(f,\Theta_{\min})$; $\ell_0/r-2$ and $\Lambda/r=(2/f)\sin(\delta/2)-(E/\tau)/\sin(\delta/2)$ decrease in $f$ and $P_1$ does not depend on $f$ and increases in $\Theta_{\min}$, so $c_1$ is non-increasing in $f$ and non-decreasing in $\Theta_{\min}$.
+
+\begin{lemma}[pairs on different strands, $p=2$]\label{lem:Hc1}\status{proved here}
+Let $p=2$, $q$ odd, $r\le\tau/2$. Any two points $X_1,X_2$ of $K_d$ with distinct base points and strand index $k=1$ relative to the shorter base arc satisfy
+\[
+|X_2-X_1|\ \ge\ \min\bigl(2(\tau-r),\ 2\,c_1(f,\Theta_{\min})\,r\bigr).
+\]
+Moreover $c_1(\tfrac12,\tfrac23)\ge\tfrac12$ (its numerical value is $\HcConeBase$), hence $c_1\ge\HcConeBase>1/2$ whenever $f\le\frac12$ and $\Theta_{\min}\ge\frac23$. For the default family $(p,q)=(2,3)$ with $r_d\le\thick(K_{d-1})/2$ one has $\Theta_{\min}\ge\tfrac23$ at every depth, so every such pair is at distance $\ge\min(2(\tau-r),\,\HcTwoConeBase\,r)$.
+\end{lemma}
+\begin{proof}
+\emph{Step 1 (chord of a thick curve).} Let $x=K(0)$ and $g(\sigma)=|K(\sigma)-x|$ in arclength. A local minimum $y$ of $g$ in $(0,L)$ has $(y-x)\perp T(y)$, hence $\rho_{pt}(y,x)=|x-y|/2\ge\tau$, so $|x-y|\ge2\tau$. Consequently $\{g<2\tau\}$ consists of an initial interval $[0,a)$ and a final one $(L-b,L)$ on which $g$ is monotone (a non-monotone stretch below $2\tau$ would contain an interior local minimum below $2\tau$), and on them $g'=\cos\angle(T,K-x)\ge\sqrt{1-g^2/4\tau^2}$ a.e.\ (from $\rho_{pt}(K(\sigma),x)\ge\tau$), which integrates to $g(\sigma)\ge2\tau\sin(\sigma/2\tau)$ and shows $a,b\le\pi\tau$ (this is the classical chord--arc inequality for thick curves, cf.\ \cite{GonzalezMaddocks1999,CKS2002}). Hence for base points with shorter arc $\sigma=\tau\delta\le L/2$: either $\delta\ge\pi$ and $|x-y|\ge2\tau$ (then Proposition~\ref{prop:partial}(b) gives $|X_2-X_1|\ge2(\tau-r)$), or $\delta<\pi$ and $\ell:=|x-y|\ge\ell_0(\delta)$.
+
+\emph{Step 2 (elementary estimates, $\delta<\pi$).} Let $y=K(t_2)$, $e=(y-x)/\ell$ and $\bar T=\sigma^{-1}\int vT\,dt$ over the arc, so $e=\bar T/|\bar T|$, $|\bar T|=\ell/\sigma$. Since $|dT/d\sigma|=\kappa\le1/\tau$: (E2) $|\bar T-T(x)|\le\delta/2$; (E3) for $w\perp T(x)$, $|w\cdot e|=|w\cdot\Pi_x e|\le|w|\,|\bar T-T(x)|\,\sigma/\ell\le|w|\beta(\delta)$, where $\Pi_x$ is the projection onto the normal plane at $x$; (E4) for unit $w\perp T(x)$, $|w\cdot(y-x)|=|\int v\,w\cdot\Pi_xT\,dt|\le\int_0^\sigma\sin\min(\sigma'/\tau,\pi/2)\,d\sigma'=E(\delta)$, and likewise for $w\perp T(y)$; (E5) if $\tilde U_2$ denotes the vector with the same parallel-frame angle as $U_2$ but in the normal plane at $x$, then $U_2-\tilde U_2=-\int\kappa_\perp vT\,dt$ with $|\kappa_\perp|\le\kappa$ (differentiate $\cos\psi_2N_0+\sin\psi_2B_0$ along the arc), so $|U_2-\tilde U_2|\le\delta$ and its component orthogonal to $e$ is at most $\int\kappa v\,|T-\bar T|\,dt\le\int_0^\sigma\frac{\sigma'^2+(\sigma-\sigma')^2}{2\sigma\tau^2}\,d\sigma'=\delta^2/3$; (E6) $\tilde U_2-U_1$ lies in the normal plane at $x$ and has length $2|\sin(\Delta\psi/2)|$, where $\Delta\psi=ms+2\pi qk/p$ is the relative angle of the strands after parallel transport along the arc (the holonomy terms cancel because $N_0(t+2\pi)$ is $N_0(t)$ rotated by $\alpha$ and $m$ contains $-\alpha/2\pi$), i.e.\ $|\sin(\Delta\psi/2)|=|\cos(u/2)|$ for $k=1$ and $p=2$.
+
+\emph{Step 3 (decomposition).} Write $X_2-X_1=(y-x)+r(U_2-U_1)=Ae+Q$ with $Q\perp e$. By (E4), $A=\ell+r(U_2-U_1)\cdot e\ge\ell-2rE/\ell\ge\Lambda(\delta)$, since $\ell\mapsto\ell-2rE/\ell$ is increasing and $\ell\ge\ell_0$. By (E3), (E5), (E6), $|Q|=r|(U_2-U_1)_{\perp e}|\ge r\bigl[2|\cos(u/2)|\sqrt{1-\beta^2}-\delta^2/3\bigr]_+$. Finally $u=m|s|\le m\sigma/v_{\min}=\delta/\Theta_{\min}$ and $|\cos(u/2)|$ is decreasing on $[0,\pi]$, so $|\cos(u/2)|\ge\cos(\delta/2\Theta_{\min})$ when $\delta\le\pi\Theta_{\min}$; together with the trivial bound $|X_2-X_1|\ge\ell-2r\ge\ell_0-2r$ this gives $|X_2-X_1|\ge2c_1(f,\Theta_{\min})r$ for every pair with $\delta<\pi$.
+
+\emph{Step 4 ($c_1(\frac12,\frac23)\ge\frac12$).} Put $r=1$, $\tau=2$, $\Theta_{\min}=2/3$; we show that the maximum in \eqref{eq:Hcc1} is $\ge1$ for every $\delta\in(0,\pi)$. For $\delta\in[\pi/3,\pi/2]$, $\Lambda=2(\tau-r)\sin(\delta/2)=2\sin(\delta/2)\ge1$. For $\delta\in[\pi/2,\pi]$, with $\varsigma=\sin(\delta/2)\in[1/\sqrt2,1]$, $\Lambda=4\varsigma-(1+2\arcsin\varsigma-\pi/2)/\varsigma$, and $\Lambda\ge1$ amounts to $\phi(\varsigma):=4\varsigma^2-\varsigma-1+\pi/2-2\arcsin\varsigma\ge0$; $\phi''=8-2\varsigma(1-\varsigma^2)^{-3/2}$ changes sign once on the interval, so $\phi'$ is increasing then decreasing, and since $\phi'(1/\sqrt2)>0$ and $\phi'(1^-)=-\infty$, $\phi$ increases then decreases; its minimum is at an endpoint, $\phi(1/\sqrt2)=0.29$, $\phi(1)=0.43$. For $\delta\in(0,\pi/3)$ we need $4\sin^2(\delta/2)+P_1^2\ge1$. On $[0.6,\pi/3]$: $4\sin^2(\delta/2)\ge4\sin^2(0.3)\ge0.349$, $\cos(3\delta/4)\ge\cos(\pi/4)$, $\beta\le\beta(\pi/3)\le0.548$ ($\beta$ is increasing), $\delta^2/3\le0.366$, so $P_1\ge2\cdot0.7071\cdot0.836-0.366\ge0.816$ and $P_1^2\ge0.666$. On $(0,0.6]$: $\cos(3\delta/4)\ge\cos(0.45)\ge0.900$, $\beta\le\beta(0.6)\le0.305$, $\delta^2/3\le0.12$, so $P_1\ge2\cdot0.900\cdot0.952-0.12\ge1.59$. Hence $c_1(\frac12,\frac23)\ge\frac12$; the grid value $\HcConeBase$ (attained near $\delta=1.23$) is from \texttt{theory/check\_Hc.py}.
+
+\emph{Step 5 (the family).} $\Theta_{\min}=v_{\min}/(m\tau)$. By Proposition~\ref{prop:upper}, $\tau_{d-1}=\thick(K_{d-1})\le r_{d-1}\le\tau_{d-2}/2$, so $\tau_{d-1}\le2^{-(d-1)}$. After the reparametrisation $t\mapsto t/p$, \eqref{eq:deriv} gives $v_{d,\min}\ge p(1-f)v_{d-1,\min}\ge v_{d-1,\min}$ for $p=2$, $f\le1/2$, so $v_{\min}\ge v_0=1$ at every depth; and $m\le q/p+1/2=2$. Hence $\Theta_{\min}\ge2^{d-2}\ge1$ for $d\ge2$, while for $d=1$ ($\alpha=0$, $m=3/2$, $v=\tau=1$) $\Theta_{\min}=2/3$. Monotonicity of $c_1$ concludes.
+\end{proof}
+
+\begin{proposition}[curvature of $K_d$]\label{prop:Hccurv}\status{proved here, under $(\mathrm H_3)$}
+Assume in addition $(\mathrm H_3)$: $\sup|v'|\le V_1$ and $\sup\sqrt{\kappa_1'^2+\kappa_2'^2}\le K_1$ for $K$ (derivatives in $t$, parallel-frame curvatures). Then, with $g(\zeta)=\zeta(\zeta^2+2)/(\zeta^2+1)^{3/2}$ and $G(\zeta_{\min})=\sup_{\zeta\ge\zeta_{\min}}g\le g(\sqrt2)=1.0887$,
+\begin{equation}\label{eq:Hckappa}
+\kappa_{K_d}\ \le\ \bar\kappa_d:=\frac{G(\zeta_{\min})}{\tau-r}+\frac1{r(1+\zeta_{\min}^2)}
++\frac{rm\,[V_1(1+f)+r\,v_{\max}K_1]}{\bigl(v_{\min}^2(1-f)^2+r^2m^2\bigr)^{3/2}},
+\qquad \minRad(K_d)\ge1/\bar\kappa_d .
+\end{equation}
+\end{proposition}
+\begin{proof}
+Let $U=\cos\psi N_0+\sin\psi B_0$, $W=T\times U$, $\kappa_\perp=\kappa_1\cos\psi+\kappa_2\sin\psi$, $\kappa_W=-\kappa_1\sin\psi+\kappa_2\cos\psi$ ($\kappa_\perp^2+\kappa_W^2=\kappa^2$), $x=r\kappa_\perp\in[-f,f]$. Differentiating \eqref{eq:deriv} with $U'=mW-\kappa_\perp vT$, $W'=-mU-\kappa_WvT$, $T'=v(\kappa_\perp U+\kappa_WW)$:
+\begin{align*}
+K_d'&=c_TT+c_WW,\qquad K_d''=aT+b_UU+b_WW,\\
+c_T&=v(1-x),\qquad c_W=rm,\qquad b_U=v^2(1-x)\kappa_\perp-rm^2,\qquad b_W=v^2(1-x)\kappa_W,
+\end{align*}
+$a=a_0-2rvm\kappa_W$, $a_0=v'(1-x)-rv(\kappa_1'\cos\psi+\kappa_2'\sin\psi)$. Since $(T,U,W)$ is orthonormal and right-handed, $|K_d'\times K_d''|^2=b_U^2|K_d'|^2+(c_Wa-c_Tb_W)^2$. Put $A=v^2(1-x)^2$, $B=r^2m^2$, so $|K_d'|^2=A+B$ and $c_Wa-c_Tb_W=rma_0-\kappa_Wv(A+2B)$. By Minkowski,
+$\kappa_{K_d}\le\sqrt{v^4(1-x)^2\kappa_\perp^2(A+B)+\kappa_W^2v^2(A+2B)^2}/(A+B)^{3/2}
++\bigl(rm^2(A+B)^{1/2}+rm|a_0|\bigr)/(A+B)^{3/2}$. In the first term
+$A(A+B)\le(A+2B)^2$ and $\kappa_\perp^2+\kappa_W^2=\kappa^2$ give $\le v\kappa(A+2B)/(A+B)^{3/2}$, which is decreasing in $A\ge v^2(1-f)^2$; substituting $A=v^2(1-f)^2$ and $\zeta=v(1-f)/(rm)$ yields $\kappa\,g(\zeta)/(1-f)\le G(\zeta_{\min})/(\tau(1-f))$. The second term is at most $1/(r(1+\zeta_{\min}^2))+rm\,[V_1(1+f)+rv_{\max}K_1]/(v_{\min}^2(1-f)^2+r^2m^2)^{3/2}$.
+\end{proof}
+
+\begin{proposition}[pairs on the same strand, $p=2$]\label{prop:Hcsame}\status{proved here, under $(\mathrm H_3)$}
+Under the hypotheses of Proposition~\ref{prop:Hccurv}, every doubly critical pair of $K_d$ with distinct base points and strand index $k=0$ relative to the shorter base arc satisfies $|X_2-X_1|\ge\min(2(\tau-r),2c_0r)$, where
+\begin{align*}
+c_0&:=\frac1{2r}\inf\Bigl\{\max\bigl(\sqrt{\Lambda_+^2+r^2P_0^2},\,\ell_0-2r\bigr):\ 0<\delta<\pi,\
+\tfrac{\delta}{\Theta_{\max}}\le u\le\tfrac{\delta}{\Theta_{\min}},\ u\ge ms_0\Bigr\},\\
+P_0&=\Bigl[2\bigl|\sin\tfrac u2\bigr|\sqrt{1-\beta^2}-\tfrac{\delta^2}3\Bigr]_+,
+\end{align*}
+$\Theta_{\max}=v_{\max}/(m\tau)$ and $s_0=\pi/(\bar\kappa_dV_d)$, $V_d=v_{\max}(1+f)+rm\ge\sup|K_d'|$.
+\end{proposition}
+\begin{proof}
+For a doubly critical pair, along the arc of $K_d$ that follows the chosen base arc (of $K_d$-length $\sigma_d\le V_d|s|$), $0=(X_2-X_1)\cdot T_d(X_1)=\int_0^{\sigma_d}T_d\cdot T_d(X_1)\,d\sigma\ge\int_0^{\sigma_d}\cos(\bar\kappa_d\sigma)\,d\sigma=\sin(\bar\kappa_d\sigma_d)/\bar\kappa_d$, which is positive unless $\sigma_d\ge\pi/\bar\kappa_d$; hence $|s|\ge s_0$ and $u\ge ms_0$. For $k=0$, $\Delta\psi=\pm u$ in Step~2 of Lemma~\ref{lem:Hc1}, and Step~3 gives the bound with $|\sin(u/2)|$ in place of $|\cos(u/2)|$; the infimum is over the whole admissible range of $u$, and the lower end $u\ge\delta/\Theta_{\max}$ (from $\sigma\le v_{\max}|s|$) now matters because small $u$ is the worst case.
+\end{proof}
+
+\begin{theorem}[what is proved of the thickness lower bound for $p=2$]\label{thm:Hc}\status{partially proved}
+Let $p=2$, $f=r/\tau\le1/2$ and assume $(\mathrm H_3)$. Then, by \eqref{eq:lsdr}, Lemma~\ref{lem:Hc1} and Propositions~\ref{prop:Hccurv}--\ref{prop:Hcsame},
+\[
+\thick(K_d)\ \ge\ \min\bigl(\tau-r,\ c\,r\bigr),\qquad c=\min\Bigl(c_1(f,\Theta_{\min}),\ c_0,\ \frac1{r\bar\kappa_d}\Bigr).
+\]
+The first constant needs no hypothesis beyond $r\le\tau/2$ and satisfies $c_1\ge\HcConeBase>1/2$ whenever $\Theta_{\min}\ge2/3$, in particular throughout the default family $(2,3)$ with $r_d\le\thick(K_{d-1})/2$. At $d=1$ the base is the round circle, $(\mathrm H_3)$ holds with $V_1=K_1=0$, and all three constants are unconditional. On the polygons of Section~\ref{sec:exp} ($N_0=256$; $V_1$, $K_1$ measured on the base polygon for $d\ge2$) the constants $(c_1,c_0,1/(r\bar\kappa_d))$ are: $f=0.25$: $(\HcConeQuarterOne,\HcCzeroQuarterOne,\HcCkappaQuarterOne)$, $(\HcConeQuarterTwo,\HcCzeroQuarterTwo,\HcCkappaQuarterTwo)$, $(\HcConeQuarterThree,\HcCzeroQuarterThree,\HcCkappaQuarterThree)$ at $d=1,2,3$; $f=0.35$: $(\HcConeThirtyFiveOne,\HcCzeroThirtyFiveOne,\HcCkappaThirtyFiveOne)$, $(\HcConeThirtyFiveTwo,\HcCzeroThirtyFiveTwo,\HcCkappaThirtyFiveTwo)$, $(\HcConeThirtyFiveThree,\HcCzeroThirtyFiveThree,\HcCkappaThirtyFiveThree)$; $f=0.5$: $(\HcConeHalfOne,\HcCzeroHalfOne,\HcCkappaHalfOne)$, $(\HcConeHalfTwo,\HcCzeroHalfTwo,\HcCkappaHalfTwo)$, $(\HcConeHalfThree,\HcCzeroHalfThree,\HcCkappaHalfThree)$. Hence the bound with $c=1/2$ is proved for $f\le0.35$ at $d=1$ unconditionally and at $d=2,3$ under $(\mathrm H_3)$ with the measured constants, while for $f=1/2$ it is proved only for pairs on different strands (and, at $d=1,3$, for the curvature); the same-strand case at $f=1/2$ is proved only with $c=c_0\le\HcCzeroHalfOne$.
+\end{theorem}
+
+\begin{remark}[no constant works for an arbitrary base]\label{rem:Hcfalse}\status{proved here}
+No constant $c>0$ depending only on $(p,q,f)$ makes $\thick(K_d)\ge\min(\tau-r,cr\sin(\pi/p))$ true for every base $K$ with $\thick(K)=\tau$, even for smooth $K$---which is why the hypothesis of v0.1, stated for an arbitrary $K$, was false (the internal review found two counterexamples; we reproduce both). (i) \emph{Curvature derivative.} If the curvature of $K$ rises from $0$ to $1/\tau$ over an arc of length $\varepsilon$ (a smoothed junction between a segment and a circle of radius $\tau$, whose thickness tends to $\tau$), then by \eqref{eq:deriv} the tangent direction of the inner strand of $K_d$ turns from $vT+rmW$ to $v(1-f)T+rmW$ over the same arc, so $\kappa_{K_d}\gtrsim rv\kappa'/|K_d'|^2\to\infty$ and $\thick(K_d)\to0$; the term in \eqref{eq:Hckappa} involving $V_1$, $K_1$ is therefore unavoidable. (ii) \emph{Pitch.} If $K$ is traversed slowly on an arc of length $\gg r$ ($v\to0$ there, geometry and $\tau$ unchanged), then on that arc the two strands ($p=2$) are helices of pitch $h=v/m\to0$: in the straight-tube model the squared distance between $K_d(t)$ and $K_d(t+2\pi+u)$ is $4r^2\cos^2(qu/4)+v^2u^2$, whose minimum over $u$ is at most $(2\pi v/q)^2$ (the value at $u=2\pi/q$) and is attained at a doubly critical pair by the screw symmetry, so $\thick(K_d)\le\pi v/q\to0$; in Lemma~\ref{lem:Hc1} this is the dependence on $\Theta_{\min}$ ($c_1\to0$ as $\Theta_{\min}\to0$). In the recursive family both quantities are controlled: $\Theta_{\min}\ge2/3$ a priori (Lemma~\ref{lem:Hc1}), and the $K'''$-term of \eqref{eq:Hckappa} is damped by the factor $rm/|K_d'|\approx r/h$, but its uniformity in $d$ is not established here.
+\end{remark}
+
+What remains unproved is therefore a statement about the family, not about an arbitrary curve:
+
+\begin{hypothesis}[$\mathrm H_c$, for the family]\label{hyp}\status{partially proved (Theorem~\ref{thm:Hc}); the rest verified numerically for $c=1/2$}
+Let $(K_d)$ be the family of Definition~\ref{def:family} built from the circle with a fixed pattern $(p,q)$ and radii $r_d\le f\,\thick(K_{d-1})$, $f\le1/2$. There is $c=c(p,q,f)\in(0,1]$ such that for every $d\ge1$
 \begin{equation}\label{eq:rho}
-\thick(K_d)\ \ge\ \rho_d:=\min\bigl(\tau-r,\ c\,r\sin(\pi/p)\bigr).
+\thick(K_d)\ \ge\ \min\bigl(\thick(K_{d-1})-r_d,\ c\,r_d\sin(\pi/p)\bigr).
 \end{equation}
 \end{hypothesis}
 
-The form of \eqref{eq:rho} is what Proposition~\ref{prop:partial} suggests ($c\,r\sin(\pi/p)=\frac{c}{2}s$ is half the strand chord, times a safety factor), and $c=1$ would be sharp for $p=2$ on a straight tube. In the experiments of Section~\ref{sec:exp}, $\tau(K_d)/\rho_d\ge\HypMinTauOverRho$ with $c=1/2$ in all $\HypLevels$ default levels with $f\le1/2$, and $\tau(K_d)=r_d$ to four digits in $\HypTauEqR$ of them; with $c=1$ the inequality fails in exactly one level ($f=1/2$, $d=1$, ratio $\HypMinTauOverRhoOne$), so $c=1$ is not the right constant on a bent tube.
+\noindent\emph{Status for $(2,3)$, $f\le1/2$.} Proved for all $d$ for pairs on different strands with $c=\HcConeBase$ (Lemma~\ref{lem:Hc1}). The curvature and the same-strand pairs are proved at $d=1$, and at $d=2,3$ under $(\mathrm H_3)$ with constants measured on the base polygons; with $c=1/2$ this covers $f\le0.35$ at $d\le3$ (Theorem~\ref{thm:Hc}). Open: the same-strand case at $f=1/2$ ($c_0=\HcCzeroHalfOne,\HcCzeroHalfTwo,\HcCzeroHalfThree$ at $d=1,2,3$; the measured same-strand doubly critical pairs are far from this bound), the a priori curvature constant at $f=1/2$, $d=2$ ($\HcCkappaHalfTwo$), and the uniformity in $d$ of $(\mathrm H_3)$. Numerically (Section~\ref{sec:exp}) \eqref{eq:rho} holds with $c=1/2$ in all $\HypLevels$ default levels with $f\le1/2$, margin $\tau_d/\rho_d\ge\HypMinTauOverRho$.
 
-\begin{corollary}[recursion for the ropelength bound]\label{cor:rec}\status{proved here, conditional on $\mathrm H_c$}
-Fix $(p,q)$, $f\le1/2$ and $c$ as in $(\mathrm H_c)$, and build the family with $\rho_0=1$, $r_d=f\rho_{d-1}$. Then $\rho_d=\gamma^d$ and $L(K_d)\le2\pi A^d$ with
+\paragraph{On the constant.} The natural constant is $c=1$: $r\sin(\pi/p)=s/2$ is half the strand chord, Proposition~\ref{prop:partial}(a) gives exactly this for same-disc pairs, and it is sharp for $p=2$ on a straight tube. With $c=1$, however, the inequality $\tau_d\ge\rho_d$ fails on the polygons in $\HypFailOne$ of the $\HypLevelsAll$ measured levels with $f\le1/2$ (one of the default family, three of the other patterns): \HypFailOneList; and it is attained with equality, to the precision of the data, in every level where $\tau_d=r_d$ (all default levels with $f\le0.35$, and $f=1/2$ at $d=2,3$: by Proposition~\ref{prop:upper}, $c=1$ cannot be improved there) as well as in \HypEqOneListOther, where the critical pair is a pair of adjacent strands of one disc. The value $c=1/2$ used in the criteria of Section~\ref{sec:exp} is therefore an empirical choice made after a first run with $c=1$ had failed at $(f=1/2,d=1)$, not a prediction; the proved constants of Theorem~\ref{thm:Hc} show that $c=1/2$ is attainable by the present method for different-strand pairs ($c_1\ge\HcConeBase$) but not yet for the same-strand case at $f=1/2$.
+
+\begin{corollary}[recursion for the ropelength bound]\label{cor:rec}\status{proved here, conditional on $\mathrm H_c$ for the family}
+Fix $(p,q)$, $f\le1/2$ and assume $(\mathrm H_c)$ with constant $c$ (for all $r_d\le f\,\thick(K_{d-1})$). Define $\rho_0=1$, $r_d:=f\rho_{d-1}$ and $\rho_d:=\gamma\rho_{d-1}$ with
 \begin{equation}\label{eq:consts}
-\gamma=\min\bigl(1-f,\ c f\sin(\pi/p)\bigr),\qquad A=p(1+f)+f\bigl(q+\tfrac p2\bigr),
+\gamma=\min\bigl(1-f,\ c f\sin(\pi/p)\bigr),\qquad A=p(1+f)+f\bigl(q+\tfrac p2\bigr).
 \end{equation}
-hence $\Rop(K_d)\le L(K_d)/\rho_d\le2\pi\Lambda^d$ with $\Lambda=A/\gamma$. For the default $(2,3)$, $f=1/2$, $c=1/2$: $\gamma=\GammaHalf$, $A=\AconstHalf$, $\Lambda=\LambdaHalf$.
+Then $\thick(K_d)\ge\rho_d=\gamma^d$ and $L(K_d)\le2\pi A^d$ for all $d$, hence $\Rop(K_d)\le2\pi\Lambda^d$ with $\Lambda=A/\gamma$. For $(2,3)$ and $f=1/2$: $A=\AconstHalf$, and $\Lambda=\LambdaHalf$ with $c=1/2$ ($\gamma=\GammaHalf$), $\Lambda=\LambdaOneHalf$ with $c=1$ ($\gamma=\GammaOneHalf$).
 \end{corollary}
 \begin{proof}
-By $(\mathrm H_c)$ and $r_d=f\rho_{d-1}$, $\rho_d=\rho_{d-1}\min(1-f,cf\sin(\pi/p))=\gamma\rho_{d-1}$. By Lemma~\ref{lem:length} with $\tau\ge\rho_{d-1}$, $L(K_d)\le pL(K_{d-1})(1+f)+f\rho_{d-1}(2\pi q+\pi p)$; since $\rho_{d-1}\le\thick(K_{d-1})\le L(K_{d-1})/2\pi$, this is $\le L(K_{d-1})\bigl[p(1+f)+f(q+p/2)\bigr]=A\,L(K_{d-1})$, and $L(K_0)=2\pi$.
+Induction on $d$. If $\thick(K_{d-1})\ge\rho_{d-1}$ then $r_d=f\rho_{d-1}\le f\thick(K_{d-1})$, so $(\mathrm H_c)$ applies and $\thick(K_d)\ge\min(\thick(K_{d-1})-r_d,\ cr_d\sin(\pi/p))\ge\min(\rho_{d-1}-f\rho_{d-1},\ cf\rho_{d-1}\sin(\pi/p))=\gamma\rho_{d-1}=\rho_d$. By Lemma~\ref{lem:length} with $\tau\ge\rho_{d-1}$, $L(K_d)\le pL(K_{d-1})(1+f)+f\rho_{d-1}(2\pi q+\pi p)$; since $\rho_{d-1}\le\thick(K_{d-1})\le L(K_{d-1})/2\pi$, this is $\le L(K_{d-1})\bigl[p(1+f)+f(q+p/2)\bigr]=A\,L(K_{d-1})$, and $L(K_0)=2\pi$.
 \end{proof}
 
 \begin{remark}[on the constants]
-$\Lambda$ is generous: Lemma~\ref{lem:length} bounds $|K_d'|$ by the sum of the norms of two orthogonal vectors, uses $\kappa_{\max}\le1/\tau$ and $|\alpha|\le\pi$, and $(\mathrm H_c)$ with $c=1/2$ is twice weaker than the observed $\tau_d\approx r_d$. Numerically the growth factor per depth is about $\GrowthTwo$--$\GrowthThree$ (Table~\ref{tab:main}) against $\Lambda=\LambdaHalf$. We make no claim that any configuration in the family is stationary or optimal for ropelength, and none that the recursion is a ``flow law'' for tight recursive knots: it bounds one explicit construction.
+$\Lambda$ is generous: Lemma~\ref{lem:length} bounds $|K_d'|$ by the sum of the norms of two orthogonal vectors, uses $\kappa_{\max}\le1/\tau$ and $|\alpha|\le\pi$, and $(\mathrm H_c)$ with $c=1/2$ is twice weaker than the observed $\tau_d\approx r_d$. Numerically the growth factor per depth is $\GrowthHalfTwo$, $\GrowthHalfThree$ at $f=1/2$ (Table~\ref{tab:main}) against $\Lambda=\LambdaHalf$; the conditional bounds $2\pi\Lambda^d$ are $\BoundHalfOne$, $\BoundHalfTwo$, $\BoundHalfThree$ against the measured $\RopHalfOne$, $\RopHalfTwo$, $\RopHalfThree$ (the two chains use different $r_d$, so the comparison is indicative only). We make no claim that any configuration in the family is stationary or optimal for ropelength, and none that the recursion is a ``flow law'' for tight recursive knots: it bounds one explicit construction.
 \end{remark}
 
 \begin{remark}[lower bounds, quoted]\status{literature}
-Buck and Simon \cite{BuckSimon1999} prove $\Rop(K)\ge c_0\,\Cr(K)^{3/4}$ for a universal $c_0>0$, and Cantarella, Kusner and Sullivan \cite{CKS2002} prove that ropelength minimisers exist in every knot and link type, are $C^{1,1}$, and satisfy further lower bounds obtained from cone surfaces. To turn these into a lower bound for $K_d$ one needs $\Cr(K_d)$; for the iterated cables of Lemma~\ref{lem:frame} the crossing number is not known in general (crossing numbers of satellites are an open problem), so we derive no lower bound here. For $K_1=T(2,3)$ the best known numerical ropelength is about $32.7$ \cite{Pieranski1998,CKS2002}; our depth-one polygon at $f=1/2$ gives $\RopHalfOne$, i.e.\ the construction is not close to tight even at depth one.
+Buck and Simon \cite{BuckSimon1999} prove $\Rop(K)\ge c_0\,\Cr(K)^{3/4}$ for a universal $c_0>0$, and Cantarella, Kusner and Sullivan \cite{CKS2002} prove that ropelength minimisers exist in every knot and link type, are $C^{1,1}$, and satisfy further lower bounds obtained from cone surfaces. To turn these into a lower bound for the knot type of $K_d$ one needs $\Cr(K_d)$; for the iterated cables of Lemma~\ref{lem:frame} the crossing number is not known in general (crossing numbers of satellites are an open problem), so the only lower bound we have is the one internal to the family, Proposition~\ref{prop:upper}. For $K_1=T(2,3)$ the best known numerical ropelength is about $32.7$ (numerical, uncertified; \cite{Pieranski1998,CKS2002}); our depth-one polygon at $f=1/2$ gives $\RopHalfOne$, i.e.\ the construction is not close to tight even at depth one.
 \end{remark}
 
-\begin{conjecture}[what the numbers suggest]\status{conjectural}
-For the default family with $f\le1/2$, $\thick(K_d)=r_d$ exactly whenever the antipodal pair in a normal disc is the doubly critical pair (observed for $f\le0.35$ at all depths and for $f=1/2$ at $d\ge2$), and $\Rop(K_d)$ grows like $\Theta(\Lambda_\ast^d)$ with $\Lambda_\ast=\lim L(K_d)/(fL(K_{d-1}))\approx\GrowthThree$. Neither statement is proved.
+\begin{conjecture}[what the numbers suggest]\label{conj}\status{conjectural}
+For the default family with $f\le1/2$, $\thick(K_d)=r_d$ exactly whenever the antipodal pair in a normal disc is the doubly critical pair (observed for $f\le0.35$ at all depths and for $f=1/2$ at $d\ge2$; the inequality $\le$ is Proposition~\ref{prop:upper}, the equality is not proved).
 \end{conjecture}
+
+\begin{remark}[growth rate]
+If $\thick(K_d)=r_d$ for all large $d$ and $\minRad(K_{d-1})$ stays bounded below, then $\Rop_d/\Rop_{d-1}=(L_d/L_{d-1})(\tau_{d-1}/\tau_d)\to p/f$ by Lemma~\ref{lem:length} ($L_d/L_{d-1}\to p$ because $r_d\kappa_{\max}(K_{d-1})\le r_d/\minRad(K_{d-1})\to0$). The measured ratios $\Rop_d/\Rop_{d-1}$ at $d=2,3$ are $\GrowthQuarterTwo$, $\GrowthQuarterThree$ ($f=0.25$; $p/f=\PoverFQuarter$), $\GrowthThirtyFiveTwo$, $\GrowthThirtyFiveThree$ ($f=0.35$; $\PoverFThirtyFive$), $\GrowthHalfTwo$, $\GrowthHalfThree$ ($f=0.5$; $\PoverFHalf$), $\GrowthTwoFiveTwo$, $\GrowthTwoFiveThree$ ($(2,5)$; $\PoverFTwoFive$) and $\GrowthThreeTwoTwo$, $\GrowthThreeTwoThree$ ($(3,2)$, where the critical pair is a pair of adjacent strands and the limit is $p/(f\sin(\pi/p))=\PoverFThreeTwo$). The rate $p/f$ is thus a consequence of the conjecture, not an independent empirical constant (v0.1 presented it as one).
+\end{remark}
 
 \section{Experiments}\label{sec:exp}
 
-\paragraph{Protocol.} \texttt{experiments/recursive\_knots.py} builds the polygon $K_0$ with $N_0$ vertices, computes the closed Bishop frame by discrete parallel transport (rotation taking $T_i$ to $T_{i+1}$) with the holonomy removed by the linear twist, and produces $K_d$ with $p_dN_{d-1}$ vertices by \eqref{eq:Kd} evaluated at the vertices (so no interpolation is used; the parameter $t$ is the vertex index). At each depth it measures $L$, $\minRad$, $\dcsd$, $\tau$, $\tau_{pt}$, $\Rop$, the writhe and the holonomy, and sets $r_{d+1}=f\,\tau(K_d)$. Grid: $(p,q)=(2,3)$ with $f\in\{0.25,0.35,0.5,0.6\}$, and $(3,2)$, $(2,5)$ with $f=0.5$; depths $1$--$3$; two resolutions, $N_0\in\{\NZeroCoarse,\NZeroFine\}$ ($\{\NZeroCoarseB,\NZeroFineB\}$ for $(3,2)$, whose depth-3 polygon has $27N_0$ vertices). The value $f=0.6$ lies outside the hypothesis $r\le\tau/2$ and is included only as a numerical probe. The computation is deterministic; total time $\MetaMinutes$ CPU-minutes.
+\paragraph{Criteria.} The protocol is in Appendix~\ref{app:repro}. Four criteria are checked: (C1) resolution: $\Rop$ and $\tau$ change by less than $1\%$ between $N_0$ and $2N_0$; (C2) $L(K_d)\le$ the right-hand side of \eqref{eq:length} evaluated with the measured $L(K_{d-1})$, $\tau(K_{d-1})$ and $\alpha_d$; (C3) $\tau(K_d)\ge\rho_d$ of \eqref{eq:rho} with $c=1/2$ and the measured $\tau(K_{d-1})$, for $f\le1/2$; (C4) $\tau_{pt}$ agrees with $\tau$ to within $1\%$. Which of these were fixed in advance: the plan written before any code (\texttt{PLAN.md}) fixed the resolution check at $d=1,2$ without a threshold, the length bound and the form of \eqref{eq:rho} with an unspecified constant; the $1\%$ thresholds, the extension of (C1) to $d=3$ and the cross-check (C4) were fixed when the manuscript was written, and the constant $c=1/2$ of (C3) was fixed \emph{after} a first run with the natural constant $c=1$ had failed at $(f=1/2,d=1)$. (C3) is therefore a post hoc check, reported as such.
 
-\paragraph{Predefined criteria.} (C1) resolution: $\Rop$ and $\tau$ change by less than $1\%$ between $N_0$ and $2N_0$; (C2) $L(K_d)\le$ the right-hand side of \eqref{eq:length} evaluated with the measured $L(K_{d-1})$, $\tau(K_{d-1})$ and $\alpha_d$; (C3) $\tau(K_d)\ge\rho_d$ of \eqref{eq:rho} with $c=1/2$ and the measured $\tau(K_{d-1})$, for $f\le1/2$; (C4) $\tau_{pt}$ agrees with $\tau$ to within $1\%$.
+\paragraph{Results.} Table~\ref{tab:main} gives all patterns at the finest resolution; Figure~\ref{fig:curves} shows the default curves and Figure~\ref{fig:rop} the growth. All four criteria hold: (C1) the maximal relative change is $\ConvMaxRelRop\%$ for $\Rop$ and $\ConvMaxRelTau\%$ for $\tau$ over all $\NumChains$ chains (per-level values in \texttt{results/tables.md}); (C2) holds in $\AllLenBoundOk$ of $\AllLevels$ levels; (C3) holds in all $\HypLevels$ default levels with $f\le1/2$, with margin $\tau_d/\rho_d\ge\HypMinTauOverRho$ (and $\ge\AllMinTauOverRho$ including the other patterns); with $c=1$ instead of $1/2$ the margin drops to $\AllMinTauOverRhoOne$ and the inequality fails in $\HypFailOne$ of $\HypLevelsAll$ levels, as discussed after Hypothesis~\ref{hyp}; (C4) the maximal discrepancy is $\PtMaxRel\%$. In every level $\tau$ is determined by $\dcsd/2$, never by $\minRad$ ($\LevelsDcsd$ of $\AllLevels$; $\minRad/r_d\ge\MinRadOverRMin$ throughout).
 
-\paragraph{Results.} Table~\ref{tab:main} gives the default family, Table~\ref{tab:patterns} the two other patterns, Table~\ref{tab:conv} the resolution check and Table~\ref{tab:bounds} the comparison with Corollary~\ref{cor:rec}; Figure~\ref{fig:curves} shows the curves and Figure~\ref{fig:rop} the growth. All four criteria hold: (C1) the maximal relative change is $\ConvMaxRelRop\%$ for $\Rop$ and $\ConvMaxRelTau\%$ for $\tau$ over all $\NumChains$ chains; (C2) holds in $\AllLenBoundOk$ of $\AllLevels$ levels; (C3) holds in all $\HypLevels$ default levels with $f\le1/2$, with margin $\tau_d/\rho_d\ge\HypMinTauOverRho$ (and $\ge\AllMinTauOverRho$ including the other patterns; with $c=1$ instead of $1/2$ the margin drops to $\AllMinTauOverRhoOne$ and the inequality fails in one default level); (C4) the maximal discrepancy is $\PtMaxRel\%$. In every level $\tau$ is determined by $\dcsd/2$, never by $\minRad$ ($\LevelsDcsd$ of $\AllLevels$).
+Three further observations. First, for $f\le0.35$ the measured $\tau(K_d)$ equals $r_d$ to four digits at every depth (the antipodal strands in a normal disc are the doubly critical pair, consistent with Proposition~\ref{prop:upper} and Conjecture~\ref{conj}), so $\Rop_d=L_d/r_d$ and the recursion $\tau_d=f\tau_{d-1}$ is exact; for $f=1/2$ at depth one $\tau_1=\TauHalfOne<r_1=0.5$, realised by the pair across the hole of the torus described in Section~\ref{sec:theory}, while at depths $2,3$ again $\tau_d=r_d$. Second, the writhe of the depth-one configuration crosses the half-integer $3.5$ inside the grid ($\Wr(K_1)=\WrQuarterOne$, $\WrThirtyFiveOne$, $\WrHalfOne$, $\WrSixtyOne$ for $f=0.25,0.35,0.5,0.6$; the crossing is at $r_1^\ast=\WrCrossRstar$ by bisection), so by Lemma~\ref{lem:frame} the frame linking number is $3$ for $f\le0.35$ and $4$ for $f\ge0.5$ and the depth-two knot type changes across the grid: $K_2$ is the $(2,\SlopeQuarterTwo)$-cable of the trefoil for $f=0.25$ but the $(2,\SlopeHalfTwo)$-cable for $f=0.5$. The frame linking number is computed as $\operatorname{rint}(\Wr K_{d-1}-\alpha_d/2\pi)$; the residual $|\Wr K_{d-1}-\alpha_d/2\pi-n|$ is a consistency check of Lemma~\ref{lem:frame} and is at most $\LkResidualMax$ at the fine resolution ($\LkResidualMaxCoarse$ at the coarse one) over all levels. Third, the best depth-one value on the grid is $f=0.5$ ($\Rop_1=\RopHalfOne$), the best depth-three value also ($\Rop_3=\RopHalfThree$); $f=0.6$ is worse at every depth, but we did not optimise $f$ and make no optimality claim.
 
-Three further observations. First, for $f\le0.35$ the measured $\tau(K_d)$ equals $r_d$ to four digits at every depth (the antipodal strands in a normal disc are the doubly critical pair), so $\Rop_d=L_d/r_d$ and the recursion $\tau_d=f\tau_{d-1}$ is exact; for $f=1/2$ at depth one $\tau_1=\TauHalfOne<r_1=0.5$, the bending of the base torus bringing inner strands closer, while at depths $2,3$ again $\tau_d=r_d$. Second, the writhe of $K_1=T(2,3)$ crosses the half-integer $3.5$ inside the grid ($\Wr=\WrQuarterOne$, $\WrThirtyFiveOne$, $\WrHalfOne$, $\WrSixtyOne$ for $f=0.25,0.35,0.5,0.6$), so by Lemma~\ref{lem:frame} the frame linking number is $3$ for $f\le0.35$ and $4$ for $f\ge0.5$ and the depth-two knot type changes across the grid: $K_2$ is the $(2,\SlopeQuarterTwo)$-cable of the trefoil for $f=0.25$ but the $(2,\SlopeHalfTwo)$-cable for $f=0.5$. The measured $\alpha_d$ agrees with $2\pi\,\mathrm{frac}(\Wr K_{d-1})$ as Lemma~\ref{lem:frame} requires (e.g.\ $\alpha_2=\AlphaHalfTwo$ for $f=0.5$). Third, the best depth-one value on the grid is $f=0.5$ ($\Rop_1=\RopHalfOne$), the best depth-three value also ($\Rop_3=\RopHalfThree$); $f=0.6$ is worse at every depth, consistent with the crossover $1-f\approx cf$ in \eqref{eq:consts}, but we did not optimise $f$ and make no optimality claim.
+\paragraph{Writhe accuracy.} The midpoint-rule writhe changes under doubling of $N$ by at most $\WrDiffDefaultOne$ at depth one of the default family, but by up to $\WrDiffMax$ at depth three of \WrDiffMaxWhere (the double sum converges slowly on the long chains); the knot-type decisions are unaffected (the smallest margin to a half-integer is $0.018$ at $f=1/2$, $d=1$, where the change is $\le10^{-4}$), but the accuracy claimed for $\Wr$ is level-dependent. An exact polygonal writhe (Levitt; Klenin--Langowski) would remove this at the same cost and is listed as a next step.
 
-
-\paragraph{Curve-shortening probe (uncertified).} \ifnum\HasShrink=1 As a first look at how far the family is from tight configurations, \texttt{experiments/shrink.py} applies $\ShrinkSteps$ explicit discrete curve-shortening steps (each vertex moved a fraction $\ShrinkLam$ of the way to the midpoint of its neighbours) to $K_1$ and $K_2$ of the $(2,3)$, $f=1/2$ chain at $N_0=\ShrinkNZero$, measuring $L/\tau$ after every step ($L/\tau$ is scale invariant, so no rescaling is needed) and keeping the best polygon seen. At depth one $L/\tau$ goes from $\ShrinkStartOne$ to a best value of $\ShrinkBestOne$ at step $\ShrinkStepOne$ ($\ShrinkPctOne\%$ lower; value at the last step $\ShrinkEndOne$; thickness lost: \ShrinkLostOne); at depth two from $\ShrinkStartTwo$ to $\ShrinkBestTwo$ at step $\ShrinkStepTwo$ ($\ShrinkPctTwo\%$; last step $\ShrinkEndTwo$; thickness lost: \ShrinkLostTwo). The probe is therefore marginal at depth one and adverse at depth two: plain curve shortening is not a cheap way to improve the family, and it gives no evidence either way about local minimality. It is not a gradient flow of length at fixed thickness, the knot type is monitored only through $\tau>0$, and the depth-one polygon is reported as an uncertified numerical improvement, not as a new configuration of the family. \else The optional curve-shortening probe was not run in this build. \fi
+\paragraph{Curve-shortening probe (uncertified).} \ifnum\HasShrink=1 \texttt{experiments/shrink.py} applies $\ShrinkSteps$ explicit discrete curve-shortening steps (each vertex moved a fraction $\ShrinkLam$ of the way to the midpoint of its neighbours) to $K_1$ and $K_2$ of the $(2,3)$, $f=1/2$ chain at $N_0=\ShrinkNZero$, tracking the scale-invariant $L/\tau$. At depth one $L/\tau$ falls from $\ShrinkStartOne$ to $\ShrinkBestOne$ ($\ShrinkPctOne\%$, still decreasing at the last step); at depth two no step improves it: $L/\tau$ rises monotonically from $\ShrinkStartTwo$ to $\ShrinkEndTwo$. Plain curve shortening is thus not a cheap way to improve the family and gives no evidence about local minimality; details in \texttt{results/tables\_shrink.md}. \else The optional curve-shortening probe was not run in this build. \fi
 
 \begin{table}[htbp]\centering\small
-\caption{Default family $(p,q)=(2,3)$, finest resolution ($N_0=\NZeroFine$). $r_d=f\tau_{d-1}$; $\rho_d$ from \eqref{eq:rho} with $c=1/2$; slope $=q+pn$ of Lemma~\ref{lem:frame}. All lengths in units of $R_0$.}\label{tab:main}
-\begin{tabular}{@{}rrrrrrrrrrrr@{}}\toprule
-$f$ & $d$ & $N$ & $r_d$ & $L$ & $\minRad$ & $\dcsd/2$ & $\tau$ & $L/\tau$ & $\rho_d$ & $\Wr$ & slope\\\midrule
+\caption{All chains at the finest resolution ($N_0=\NZeroFine$; $\NZeroThreeTwo$ for $(3,2)$). $r_d=f\tau_{d-1}$; $\rho_d^{(1)}=\min(\tau_{d-1}-r_d,\,r_d\sin(\pi/p))$ is \eqref{eq:rho} with the natural constant $c=1$, so $\tau_d/\rho_d^{(1)}<1$ marks a failure of $c=1$ (the ratio for $c=1/2$ is twice as large when $\tau_{d-1}-r_d$ is not the minimum); slope $=q+pn$ of Lemma~\ref{lem:frame}. $^\dagger$: $f=0.6$ lies outside the hypothesis $r\le\tau/2$ and is a numerical probe only. Lengths in units of $R_0$.}\label{tab:main}
+\begin{tabular}{@{}lrrrrrrrrrr@{}}\toprule
+$(p,q)$ & $f$ & $d$ & $N$ & $r_d$ & $L$ & $\tau$ & $L/\tau$ & $\tau_d/\rho_d^{(1)}$ & $\Wr$ & slope\\\midrule
 \input{table_main}\\
 \bottomrule\end{tabular}
 \end{table}
 
-\begin{table}[htbp]\centering\small
-\caption{Other patterns, $f=0.5$, finest resolution ($N_0=\NZeroThreeTwo$ for $(3,2)$, $\NZeroTwoFive$ for $(2,5)$).}\label{tab:patterns}
-\begin{tabular}{@{}lrrrrrrrrr@{}}\toprule
-$(p,q)$ & $d$ & $N$ & $r_d$ & $L$ & $\tau$ & $L/\tau$ & $\rho_d$ & $\Wr$ & slope\\\midrule
-\input{table_patterns}\\
-\bottomrule\end{tabular}
-\end{table}
-
-\begin{table}[htbp]\centering\small
-\caption{Resolution check (criterion C1): $L/\tau$ at the coarse and fine resolutions and relative change.}\label{tab:conv}
-\begin{tabular}{@{}lrrrrrrr@{}}\toprule
-$(p,q)$ & $f$ & $d$ & $N$ coarse & $L/\tau$ & $N$ fine & $L/\tau$ & change (\%)\\\midrule
-\input{table_conv}\\
-\bottomrule\end{tabular}
-\end{table}
-
-\begin{table}[htbp]\centering\small
-\caption{Measured $L/\tau$ (numerical chain, $r_d=f\tau_{d-1}$) against the conditional bound $2\pi\Lambda^d$ of Corollary~\ref{cor:rec} (theoretical chain, $r_d=f\rho_{d-1}$, $c=1/2$). The two chains differ in $r_d$; the comparison is indicative only.}\label{tab:bounds}
-\begin{tabular}{@{}rrrrrrr@{}}\toprule
-$f$ & $\gamma$ & $A$ & $\Lambda$ & $d=1$ & $d=2$ & $d=3$\\\midrule
-\input{table_bounds}\\
-\bottomrule\end{tabular}
-\end{table}
-
 \begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth]{../figures/fig_curves.pdf}
-\caption{Projections of $K_1,K_2,K_3$ for $(2,3)$, $f=0.5$.}\label{fig:curves}
-\end{figure}
-
-\begin{figure}[htbp]\centering
-\includegraphics[width=0.6\textwidth]{../figures/fig_rop.pdf}
-\caption{Polygonal $L/\tau$ against depth for the default family (solid) and the conditional bound $2\pi\Lambda^d$ (dashed, $f\le1/2$).}\label{fig:rop}
+\begin{minipage}[t]{0.58\textwidth}\centering
+\includegraphics[width=\linewidth]{../figures/fig_curves.pdf}
+\caption{Projections to the $xy$-plane of $K_1,K_2,K_3$ for $(2,3)$, $f=0.5$.}\label{fig:curves}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.38\textwidth}\centering
+\includegraphics[width=\linewidth]{../figures/fig_rop.pdf}
+\caption{Polygonal $L/\tau$ against depth for the default family (solid) and the conditional bound $2\pi\Lambda^d$ with $c=1/2$ (dashed, $f\le1/2$).}\label{fig:rop}
+\end{minipage}
 \end{figure}
 
 \section{Claims and their status}\label{sec:claims}
 
-\begin{center}\small
-\begin{tabular}{@{}p{0.66\textwidth}p{0.3\textwidth}@{}}\toprule
+\begin{center}\footnotesize
+\begin{tabular}{@{}p{0.64\textwidth}p{0.32\textwidth}@{}}\toprule
 Claim & Status\\\midrule
-$K_d$ is embedded, smooth and regular when $r_d\le\thick(K_{d-1})/2$ (Lemma~\ref{lem:embed}). & proved here\\
-The closed Bishop frame has $\Lk=\operatorname{round}(\Wr)$; $K_d$ is the $(p,q+pn)$-cable of $K_{d-1}$ (Lemma~\ref{lem:frame}). & proved here from classical results\\
-$L(K_d)\le pL(K_{d-1})(1+r\kappa_{\max})+r(2\pi q+p|\alpha|)$ (Lemma~\ref{lem:length}). & proved here\\
+$K_d$ is embedded, smooth and regular when $r_d<\thick(K_{d-1})$ (Lemma~\ref{lem:embed}). & proved here\\
+The closed Bishop frame has $\Lk=\Wr-\alpha/2\pi$; $K_d$ is the $(p,q+pn)$-cable of $K_{d-1}$ (Lemma~\ref{lem:frame}). & proved here from classical results\\
+$pL(K_{d-1})(1-r\kappa_{\max})\le L(K_d)\le pL(K_{d-1})(1+r\kappa_{\max})+r(2\pi q+p|\alpha|)$ (Lemma~\ref{lem:length}). & proved here\\
+$\thick(K_d)\le r_d$ and $\Rop(K_d)\ge L(K_d)/r_d\ge2\pi(p(1-f)/f)^d$ for $p=2$ (Prop.~\ref{prop:upper}). & proved here (lower bound internal to the family)\\
 Same-disc pairs at distance $\ge2r\sin(\pi/p)$; far pairs at distance $\ge2(\tau-r)$ (Prop.~\ref{prop:partial}). & proved here\\
-$\thick(K_d)\ge\min(\tau-r,\,c\,r\sin(\pi/p))$, $c=1/2$ (Hypothesis $\mathrm H_c$). & not proved; verified numerically in $\HypLevels$ levels, margin $\ge\HypMinTauOverRho$ ($c=1$ fails in one level)\\
-$\Rop(K_d)\le2\pi\Lambda^d$, $\Lambda=A/\gamma$ (Cor.~\ref{cor:rec}). & proved conditional on $\mathrm H_c$\\
+Different-strand pairs at distance $\ge\min(2(\tau-r),2c_1r)$, $c_1\ge\HcConeBase$ in the $(2,3)$ family, $f\le1/2$, all $d$ (Lemma~\ref{lem:Hc1}). & proved here\\
+$\minRad(K_d)\ge1/\bar\kappa_d$ and same-strand doubly critical pairs at distance $\ge\min(2(\tau-r),2c_0r)$ (Props.~\ref{prop:Hccurv}--\ref{prop:Hcsame}). & proved here under $(\mathrm H_3)$; unconditional at $d=1$\\
+$\thick(K_d)\ge\min(\tau-r,cr)$ with $c=1/2$, $p=2$, $f\le0.35$, $d\le3$ (Thm.~\ref{thm:Hc}). & proved at $d=1$; at $d=2,3$ under $(\mathrm H_3)$ with measured constants\\
+No $c>0$ depending only on $(p,q,f)$ works for an arbitrary base $K$ (Remark~\ref{rem:Hcfalse}). & proved here\\
+$(\mathrm H_c)$ for the family with $c=1/2$: same-strand case at $f=1/2$, uniformity in $d$. & not proved; verified numerically in $\HypLevels$ levels, margin $\ge\HypMinTauOverRho$ ($c=1$ fails in $\HypFailOne$ of $\HypLevelsAll$ levels)\\
+$\Rop(K_d)\le2\pi\Lambda^d$, $\Lambda=A/\gamma$ (Cor.~\ref{cor:rec}). & proved conditional on $(\mathrm H_c)$ for the family\\
 Explicit polygons with $L/\tau=\RopHalfOne,\RopHalfTwo,\RopHalfThree$ at $d=1,2,3$ ($f=0.5$), stable to $\ConvMaxRelRop\%$. & computationally verified (polygonal proxy, not certified smooth thickness)\\
-Knot type of $K_2$ changes between $f=0.35$ and $f=0.5$ (writhe crosses $3.5$). & computationally verified ($\Wr$ to $10^{-3}$), consequence of Lemma~\ref{lem:frame}\\
+Knot type of $K_2$ changes between $f=0.35$ and $f=0.5$ (writhe of $K_1$ crosses $3.5$ at $r_1^\ast=\WrCrossRstar$). & computationally verified ($\Wr(K_1)$ stable to $10^{-4}$), consequence of Lemma~\ref{lem:frame}\\
 $\Rop\ge c_0\Cr^{3/4}$; existence and regularity of tight knots. & literature \cite{BuckSimon1999,CKS2002}\\
-$\thick(K_d)=r_d$ exactly for small $f$; growth rate $\Lambda_\ast\approx\GrowthThree$. & conjectural\\
-Plain curve-shortening steps lower the polygonal $L/\tau$ of $K_1$ by $\ShrinkPctOne\%$ and raise that of $K_2$ (Section~\ref{sec:exp}). & uncertified numerical probe; negative at depth two\\
+$\thick(K_d)=r_d$ for small $f$ (Conj.~\ref{conj}); then $\Rop_d/\Rop_{d-1}\to p/f$. & conjectural; the rate is a consequence, not a new constant\\
+Curve-shortening lowers the polygonal $L/\tau$ of $K_1$ by $\ShrinkPctOne\%$ and raises that of $K_2$. & uncertified numerical probe; negative at depth two\\
 Stationarity or optimality of any $K_d$; a recursive flow law for tight recursive knots. & not claimed\\
 \bottomrule\end{tabular}
 \end{center}
 
-\section{Limitations}
+\section{Limitations and next steps}
 
-(1) The thickness lower bound is proved only in two of three cases; the local case on a bent tube and the curvature of $K_d$ are covered by $(\mathrm H_c)$, which is checked numerically for one value of $c$ on a small grid. (2) The polygonal $\tau$ of \eqref{eq:tau} uses vertex pairs, not segment pairs, and a local-minimum test; agreement with $\tau_{pt}$ to $\PtMaxRel\%$ and stability under doubling of $N$ are evidence, not certification. Certified bounds would require interval arithmetic on a $C^{1,1}$ interpolant. (3) $r_d$ is chosen as a fixed fraction of the measured thickness; nothing is optimised, and the family (pattern angle linear in the parameter $t$, not in arclength; phase $\varphi_d=0$) is one of many. (4) The comparison of Table~\ref{tab:bounds} mixes two chains with different $r_d$. (5) Writhe and holonomy are midpoint-rule sums; their agreement to $10^{-3}$ under doubling of $N$ is the only accuracy check, and the frame linking number for $f=0.5$ ($\Wr=\WrHalfOne$) is decided by a margin of $0.02$. (6) No lower bound specific to $K_d$ is derived, because $\Cr(K_d)$ is not known.
+\emph{Limitations.} (1) The thickness lower bound is fully proved only for different-strand pairs ($p=2$); the curvature of $K_d$ and the same-strand pairs need $(\mathrm H_3)$, whose constants are measured on the polygons for $d\ge2$ and whose uniformity in $d$ is open; at $f=1/2$ the same-strand constant $c_0$ falls short of $1/2$. (2) The polygonal $\tau$ of \eqref{eq:tau} uses vertex pairs and a local-minimum test; agreement with $\tau_{pt}$ to $\PtMaxRel\%$, the segment--segment check of Section~\ref{sec:poly} and stability under doubling of $N$ are evidence, not certification, which would require interval arithmetic on a $C^{1,1}$ interpolant. (3) $r_d$ is a fixed fraction of the measured thickness; nothing is optimised, and the family (pattern angle linear in $t$, phase $\varphi_d=0$) is one of many. (4) The conditional bound $2\pi\Lambda^d$ and the measured chain use different $r_d$. (5) Writhe and holonomy are midpoint-rule sums, accurate to $10^{-4}$ at depth one but only to $\WrDiffMax$ at depth three of $(3,2)$; the frame linking number for $f=0.5$ is decided by a margin of $0.02$. (6) The only lower bound specific to the family is Proposition~\ref{prop:upper}; the knot-type lower bounds need $\Cr(K_d)$, which is not known. (7) The constants of Theorem~\ref{thm:Hc} other than $c_1(\frac12,\frac23)\ge\frac12$ are infima of explicit functions evaluated on grids with an estimated Lipschitz correction, not with interval arithmetic.
 
-\section{Next steps}
-
-(1) Prove $(\mathrm H_c)$: control the strand distance on a bent tube and the curvature of $K_d$ with explicit constants, using \eqref{eq:deriv} and its derivative; the antipodal-pair analysis for $p=2$ ($h\ge r$) is the natural start. (2) Replace the polygonal proxy by a certified computation (interval arithmetic on $\minRad$ and $\dcsd$ of a piecewise-circular interpolant). (3) Replace the curve-shortening probe by a constrained length minimisation at fixed $\tau\ge1$ (e.g.\ a ropelength-gradient or annealing scheme with a certified knot-type check), for $d=1,2$. (4) Optimise $f_d$ per depth and the pattern angle in arclength rather than in $t$. (5) Compute the crossing numbers of the specific cables identified in Lemma~\ref{lem:frame} where known, to attach a Buck--Simon lower bound to each explicit configuration.
+\emph{Next steps.} (1) At $d=1$ the uncovered case is an explicit, certifiable computation: the minimal distance between the strands of $T(p,q)$ on the torus of radii $(1,r)$ as a function of $r$ (the critical pair at $f=1/2$ is the pair across the hole, not a local helix pair); for the same-strand case at $f=1/2$ and $d\ge1$, use the exact expression of Proposition~\ref{prop:Hccurv} for $|K_d'\times K_d''|$ with the angle $\psi$ kept, instead of $\kappa_\perp^2+\kappa_W^2=\kappa^2$, to sharpen $\bar\kappa_d$ away from the inner side of the tube; and bound $V_1$, $K_1$ of $K_d$ in terms of those of $K_{d-1}$ to make $(\mathrm H_3)$ uniform in $d$. (2) Replace the polygonal proxy by a certified computation (interval arithmetic on $\minRad$ and $\dcsd$ of a piecewise-circular interpolant) and the midpoint writhe by the exact polygonal writhe. (3) Replace the curve-shortening probe by a constrained length minimisation at fixed $\tau\ge1$ with a certified knot-type check, for $d=1,2$. (4) Optimise $f_d$ per depth and the pattern angle in arclength rather than in $t$. (5) Compute the crossing numbers of the specific cables identified in Lemma~\ref{lem:frame} where known, to attach a Buck--Simon lower bound to each explicit configuration.
 
 \appendix
-\section{Reproducibility}
+\section{Reproducibility and protocol}\label{app:repro}
 
-\texttt{python3 experiments/recursive\_knots.py} writes \texttt{results/results.json}, \texttt{results/tables.md} and the figures (\texttt{--fast} halves both resolutions); \texttt{python3 experiments/make\_numbers.py} writes \texttt{manuscript/numbers.tex} and the table bodies, and \texttt{manuscript/build.sh} runs both and \texttt{latexmk}. Every number in this text is a macro from \texttt{numbers.tex}. Reference run: seed \MetaSeed{} (bookkeeping only; the computation is deterministic), Python \MetaPython, NumPy \MetaNumpy, $\MetaSeconds$\,s of wall time on shared cores. Parameters: $R_0=1$, $N_0\in\{\NZeroCoarse,\NZeroFine\}$, depth $\Depth$, $f\in\{0.25,0.35,0.5,0.6\}$, patterns $(2,3)$, $(3,2)$, $(2,5)$, $\varphi_d=0$. Discrete Bishop frame: parallel transport by the rotation taking $T_i$ to $T_{i+1}$ (Rodrigues formula), initial normal orthogonal to $T_0$, holonomy measured as the signed angle between the transported and the initial normal, removed by the twist $-\alpha i/N$.
+{\sloppy
+\emph{Protocol.} \texttt{experiments/recursive\_knots.py} builds the polygon $K_0$ with $N_0$ vertices, computes the closed Bishop frame by discrete parallel transport (rotation taking $T_i$ to $T_{i+1}$, Rodrigues formula; initial normal orthogonal to $T_0$; holonomy measured as the signed angle between the transported and the initial normal, removed by the twist $-\alpha i/N$) and produces $K_d$ with $p_dN_{d-1}$ vertices by \eqref{eq:Kd} evaluated at the vertices (no interpolation; the parameter $t$ is the vertex index). At each depth it measures $L$, $\minRad$, $\dcsd$, $\tau$, $\tau_{pt}$, $\Rop$, the writhe, the holonomy and $\Lk=\operatorname{rint}(\Wr K_{d-1}-\alpha_d/2\pi)$ with its residual, and sets $r_{d+1}=f\,\tau(K_d)$. Grid: $(p,q)=(2,3)$ with $f\in\{0.25,0.35,0.5,0.6\}$, and $(3,2)$, $(2,5)$ with $f=0.5$; depths $1$--$3$; two resolutions, $N_0\in\{\NZeroCoarse,\NZeroFine\}$ ($\{\NZeroCoarseB,\NZeroFineB\}$ for $(3,2)$, whose depth-3 polygon has $27N_0$ vertices). The value $f=0.6$ lies outside the hypothesis $r\le\tau/2$ and is included only as a numerical probe. The computation is deterministic (seed \MetaSeed{} recorded for bookkeeping only); the reference run took $\MetaSeconds$\,s of wall-clock time ($\MetaMinutes$ minutes) on shared cores with Python \MetaPython{} and NumPy \MetaNumpy. \texttt{experiments/aux\_checks.py} computes the critical-pair geometry at depth one, the writhe crossing $r_1^\ast$ and the segment--segment check (\texttt{results/aux\_checks.json}); \texttt{theory/check\_Hc.py} evaluates the constants of Theorem~\ref{thm:Hc} on the polygons and checks every intermediate inequality of Lemma~\ref{lem:Hc1} on all local pairs (\texttt{theory/check\_Hc\_output.txt}, \texttt{check\_Hc\_summary.json}). \texttt{python3 experiments/make\_numbers.py} writes \texttt{manuscript/numbers.tex} and the table body from these JSON files, and \texttt{manuscript/build.sh} runs it and \texttt{latexmk}. Every number in this text is a macro from \texttt{numbers.tex}.\par}
 
+\renewcommand{\bibfont}{\small}
 \bibliographystyle{plainnat}
 \bibliography{refs}
 \end{document}

@@ -9,15 +9,20 @@
 \usepackage{graphicx}
 \usepackage{microtype}
 \usepackage[numbers,sort&compress]{natbib}
+\setlength{\bibsep}{3pt plus 1pt}
 \usepackage{xcolor}
 \usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
 \usepackage{enumitem}
 \usepackage{array}
 \usepackage{caption}
 \captionsetup{font=small,labelfont=bf}
+\renewcommand{\topfraction}{0.9}\renewcommand{\bottomfraction}{0.7}
+\renewcommand{\textfraction}{0.07}\renewcommand{\floatpagefraction}{0.85}
 
 \IfFileExists{numbers.tex}{\input{numbers.tex}}{}
 \providecommand{\HasWitness}{0}
+\providecommand{\HasNP}{0}
+\providecommand{\HasCommodity}{0}
 
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[section]
@@ -47,26 +52,23 @@
 \author{Luciano Silva Alarco\\
 \small Pontificia Universidad Cat\'olica del Per\'u\\
 \small ORCID 0000-0002-3395-3129}
-\date{\small Working draft v0.1 --- research line EQO001 --- \today}
+\date{\small Working draft v0.2 (one round of internal review applied) --- research line EQO001 --- \today}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
 \noindent
-Research line EQO001 asked whether a formal relationship between equilibrium operators, variational inequalities and welfare criteria could yield results beyond the existing ones, and its public record states that the formulation reviewed ``combines known components without yet establishing an independent theorem''. This note is the definitive version of that assessment. We fix the setting (an operator $F$ on a closed convex set $K$, equilibria as solutions of $\VI(F,K)$, welfare as a differentiable functional $W$ on $K$) and prove in full, with the classical attributions, the four facts on which any such relationship rests: (i)~when $F$ is a gradient field the equilibria are exactly the stationary points of the potential, and its minimisers when the potential is convex (Beckmann--McGuire--Winsten, Rosen, Monderer--Shapley); (ii)~strict monotonicity gives uniqueness and strong monotonicity gives existence with a convergent projection iteration (Kinderlehrer--Stampacchia, Facchinei--Pang); (iii)~equilibria do not in general maximise utilitarian welfare, with Pigou's example and the bound $4/3$ for affine costs (Roughgarden--Tardos); (iv)~an equilibrium is a $W$-maximiser only if $\nabla W(x^*)$ and $-F(x^*)$ both lie in the normal cone $N_K(x^*)$, which on the face of a simplex means that both are constant on the used coordinates, and whose repair is marginal-cost pricing. The one small addition is a characterisation of the set $\Lam(x^*)$ of welfare weights $\lambda\ge 0$ for which a given Nash equilibrium maximises $\sum_i\lambda_i u_i$: it is always a closed convex cone contained in a first-order cone $\Lone(x^*)$ defined by $F(x^*)$, the normal cone and the marginal externalities, with equality when the payoffs are jointly concave; we also show that $(F,K)$ alone never determines $\Lam(x^*)$. A two-player quadratic example gives the cone in closed form (a wedge whose opening depends on the product of the externalities), and a projected-gradient solver on \RndTotalInst{} random monotone games confirms equality in every concave instance and exhibits certified strict inclusions in \RndNoncWitPct\% of the non-concave instances with a non-trivial cone. No new equilibrium concept and no general equilibrium solution are offered; the value of the note is the separation of what is classical from what is open, closed by two precise open questions.
+Research line EQO001 asked whether a formal relationship between equilibrium operators, variational inequalities and welfare criteria could yield results beyond the existing ones; its public record calls the formulation reviewed a combination of known components without an independent theorem. This note records that assessment. With equilibria the solutions of $\VI(F,K)$ on a closed convex set $K$ and welfare a $C^1$ functional on $K$, we prove the four classical facts on which any such relationship rests: potentials, monotonicity, the equilibrium--welfare gap (Pigou, $4/3$) and the first-order coincidence whose repair is marginal-cost pricing. The one small addition characterises the cone $\Lam(x^*)$ of welfare weights for which a Nash equilibrium maximises $\sum_i\lambda_iu_i$: a closed convex cone inside a first-order cone $\Lone(x^*)$ built from $F(x^*)$, the normal cone and the marginal externalities, with equality under joint concavity; $(F,K)$ alone never determines it. Two examples show that $\Lam(x^*)$ need not be polyhedral and that $\Lam\ne\Lone$ in two-commodity routing with affine costs. Numerical checks on \RndTotalInst{} random monotone games confirm equality in every tested direction of every concave instance and certify strict inclusion in at least \RndNoncWitPct\% of the non-concave instances with a non-trivial cone. No new equilibrium concept is offered.
 \end{abstract}
 
 \section{Introduction}\label{sec:intro}
 
-The variational-inequality formulation of equilibrium is one of the unifying ideas of applied mathematics. A Wardrop traffic equilibrium~\citep{wardrop1952}, a Nash equilibrium of a concave game~\citep{nash1951,rosen1965} and a Walrasian or spatial price equilibrium can all be written as: find $x^*$ in a closed convex set $K$ with $\ip{F(x^*)}{x-x^*}\ge 0$ for all $x\in K$~\citep{hartmanStampacchia1966,kinderlehrer1980,dafermos1980,harkerPang1990,nagurney1993,facchineiPang2003}. Welfare, on the other hand, is an optimisation problem: maximise a functional $W$ over the same $K$. The temptation that motivated research line EQO001 is obvious: an inequality and an optimisation problem posed on the same set look like two faces of one object, and it is natural to look for a ``formal relationship'' from which welfare statements about equilibria would follow.
+The variational-inequality formulation of equilibrium is one of the unifying ideas of applied mathematics: a Wardrop traffic equilibrium~\citep{wardrop1952}, a Nash equilibrium of a concave game~\citep{nash1951,rosen1965} and a Walrasian or spatial price equilibrium can all be written as: find $x^*$ in a closed convex set $K$ with $\ip{F(x^*)}{x-x^*}\ge 0$ for all $x\in K$~\citep{hartmanStampacchia1966,kinderlehrer1980,dafermos1980,harkerPang1990,nagurney1993,facchineiPang2003}. Welfare is an optimisation problem over the same $K$, and the temptation that motivated research line EQO001 is obvious: to look for a ``formal relationship'' between the inequality and the optimisation problem from which welfare statements about equilibria would follow.
 
-The public record of the line is candid: the formulation reviewed combined known components without establishing an independent theorem, and the line was paused. This note discharges the line's objective in the only way that seems honest to us: by writing down, with complete proofs where they are short, what is a theorem in this area, what is a definition in disguise, and what remains open. We add one small result on the set of welfare weights that make a given equilibrium optimal, which we believe is new only in its packaging, and we say so.
+The public record of the line is candid: the formulation reviewed combined known components without establishing an independent theorem, and the line was paused. This note discharges the line's objective in the only way that seems honest to us: by writing down, with complete proofs where they are short, what is a theorem in this area, what is a definition in disguise, and what remains open. We add one small result on the set of welfare weights that make a given equilibrium optimal; Remark~\ref{rem:novelty} states which parts of it are standard and which are, as far as we could check, only repackaged here.
 
-\paragraph{Contributions.}
-Section~\ref{sec:setting} fixes the setting and proves the two dictionary lemmas (Nash and Wardrop equilibria as VI solutions). Section~\ref{sec:classical} proves the classical results: potentials (Theorem~\ref{thm:potential}), monotonicity (Theorem~\ref{thm:mono}), and the gap between equilibrium and welfare (Theorem~\ref{thm:poa}). Section~\ref{sec:when} characterises when an equilibrium is a welfare maximiser (Proposition~\ref{prop:nec}) and derives marginal-cost pricing as a corollary (Corollary~\ref{cor:toll}). Section~\ref{sec:cone} contains the small new result (Theorem~\ref{thm:cone}), the impossibility statement that $(F,K)$ alone does not determine welfare (Proposition~\ref{prop:notdet}), and two exactly computed examples. Section~\ref{sec:exp} reports the numerical checks with predefined criteria, Section~\ref{sec:claims} lists every claim with its status, and Section~\ref{sec:limits} states limitations and two open questions.
-
-\paragraph{Scope.} Everything is finite-dimensional and deterministic; no empirical data are used and no new solution concept is proposed. Every number in the text is produced by the scripts described in Appendix~\ref{app:repro}, with fixed seeds.
+\paragraph{Contributions and scope.} Section~\ref{sec:setting} fixes the setting; Section~\ref{sec:classical} proves the classical results; Section~\ref{sec:when} gives the first-order characterisation of welfare-optimal equilibria and marginal-cost pricing; Section~\ref{sec:cone} contains the welfare-weight cone (Theorem~\ref{thm:cone}), the impossibility statement (Proposition~\ref{prop:notdet}) and four exact examples, two of them negative (Examples~\ref{ex:nonpoly},~\ref{ex:routing}); Sections~\ref{sec:exp}--\ref{sec:limits} report the numerical checks, the status of every claim, limitations and two open questions. Everything is finite-dimensional and deterministic; every number in the text is produced by the scripts of Appendix~\ref{app:repro} with fixed seeds.
 
 \section{Setting}\label{sec:setting}
 
@@ -127,13 +129,8 @@ A \emph{welfare functional} is a $C^1$ function $W\colon U\to\R$ to be maximised
 Let $U$ be open and convex and $F\colon U\to\R^n$ of class $C^1$ with symmetric Jacobian $DF(x)$ at every $x$. Fix $x_0\in U$ and set $P(x)=\int_0^1\ip{F(x_0+t(x-x_0))}{x-x_0}\,\dd t$. Then $P\in C^2(U)$ and $\nabla P=F$. \status{classical; proved here}
 \end{proposition}
 \begin{proof}
-Write $\gamma_t=x_0+t(x-x_0)$ and $h=x-x_0$. Differentiating under the integral sign (the integrand is $C^1$ in $x$ on the compact segment),
-\begin{align*}
-\partial_iP(x)&=\int_0^1\Big[F_i(\gamma_t)+t\sum_j\partial_iF_j(\gamma_t)h_j\Big]\dd t
-=\int_0^1\Big[F_i(\gamma_t)+t\sum_j\partial_jF_i(\gamma_t)h_j\Big]\dd t\\
-&=\int_0^1\frac{\dd}{\dd t}\big[tF_i(\gamma_t)\big]\dd t=F_i(x),
-\end{align*}
-where the second equality uses $\partial_iF_j=\partial_jF_i$ and the third the chain rule $\frac{\dd}{\dd t}F_i(\gamma_t)=\sum_j\partial_jF_i(\gamma_t)h_j$.
+With $\gamma_t=x_0+t(x-x_0)$ and $h=x-x_0$, differentiation under the integral sign and the symmetry $\partial_iF_j=\partial_jF_i$ give
+$\partial_iP(x)=\int_0^1\big[F_i(\gamma_t)+t\sum_j\partial_jF_i(\gamma_t)h_j\big]\dd t=\int_0^1\frac{\dd}{\dd t}\big[tF_i(\gamma_t)\big]\dd t=F_i(x)$.
 \end{proof}
 
 \begin{theorem}[Equilibria of gradient operators]\label{thm:potential}
@@ -141,25 +138,25 @@ Suppose $F=\nabla P$ on $U\supseteq K$ with $P\in C^1(U)$. Then
 \[
 \SOL(F,K)=\{x\in K:\ip{\nabla P(x)}{y-x}\ge 0\ \forall y\in K\},
 \]
-the set of stationary points of $P$ over $K$; it contains $\arg\min_KP$, and equals it when $P$ is convex on $K$. If $P$ is strictly convex, $\SOL(F,K)$ has at most one point. \status{classical: \citealp{beckmann1956} for routing, \citealp{rosen1965} and \citealp{mondererShapley1996} for games; proved here}
+the set of stationary points of $P$ over $K$; it contains $\arg\min_KP$, and equals it when $P$ is convex on $K$. If $P$ is strictly convex, $\SOL(F,K)$ has at most one point. \status{classical: \citealp{beckmann1956} for routing, \citealp{mondererShapley1996} for potential games; proved here}
 \end{theorem}
 \begin{proof}
 The first identity is Definition~\ref{def:vi} with $F=\nabla P$. If $x$ minimises $P$ over $K$ then, as in the proof of Lemma~\ref{lem:nash}, the right derivative of $t\mapsto P(x+t(y-x))$ at $0$ is nonnegative, which is the stationarity inequality. If $P$ is convex and $x$ is stationary, $P(y)\ge P(x)+\ip{\nabla P(x)}{y-x}\ge P(x)$ for all $y\in K$. If $P$ is strictly convex its minimiser over the convex set $K$ is unique.
 \end{proof}
 
 \begin{remark}[The three classical instances]\label{rem:instances}
-(a) \emph{Routing}~\citep{beckmann1956}. With $\Delta$ the edge--path incidence matrix, $F(f)=\Delta^{\!\top}c(\Delta f)$ has Jacobian $\Delta^{\!\top}\operatorname{diag}(c_e'(f_e))\Delta$, symmetric, and Proposition~\ref{prop:poincare} produces $P(f)=\sum_e\int_0^{f_e}c_e(s)\,\dd s$, convex when the $c_e$ are nondecreasing. Wardrop equilibria are the minimisers of $P$, and the edge flows are unique when the $c_e$ are strictly increasing. Note that $P\ne C$: the potential integrates the cost, the social cost multiplies it; this is the whole of Section~\ref{sec:classical}.3.
-(b) \emph{Concave games}~\citep{rosen1965}. Lemma~\ref{lem:nash} plus Theorem~\ref{thm:mono}(a) below give uniqueness under Rosen's diagonal strict concavity, which for unit weights is strict monotonicity of the pseudo-gradient; existence on compact $K$ is the Hartman--Stampacchia theorem quoted after Theorem~\ref{thm:mono}.
-(c) \emph{Potential games}~\citep{mondererShapley1996}. A $C^1$ game is an exact potential game with potential $\Pi$ iff $\nabla_{x_i}u_i=\nabla_{x_i}\Pi$ for all $i$, i.e. $F=-\nabla\Pi$; by Theorem~\ref{thm:potential} its equilibria are the stationary points of $-\Pi$ over $K$, and its maximisers when $\Pi$ is concave. The potential is a bookkeeping device, not a welfare functional: in general $\Pi\ne\sum_iu_i$ (Example~\ref{ex:cournot} below is a potential game whose equilibrium maximises no weighted welfare).
+(a) \emph{Routing}~\citep{beckmann1956}. For continuous $c_e$, $P(f)=\sum_e\int_0^{f_e}c_e(s)\,\dd s$ is $C^1$ with $\partial P/\partial f_p=\sum_{e\in p}c_e(f_e)=c_p(f)$ by the fundamental theorem of calculus (no differentiability of $c_e$ is needed), and convex when the $c_e$ are nondecreasing; Wardrop equilibria are the minimisers of $P$, and the edge flows are unique when all $c_e$ are strictly increasing. Note that $P\ne C$: the potential integrates the cost, the social cost multiplies it; this is the whole of Section~\ref{sec:classical}.3.
+(b) \emph{Concave games}~\citep{rosen1965}. Lemma~\ref{lem:nash} and Theorem~\ref{thm:mono}(a) give uniqueness under Rosen's diagonal strict concavity, which for unit weights is strict monotonicity of the pseudo-gradient.
+(c) \emph{Potential games}~\citep{mondererShapley1996}. A $C^1$ game is an exact potential game with potential $\Pi$ iff $F=-\nabla\Pi$; its equilibria are the stationary points of $-\Pi$ over $K$, its maximisers when $\Pi$ is concave. The potential is bookkeeping, not welfare: in general $\Pi\ne\sum_iu_i$ (Example~\ref{ex:cournot}(i) is a potential game whose equilibrium maximises no weighted welfare).
 \end{remark}
 
 \subsection{Monotonicity: uniqueness, existence and a solver}
 
 \begin{lemma}[Projection]\label{lem:proj}
-Let $\Pi_K$ be the Euclidean projection onto $K$. Then $z=\Pi_K(y)$ iff $z\in K$ and $\ip{y-z}{x-z}\le 0$ for all $x\in K$; $\Pi_K$ is nonexpansive; and for every $\gamma>0$, $x\in\SOL(F,K)$ iff $x=\Pi_K(x-\gamma F(x))$. \status{classical, \citealp{kinderlehrer1980}; proved here}
+Let $\Pi_K$ be the Euclidean projection onto $K$. Then $z=\Pi_K(y)$ iff $z\in K$ and $\ip{y-z}{x-z}\le 0$ for all $x\in K$; $\Pi_K$ is nonexpansive; and for every $\gamma>0$, $x\in\SOL(F,K)$ iff $x=\Pi_K(x-\gamma F(x))$. \status{classical, \citealp[Chapter~I]{kinderlehrer1980}}
 \end{lemma}
 \begin{proof}
-$z$ minimises the strictly convex $\tfrac12\|y-\cdot\|^2$ over $K$ iff (Theorem~\ref{thm:potential} with $P=\tfrac12\|y-\cdot\|^2$) $\ip{z-y}{x-z}\ge 0$ for all $x\in K$. For nonexpansiveness, add the characterisations at $z=\Pi_Ky$, $x=\Pi_Ky'$ and at $z'=\Pi_Ky'$, $x=\Pi_Ky$: $\ip{(y-y')-(z-z')}{z'-z}\le 0$, so $\|z-z'\|^2\le\ip{y-y'}{z-z'}\le\|y-y'\|\|z-z'\|$. Finally $x=\Pi_K(x-\gamma F(x))$ iff $\ip{-\gamma F(x)}{y-x}\le 0$ for all $y\in K$, which is the VI.
+The first claim is Theorem~\ref{thm:potential} for the strictly convex $P=\tfrac12\|y-\cdot\|^2$; adding the characterisations at $z=\Pi_Ky$ and $z'=\Pi_Ky'$ gives $\|z-z'\|^2\le\ip{y-y'}{z-z'}$, hence nonexpansiveness; and $x=\Pi_K(x-\gamma F(x))$ iff $\ip{-\gamma F(x)}{y-x}\le 0$ for all $y\in K$, which is the VI.
 \end{proof}
 
 \begin{theorem}[Monotone operators]\label{thm:mono}
@@ -171,14 +168,14 @@ $\|Tx-Ty\|^2\le\|(x-y)-\gamma(F(x)-F(y))\|^2=\|x-y\|^2-2\gamma\ip{F(x)-F(y)}{x-y
 and $q<1$ iff $\gamma<2\mu/L^2$. Banach's fixed-point theorem on the complete set $K$ gives a unique fixed point, which is the unique VI solution by Lemma~\ref{lem:proj}, and the contraction estimate is the stated rate.
 \end{proof}
 
-\begin{remark}
-Existence for merely continuous $F$ on compact convex $K$ is the Hartman--Stampacchia theorem~\citep{hartmanStampacchia1966}, a consequence of Brouwer's theorem applied to $T$; we do not reproduce it. All solvers used in Section~\ref{sec:exp} are the iteration of Theorem~\ref{thm:mono}(b) with $\gamma=\mu/L^2$, so every computed equilibrium comes with a proof of uniqueness and a residual certificate.
+\begin{remark}\label{rem:hs}
+For merely continuous $F$ on compact convex $K$, existence is the Hartman--Stampacchia theorem (\citealp[Lemma~3.1]{hartmanStampacchia1966}), obtained from Brouwer's theorem applied to $T$; we do not reproduce it. All solvers in Section~\ref{sec:exp} are the iteration of Theorem~\ref{thm:mono}(b) with $\gamma=\mu/L^2$, so each computed equilibrium comes with a uniqueness proof and a residual certificate.
 \end{remark}
 
 \subsection{Equilibrium is not welfare: Pigou and the price of anarchy}
 
 \begin{example}[Pigou]\label{ex:pigou}
-Two parallel links, unit demand, $c_1\equiv 1$ and $c_2(x)=x^d$, $d\ge 1$~\citep{pigou1920}. Every user on link 2 pays $1\le c_1$, so $f^*=(0,1)$ is the Wardrop equilibrium (unique edge flow, Remark~\ref{rem:instances}a) with $C(f^*)=1$. The social cost of $(1-x,x)$ is $1-x+x^{d+1}$, minimised at $x=(d+1)^{-1/d}$ with value $1-\tfrac{d}{d+1}(d+1)^{-1/d}$. For $d=1$ the optimum is $(\tfrac12,\tfrac12)$ with cost $\tfrac34$ and ratio $\tfrac43$; the ratio tends to infinity with $d$, since $(d+1)^{-1/d}\to 1$. The computed values are in Table~\ref{tab:pigou}.
+Two parallel links, unit demand, $c_1\equiv 1$ and $c_2(x)=x^d$, $d\ge 1$~\citep{pigou1920}. Every user on link 2 pays $1\le c_1$, so $f^*=(0,1)$ is a Wardrop equilibrium with $C(f^*)=1$, and it is the only one: a feasible flow with $f_1>0$ has $f_2<1$, so its users on link 1 pay $1>f_2^d$. The social cost of $(1-x,x)$ is $1-x+x^{d+1}$, minimised at $x=(d+1)^{-1/d}$ with value $1-\tfrac{d}{d+1}(d+1)^{-1/d}$. For $d=1$ the optimum is $(\tfrac12,\tfrac12)$ with cost $\tfrac34$ and ratio $\tfrac43$; the ratio tends to infinity with $d$, since $(d+1)^{-1/d}\to 1$. The computed values are in Figure~\ref{fig:poa} and \path{results/tables_traffic.md}.
 \end{example}
 
 \begin{theorem}[Price of anarchy for affine costs]\label{thm:poa}
@@ -202,7 +199,7 @@ Let $x^*\in\SOL(F,K)$ and let $W$ be differentiable at $x^*$.
 F_S(x^*)=(A^{\!\top}y)_S,\qquad F_j(x^*)\ge(A^{\!\top}y)_j\quad(j\notin S),\\
 \nabla_SW(x^*)=(A^{\!\top}z)_S,\qquad \partial_jW(x^*)\le(A^{\!\top}z)_j\quad(j\notin S).
 \end{gather*}
-In particular, on a single simplex ($A=\mathbf 1^{\!\top}$) both $F(x^*)$ and $\nabla W(x^*)$ are constant on the support: they are proportional on the equilibrium face, and each satisfies Wardrop's principle with respect to its own coordinates.
+In particular, on a single simplex ($A=\mathbf 1^{\!\top}$) both $F(x^*)$ and $\nabla W(x^*)$ are constant on the support (hence parallel on it when both are non-zero), and each satisfies Wardrop's principle with respect to its own coordinates.
 \item If $F$ is strictly monotone, $W$ is strictly concave and both $\SOL(F,K)$ and $\arg\max_KW$ are nonempty, then $\SOL(F,K)=\arg\max_KW$ iff the unique equilibrium satisfies $\nabla W(x^*)\in\NC_K(x^*)$; otherwise the two sets are disjoint.
 \end{enumerate}
 \status{proved here; elementary}
@@ -218,7 +215,7 @@ Let $C\in C^1(U)$ be a cost to be minimised over $K$ and define the \emph{toll f
 \[
 \SOL(F+\tau,K)=\{x\in K:-\nabla C(x)\in\NC_K(x)\}\supseteq\arg\min_KC,
 \]
-with equality when $C$ is convex on $K$, and a singleton when $C$ is strictly convex; the tolled operator is a gradient field with potential $C$. For separable routing costs, $\tau_p(f)=\sum_{e\in p}f_ec_e'(f_e)$, the Pigou--Knight--Beckmann marginal-cost toll. More generally, for a target $\bar x\in K$ the set of constant toll vectors $t\in\R^n$ with $\bar x\in\SOL(F+t,K)$ is the translated cone $-F(\bar x)-\NC_K(\bar x)$, polyhedral when $K$ is. \status{classical, \citealp{pigou1920,knight1924,beckmann1956,hearnRamana1998}; proved here}
+with equality when $C$ is convex on $K$, and at most one point when $C$ is strictly convex; the tolled operator is a gradient field with potential $C$. For separable routing costs with $c_e\in C^1$, $\tau_p(f)=\sum_{e\in p}f_ec_e'(f_e)$, the Pigou--Knight--Beckmann marginal-cost toll. More generally, for a target $\bar x\in K$ the set of constant toll vectors $t\in\R^n$ with $\bar x\in\SOL(F+t,K)$ is the translated cone $-F(\bar x)-\NC_K(\bar x)$, polyhedral when $K$ is; choosing in it the toll closest to a reference vector is an inverse optimisation problem in the sense of \citet{ahujaOrlin2001}, and for routing it is the toll-set description of \citet{hearnRamana1998}. \status{classical, \citealp{pigou1920,knight1924,beckmann1956,hearnRamana1998}; proved here}
 \end{corollary}
 \begin{proof}
 $F+\tau=\nabla C$, so the first statement is Theorem~\ref{thm:potential} with $P=C$. For routing, $\partial C/\partial f_p=\sum_{e\in p}\big(c_e(f_e)+f_ec_e'(f_e)\big)$, whence $\tau_p$. Finally $\bar x\in\SOL(F+t,K)$ iff $-F(\bar x)-t\in\NC_K(\bar x)$ by \eqref{eq:vi-normal}.
@@ -245,7 +242,7 @@ For a set $D\subseteq\R^N$, $D^\circ=\{\lambda:\ip{\lambda}{d}\le 0\ \forall d\i
 Since $-F_j(x^*)\in\NC_{K_j}(x_j^*)$ already, a sufficient condition is that the $\lambda$-weighted externality $\sum_{i\ne j}\lambda_i\nabla_{x_j}u_i(x^*)$ lies in $\NC_{K_j}(x_j^*)$ for every $j$; when $x_j^*$ is interior to $K_j$, \eqref{eq:block} says exactly that this weighted externality vanishes.
 \item $\Lam(x^*)\ne\{0\}$ implies that $x^*$ is weakly Pareto efficient in $K$ (no $x\in K$ with $u_i(x)>u_i(x^*)$ for all $i$); under the concavity of (c), the converse holds.
 \end{enumerate}
-\status{proved here; (a) and (e) are the standard scalarisation argument of multi-objective optimisation \citep{geoffrion1968,ehrgott2005}, specialised to Nash equilibria}
+\status{proved here; (a) and (e) are the standard scalarisation argument of multi-objective optimisation \citep{geoffrion1968,ehrgott2005}, and $\Lam(x^*)$ is the cell at $u(x^*)$ of the weight-set decomposition studied for linear problems by \citet{bensonSun2000}}
 \end{theorem}
 \begin{proof}
 (a) $\lambda\in\Lam(x^*)$ iff $\lambda\ge 0$ and $\ip{\lambda}{u(x)-u(x^*)}\le 0$ for all $x\in K$, which is the stated intersection; polar cones and the orthant are closed convex cones.
@@ -255,8 +252,8 @@ Since $-F_j(x^*)\in\NC_{K_j}(x_j^*)$ already, a sufficient condition is that the
 (e) If $\lambda\in\Lam(x^*)\setminus\{0\}$ and $u(x)>u(x^*)$ componentwise, then $\ip{\lambda}{u(x)}>\ip{\lambda}{u(x^*)}$, a contradiction. Conversely, under concavity the set $A=u(K)-\R^N_+$ is convex; weak efficiency means $u(x^*)+\varepsilon\mathbf 1\notin A$ for every $\varepsilon>0$, so $u(x^*)$ is a boundary point of $A$ and a supporting hyperplane gives $\lambda\ne 0$ with $\ip{\lambda}{a}\le\ip{\lambda}{u(x^*)}$ for all $a\in A$; since $u(x^*)-\R^N_+\subseteq A$, $\lambda\ge 0$, and $a=u(x)$ gives $\lambda\in\Lam(x^*)$.
 \end{proof}
 
-\begin{remark}
-The content of Theorem~\ref{thm:cone} is not the scalarisation, which is textbook, but the reading of \eqref{eq:block}: the cone is cut out by the equilibrium face (through $\NC_{K_j}(x_j^*)$ and $F_j(x^*)$, both determined by $(F,K)$) and by the marginal externalities $\nabla_{x_j}u_i(x^*)$, which are \emph{not} determined by $(F,K)$. The next proposition makes the second half precise.
+\begin{remark}[What is standard and what is not]\label{rem:novelty}
+The scalarisation in (a) and (e) is textbook, and the set of weights under which a given point maximises the weighted sum is a standard object of multi-objective optimisation (the weight-set decomposition, polyhedral in the linear case \citep{bensonSun2000}). What we did not find in the literature we consulted, and claim only as packaging, is the reading of \eqref{eq:block}: the cone is cut out by the equilibrium face (through $\NC_{K_j}(x_j^*)$ and $F_j(x^*)$, both determined by $(F,K)$) and by the marginal externalities $\nabla_{x_j}u_i(x^*)$, which are \emph{not} determined by $(F,K)$ (Proposition~\ref{prop:notdet}). The interior case of (d) is also the mechanism behind the theorem of \citet{dubey1986} that Nash equilibria of smooth games are, in general position, Pareto-inefficient: at an interior $x^*$, any $\lambda\in\Lone(x^*)\setminus\{0\}$ must annihilate every weighted externality, which a generic game does not allow; Example~\ref{ex:cournot}(i) is an instance.
 \end{remark}
 
 \begin{proposition}[$(F,K)$ does not determine welfare]\label{prop:notdet}
@@ -265,6 +262,8 @@ Let the $u_i$ be continuous on $K=\prod K_i$ with $K_i$ compact, and let $x^*$ b
 \begin{proof}
 $v_i$ does not depend on $x_i$, so subtracting it changes neither $\arg\max_{y_i}u_i(y_i,x_{-i})$ nor $\nabla_{x_i}u_i$. By construction $u_i'\le 0$ on $K$, and $u_i'(x^*)=0$ because $x_i^*$ is a best response to $x^*_{-i}$; hence $W'_\lambda\le 0=W'_\lambda(x^*)$ for every $\lambda\ge 0$. The last sentence combines this with Example~\ref{ex:cournot}(i), where $\Lam(x^*)=\{0\}$.
 \end{proof}
+
+The modified game need not be $C^1$ ($v_i$ is in general only directionally differentiable), so it may fall outside Definition~\ref{def:game}; $\Lam'(x^*)$ is then understood in the exact sense of Theorem~\ref{thm:cone}(a), which needs no gradients. When the best response $b_i(x_{-i})$ is unique for every $x_{-i}$ (e.g.\ $u_i$ strictly concave in $x_i$), Danskin's theorem~\citep{danskin1966} gives $v_i\in C^1$ with $\nabla v_i(x_{-i})=\nabla_{x_{-i}}u_i(b_i(x_{-i}),x_{-i})$; the modified game is then in the class of Definition~\ref{def:game} and, since $b_i(x^*_{-i})=x^*_i$, it has \emph{zero marginal externalities at $x^*$}: $\nabla_{x_j}u_i'(x^*)=0$ for $j\ne i$. By Theorem~\ref{thm:cone}(d), $\Lone'(x^*)=\R^N_+$ as well, which is the first-order reason for the proposition.
 
 \begin{example}[Two players, exact cone]\label{ex:wedge}
 Let $K=[0,1]^2$, $\alpha>1$, $\beta_1,\beta_2\ge 0$, and
@@ -275,61 +274,68 @@ Each player's action harms the other linearly. The equilibrium operator is $F(x)
 \[
 \Lone(x^*)=\{\lambda\ge 0:\ (\alpha-1)\lambda_1\ge\beta_2\lambda_2,\ (\alpha-1)\lambda_2\ge\beta_1\lambda_1\}.
 \]
-Both payoffs are jointly concave (Hessians $-\operatorname{diag}(1,0)$ and $-\operatorname{diag}(0,1)$), so $\Lam(x^*)=\Lone(x^*)$ by Theorem~\ref{thm:cone}(c). Direct check: $W_\lambda$ is separable, $x_1=1$ maximises $\lambda_1(\alpha x_1-\tfrac12x_1^2)-\lambda_2\beta_2x_1$ on $[0,1]$ iff its derivative at $1$, $\lambda_1(\alpha-1)-\lambda_2\beta_2$, is $\ge 0$, and symmetrically. Thus the cone is a wedge, non-trivial iff $\beta_1\beta_2\le(\alpha-1)^2$ and two-dimensional iff the inequality is strict; for $\alpha=2$, $\beta_1=\beta_2=\tfrac12$ it is $\{\tfrac12\lambda_2\le\lambda_1\le2\lambda_2\}$ (Figure~\ref{fig:wedge}): the corner equilibrium is welfare-optimal exactly when neither player is weighted more than twice the other. Two games with $\beta$ and $\beta'$ have the same $F$ and different cones, which is Proposition~\ref{prop:notdet} in miniature.
+Both payoffs are jointly concave (Hessians $-\operatorname{diag}(1,0)$ and $-\operatorname{diag}(0,1)$), so $\Lam(x^*)=\Lone(x^*)$ by Theorem~\ref{thm:cone}(c). Direct check: $W_\lambda$ is separable, $x_1=1$ maximises $\lambda_1(\alpha x_1-\tfrac12x_1^2)-\lambda_2\beta_2x_1$ on $[0,1]$ iff its derivative at $1$, $\lambda_1(\alpha-1)-\lambda_2\beta_2$, is $\ge 0$, and symmetrically. Thus the cone is a wedge, non-trivial iff $\beta_1\beta_2\le(\alpha-1)^2$ and two-dimensional iff the inequality is strict; for $\alpha=2$, $\beta_1=\beta_2=\tfrac12$ it is $\{\tfrac12\lambda_2\le\lambda_1\le2\lambda_2\}$ (Figure~\ref{fig:wedge}): the corner equilibrium is welfare-optimal exactly when neither player is weighted more than twice the other. Two games with $\beta$ and $\beta'$ have the same $F$ and different cones, which is Proposition~\ref{prop:notdet} in miniature; here the modification of that proposition is explicit and $C^1$: $v_1(x_2)=\alpha-\tfrac12-\beta_1x_2$, so $u_1'=\alpha x_1-\tfrac12x_1^2-\alpha+\tfrac12$ no longer depends on $\beta$ and the modified cone is $\R^2_+$.
 \end{example}
 
 \begin{example}[Cournot duopoly]\label{ex:cournot}
-Let $u_i(q)=q_i(a-q_1-q_2)$ on $K=[0,1]^2$; $\partial^2u_1/\partial q_1^2=-2<0$, so Lemma~\ref{lem:nash} applies, and $F(q)=(2q_1+q_2-a,\ q_1+2q_2-a)$ has symmetric part $\begin{psmallmatrix}2&1\\1&2\end{psmallmatrix}\succ0$. (i) For $a=1$ the equilibrium $q^*=(\tfrac13,\tfrac13)$ is interior, $F(q^*)=0$, and $\partial u_1/\partial q_2=-q_1^*\ne 0$: by Theorem~\ref{thm:cone}(d) the interior condition fails for every $\lambda\ne 0$, so $\Lam(q^*)=\{0\}$. Indeed the collusive $(\tfrac14,\tfrac14)$ gives each firm $\tfrac18>\tfrac19$. Note that this is an exact potential game with $\Pi(q)=a(q_1+q_2)-q_1^2-q_2^2-q_1q_2$, whose maximiser is the equilibrium: the potential is not a welfare functional. (ii) For $a=4$ the equilibrium is the corner $(1,1)$, $F(q^*)=(-1,-1)$, $G(q^*)=\begin{psmallmatrix}1&-1\\-1&1\end{psmallmatrix}$ and $\Lone(q^*)=\{\lambda_1=\lambda_2\ge 0\}$, a ray. The payoffs are not jointly concave, so Theorem~\ref{thm:cone}(c) is silent; but $W_{(1,1)}(q)=(q_1+q_2)(4-q_1-q_2)$ is concave, so $\Lam(q^*)=\Lone(q^*)$ nevertheless. Concavity is sufficient, not necessary.
+Let $u_i(q)=q_i(a-q_1-q_2)$ on $K=[0,1]^2$; $\partial^2u_1/\partial q_1^2=-2<0$, so Lemma~\ref{lem:nash} applies, and $F(q)=(2q_1+q_2-a,\ q_1+2q_2-a)$ has symmetric part $\begin{psmallmatrix}2&1\\1&2\end{psmallmatrix}\succ0$. (i) For $a=1$ the equilibrium $q^*=(\tfrac13,\tfrac13)$ is interior, $F(q^*)=0$, and $\partial u_1/\partial q_2=-q_1^*\ne 0$: by Theorem~\ref{thm:cone}(d) the interior condition fails for every $\lambda\ne 0$, so $\Lam(q^*)=\{0\}$ (Dubey's inefficiency, Remark~\ref{rem:novelty}). Indeed the collusive $(\tfrac14,\tfrac14)$ gives each firm $\tfrac18>\tfrac19$. This is an exact potential game with $\Pi(q)=a(q_1+q_2)-q_1^2-q_2^2-q_1q_2$, whose maximiser is the equilibrium: the potential is not a welfare functional. (ii) For $a=4$ the equilibrium is the corner $(1,1)$, $F(q^*)=(-1,-1)$, $G(q^*)=\begin{psmallmatrix}1&-1\\-1&1\end{psmallmatrix}$ and $\Lone(q^*)=\{\lambda_1=\lambda_2\ge 0\}$, a ray. The payoffs are not jointly concave, so Theorem~\ref{thm:cone}(c) is silent; but $W_{(1,1)}(q)=(q_1+q_2)(4-q_1-q_2)$ is concave, so $\Lam(q^*)=\Lone(q^*)$ nevertheless. Concavity is sufficient, not necessary.
 \end{example}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.42\textwidth]{../figures/fig_cone_2player.pdf}
-\caption{Example~\ref{ex:wedge} with $\alpha=\TwoAlpha$, $\beta_1=\beta_2=\TwoBetaOne$. Each ray is one of the \TwoAngles{} tested directions $\lambda=(\cos\theta,\sin\theta)$; blue rays are those for which the exact box-constrained maximisation of $W_\lambda$ returns $x^*=(1,1)$, grey rays those for which a better point exists. The orange lines are the closed-form boundaries $\lambda_2=\beta_1\lambda_1$ and $\lambda_1=\beta_2\lambda_2$ (at $\TwoAngleLow^\circ$ and $\TwoAngleHigh^\circ$). Closed form, first-order cone and exact maximisation agree on \TwoAgreement/\TwoAngles{} directions.}
-\label{fig:wedge}
-\end{figure}
+\begin{example}[Three players: a non-polyhedral cone]\label{ex:nonpoly}
+Let $K=[0,1]^3$ and
+\[
+u_1=x_1,\qquad u_2=x_2,\qquad u_3=x_3-\tfrac12x_1^2+\tfrac14x_1+\tfrac12x_1x_2-\tfrac12x_2 .
+\]
+Each payoff is linear, hence concave, in the player's own variable, so the game is in the class of Definition~\ref{def:game}; $F\equiv(-1,-1,-1)$, $x^*=(1,1,1)$ is the unique Nash equilibrium and $\NC_K(x^*)=\R^3_+$. Since $\nabla u_3(x^*)=(-\tfrac14,0,1)$, $G(x^*)^{\!\top}\lambda=(\lambda_1-\tfrac14\lambda_3,\lambda_2,\lambda_3)$ and $\Lone(x^*)=\{\lambda\ge 0:\lambda_1\ge\tfrac14\lambda_3\}$. We compute $\Lam(x^*)$ exactly. On $\{\lambda_3=0\}$, $W_\lambda=\lambda_1x_1+\lambda_2x_2$ is maximised at $x^*$, so $\R^2_+\times\{0\}\subseteq\Lam(x^*)$; as $\Lam(x^*)$ is a cone it suffices to fix $\lambda_3=1$. Then $W_\lambda$ is increasing in $x_3$, so $x_3=1$, and affine in $x_2$, so the maximum over $x_2$ is attained at $x_2\in\{0,1\}$. For $x_2=1$, $W_\lambda=\tfrac12+\lambda_2+(\lambda_1+\tfrac34)x_1-\tfrac12x_1^2$ is maximised on $[0,1]$ at $x_1=1$ iff $\lambda_1\ge\tfrac14$, with value $W_\lambda(x^*)=\lambda_1+\lambda_2+\tfrac34$. For $x_2=0$, $W_\lambda=1+(\lambda_1+\tfrac14)x_1-\tfrac12x_1^2$ has maximum $1+\tfrac12(\lambda_1+\tfrac14)^2$ if $\lambda_1\le\tfrac34$ (at $x_1=\lambda_1+\tfrac14$) and $\lambda_1+\tfrac34\le W_\lambda(x^*)$ otherwise. Hence $\lambda\in\Lam(x^*)$ iff $\lambda_1\ge\tfrac14$ and $\lambda_1+\lambda_2+\tfrac34\ge1+\tfrac12(\lambda_1+\tfrac14)^2$, i.e.
+\[
+\Lam(x^*)\cap\{\lambda_3=1\}=\big\{\lambda_1\ge\tfrac14,\ \lambda_2\ge\tfrac12\big(\tfrac34-\lambda_1\big)_+^2\big\}.
+\]
+Its boundary contains the parabolic arc $\lambda_2=\tfrac12(\tfrac34-\lambda_1)^2$, $\tfrac14\le\lambda_1\le\tfrac34$, which no finite union of segments contains (a line meets a parabola in at most two points); since the slice of a polyhedral cone by a hyperplane is a polyhedron, $\Lam(x^*)$ \emph{is not polyhedral}, and $\Lam(x^*)\subsetneq\Lone(x^*)$ with a curved boundary. For instance $\lambda=(0.3,0,1)\in\Lone\setminus\Lam$: the point $(0.55,0,1)$ improves $W_\lambda$ by $0.10125$. The degeneracy $F\equiv$ const is inessential: subtracting $\tfrac{\varepsilon}{2}x_i^2$ from each own payoff makes $F$ $\varepsilon$-strongly monotone, keeps $x^*$ for $\varepsilon<1$, and the boundary of the slice remains curved (E2c in Section~\ref{sec:exp}, numerically). \status{proved here; the counterexample was pointed out in the internal review of v0.1}
+\end{example}
+
+\begin{example}[Two commodities: $\Lam\ne\Lone$ in routing]\label{ex:routing}
+Theorem~\ref{thm:cone}(a),(b) use neither the Nash property nor the product structure: they hold for any finite family of $C^1$ functions $u_k$ on $K$ and any $x^*\in K$, with $\Lam$ and $\Lone$ defined by the same formulas. Apply them to the costs $C_k(f)=\sum_{p\in P_k}f_pc_p(f)$ borne by the commodities of a network, $u_k=-C_k$, at a Wardrop equilibrium $f^*$. Take two commodities with unit demands: commodity 1 chooses between a private edge of cost $f+2$ and a shared edge of cost $f$; commodity 2 between a private edge of cost $f/4$ and the same shared edge. With $y=(f_B,f_D)\in[0,1]^2$ the flows sent to the shared edge (path flows are determined by edge flows here, so $f^*$ is a well-defined point),
+\[
+C_1(y)=(1-f_B)(3-f_B)+f_B(f_B+f_D),\qquad C_2(y)=\tfrac14(1-f_D)^2+f_D(f_B+f_D),
+\]
+both with indefinite Hessians (determinant $-1$, from the shared-edge cross term), so (c) is unavailable. The Wardrop equilibrium is $f^*=(1,0)$ (shared path cost $1\le 2$ for commodity 1, private cost $\tfrac14\le 1$ for commodity 2), unique because the reduced operator $y\mapsto(c_B-c_A,\,c_D-c_C)$ has Jacobian $\begin{psmallmatrix}2&1\\1&5/4\end{psmallmatrix}\succ 0$; $C(f^*)=(1,\tfrac14)$. At $f^*$, $\NC_K(f^*)=\R_+\times\R_-$, $\nabla C_1(f^*)=(0,1)$ and $\nabla C_2(f^*)=(0,\tfrac12)$, so $-\lambda_1\nabla C_1-\lambda_2\nabla C_2=(0,-\lambda_1-\tfrac12\lambda_2)\in\NC_K(f^*)$ for every $\lambda\ge 0$: $\Lone(f^*)=\R^2_+$. For $\Lam$, fix $\lambda_2=1$ ($\lambda_2=0$ gives $\lambda\in\Lam$: $C_1$ is minimised at $f^*$). The Hessian of $\lambda_1C_1+C_2$ is $\begin{psmallmatrix}4\lambda_1&\lambda_1+1\\\lambda_1+1&5/2\end{psmallmatrix}$, positive semidefinite iff $10\lambda_1\ge(\lambda_1+1)^2$, in which case the first-order condition suffices and $\lambda\in\Lam$. Otherwise the minimum over the box lies on an edge, where the restriction is a convex quadratic: on $f_B=1$ and on $f_D=0$ it is attained at $f^*$ (derivatives $\lambda_1+\tfrac12+\tfrac52t>0$ and $4\lambda_1(f_B-1)\le 0$); on $f_D=1$ the value is at least $\tfrac{15}{8}\lambda_1+1>\lambda_1+\tfrac14$; on $f_B=0$ it is $3\lambda_1+\tfrac14(1-t)^2+t^2$, minimised at $t=\tfrac15$ with value $3\lambda_1+\tfrac15$. Hence $f^*$ is optimal iff $\lambda_1+\tfrac14\le3\lambda_1+\tfrac15$, and
+\[
+\Lam(f^*)=\{\lambda\ge 0:\lambda_2\le 40\lambda_1\}\subsetneq\Lone(f^*)=\R^2_+ .
+\]
+For $\lambda=(0,1)$, the flow $y=(0,\tfrac15)$ reroutes commodity 1 to its private edge and sends a fifth of commodity 2 through the shared edge, lowering $C_2$ from $\tfrac14$ to $\tfrac15$ (while $C_1$ rises from $1$ to $3$). The first-order cone misses this because $f^*$ is a corner at which the KKT conditions hold for every weighting, while the per-commodity costs are non-convex in path flows. ($f^*$ is also the utilitarian optimum.) \status{proved here; verified in E5}
+\end{example}
+
 
 \section{Numerical checks}\label{sec:exp}
 
-All computations use the projected-gradient iteration of Theorem~\ref{thm:mono}(b) with $\gamma=\mu/L^2$, run to a fixed-point step below $10^{-12}$, and report the natural residual $\|x-\Pi_K(x-F(x))\|$, which vanishes exactly at solutions (Lemma~\ref{lem:proj}). Criteria were fixed before the runs and are stated with each experiment. The experiments verify theorems and produce descriptive statistics of a sampling distribution; they discover nothing that is not proved above, and the frequencies reported depend on the distribution of random instances.
+All computations use the projected-gradient iteration of Theorem~\ref{thm:mono}(b) with $\gamma=\mu/L^2$, run to a fixed-point step below $10^{-12}$, and report the natural residual $\|x-\Pi_K(x-F(x))\|$, which vanishes exactly at solutions (Lemma~\ref{lem:proj}). The protocols and the pass/fail criteria of each experiment are stated in the script docstrings, reproduced in Appendix~\ref{app:protocols}; each script evaluates its own criteria and writes the flags and margins into its JSON output, and the phrases ``all criteria hold'' below are generated from those flags. There is no external pre-registration record: the criteria were written in the same session as the code and before the reference run, and we can offer no stronger evidence than that. The experiments verify theorems and produce descriptive statistics of one sampling distribution; they discover nothing that is not proved above.
 
-\subsection{E1: routing (Pigou, affine price of anarchy, tolls)}
-
-\emph{Protocol.} E1a evaluates Example~\ref{ex:pigou} in closed form and by a dense grid search over the split ($2\times10^5$ points). E1b draws \AffInstances{} parallel-link networks with $2$--$5$ links, $a_e\sim U(0.05,1)$ and $b_e$ equal to $0$ with probability $\tfrac12$ and otherwise $U(0,1)$, unit demand; equilibrium ($F=c$, $\mu=\min a_e$, $L=\max a_e$) and optimum ($F=\nabla C=2a\circ f+b$) are computed by the solver on the simplex and, independently, by exact water-filling on the common cost level. E1c solves the tolled operator $c+\tau$ with $\tau_e=a_ef_e$ (Corollary~\ref{cor:toll}). \emph{Criteria.} Residuals $\le10^{-8}$; solver and water-filling agree to $10^{-7}$; PoA $\le4/3+10^{-9}$ in every instance and exactly $4/3$ for Pigou with $d=1$; tolled equilibrium equals the optimum to $10^{-7}$.
-
-\emph{Results.} All criteria hold. Pigou: PoA $=\PigouPoAOne$ for $d=1$, $\PigouPoATwo$ for $d=2$ and $\PigouPoASixteen$ for $d=\PigouDmax$; closed form and grid search agree to \PigouGridGap. Affine instances: maximum PoA \AffPoAMax, mean \AffPoAMean, median \AffPoAMedian, \AffViolations{} violations of the bound; \AffFracAboveOnePct\% of the instances have PoA $>1.01$ and \AffFracAboveTenPct\% have PoA $>1.10$; maximum residual \AffMaxResidual, maximum deviation from water-filling \AffMaxDevWaterfill, at most \AffMaxIter{} iterations; the tolled equilibrium coincides with the optimum to \AffMaxDevToll{} in every instance (Figure~\ref{fig:poa}, Table~\ref{tab:pigou}).
-
-\begin{table}[t]
-\centering\small
-\begin{tabular}{rrrr}
-\toprule
-$d$ & optimal flow on link 2 & optimal cost & price of anarchy\\
-\midrule
-\input{table_pigou.tex}\\
-\bottomrule
-\end{tabular}
-\caption{E1a. Pigou's example with $c_1\equiv1$, $c_2(x)=x^d$: the equilibrium always has cost $1$; the optimum splits the flow.}
-\label{tab:pigou}
-\end{table}
+\paragraph{E1: routing (Pigou, affine price of anarchy, tolls).}
+\CritTraffic. Pigou: PoA $=\PigouPoAOne$ for $d=1$, $\PigouPoATwo$ for $d=2$ and $\PigouPoASixteen$ for $d=\PigouDmax$; closed form and grid search agree to \PigouGridGap{} (Figure~\ref{fig:poa}). Affine parallel-link instances: maximum PoA \AffPoAMax, \AffViolations{} violations of the bound $4/3$ (Figure~\ref{fig:poa}); \AffPoAOneCount{} of the \AffInstances{} instances (\AffPoAOnePct\%) have PoA $=1$ exactly (equilibrium and optimum coincide, e.g.\ when every $b_e=0$), which pulls the mean (\AffPoAMean) and the median (\AffPoAMedian) towards $1$; \AffFracAboveOnePct\% of the instances have PoA $>1.01$ and \AffFracAboveTenPct\% have PoA $>1.10$; maximum residual \AffMaxResidual, maximum deviation of the solver from exact water-filling \AffMaxDevWaterfill, at most \AffMaxIter{} iterations. E1c: the equilibrium of the tolled operator $c+\tau$ computed by the solver coincides with the optimum computed independently by water-filling on the marginal costs to \AffMaxDevTollWf{} in every instance. (For affine costs $c+\tau$ and $\nabla C$ are the same function, so this checks the solver against an independent computation, not the identity $c+\tau=\nabla C$.)
 
 \begin{figure}[t]
+\begin{minipage}[c]{0.31\textwidth}
 \centering
-\includegraphics[width=0.95\textwidth]{../figures/fig_poa.pdf}
-\caption{E1. Left: price of anarchy of Pigou's example against the degree $d$ (Table~\ref{tab:pigou}); the dashed line is the affine bound $4/3$ of Theorem~\ref{thm:poa}. Right: price of anarchy of \AffInstances{} random affine parallel-link instances; none exceeds $4/3$.}
+\includegraphics[width=\textwidth]{../figures/fig_cone_2player.pdf}
+\captionof{figure}{Example~\ref{ex:wedge}, $\alpha=\TwoAlpha$, $\beta_1=\beta_2=\TwoBetaOne$: shaded, the closed-form wedge; orange, its boundaries ($\TwoAngleLow^\circ$, $\TwoAngleHigh^\circ$); every fifth of the \TwoAngles{} tested directions, blue if the exact maximisation of $W_\lambda$ returns $x^*$, grey otherwise (agreement \TwoAgreement/\TwoAngles).}
+\label{fig:wedge}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.66\textwidth}
+\centering
+\includegraphics[width=\textwidth]{../figures/fig_poa.pdf}
+\captionof{figure}{E1. Left: price of anarchy of Pigou's example against $d$ (values in \texttt{results/tables\_traffic.md}); dashed, the affine bound $4/3$ of Theorem~\ref{thm:poa}. Right: price of anarchy of \AffInstances{} random affine parallel-link instances; none exceeds $4/3$.}
 \label{fig:poa}
+\end{minipage}
 \end{figure}
 
-\subsection{E2--E4: welfare-weight cones}
+\paragraph{E2--E4: welfare-weight cones.}
+\CritWelfare. (E2) Example~\ref{ex:wedge}: $x^*=\TwoXstar$ with residual \TwoResidual; closed form, linear test and exact box maximisation agree on \TwoAgreement/\TwoAngles{} directions, \TwoInCone{} of which lie in the cone; for $\lambda=\TwoWitnessLambda$ (outside the wedge) the exact maximiser is $x=\TwoWitnessX$, better by \TwoWitnessGap. Cournot (i): $q^*=\CourIntXstar$, \CourIntInLambda/\CourIntGrid{} grid directions in $\Lam$; (ii): $q^*=\CourBdXstar$, cone of dimension \CourBdDim, agreement \CourBdAgreement/\CourBdGrid. Nikaid\^o--Isoda modification: maximum of $W'_\lambda$ over the grid $\le\NImax$ for all directions (criterion met: \NIok). \if\HasNP1 (E2c) Example~\ref{ex:nonpoly}: residual \NPresidual{} at $x^*$; on \NPslicePts{} points of the slice $\lambda_3=1$ the exact test and the closed-form parabola disagree on \NPmismatch{} points; the boundary found by bisection is within \NPbisDiff{} of the parabola; $\lambda=\NPwitLambda$ is in $\Lone$, not in $\Lam$, with witness $\NPwitX$ and gap \NPwitGap. In the strongly monotone variant ($\varepsilon=\NPsmEps$, $\mu=\NPsmMu$) the bisected boundary at \NPsmNpts{} values $\lambda_1\in[\NPsmLow,\NPsmHigh]$ has second differences that are \NPsmSign{} (minimum absolute value \NPsmMinD), so it is not piecewise linear on that range. \fi
+(E3--E4, Table~\ref{tab:random}) In the \RndConcInst{} concave games, \RndConcNontriv{} (\RndConcNontrivPct\%) have a non-trivial cone; all \RndConcTestedIn/\RndConcTested{} cone points and all \RndConcGinIn/\RndConcGin{} in-cone grid points are in $\Lam$, and all \RndConcGoutOut/\RndConcGout{} out-of-cone grid points are outside $\Lam$: equality $\Lam=\Lone$ in every tested direction, as Theorem~\ref{thm:cone}(c) predicts (for a trivial cone only the exclusion is tested). In the \RndNoncInst{} non-concave games, \RndNoncNontriv{} have a non-trivial cone; the inclusion $\Lam\subseteq\Lone$ is never violated (\RndNoncGoutOut/\RndNoncGout), but only \RndNoncTestedIn/\RndNoncTested{} cone points and \RndNoncGinIn/\RndNoncGin{} in-cone grid points belong to $\Lam$, and \RndNoncWit{} instances (\RndNoncWitPct\% of those with a non-trivial cone) carry a certified witness of strict inclusion\if\HasWitness1{} (for instance, in game \WitGame{} with $x^*=\WitXstar$ and $\lambda=\WitLambda\in\Lone$, the point \WitBetter{} improves $W_\lambda$ by \WitGap)\fi. Witnesses are sought only among the cone points, so \RndNoncWitPct\% is a \emph{lower bound} on the fraction of instances with $\Lam\subsetneq\Lone$: the \RndNoncGinOut{} in-cone grid points that fail the exact test are not counted. Maximum residuals \RndConcMaxRes{} (concave) and \RndNoncMaxRes{} (non-concave); \RndTotalQP{} exact box maximisations in total.
 
-\emph{Games.} $N$ players with scalar actions in $[0,1]$ and quadratic payoffs $u_i(x)=-\tfrac12x^{\!\top}H_ix+h_i^{\!\top}x$, so that $F(x)=Mx-m$ with $M_{ij}=(H_i)_{ij}$. In the \emph{concave} family $H_i=B_iB_i^{\!\top}$ with Gaussian $B_i$ (so each $u_i$ is jointly concave); in the \emph{non-concave} family $H_i$ is a Gaussian symmetric matrix. In both, the diagonal entries $(H_i)_{ii}$ are raised by a common amount so that the symmetric part of $M$ has least eigenvalue $\tfrac12$: $F$ is then strongly monotone, the equilibrium is unique, and $(H_i)_{ii}>0$ ensures own-concavity, so Lemma~\ref{lem:nash} applies. The entries of $h_i$ are $N(1,1.5^2)$, which puts between \RndNFourCBdry\% and \RndNThreeXBdry\% of the equilibrium coordinates on the boundary, depending on the family.
-
-\emph{Exact membership tests.} $\lambda\in\Lone(x^*)$ is a finite system of linear equalities and inequalities (Theorem~\ref{thm:cone}(d) with $\NC_{[0,1]}(0)=\R_-$, $\NC_{[0,1]}(1)=\R_+$, $\NC_{[0,1]}(t)=\{0\}$ inside), tested to $10^{-9}$. $\lambda\in\Lam(x^*)$ is decided by computing $\max_KW_\lambda$ exactly: the maximiser of a quadratic over a box lies in the relative interior of one of the $3^N$ faces and is stationary for the restriction to that face, so enumerating the faces and solving each stationarity system yields the maximum; $\lambda\in\Lam(x^*)$ iff $W_\lambda(x^*)\ge\max_KW_\lambda-10^{-8}$. A point $x$ with $W_\lambda(x)>W_\lambda(x^*)+10^{-6}$ is a \emph{certified witness} that $\lambda\notin\Lam(x^*)$. On \RndPgaChecks{} concave instances the face enumeration was cross-checked against multistart projected gradient ascent (maximum discrepancy \RndPgaDiff).
-
-\emph{Geometry of $\Lone$.} Non-triviality and dimension are computed by linear programming (maximising $\mathbf 1^{\!\top}\lambda$ on the cone truncated by $\mathbf 1^{\!\top}\lambda\le1$; then detecting implicit equalities row by row), and up to $12$ vertices of $\Lone\cap\{\mathbf 1^{\!\top}\lambda=1\}$ plus their barycentre are the \emph{cone points} tested for membership in $\Lam$. In addition every point of a simplex grid (step $1/12$ for $N=3$, $1/8$ for $N=4$) is classified by both tests.
-
-\emph{Criteria.} (E2) In Example~\ref{ex:wedge}, closed form, linear test and exact maximisation must agree on all \TwoAngles{} directions; in Example~\ref{ex:cournot}(i) no grid direction may be in $\Lam$; in (ii) the linear and exact tests must agree on all grid directions. (E3, concave) every cone point and every grid point in $\Lone$ must be in $\Lam$, and every grid point outside $\Lone$ outside $\Lam$. (E4, non-concave) the last statement must still hold (it is Theorem~\ref{thm:cone}(b)); the number of certified witnesses of $\Lam\subsetneq\Lone$ is recorded, with no prediction. For Proposition~\ref{prop:notdet}, $u_i'$ of the interior Cournot game is evaluated on a $\NIgrid\times\NIgrid$ grid of $K$ and \NIlambdas{} weight directions; the maximum of $W'_\lambda$ must not exceed $W'_\lambda(q^*)=0$.
-
-\emph{Results.} (E2) Example~\ref{ex:wedge}: $x^*=\TwoXstar$ with residual \TwoResidual; agreement on \TwoAgreement/\TwoAngles{} directions, \TwoInCone{} of which lie in the cone; for $\lambda=\TwoWitnessLambda$ (outside the wedge) the exact maximiser is $x=\TwoWitnessX$, better by \TwoWitnessGap. Cournot (i): $q^*=\CourIntXstar$, \CourIntInLambda/\CourIntGrid{} grid directions in $\Lam$; (ii): $q^*=\CourBdXstar$, cone of dimension \CourBdDim, agreement \CourBdAgreement/\CourBdGrid, with \CourBdInLone{} grid direction(s) in $\Lone$ and \CourBdInL{} in $\Lam$. Nikaid\^o--Isoda modification: maximum of $W'_\lambda$ over the grid $\le\NImax$ for all directions, so $q^*$ is optimal for every $\lambda$ (criterion met: \NIok). (E3--E4) Table~\ref{tab:random} and Figure~\ref{fig:dims}. In the \RndConcInst{} concave games, \RndConcNontriv{} (\RndConcNontrivPct\%) have a non-trivial cone; all \RndConcTestedIn/\RndConcTested{} cone points and all \RndConcGinIn/\RndConcGin{} in-cone grid points are in $\Lam$, and all \RndConcGoutOut/\RndConcGout{} out-of-cone grid points are outside $\Lam$: equality $\Lam=\Lone$ as Theorem~\ref{thm:cone}(c) predicts. In the \RndNoncInst{} non-concave games, \RndNoncNontriv{} have a non-trivial cone; the inclusion $\Lam\subseteq\Lone$ is never violated (\RndNoncGoutOut/\RndNoncGout), but only \RndNoncTestedIn/\RndNoncTested{} cone points and \RndNoncGinIn/\RndNoncGin{} in-cone grid points belong to $\Lam$, and \RndNoncWit{} instances (\RndNoncWitPct\% of those with a non-trivial cone) carry a certified witness of strict inclusion\if\HasWitness1{} (for instance, in game \WitGame{} with $x^*=\WitXstar$ and $\lambda=\WitLambda\in\Lone$, the point \WitBetter{} improves $W_\lambda$ by \WitGap)\fi. Maximum residuals \RndConcMaxRes{} (concave) and \RndNoncMaxRes{} (non-concave); \RndTotalQP{} exact box maximisations in total.
+\if\HasCommodity1
+\paragraph{E5: commodity weights in two-commodity routing.}
+\CritCommodity. Example~\ref{ex:routing}: the solver returns $f^*=(1,0)$ with residual \CmResidual{} and costs \CmCostsEq; all \CmDirs{} tested directions lie in $\Lone$ and \CmDirsInL{} in $\Lam$; bisection on $\lambda_2=1$ puts the boundary of $\Lam$ at $\lambda_1=\CmBoundary$ ($1/\CmBoundaryInv$, the predicted $1/40$); for $\lambda=(0,1)$ the exact minimiser is $\CmWitY$ with costs \CmCostsWit, a gap of \CmWitGap. In \CmRandInst{} random two-commodity instances (same seed), \CmRandCorner{} have corner equilibria, the direction grid meets $\Lone$ in \CmRandLoneAny{} and $\Lone$ is the whole orthant in \CmRandLoneFull; \CmRandWit{} instances (\CmRandWitPct\% of those where the grid meets $\Lone$) carry a certified witness $\lambda\in\Lone\setminus\Lam$, and no direction certified in $\Lam$ lies outside $\Lone$ (\CmRandViol{} violations; maximum residual \CmRandMaxRes).
+\fi
 
 \begin{table}[t]
 \centering\footnotesize\setlength{\tabcolsep}{3.5pt}
@@ -340,42 +346,36 @@ $N$ & conc. & games & $\Lone\!\ne\!\{0\}$ & $\dim\Lone$: games & cone pts $\in\L
 \input{table_random.tex}\\
 \bottomrule
 \end{tabular}
-\caption{E3--E4. Random monotone quadratic games on $[0,1]^N$. ``conc.'' is joint concavity; ``cone pts'' are vertices and barycentre of $\Lone\cap\{\mathbf 1^{\!\top}\lambda=1\}$; ``witn.'' counts games with a certified $\lambda\in\Lone\setminus\Lam$. Concave games realise $\Lam=\Lone$ in every test; non-concave games realise the strict inclusion in a sizeable fraction.}
+\caption{E3--E4. Random monotone quadratic games on $[0,1]^N$. ``conc.'' is joint concavity; ``cone pts'' are vertices and barycentre of $\Lone\cap\{\mathbf 1^{\!\top}\lambda=1\}$; ``witn.'' counts games with a certified $\lambda\in\Lone\setminus\Lam$ among the cone points (a lower bound). Concave games realise $\Lam=\Lone$ in every test; non-concave games realise the strict inclusion in a sizeable fraction.}
 \label{tab:random}
 \end{table}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.95\textwidth]{../figures/fig_cone_dims.pdf}
-\caption{E3--E4. Dimension of the first-order cone $\Lone(x^*)$ across random games ($0$ means $\Lone=\{0\}$: the equilibrium is welfare-optimal for no weights). The dimension is determined by the equilibrium face and the externalities (Theorem~\ref{thm:cone}(d)); interior coordinates impose equalities and lower it.}
-\label{fig:dims}
-\end{figure}
 
 \section{What can be claimed}\label{sec:claims}
 
 Table~\ref{tab:claims} lists every claim made in this note with its status. The reader in a hurry should retain three lines: the classical results are theorems and are proved above; the ``formal relationship'' between equilibrium and welfare is the first-order coincidence of Proposition~\ref{prop:nec}, which is a definition rather than a mechanism; and $(F,K)$ alone carries no welfare information (Proposition~\ref{prop:notdet}), so any welfare statement needs the externalities as separate data.
 
-\begin{table}[htbp]
-\centering\small
-\begin{tabular}{p{0.68\textwidth}p{0.27\textwidth}}
+\begin{table}[!htbp]
+\centering\footnotesize
+\begin{tabular}{p{0.60\textwidth}>{\raggedright\arraybackslash}p{0.34\textwidth}}
 \toprule
 Claim & Status\\
 \midrule
 Symmetric Jacobian on a convex open set gives a potential (Prop.~\ref{prop:poincare}). & classical; proved here\\
-VI solutions of a gradient field are the stationary points of the potential, its minimisers if convex (Thm.~\ref{thm:potential}). & classical (BMW 1956, Rosen 1965, Monderer--Shapley 1996); proved here\\
+VI solutions of a gradient field are the stationary points of the potential, its minimisers if convex (Thm.~\ref{thm:potential}). & classical (BMW 1956, Monderer--Shapley 1996); proved here\\
 Nash and Wardrop equilibria are VI solutions (Lemmas~\ref{lem:nash},~\ref{lem:wardrop}). & classical; proved here\\
-Strict monotonicity: uniqueness; strong monotonicity and Lipschitz: existence and linear convergence of the projection iteration (Thm.~\ref{thm:mono}). & classical (Kinderlehrer--Stampacchia, Facchinei--Pang); proved here\\
-Pigou: PoA $=4/3$ for $d=1$, unbounded in $d$ (Ex.~\ref{ex:pigou}). & classical; proved here; computed (E1a)\\
-PoA $\le 4/3$ for affine costs (Thm.~\ref{thm:poa}). & classical (Roughgarden--Tardos 2002); proved here; verified on \AffInstances{} instances\\
-An equilibrium is a $W$-maximiser only if $\nabla W(x^*),-F(x^*)\in\NC_K(x^*)$; iff when $W$ is concave; proportionality on a simplex face (Prop.~\ref{prop:nec}). & proved here; elementary\\
-Marginal-cost tolls make the cost minimisers the equilibria; toll set $=-F(\bar x)-\NC_K(\bar x)$ (Cor.~\ref{cor:toll}). & classical (Pigou, Knight, BMW, Hearn--Ramana); proved here; verified (E1c)\\
-$\Lam(x^*)$ is a closed convex cone, $\Lam\subseteq\Lone$, equality under joint concavity, block form, Pareto link (Thm.~\ref{thm:cone}). & proved here; (a),(e) are standard scalarisation\\
-$(F,K)$ alone does not determine $\Lam(x^*)$ (Prop.~\ref{prop:notdet}). & proved here; repackaging of Nikaid\^o--Isoda\\
+Strict monotonicity: uniqueness; strong monotonicity and Lipschitz: existence and linear convergence (Thm.~\ref{thm:mono}). & classical (Kinderlehrer--Stampacchia, Facchinei--Pang); proved here\\
+Pigou: PoA $=4/3$ for $d=1$, unbounded in $d$ (Ex.~\ref{ex:pigou}); PoA $\le 4/3$ for affine costs (Thm.~\ref{thm:poa}). & classical (Roughgarden--Tardos 2002); proved here; checked on \AffInstances{} instances (E1)\\
+Equilibrium is a $W$-maximiser only if $\nabla W(x^*),-F(x^*)\in\NC_K(x^*)$; iff when $W$ is concave (Prop.~\ref{prop:nec}). & proved here; elementary\\
+Marginal-cost tolls make the cost minimisers the equilibria; toll set $=-F(\bar x)-\NC_K(\bar x)$ (Cor.~\ref{cor:toll}). & classical (Pigou, Knight, BMW, Hearn--Ramana; inverse optimisation); proved here; solver checked against water-filling (E1c)\\
+$\Lam(x^*)$ is a closed convex cone, $\Lam\subseteq\Lone$, equality under joint concavity, block form, Pareto link (Thm.~\ref{thm:cone}). & proved here; (a),(e) standard scalarisation (weight set)\\
+$(F,K)$ alone does not determine $\Lam(x^*)$ (Prop.~\ref{prop:notdet}). & proved here; repackaging of Nikaid\^o--Isoda; Danskin for the $C^1$ case\\
 Exact wedge cone in the two-player example (Ex.~\ref{ex:wedge}). & proved here; verified (E2)\\
-$\Lam=\Lone$ in random concave games. & theorem; verified in \RndConcInst/\RndConcInst{} games (E3)\\
-$\Lam\subsetneq\Lone$ occurs without joint concavity. & proved by certified witnesses in \RndNoncWit{} games (E4); frequency is descriptive only\\
+$\Lam(x^*)$ is not polyhedral in general (Ex.~\ref{ex:nonpoly}). & proved here (pointed out in internal review); verified (E2c)\\
+$\Lam\ne\Lone$ for two commodities with affine costs (Ex.~\ref{ex:routing}). & proved here; verified (E5)\\
+$\Lam=\Lone$ in random concave games. & theorem; verified in every tested direction of \RndConcInst{} games (E3)\\
+$\Lam\subsetneq\Lone$ occurs without joint concavity. & certified witnesses in \RndNoncWit{} games (E4), at least \RndNoncWitPct\% of those with a non-trivial cone; frequency descriptive only\\
 A new equilibrium concept or a general equilibrium solution. & not claimed\\
-Open questions~\ref{q:second},~\ref{q:multi}. & open\\
+Open questions~\ref{q:second},~\ref{q:multi}. & open (reformulated after the review)\\
 \bottomrule
 \end{tabular}
 \caption{Claims and their status.}
@@ -385,25 +385,32 @@ Open questions~\ref{q:second},~\ref{q:multi}. & open\\
 \section{Limitations and open questions}\label{sec:limits}
 
 \paragraph{Limitations.}
-(1) Everything is finite-dimensional, deterministic and $C^1$; mixed strategies, atomic congestion games, dynamics and stochastic demand are outside the note. (2) Theorem~\ref{thm:cone} is a first-order statement; its only non-trivial sufficient condition for equality is concavity, which excludes Cournot-type payoffs. (3) The numerical experiments verify theorems on quadratic games over boxes and on parallel-link networks; the frequencies in Table~\ref{tab:random} describe one sampling distribution and carry no general meaning. (4) Deciding $\lambda\in\Lam(x^*)$ for a non-concave quadratic $W_\lambda$ on a box is a non-convex quadratic programme, tractable here only because $N\le 4$. (5) We have not surveyed the toll-pricing and multi-objective equilibrium literature exhaustively; the packaging of Theorem~\ref{thm:cone} may exist elsewhere.
+(1) Everything is finite-dimensional, deterministic and $C^1$; mixed strategies, atomic congestion games, dynamics and stochastic demand are outside the note. (2) Theorem~\ref{thm:cone} is a first-order statement; its only non-trivial sufficient condition for equality is concavity, which excludes Cournot-type payoffs and multi-commodity routing costs. (3) The numerical experiments verify theorems on quadratic games over boxes and on small networks; the reported frequencies describe one sampling distribution and carry no general meaning. (4) Deciding $\lambda\in\Lam(x^*)$ for a non-concave quadratic $W_\lambda$ on a box is a non-convex quadratic programme, tractable here only because $N\le 4$. (5) We have not surveyed the toll-pricing and multi-objective literature exhaustively (Remark~\ref{rem:novelty}).
 
-\begin{question}[Second-order description of the cone]\label{q:second}
-For quadratic payoffs on a polyhedral $K$, $\Lam(x^*)$ is the zero set of the convex function $\lambda\mapsto\max_KW_\lambda-W_\lambda(x^*)$ on $\R^N_+$. Is there a finite description of $\Lam(x^*)$ in terms of the data at $x^*$ (a second-order refinement of $\Lone$), and is $\Lam(x^*)$ always polyhedral in this class? The witnesses of E4 show that $\Lone$ is not that description.
+\begin{question}[Structure of $\Lam(x^*)$ beyond first order]\label{q:second}
+For polynomial payoffs on a polyhedral $K$, $\Lam(x^*)=\{\lambda\ge 0:\forall x\in K,\ W_\lambda(x)\le W_\lambda(x^*)\}$ is defined by a first-order formula over the reals, hence is semialgebraic by the Tarski--Seidenberg theorem~\citep{bochnakCosteRoy1998}: a finite description by polynomial inequalities always exists (for quadratic payoffs on a box, $\Lam=\bigcap_\Phi\{\lambda:W_\lambda(x^*)\ge\max_\Phi W_\lambda\}$ over the $3^N$ faces $\Phi$, the parabola of Example~\ref{ex:nonpoly} being the term of the face $\{x_2=0,x_3=1\}$), and for $N=2$ every closed convex cone of $\R^2$ is polyhedral. Example~\ref{ex:nonpoly} shows that for $N=3$ the cone need not be polyhedral. What remains: (i) characterise, in terms of the active-face pattern of $x^*$ and the Hessians, when $\Lam(x^*)=\Lone(x^*)$ and when $\Lam(x^*)$ is polyhedral without joint concavity; (ii) determine the complexity of deciding $\lambda\in\Lam(x^*)$ for quadratic payoffs on a box (it contains the certification that $x^*$ is a global maximiser of an indefinite quadratic over the box; already deciding local optimality of a point in an indefinite quadratic programme is NP-hard \citep{murtyKabadi1987}), and whether a description of size polynomial in $N$ exists when $F$ is strongly monotone.
 \end{question}
 
 \begin{question}[Commodity weights in routing]\label{q:multi}
-In a multi-commodity network let $C_k(f)=\sum_{p\in P_k}f_pc_p(f)$ be the cost borne by commodity $k$ and $f^*$ a Wardrop equilibrium. Theorem~\ref{thm:cone}(a),(b) apply verbatim with players replaced by commodities ($u_k=-C_k$), but the $C_k$ are not convex in general even for affine costs, so (c) does not. Characterise the cone of commodity weights $\lambda\in\R^m_+$ for which $f^*$ minimises $\sum_k\lambda_kC_k$, and in particular decide whether it equals the first-order cone for affine separable costs.
+In a multi-commodity network let $C_k(f)=\sum_{p\in P_k}f_pc_p(f)$ and let $f^*$ be a Wardrop equilibrium \emph{in path flows}; edge flows are unique for strictly increasing costs but path flows are not, and $\Lam(f^*)$ depends on the representative chosen. Theorem~\ref{thm:cone}(a),(b) give $\Lam(f^*)\subseteq\Lone(f^*)$, with equality when no edge is shared between commodities (each $C_k$ is then convex for affine costs), and Example~\ref{ex:routing} shows that $\Lam\ne\Lone$ already for two commodities, one shared edge and affine costs. Characterise $\Lam(f^*)$ for $m\ge 3$ commodities and affine costs (by analogy with Example~\ref{ex:nonpoly} we expect it to be non-polyhedral in general) and identify the network structures for which $\Lam=\Lone$.
 \end{question}
 
-\paragraph{Next steps.} Answer Open question~\ref{q:second} at least for $N=2$, where the face structure is small enough for a case analysis; run E4 with a global solver for larger $N$; and confirm with the author whether the ``formulation reviewed'' in the line's record was an instance of Proposition~\ref{prop:nec} or of Corollary~\ref{cor:toll}, which is our reading.
+\paragraph{Next steps.} Attempt the case analysis of Question~\ref{q:second}(i) for $N=3$ on the $27$ faces of the box, with Example~\ref{ex:nonpoly} as the guiding case; run E4 and E5 with a global solver for larger $N$ and $m$; and confirm with the author whether the ``formulation reviewed'' in the line's record was an instance of Proposition~\ref{prop:nec} or of Corollary~\ref{cor:toll}, which is our reading.
 
 \appendix
 \section{Reproducibility}\label{app:repro}
-{\sloppy The directory contains \path{experiments/vi_solver.py} (projections and the iteration of Theorem~\ref{thm:mono}(b)), \path{experiments/traffic_poa.py} (E1) and \path{experiments/welfare_cone.py} (E2--E4). Seed \MetaSeed; Python \MetaPython, NumPy \MetaNumpy~\citep{harris2020}, SciPy \MetaScipy~\citep{virtanen2020} (\texttt{linprog} with the HiGHS method for the cone geometry); E1 took \MetaSecondsTraffic{}~s and E2--E4 \MetaSecondsWelfare{} s on shared cores. The scripts write \path{results/results_traffic.json}, \path{results/results_welfare.json} and Markdown tables; \path{experiments/make_numbers.py} converts them into the macros and table bodies used here, so that every number in the text is generated.\par}
+{\sloppy The directory contains \path{experiments/vi_solver.py} (projections and the iteration of Theorem~\ref{thm:mono}(b)), \path{experiments/traffic_poa.py} (E1), \path{experiments/welfare_cone.py} (E2--E4, including E2c) and \path{experiments/commodity_cone.py} (E5). Seed \MetaSeed, consumed sequentially by a single generator per script (reproducible, but reordering the experiments changes the instances); Python \MetaPython, NumPy \MetaNumpy~\citep{harris2020}, SciPy \MetaScipy~\citep{virtanen2020} (\texttt{linprog} with the HiGHS method for the cone geometry); E1 took \MetaSecondsTraffic{}~s, E2--E4 \MetaSecondsWelfare{}~s and E5 \MetaSecondsCommodity{}~s on shared cores. The scripts write \path{results/results_*.json} (including a \texttt{criteria} block with pass/fail flags) and Markdown tables; \path{experiments/make_numbers.py} converts them into the macros and table bodies used here, so that every number in the text is generated.\par}
 
-\paragraph{Solver.} Projection onto the box is coordinatewise clipping; projection onto the simplex uses the sort-based exact algorithm. The step is $\gamma=\mu/L^2$ with $\mu$ the least eigenvalue of the symmetric part of the Jacobian and $L$ its spectral norm ($\mu=\min a_e$, $L=\max a_e$ for parallel links); the iteration stops when the step is below $10^{-12}$ (E1) or $10^{-13}$ (E2--E4).
-\paragraph{Face enumeration.} For each of the $3^N$ patterns in $\{0,1,\text{free}\}^N$ the free coordinates solve $H_{ff}x_f=h_f-H_{fb}x_b$; candidates outside $[-10^{-9},1+10^{-9}]$ are discarded; the maximum over candidates is the maximum over the box.
+\paragraph{Solver.} Projection onto the box is coordinatewise clipping; projection onto the simplex uses the sort-based exact algorithm. The step is $\gamma=\mu/L^2$ with $\mu$ the least eigenvalue of the symmetric part of the Jacobian and $L$ its spectral norm ($\mu=\min a_e$, $L=\max a_e$ for parallel links); the iteration stops when the step is below $10^{-12}$ (E1) or $10^{-13}$ (E2--E5). In Example~\ref{ex:nonpoly} $F$ is constant ($\mu=L=0$) and the fixed-point map with $\gamma=1$ is used; the residual at $x^*$ certifies the equilibrium.
+\paragraph{Face enumeration.} For each of the $3^N$ patterns in $\{0,1,\text{free}\}^N$ the free coordinates solve $H_{ff}x_f=h_f-H_{fb}x_b$; candidates outside $[-10^{-9},1+10^{-9}]$ are discarded; the maximum over candidates is the maximum over the box, because a maximiser lies in the relative interior of some face and is stationary for the restriction. If $H_{ff}$ is singular the system is either inconsistent (no stationary point in the relative interior of that face, so the maximum over the face is attained on a lower-dimensional face, also enumerated) or consistent with $W_\lambda$ constant along the null directions (the same value is attained on a lower-dimensional face); the least-squares candidate used in that case is therefore redundant and the enumeration remains exhaustive.
 \paragraph{Boundary detection.} A coordinate within $10^{-9}$ of $0$ or $1$ is active (the projection returns exact bounds).
+
+\section{Protocols and criteria}\label{app:protocols}
+\paragraph{E1.} E1a: Example~\ref{ex:pigou} in closed form and by a grid search over the split ($2\times10^5$ points). E1b: \AffInstances{} parallel-link networks with $2$--$5$ links, $a_e\sim U(0.05,1)$, $b_e=0$ with probability $\tfrac12$ and otherwise $U(0,1)$, unit demand; equilibrium ($F=c$) and optimum ($F=\nabla C=2a\circ f+b$) by the solver on the simplex and, independently, by exact water-filling on the common (marginal) cost level. E1c: the tolled operator $c+\tau$, $\tau_e=a_ef_e$ (Corollary~\ref{cor:toll}), by the solver, against the water-filling optimum. \emph{Criteria:} residuals $\le10^{-8}$; solver vs.\ water-filling $\le10^{-7}$; PoA $\le4/3+10^{-9}$ in every instance and $4/3$ to $10^{-12}$ for Pigou with $d=1$; tolled equilibrium vs.\ water-filling optimum $\le10^{-7}$.
+
+\paragraph{E2--E4.} \emph{Games:} $N$ players, scalar actions in $[0,1]$, $u_i(x)=-\tfrac12x^{\!\top}H_ix+h_i^{\!\top}x$, so $F(x)=Mx-m$ with $M_{ij}=(H_i)_{ij}$; concave family $H_i=B_iB_i^{\!\top}$ with Gaussian $B_i$, non-concave family $H_i$ Gaussian symmetric; in both, the diagonals are raised by a common amount so that the symmetric part of $M$ has least eigenvalue $\tfrac12$ (strong monotonicity, unique equilibrium, own-concavity); $h_i\sim N(1,1.5^2)$, which puts \RndNFourCBdry--\RndNThreeXBdry\% of the equilibrium coordinates on the boundary. \emph{Tests:} $\lambda\in\Lone$ is the linear system of Theorem~\ref{thm:cone}(d) with $\NC_{[0,1]}(0)=\R_-$, $\NC_{[0,1]}(1)=\R_+$ and $\{0\}$ inside, checked to $10^{-9}$; $\lambda\in\Lam$ iff $W_\lambda(x^*)\ge\max_KW_\lambda-10^{-8}$, with the maximum by face enumeration (Appendix~\ref{app:repro}), cross-checked against multistart projected gradient ascent on \RndPgaChecks{} concave instances (discrepancy \RndPgaDiff); a point with $W_\lambda(x)>W_\lambda(x^*)+10^{-6}$ is a \emph{certified witness}. \emph{Geometry of $\Lone$:} non-triviality and dimension by linear programming (implicit equalities row by row); up to $12$ vertices of $\Lone\cap\{\mathbf 1^{\!\top}\lambda=1\}$ plus their barycentre are the \emph{cone points}; every point of a simplex grid (step $1/12$ for $N=3$, $1/8$ for $N=4$) is classified by both tests. \emph{Criteria:} (E2) closed form $=$ linear $=$ exact on all \TwoAngles{} directions of Example~\ref{ex:wedge}; no grid direction in $\Lam$ for Example~\ref{ex:cournot}(i); linear $=$ exact on all grid directions for (ii); $\max W'_\lambda\le10^{-12}$ on a $\NIgrid\times\NIgrid$ grid of $K$ and \NIlambdas{} directions for Proposition~\ref{prop:notdet}. (E2c) exact test $=$ closed form of Example~\ref{ex:nonpoly} on a $121\times61$ grid of the slice $\lambda_3=1$; bisected boundary within $10^{-7}$ of the parabola; $(0.3,0,1)\in\Lone\setminus\Lam$ with gap $0.10125$ to $10^{-9}$. (E3) every cone point and every grid point in $\Lone$ is in $\Lam$, every grid point outside $\Lone$ is outside $\Lam$. (E4) the latter still holds (Theorem~\ref{thm:cone}(b)); witnesses are counted with no prediction. All residuals $\le10^{-8}$.
+
+\paragraph{E5.} The network of Example~\ref{ex:routing} and \CmRandInst{} random instances of the same shape ($a\sim U(0.05,1)$; $b=0$ with probability $\tfrac12$, else $U(0,1)$; unit demands), solved by the projected-gradient iteration for the reduced operator on $[0,1]^2$; $\Lone$ by the linear test and $\Lam$ by face enumeration of $\lambda_1C_1+\lambda_2C_2$ on \CmDirs{} directions $\lambda=(\cos\theta,\sin\theta)$. \emph{Criteria:} residuals $\le10^{-8}$; fixed instance: all directions in $\Lone$, boundary ratio $1/40$ to $10^{-6}$, witness gap $1/20$ to $10^{-9}$ for $\lambda=(0,1)$; random instances: no direction certified in $\Lam$ (gap $\le10^{-11}$) outside $\Lone$. Directions accepted by the exact test only within its $10^{-8}$ tolerance while failing the linear test are recorded as tolerance-level disagreements (\CmRandTolDis{} in the reference run, largest first-order violation \CmRandTolDisViol).
 
 \bibliographystyle{plainnat}
 \bibliography{refs}

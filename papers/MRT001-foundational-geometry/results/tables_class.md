@@ -2,9 +2,9 @@
 
 seed = 20260932; fast = False; runtime = 167.7 s
 
-log-log slope of median gap vs n: -4.00; of median walk radius vs n: -7.90
+log-log slope of median gap vs n: -4.00; of median walk range vs n: -7.90 (the walk range is a budget-dependent lower bound on the extent of the class, not a radius)
 
-| n | configs | median gap g | Q1 | Q3 | disjoint pairs | kept below g/4 | changed at g/4 | walk steps | median walk radius | Q1 | Q3 | acceptance |
+| n | configs | median gap g | Q1 | Q3 | disjoint pairs | kept below g/4 | changed at g/4 | walk steps | median walk range | Q1 | Q3 | acceptance |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 8 | 20 | 6.71e-04 | 4.18e-04 | 1.50e-03 | 10/20 | 400/400 | 10/10 | 8000 | 5.52e-03 | 3.44e-03 | 6.79e-03 | 0.29 |
 | 16 | 20 | 3.80e-05 | 1.25e-05 | 6.71e-05 | 15/20 | 400/400 | 15/15 | 8000 | 4.43e-05 | 3.09e-05 | 5.14e-05 | 0.29 |
