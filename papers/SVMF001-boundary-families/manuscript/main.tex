@@ -124,7 +124,7 @@ Given the training data with their cell labels, $\tilde S=(X_i,Y_i,Z_i)_{i\le n}
 \end{proof}
 
 \begin{remark}[What the proposition covers]\label{rem:covers}
-(i) The cells may be formed along input directions that carry no label information ($Z$ a function of $X_2$, with $X_2$ independent of $(X_1,Y)$ and $A$ using $X_1$ only). (ii) The identity holds for \emph{any} rule $A$, including the SVM; the conclusion needs the monotonicity of $\Risk_A$, which is a property of the pair (rule, distribution), not a theorem in general---learning curves can be non-monotone~\citep{viering2023}. For the SVM in the model below it is checked numerically, not proved (Appendix~\ref{app:sim}). (iii) Neighbourhood-based localisation and data-dependent partitions are covered by Proposition~\ref{prop:select} when the neighbourhoods or cells are formed from coordinates independent of $(X_1,Y)$ and the local rule uses $X_1$ only. When they use the signal coordinate, the local samples are not i.i.d.\ from $P$ and no finite-sample identity is available; in the Gaussian model Theorem~\ref{thm:kfixed} gives the limit for fixed $k$, strictly above the Bayes risk, and Remark~\ref{rem:rho} a first-order heuristic for $k=\rho n$. Nothing here says that such rules cannot help in general; Lemma~\ref{lem:approx} says only that if they help, it must be through estimation, and Lemma~\ref{lem:popsign} shows that in the Gaussian model the local population rule is already the Bayes rule.
+(i) The cells may be formed along input directions that carry no label information ($Z$ a function of $X_2$, with $X_2$ independent of $(X_1,Y)$ and $A$ using $X_1$ only). (ii) The identity holds for \emph{any} rule $A$, including the SVM; the conclusion needs the monotonicity of $\Risk_A$, which is a property of the pair (rule, distribution), not a theorem in general---learning curves can be non-monotone~\citep{viering2023}. For the SVM in the model below it is checked numerically, not proved (Appendix~\ref{app:sim}). (iii) Neighbourhoods and data-dependent partitions formed from coordinates independent of $(X_1,Y)$, with a local rule that uses $X_1$ only, are covered by Proposition~\ref{prop:select} below; along the signal coordinate the local samples are not i.i.d.\ from $P$, no finite-sample identity is available, and in the Gaussian model only the fixed-$k$ limit of Theorem~\ref{thm:kfixed} is proved. Nothing here says that such rules cannot help in general; Lemma~\ref{lem:approx} says only that if they help, it must be through estimation.
 \end{remark}
 
 \begin{proposition}[Exact learning curve of the nearest-centroid threshold]\label{prop:exact}\status{proved here}
@@ -153,9 +153,9 @@ In the model of Proposition~\ref{prop:exact}, extended by any coordinates indepe
 \label{fig:exact}
 \end{figure}
 
-\paragraph{Neighbourhood (kNN) localisation.} Proposition~\ref{prop:thin} rests only on the selection of the local sample being independent of the pairs it selects. That extends to every selection made from label-free coordinates, kNN neighbourhoods included; when the neighbourhood uses the signal coordinate, the Gaussian model still allows an exact limit for fixed $k$. The results from here to Remark~\ref{rem:rho} are new in v0.4 and have not yet been checked by an independent referee.
+\paragraph{Neighbourhood (kNN) localisation.} Proposition~\ref{prop:thin} needs only that the selection of the local sample be independent of the pairs it selects; this extends to every selection made from label-free coordinates, and for neighbourhoods in the signal coordinate the Gaussian model allows an exact fixed-$k$ limit. Results marked v0.4 are new and have not yet been checked by an independent referee; the longer proofs are in Appendix~\ref{app:knnproofs}.
 
-\begin{proposition}[Localisation along label-free coordinates]\label{prop:select}\status{proved here; v0.4, not yet refereed}
+\begin{proposition}[Localisation along label-free coordinates]\label{prop:select}\status{proved here; v0.4}
 Let $(X_i,W_i,Y_i)_{i\le n}$ and $(X,W,Y)$ be i.i.d., with $W$ (taking values in any measurable space) independent of $(X,Y)$, and let $U$ be an auxiliary random element (tie-breaking, random initialisation) independent of all of them. Let $I=\iota(W_1,\dots,W_n,W,U)\subseteq\{1,\dots,n\}$ be any measurable selection, $K=|I|$, and let $A$ be a learning rule that uses the pairs $(X_i,Y_i)$ only. The rule that predicts $A(S_I)(X)$ at a test point, with $S_I=((X_i,Y_i))_{i\in I}$ in index order, satisfies
 \[
 \E\,\Risk(\text{localised rule})=\E\bigl[\Risk_A(K)\bigr].
@@ -168,30 +168,30 @@ Let $\mathcal G=\sigma(W_1,\dots,W_n,W,U)$. Within each triple $W_i$ is independ
 
 Proposition~\ref{prop:thin} is the case $W_i=Z_i$, $I=\{i:Z_i=Z\}$, for which $K\sim\mathrm{Bin}(n,p_j)$ given $Z=j$. The proposition requires that $A$ ignore $W$: a linear SVM on all coordinates sees local values $W_i$ concentrated near $W$, which are not distributed as $W$, and is not covered.
 
-\begin{corollary}[kNN in irrelevant coordinates, Gaussian model]\label{cor:knnfree}\status{proved here; numbers exact; v0.4, not yet refereed}
-In the model of Proposition~\ref{prop:exact} extended by coordinates $W$ independent of $(X_1,Y)$, the nearest-centroid threshold fitted on the $k$ nearest neighbours in $W$ has expected risk $\Risk_{A_{\mathrm{nc}}}(k)$, strictly above $\Risk_{A_{\mathrm{nc}}}(n)$ for $1\le k<n$. With $\mu=\ExMu$ and $n=\ExPartN$ it multiplies the global excess risk by $\KLSelRatioEighty$, $\KLSelRatioTwenty$ and $\KLSelRatioFive$ for $k=80$, $20$ and $5$. A Monte Carlo check (\KLSelReps{} training samples per case, $\mu\in\{\ExMu,\KLMuHard\}$, $n\in\{80,320\}$, \KLSelNRows{} cases with $1<k\le n$) agrees with the exact values within $\KLSelMaxZ$ standard errors; for the linear SVM on $X_1$ ($C=1$, $n=\ExPartN$, $k=40$), localised and learning-curve risks are $\KLSelSvmLoc\pm\KLSelSvmLocSe$ and $\KLSelSvmCurve\pm\KLSelSvmCurveSe$ (both Monte Carlo).
+\begin{corollary}[kNN in irrelevant coordinates, Gaussian model]\label{cor:knnfree}\status{proved here; numbers exact; v0.4}
+In the model of Proposition~\ref{prop:exact} extended by coordinates $W$ independent of $(X_1,Y)$, the nearest-centroid threshold fitted on the $k$ nearest neighbours in $W$ has expected risk $\Risk_{A_{\mathrm{nc}}}(k)$, strictly above $\Risk_{A_{\mathrm{nc}}}(n)$ for $1\le k<n$. With $\mu=\ExMu$ and $n=\ExPartN$ it multiplies the global excess risk by $\KLSelRatioEighty$, $\KLSelRatioTwenty$ and $\KLSelRatioFive$ for $k=80$, $20$ and $5$. A Monte Carlo check (\KLSelReps{} samples per case, \KLSelNRows{} cases with $\mu\in\{\ExMu,\KLMuHard\}$, $n\in\{80,320\}$, $1<k\le n$) agrees within $\KLSelMaxZ$ standard errors; for the linear SVM on $X_1$ ($C=1$, $n=\ExPartN$, $k=40$), localised and learning-curve risks are $\KLSelSvmLoc\pm\KLSelSvmLocSe$ and $\KLSelSvmCurve\pm\KLSelSvmCurveSe$ (both Monte Carlo).
 \end{corollary}
 
-When the neighbourhood uses the signal coordinate, the local sample is not i.i.d.\ from $P$, but its structure is explicit. The proofs of Lemmas~\ref{lem:radius} and~\ref{lem:majority} and of Theorem~\ref{thm:kfixed} are in Appendix~\ref{app:knnproofs}.
+When the neighbourhood uses the signal coordinate, the local sample is not i.i.d.\ from $P$, but its structure is explicit.
 
-\begin{lemma}[Neighbours given the radius]\label{lem:radius}\status{proved here, classical order-statistics argument; v0.4, not yet refereed}
+\begin{lemma}[Neighbours given the radius]\label{lem:radius}\status{proved here, classical argument; v0.4}
 Let $X\in\R^m$ have a density $f$, let $(X_i,Y_i)_{i\le n}$ be i.i.d., fix $x$ and $k\le n$, let $R$ be the $k$-th smallest of the distances $\|X_i-x\|$ (distinct almost surely), $J$ the index attaining it and $I=\{i:\|X_i-x\|<R\}$. Conditionally on $(I,J,R)=(I,j,r)$, the pairs $(X_i,Y_i)_{i\in I}$ are i.i.d.\ from $P_r=P(\cdot\mid\|X-x\|<r)$ and independent of $(X_j,Y_j)$, which has the law of $(X,Y)$ given $\|X-x\|=r$. (Of the density only the absence of atoms in the law of $\|X-x\|$ is used; with atoms, ties at the $k$-th distance break the statement.)
 \end{lemma}
 
-\begin{lemma}[The local population threshold is the Bayes rule]\label{lem:popsign}\status{proved here; v0.4, not yet refereed}
+\begin{lemma}[The local population threshold is the Bayes rule]\label{lem:popsign}\status{proved here; v0.4}
 In the model of Proposition~\ref{prop:exact}, for a window $[x-r,x+r]$ let $m_\pm=\E[X\mid Y=\pm1,\,|X-x|\le r]$ and $t_r(x)=\tfrac12(m_++m_-)$. Then $\sgn(x-t_r(x))=\sgn(x)$ for every $x\neq0$ and $r>0$.
 \end{lemma}
 \begin{proof}
 Let $g(u)$ be the mean of $N(u,1)$ truncated to $[-r,r]$; $g$ is odd and strictly increasing ($g'(u)$ is the variance of the truncated law, an exponential family in $u$). In offset coordinates $m_+-x=g(\mu-x)$ and $m_--x=g(-\mu-x)=-g(\mu+x)$, so $x-t_r(x)=\tfrac12[g(\mu+x)-g(\mu-x)]$, which has the sign of $x$.
 \end{proof}
 
-So the kNN-localised nearest-centroid rule in $d=1$ with exact local means would be the Bayes rule for every window size: in this model informative localisation has no approximation error to remove either, and what it gains or loses is estimation (Lemma~\ref{lem:approx}). The next lemma makes precise the observation that a local SVM on a small neighbourhood becomes a vote.
+So the kNN-localised nearest-centroid rule in $d=1$ with exact local means would be the Bayes rule for every window size: in this model informative localisation has no approximation error to remove either, and what it gains or loses is estimation (Lemma~\ref{lem:approx}).
 
-\begin{lemma}[A local linear SVM on a small neighbourhood predicts the majority]\label{lem:majority}\status{proved here; v0.4, not yet refereed}
+\begin{lemma}[A local linear SVM on a small neighbourhood predicts the majority]\label{lem:majority}\status{proved here; v0.4}
 Let $z_j=x+D_j\in\R^m$, $j\le k$, with $\|D_j\|\le r$, labels $y_j$ with a strict majority, and let $(\hat w,\hat b)$ be any minimiser of $\tfrac12\|w\|^2+C\sum_j\max\{0,1-y_j(\langle w,z_j\rangle+b)\}$ (the soft-margin objective with unpenalised intercept used in the experiment). If $r<r_0:=1/(k\sqrt{2Ck})$, then $\sgn(\langle\hat w,x\rangle+\hat b)$ is the majority label.
 \end{lemma}
 
-\begin{theorem}[Informative neighbourhoods, fixed $k$]\label{thm:kfixed}\status{proved here; v0.4, not yet refereed}
+\begin{theorem}[Informative neighbourhoods, fixed $k$]\label{thm:kfixed}\status{proved here; v0.4}
 In the model of Proposition~\ref{prop:exact}, let $X=(X_1,W)\in\R^m$, $m\ge1$, with $W\sim N(0,I_{m-1})$ independent of $(X_1,Y)$ ($m=1$: the signal coordinate alone), and let the neighbourhood of a query be its $k$ nearest training points in Euclidean distance on $\R^m$. Write $a=\max\{\eta,1-\eta\}$ and $b=1-a$, functions of $X$. Fix $k\ge1$ and let $n\to\infty$.
 \begin{enumerate}[leftmargin=2em,label=(\roman*),itemsep=1pt]
 \item For the kNN-localised nearest-centroid threshold (fitted on $X_1$),
@@ -207,11 +207,11 @@ the asymptotic risk of the $k$-nearest-neighbour vote~\citep{cover1967,devroye19
 \end{enumerate}
 \end{theorem}
 
-\begin{corollary}[Fixed $k$ cannot match the global rule]\label{cor:kfixed}\status{proved here; numbers computed, simulations verified; v0.4, not yet refereed}
+\begin{corollary}[Fixed $k$ cannot match the global rule]\label{cor:kfixed}\status{proved here; numbers computed, simulations verified; v0.4}
 In the setting of Theorem~\ref{thm:kfixed}, for every fixed $k$ (odd $k$ for the SVM) there is $n_0(k)$ such that for $n\ge n_0(k)$ both kNN-localised rules have larger expected risk than the global nearest-centroid threshold, because $\Risk_{A_{\mathrm{nc}}}(n)\to\Risk^*$ (dominated convergence in Proposition~\ref{prop:exact}(ii), both class counts tending to infinity); no explicit $n_0$ is given. With $\mu=\ExMu$ ($\Risk^*=\ExBayes$) the limits are $\Risk_\infty(k)=\KLLimNcOne,\KLLimNcThree,\KLLimNcFive,\KLLimNcTen,\KLLimNcTwenty$ for $k=1,3,5,10,20$ and $\Risk^{\mathrm{vote}}_\infty(k)=\KLLimVoteThree,\KLLimVoteNine$ for $k=3,9$. In simulations with $d=1$ (Appendix~\ref{app:sim}, D5--D6) the risk at $n=\KLPtwoNBig$ is within $\KLPtwoMaxZUp$ standard errors of $\Risk_\infty(k)$ for $k\le5$ and within $\KLPtwoMaxDiffUp$ of it for $k\le20$, for $\mu\in\{\ExMu,\KLMuHard\}$, and in all \KLPtwoNRows{} cases with $n\in\{320,2000,\KLPtwoNBig\}$ and $k\le20$ it exceeds $\Risk_{A_{\mathrm{nc}}}(n)$ by more than $\KLPtwoMinGapDown$; the local linear SVM ($C=1$) predicted the local majority at all \KLMajChecked{} mixed queries with radius below $r_0$, and its risk at $n=2000$, $k=3$, is $\KLPthreeKThree\pm\KLPthreeKThreeSe$ against $\KLPthreeGlobal\pm\KLPthreeGlobalSe$ for the global linear SVM, whose consistency in this model is not proved here.
 \end{corollary}
 
-\begin{remark}[Informative neighbourhoods with $k=\rho n$]\label{rem:rho}\status{first-order heuristic, not proved; verified numerically}
+\begin{remark}[Informative neighbourhoods with $k=\rho n$]\label{rem:rho}\status{heuristic, not proved; verified numerically; v0.4}
 With $d=1$ and $k=\rho n$, $0<\rho<1$, the window at a query near $0$ tends to $[-r_\rho,r_\rho]$ with $\Prob(|X|\le r_\rho)=\rho$, and by Lemma~\ref{lem:popsign} the rule is expected to be consistent. To first order its decision gap is $x-t(x)\approx v\,x$, with $v=v(\mu,r_\rho)$ the variance of $N(\mu,1)$ truncated to $[-r_\rho,r_\rho]$, and by Lemma~\ref{lem:radius} its threshold has variance $\approx v/(\rho n)$; with $|2\eta-1|\approx\mu|x|$ this gives an excess risk $\approx\mu\varphi(\mu)/(2\rho v n)$ against $\mu\varphi(\mu)/(2n)$ globally, a ratio $Q(\rho)=1/(\rho v)$. Since $v<1$ at the values used, $Q(\rho)>1/\rho$, the factor for label-free cells of the same local size (Proposition~\ref{prop:thin} with $M=1/\rho$): to this order, neighbourhoods along the signal cost more than label-free ones. Second-order terms (random radius, unequal class proportions away from $0$, the boundary point) are not controlled. At $n=\KLPfourNBig$ the simulated ratios (D7) are $\KLRatioHalfMain\pm\KLRatioHalfMainSe$ against $Q(\tfrac12)=\KLQHalf$ for $\mu=\ExMu$, $\KLRatioHalfHard\pm\KLRatioHalfHardSe$ against $\KLQHalfHard$ for $\mu=\KLMuHard$, and, for $\rho=\tfrac14$, $\KLRatioQuarterMainC$ against $\KLQQuarter$ and $\KLRatioQuarterHardC$ against $\KLQQuarterHard$. The first-order regime can be far away: for $\rho=\tfrac14$ and $\mu=\ExMu$ the ratio is $\KLRatioQuarterMainA$ at $n=2000$ and $\KLRatioQuarterMainB$ at $n=8000$. In every simulated case with $\rho<1$ the localised rule is worse than the global one.
 \end{remark}
 

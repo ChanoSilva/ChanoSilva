@@ -1,5 +1,3 @@
-[EN CURSO]
-
 # Segundo orden en la ley del realizador (MRT001, Obs. 5.11)
 
 Notas de trabajo (español). Notación de `manuscript/main.tex`, Sección 5 y Apéndice B:
@@ -168,7 +166,7 @@ conjunto `A` y todo `n ≥ 22`,
 
 `n² B(n)` es no creciente, y por tanto `|d_TV(R_n, 2^Z) − c_2/n| ≤ C(n_0)/n²` para `n ≥ n_0` con
 `C(22) = 421.5`, `C(30) = 363.2`, `C(50) = 314.4`, `C(100) = 285.8`, `C(1000) = 264.8`
-(valores de `n_0² B(n_0)` redondeados hacia arriba) y `lim n² B(n) = 252 + 10/e = 262.68`.
+(valores de `n_0² B(n_0)` redondeados hacia arriba) y `lim n² B(n) = 259 + 10/e = 262.68`.
 En particular: **para todo `n ≥ 22`, `|d_TV(R_n, 2^Z) − c_2/n| ≤ 422/n²`.**
 
 *Prueba.* Se siguen los pasos de la prueba del Teorema 5.9 y se acota cada error:
@@ -190,8 +188,10 @@ Como `d_TV(R_n, 2^Z) = sup_A |P(R_n∈A) − P(2^Z∈A)|` y `c_2/n = sup_A |μ(A
 los supremos está acotada por el supremo de las diferencias. Monotonía: tras las sustituciones,
 cada sumando de `n² B(n)` es de la forma `c · n² / (n^a (n−1)^b (n−2)^c ⋯)` con `c > 0` y grado
 del denominador `≥ 2`, o `n² ρ̄_1(n)`; todos son no crecientes en `n ≥ 22` (se comprobó además
-numéricamente para `22 ≤ n ≤ 5000`). El límite: `90 + (3·34 + 12 + 2·18) + (12 + 6/e + 4 + 4/e)
-+ 3 = 262 + 10/e − 10`… es decir `90 + 150 + 16 + 10/e + 3 = 259 + 10/e = 262.68`. ∎
+numéricamente para `22 ≤ n ≤ 5000`; los términos con factorial, `n²·2^{n+1}/(n(n+1)!)`, `n²/n!` y los
+que vienen de `2/(m·m!)` en `d̄_m`, también decrecen). El límite:
+`90 + (3·(10+24) + 12 + 2·18) + (12 + 6/e + 4 + 4/e) + 3 = 90 + 150 + 16 + 10/e + 3 = 259 + 10/e
+= 262.68`. ∎
 
 Comparación numérica (sección D de la salida): con la ley exacta de `R_n` para `n ≤ 600`,
 `n² |d_TV(R_n, 2^Z) − c_2/n| ≤ 5.72` para `22 ≤ n ≤ 600` (máximo `8.00` en `n = 12` sobre
@@ -233,5 +233,44 @@ escalada (error relativo `1.1·10^{−15}`); `s_4..s_10` = valores conocidos y f
 * coeficientes de segundo orden `μ_2(x) = lim n²(P(R_n = x) − P(2^Z = x) − μ(x)/n)` en la salida
   (sección D3), con `n² P(R_n ∉ {2^k, 3·2^k}) → 1/2`.
 
+**Formas cerradas observadas (conjetura).** Los límites extrapolados (ajuste de grado 3,
+`200 ≤ n ≤ 600`) multiplicados por `e` son: en `2^k`, `−5, −8, 1/2, 5/3, 19/24, 1/3, 0.134722,
+0.044841, …` para `k = 0, 1, 2, …`; en `3·2^k`, `0, 2, 3, 2, 5/6, 1/4, 0.058333, 0.011111, …`. Los
+valores `e·k!·μ_2(2^k)` son `−5, −8, 1, 10, 19, 40, 97, 226, 475, 904`, cuyas cuartas diferencias
+son constantes (`12`), es decir
+
+    μ_2(2^k) ≈ π_k [12 C(k,4) − 12 C(k,3) + 12 C(k,2) − 3k − 5],
+    μ_2(3·2^k) ≈ (k+1) π_{k−1}   (k ≥ 1),   μ_2(3) = 0,
+
+y la masa `1/2` va a los demás valores de `R_n`. Comprobación de masa total:
+`E[12C(Z,4) − 12C(Z,3) + 12C(Z,2) − 3Z − 5] = 1/2 − 2 + 6 − 3 − 5 = −7/2`,
+`Σ_{k≥1}(k+1)π_{k−1} = 3`, `−7/2 + 3 + 1/2 = 0`. Como `μ > 0` solo en `4` y en `3·2^k` (`k ≥ 1`),
+y `μ = 0` en `2`, `3` y `8` (con `μ_2(2) = −8/e < 0`, `μ_2(3) = 0`, `μ_2(8) = 5/(3e) > 0`), el
+segundo orden de la distancia sería
+
+    κ = μ_2(4) + μ_2(8) + Σ_{k≥1} μ_2(3·2^k) + 1/2 = 1/(2e) + 5/(3e) + 3 + 1/2 = 7/2 + 13/(6e)
+      = 4.2970716…,
+
+frente a `4.2970713` y `4.2970722` (ajustes de grado 3 y 4) y `4.297071` (suma átomo a átomo). La
+coincidencia es de 6 cifras, pero las formas cerradas se han leído de los números: son una
+conjetura, no un resultado.
+
 Lo que **no** se afirma: ni la existencia de un desarrollo `c_2/n + κ/n² + O(n^{−3})` ni el valor
-de `κ` están demostrados; son extrapolaciones de valores exactos.
+de `κ` están demostrados; son extrapolaciones de valores exactos. Un camino plausible para
+demostrarlos es el mismo análisis que el Teorema 5.9 llevado un orden más (pares de ocurrencias,
+intervalos de 4 y `n−2` elementos, correcciones `O(1/n)` de los pesos y de `N_{n−2}` frente a `Z`),
+o bien un teorema de tipo Bender para la ecuación funcional de la sección 5.
+
+## 6. Resumen de estados
+
+| afirmación | estado |
+|---|---|
+| `n² d_TV(N_n, Po(1−1/n)) → 3/(4e)`; forma cerrada `Φ(1/n)` salvo `(2^{n+1}−n−2)/(n(n+1)!)`; siguiente término `1/(4en)` | demostrado aquí (Teorema 1, Corolario 1) |
+| momentos factoriales: `E(N_n)_r − (1−1/n)^r = −C(r,2)/n² + θC(r,3)/n³`; corrección `−π_k(k²−3k+1)/(2n²)` | demostrado aquí |
+| mejor Poisson: `n² inf_λ d_TV → 1/(2e)`, `λ = 1 − 1/n + 1/(2n²)` | demostrado aquí (Teorema 2) |
+| `|d_TV(R_n,2^Z) − c_2/n| ≤ 422/n²` (`n ≥ 22`), `≤ 286/n²` (`n ≥ 100`) | demostrado aquí, usa Gallai (Proposición 3) |
+| `n²|d_TV(R_n,2^Z) − c_2/n| ≤ 5.72` para `22 ≤ n ≤ 600` | verificado numéricamente (ley exacta) |
+| `κ = 4.29707…` | verificado numéricamente (extrapolación de valores exactos) |
+| `κ = 7/2 + 13/(6e)`, formas cerradas de `μ_2` | conjetural |
+
+Nada de lo anterior ha pasado por un árbitro independiente.

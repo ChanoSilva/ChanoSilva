@@ -8,7 +8,7 @@ Predefined criteria (written before the runs):
   E1  For every tested partition and every potential,
         | E_direct - ( J_K/2 + (n-k)(phi(0)-sigma)/2 ) | <= 1e-9 * max(1, |E_direct|)
       for K in { -phi(D), -phi(D)+sigma I, and the dataset-independent kernel
-      K~ of Theorem 3.2(f) (indefinite for the rest-length potential) }.
+      K~ of Theorem 3.4(f) (indefinite for the rest-length potential) }.
       Pass = 100 % of checks. The partitions tested per configuration are
       random ones, the output of Lloyd and of the single-move relaxation on
       the canonical kernel K~ (minimally shifted if indefinite), and the
