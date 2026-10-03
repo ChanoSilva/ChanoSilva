@@ -3,3 +3,4 @@ coarse grid 18 x 24 at N0 = 256: min margin 0.2340 %, max 13.1653 %  (CPU 175 s)
   min over beta_2 for each beta_1 (period pi/3 expected => rows k, k+6, k+12 equal):
     0.243 0.332 0.654 1.382 0.673 0.333 0.234 0.336 0.626 1.334 0.654 0.329 0.238 0.310 0.619 1.352 0.652 0.334
   max |rowmin(k) - rowmin(k+6)| = 0.0486, |rowmin(k) - rowmin(k+12)| = 0.0341
+  refine1: minimiser beta_1 = 1.04720, beta_2 = 0.65450: 0.2340 %  (class far, delta 69.021; CPU 206 s)
