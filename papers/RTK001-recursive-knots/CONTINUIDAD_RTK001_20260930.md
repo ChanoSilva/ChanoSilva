@@ -1,4 +1,4 @@
-# RTK001 — Continuidad interna, 30/09/2026 (actualizada 03/10/2026: rondas 1 y 2 aplicadas, v0.3)
+# RTK001 — Continuidad interna, 30/09/2026 (actualizada 03/10/2026: rondas 1, 2 y 3 aplicadas, v0.4)
 
 Documento de trabajo interno. No incorporar al manuscrito ni a entregas institucionales.
 
@@ -7,7 +7,7 @@ Línea RTK001, "Geometría de nudos recursivos" / "Geometry of recursive knots",
 
 ## Supuesto central (verificar con el autor)
 **No existe ningún manuscrito previo de esta línea.** Todo lo que sigue se reconstruyó de la ficha:
-1. Qué es un "nudo recursivo": se fijó la familia de cables iterados por desplazamiento en el marco (Definición 2.1 del manuscrito): K_0 círculo de radio 1; K_d(t) = K_{d−1}(t mod 2π) + r_d [cos θ N + sin θ B], θ = q_d t/p_d + φ_d, t ∈ [0, 2π p_d), gcd(p_d, q_d) = 1, con (N, B) marco de Bishop de K_{d−1} cerrado por un giro lineal, y K_{d−1} reparametrizada a periodo 2π. Por defecto (p, q) = (2, 3), φ = 0.
+1. Qué es un "nudo recursivo": se fijó la familia de cables iterados por desplazamiento en el marco (Definición 2.1 del manuscrito): K_0 círculo de radio 1; K_d(t) = K_{d−1}(t mod 2π) + r_d [cos θ N + sin θ B], θ = q_d t/p_d + φ_d, t ∈ [0, 2π p_d), gcd(p_d, q_d) = 1, con (N, B) marco de Bishop de K_{d−1} cerrado por un giro lineal y normalizado por N_{d−1}(0) = proyección unitaria de e_z sobre el plano normal en K_{d−1}(0) (e_x si |T(0)·e_z| > 0.9; fijado en el texto en la ronda 3, era la convención del código), y K_{d−1} reparametrizada a periodo 2π. Por defecto (p, q) = (2, 3), φ = 0.
 2. Qué significa "longitud necesaria": ropelength L/grosor, con grosor en el sentido de Litherland–Simon–Durumeric–Rawdon / Gonzalez–Maddocks.
 3. Qué era la "cota superior factible de profundidad uno": se interpreta como una configuración explícita con grosor positivo; aquí se da para profundidades 1, 2 y 3 como polígonos explícitos con grosor poligonal medido.
 4. La elección r_d = f · τ_{d−1} (fracción del grosor previo) y la malla f ∈ {0.25, 0.35, 0.5, 0.6} son decisiones de esta sesión.
@@ -15,7 +15,7 @@ Línea RTK001, "Geometría de nudos recursivos" / "Geometry of recursive knots",
 ## Qué se produjo (todo en `papers/RTK001-recursive-knots/`)
 1. `PLAN.md`, escrito antes que cualquier código.
 2. `experiments/recursive_knots.py` (numérica determinista), `experiments/shrink.py` (sonda opcional) y `experiments/make_numbers.py` (macros LaTeX). Ningún número del manuscrito está escrito a mano.
-3. Manuscrito `manuscript/main.tex` (inglés; v0.1: 10 páginas a 11 pt, 10 referencias; v0.2: 11 páginas a 10 pt, 12 referencias; v0.3: 12 páginas a 10 pt, 14 referencias) compilado a `main.pdf` sin errores ni referencias/citas indefinidas (v0.2 y v0.3 sin cajas desbordadas).
+3. Manuscrito `manuscript/main.tex` (inglés; v0.1: 10 páginas a 11 pt, 10 referencias; v0.2: 11 páginas a 10 pt, 12 referencias; v0.3: 12 páginas a 10 pt, 14 referencias; v0.4: 13 páginas a 10 pt, 14 referencias) compilado a `main.pdf` sin errores ni referencias/citas indefinidas (v0.2 y v0.3 sin cajas desbordadas).
 4. README, esta nota y la propuesta de ficha.
 
 ## Decisiones tomadas
@@ -38,13 +38,13 @@ Línea RTK001, "Geometría de nudos recursivos" / "Geometry of recursive knots",
 
 ## Lo que NO se afirma
 - No se certifica el grosor suave de ninguna curva: τ es un proxy poligonal (pares de vértices, test de mínimo local). La evidencia es la estabilidad en N y la coincidencia con τ_pt.
-- La cota inferior del grosor de K_d (v0.3, Teorema 3.13; p = 2, familia (2,3), f ≤ 1/2): **demostrado** que todo par doblemente crítico con bases distintas está a distancia ≥ min(2(τ − r), r) en toda profundidad (hebras distintas, Lema 3.7, c_1 ≥ 1/2; misma hebra, Prop. 3.10/Cor. 3.11, c_0′ ≥ 1/2, ronda 2) y que grosor(K_1) ≥ r_1/2 (d = 1 completo). Para d ≥ 2 falta la curvatura: minRad(K_d) ≥ r_d/2 se deduce de (H_3) (derivadas de la velocidad y del vector de curvatura del marco paralelo de la base) y solo está **evaluada en malla con entradas medidas en los polígonos** (1/(rκ̂) = 1.034 / 0.998 en f = 1/2, d = 2 / 3), no demostrada. Los valores refinados (c_1 ≈ 0.6117, c_0′ = 0.509 / 0.845 / 0.988, etc.) son ínfimos en malla; solo los umbrales ≥ 1/2 y 1/(rκ̄_1) > 0.561 son analíticos. La hipótesis (H_c) es **sobre la familia** (la versión de v0.1, para una base arbitraria, era falsa: Obs. 3.14). La recursión Rop_d ≤ 2πΛ^d es condicional a (H_c).
+- La cota inferior del grosor de K_d (v0.4, Teorema 3.12; p = 2, familia (2,3), f ≤ 1/2): **demostrado** que todo par doblemente crítico con bases distintas está a distancia ≥ min(2(τ − r), r) en toda profundidad (hebras distintas, Lema 3.7, c_1 ≥ 1/2; misma hebra, Prop. 3.10/Cor. 3.11, c_0′ ≥ 1/2, ronda 2) y que grosor(K_1) ≥ r_1/2 (d = 1 completo). Para d ≥ 2 falta la curvatura: minRad(K_d) ≥ r_d/2 se deduce de (H_3) (derivadas de la velocidad y del vector de curvatura del marco paralelo de la base) y solo está **evaluada en malla con entradas medidas en los polígonos** (1/(rκ̂) = 1.034 / 0.998 en f = 1/2, d = 2 / 3), no demostrada. En la ronda 3 se integró un resultado **parcial** (Lema 3.14, Prop. 3.15, Cor. 3.16, Prop. 3.17): para d ≥ 3 la curvatura se sigue de una condición de crecimiento explícita sobre ν(K_{d−1}), μ(K_{d−1}), pero μ no se propaga de un nivel al siguiente; **(H_3) uniforme en d y d = 2 siguen abiertos**. Los valores refinados (c_1 ≈ 0.6117, c_0′ = 0.509 / 0.845 / 0.988, etc.) son ínfimos en malla; solo los umbrales ≥ 1/2 y 1/(rκ̄_1) > 0.561 son analíticos. La hipótesis (H_c) es **sobre la familia** (la versión de v0.1, para una base arbitraria, era falsa: Obs. 3.13). La recursión Rop_d ≤ 2πΛ^d es condicional a (H_c).
 - No se afirma estacionariedad, optimalidad ni ley de flujo recursiva; f no se optimizó.
 - La única cota inferior nueva es interna a la familia (Prop. 3.5: thick(K_d) ≤ r_d para p = 2, luego Rop(K_d) ≥ L(K_d)/r_d ≥ 2π(p(1−f)/f)^d); para el tipo de nudo se citan Buck–Simon (Rop ≥ c_BS Cr^{3/4}) y Cantarella–Kusner–Sullivan; Cr(K_2) ≥ 13 por Kalfagianni–McConkey 2024 (que además determinan Cr de los 2-cables de nudos adecuados; no se han cotejado sus convenciones con el Lema 3.2, así que no se da el valor exacto) y, para d ≥ 3, solo cotas generales de satélites (Lackenby 2014).
-- "τ_d = r_d para f ≤ f_*(d)" es conjetura (Conj. 3.19; en f = 1/2, d = 2, 3 se decide por márgenes de 1.4 % y 2.1 %); el cociente límite Rop_d/Rop_{d−1} → p/f (4.0 en f = 1/2) es consecuencia de esa conjetura y de L_d/L_{d−1} → p, no una constante empírica independiente (v0.1 lo presentaba como tal; corregido en la ronda 1).
+- "τ_d = r_d para f ≤ f_*(d)" es conjetura (Conj. 3.23; en f = 1/2, d = 2, 3 se decide por márgenes de 1.4 % y 2.1 % con la normalización por defecto, y de al menos 1.37 % y 0.23 % sobre las normalizaciones probadas); el cociente límite Rop_d/Rop_{d−1} → p/f (4.0 en f = 1/2) es consecuencia de esa conjetura y de L_d/L_{d−1} → p, no una constante empírica independiente (v0.1 lo presentaba como tal; corregido en la ronda 1).
 
 ## Bibliografía: grado de certeza
-**Verificadas en línea** (por los árbitros de las rondas 1 y 2, WebSearch; autor, título, revista, volumen, páginas y año): Buck–Simon 1999 (Topology Appl. 91, 245–257); Cantarella–Kusner–Sullivan 2002 (Invent. Math. 150, 257–286, DOI); Litherland–Simon–Durumeric–Rawdon 1999 (Topology Appl. 91, 233–244); Pierański 1998 (CMST 4, 9–23, DOI); Gonzalez–Maddocks 1999 (PNAS 96, 4769–4773); Bishop 1975 (Amer. Math. Monthly 82(3), 246–251); Călugăreanu 1961 (Czechoslovak Math. J. 11(4), 588–625; DOI 10.21136/CMJ.1961.100486 de DML-CZ, que titula "… et leurs invariants", grafía que se mantiene; EUDML escribe "leur"); White 1969 (Amer. J. Math. 91(3), 693–728, DOI 10.2307/2373348); Fuller 1971 (PNAS 68(4), 815–819, DOI 10.1073/pnas.68.4.815); Rawdon 2003 (Exp. Math. 12(3), 287–302); Fenchel 1929 (Math. Ann. 101, 238–252, DOI 10.1007/BF01454836). Nuevas en v0.3, verificadas por el autor con WebSearch el 03/10/2026: Kalfagianni–McConkey, "Crossing numbers of cable knots", Bull. London Math. Soc. 56(11), 3400–3411 (2024), DOI 10.1112/blms.13140 (Teorema 1.1: Cr(K_{p,q}) ≥ q²Cr(K) + 1 para K adecuado; Cor. 1.2: Cr(K_{p,2}) = 4Cr(K) + 1 si p = 2wr(K) ± 1; el texto completo no fue accesible desde el proxy, por eso no se da Cr(K_2) exacto); Lackenby, "The crossing number of satellite knots", Algebr. Geom. Topol. 14(4), 2379–2409 (2014), DOI 10.2140/agt.2014.14.2379. **Coherente, no buscada:** Lickorish 1997 (GTM 175). No se añadió Ashton–Cantarella–Piatek–Rawdon 2011: la cifra ≈ 32.7 no se confirmó en los extractos.
+**Verificadas en línea** (por los árbitros de las rondas 1 y 2, WebSearch; autor, título, revista, volumen, páginas y año): Buck–Simon 1999 (Topology Appl. 91, 245–257); Cantarella–Kusner–Sullivan 2002 (Invent. Math. 150, 257–286, DOI); Litherland–Simon–Durumeric–Rawdon 1999 (Topology Appl. 91, 233–244); Pierański 1998 (CMST 4, 9–23, DOI); Gonzalez–Maddocks 1999 (PNAS 96, 4769–4773); Bishop 1975 (Amer. Math. Monthly 82(3), 246–251); Călugăreanu 1961 (Czechoslovak Math. J. 11(4), 588–625; DOI 10.21136/CMJ.1961.100486 de DML-CZ, que titula "… et leurs invariants", grafía que se mantiene; EUDML escribe "leur"); White 1969 (Amer. J. Math. 91(3), 693–728, DOI 10.2307/2373348); Fuller 1971 (PNAS 68(4), 815–819, DOI 10.1073/pnas.68.4.815); Rawdon 2003 (Exp. Math. 12(3), 287–302); Fenchel 1929 (Math. Ann. 101, 238–252, DOI 10.1007/BF01454836). Nuevas en v0.3, verificadas por el autor con WebSearch el 03/10/2026: Kalfagianni–McConkey, "Crossing numbers of cable knots", Bull. London Math. Soc. 56(11), 3400–3411 (2024), DOI 10.1112/blms.13140 (Teorema 1.1: Cr(K_{p,q}) ≥ q²Cr(K) + 1 para K adecuado; Cor. 1.2: Cr(K_{p,2}) = 4Cr(K) + 1 si p = 2wr(K) ± 1; el texto completo no fue accesible desde el proxy, por eso no se da Cr(K_2) exacto); Lackenby, "The crossing number of satellite knots", Algebr. Geom. Topol. 14(4), 2379–2409 (2014), DOI 10.2140/agt.2014.14.2379. Lickorish 1997 (GTM 175, Springer, DOI 10.1007/978-1-4612-0691-0): verificada por el árbitro de la ronda 3 (antes "coherente, no buscada"). **Coherente, no buscada:** ninguna. No se añadió Ashton–Cantarella–Piatek–Rawdon 2011: la cifra ≈ 32.7 no se confirmó en los extractos.
 
 ## Próximos pasos concretos
 1. Cerrar (H_c) para la familia en toda profundidad: acotar M_v = sup|v'| y M_κ = sup|(κ_1, κ_2)'| de K_d en función de los de K_{d−1} para que (H_3) sea uniforme en d (con el Teorema 3.13 esto daría (H_c) con c = 1/2 para (2,3) en todo d y el Corolario 3.16 incondicional); p ≥ 3 (la cota δ_R2 es general; las cotas a priori usan m ≤ 2 y m_1 = 3/2). [Hechos en la ronda 2: d = 1 completo; misma hebra en toda profundidad; curvatura con el ángulo ψ conservado (Prop. 3.12).]
@@ -101,3 +101,69 @@ Informe: `REFEREE_RTK001_ronda2_20261003.md` (cambios menores; 0 bloqueantes, 4 
 **Cómputo de la ronda 2:** `check_Hc.py` 57 s y `check_same_strand.py` 25 s (pared), `classify_pairs.py` 49 s de CPU, `corollary_chain.py` 26 s de CPU, formas cerradas < 1 s, compilaciones ≈ 1.5 min. Total ≈ 4 min de CPU.
 
 **Qué queda abierto tras la ronda 2:** (i) (H_3) uniforme en d, que con el Teorema 3.13 cerraría (H_c) con c = 1/2 para (2,3) en toda profundidad (en d = 2, 3 solo hay evaluación en malla con entradas medidas); (ii) certificación por intervalos de c_1, c_0′, κ̂_d y del grosor poligonal; (iii) p ≥ 3 y otros patrones; (iv) Conjetura 3.19 (umbral f_*(d)); (v) writhe poligonal exacto; (vi) Cr(K_2) exacto vía Kalfagianni–McConkey con convenciones cotejadas; (vii) bibliografía: Lickorish 1997 coherente pero no buscada.
+
+## Ronda 3 de revisión interna e integración de (H_3) parcial (03/10/2026)
+
+Informe: `REFEREE_RTK001_ronda3_20261003.md` (cambios menores; 0 bloqueantes, 1 mayor, 10 menores; ronda 2: 19 de 20 bien aplicados, extensión a medias). Respuesta punto por punto: `RESPUESTA_RTK001_ronda3_20261003.md`.
+
+En la misma pasada se integró el resultado **parcial** de `theory/` sobre la uniformidad de (H_3) (`H3_uniform_lemma.tex`, `H3_uniform_derivation.md`, `check_H3.py`).
+
+**Verificación del autor antes de integrar.**
+- Lectura paso a paso de cada prueba.
+- Re-ejecución de `check_H3.py` en una copia: salida idéntica salvo tiempos.
+- Script propio `verify_H3.py` en el scratchpad `author3_RTK001/`:
+  - cálculo simbólico del marco móvil con sympy (identidades con residuo 0);
+  - constantes con mpmath;
+  - K₁ liso exacto, marco de Bishop por DOP853 y K₂ espectral; cocientes medido/cota iguales a tres cifras a los poligonales.
+- **Correcto tal cual:** Lema 3.14 (velocidad), Prop. 3.15 (curvatura) y Cor. 3.16 (tolerancia, d ≥ 3).
+- **Corregido al integrar** (`theory/` no se tocó):
+  1. La fórmula de la parte normal de K_d''' en la Prop. 3.17 no era una igualdad (el coeficiente de v'' es (1 − x) sin χ, no −rκ_⊥ sin χ). Se reescribe como «término de cuarto orden −rv sin χ (κ_par''·U) n_χ + resto acotado».
+  2. Su cuantificador se restringe a cotas F localmente acotadas.
+  3. En la observación final, el umbral de μ pasa de 0.0505 a 0.0504 (estaba redondeado hacia el lado inseguro), y el «O(8^{−d})» del coeficiente perdido pasa a «O(4^{−d}) a priori, ≈ 8^{−d} medido».
+
+| Hallazgo | Decisión | Acción en v0.4 |
+|---|---|---|
+| M1 normalización del marco no definida | aceptar | Def. 2.1 fija N_{d−1}(0) (convención del código) y dice que rotarla equivale a φ_d + β. Los resultados de la §3 valen para toda normalización. `experiments/phase_margin.py` (142 s de CPU) da: margen en d = 2 de 1.37–21.3 % (12 normales; por defecto, cerca del mínimo); en d = 3, 0.23–13.0 % (20 normales del marco de K₂, con K₁ fijo; mínimo estable a N₀ = 512). L y τ_d = r_d no cambian. Conj. 3.23, §4, tabla de afirmaciones y Limitaciones (3) |
+| m1 Θ* | aceptar | 1.112 (redondeo hacia abajo de una condición necesaria); regla general de redondeo escrita en `make_numbers.py` |
+| m2 δ_turn | aceptar | `floor_fmt`; Tabla 1 (0.35, d = 1): 1.344 → 1.343 |
+| m3 «arco base < πτ» | aceptar | §4, README y esta nota |
+| m4 notación | aceptar y ampliar | ϖ, x₀/y₀, A_e, 𝒜, Λ_Rop, s_p; además Γ (arco) y vector curvatura en negrita |
+| m5 Limitaciones (4) | aceptar | Formas cerradas del Cor. 3.11 y constantes del Cor. 3.16 listadas como analíticas |
+| m6 C^{1,1} | aceptar | Lema 3.9 |
+| m7 c* en d = 1 | aceptar | Prueba en f = ½ y transferencia por monotonía; «c₀′ > 0.509 for every f ≤ ½» |
+| m8 Kalfagianni–McConkey | aceptar | Su Cor. 1.2 cubre las pendientes 2w ± 1 = ±5, ±7, no 9 ni 11; no se da Cr(K₂); FICHA: «acotado inferiormente» |
+| m9 `\SsCzeroAp` | aceptar | Macro eliminada |
+| m10 equivalencia en el enunciado | aceptar | Teorema 3.12(c) |
+| Lickorish DOI; errata de la RESPUESTA r2 | aceptar | `refs.bib`; nota de corrección en la RESPUESTA r2 |
+| Extensión | aceptar con matiz | Recortes 1–5 del árbitro, Fig. 1 retirada, resumen compacto, `longtable`. Resultado: **13 páginas** (antes 12), porque el bloque (H_3) añade ≈ 1.1 páginas con cuatro demostraciones; bajar de 12 exigiría quitar demostraciones |
+
+**Integración de (H_3) parcial.**
+- Párrafo «Towards (H_3) uniformly in d» con Lema 3.14, Prop. 3.15, Cor. 3.16 y Prop. 3.17, todos «proved here», y Obs. 3.18 («grid evaluation with polygon inputs; uniformity open»).
+- Números por macro desde `results/check_H3_summary.json`, generado por `experiments/check_H3.py`, copia congelada de `theory/check_H3.py` (solo cambia el directorio de salida y se añade el resumen JSON).
+- SHA-256 añadidos a `results/FROZEN_THEORY_SHA256.txt`: copia, JSON, salida y cuatro originales de `theory/`; 17/17 OK.
+- La uniformidad de (H_3) consta como **abierta** en el resumen, la introducción, la Hip. 3.19, la tabla de afirmaciones, Limitaciones (1) y Next steps (1).
+
+**Números que cambiaron:**
+- Ninguno de los experimentos de referencia.
+- Redondeos: Θ* 1.12 → 1.112; δ_turn (0.35, 1) 1.344 → 1.343; g(√2) pasa a macro («< 1.0887»).
+- Nuevos: márgenes por normalización; constantes del Cor. 3.16 (0.8961, 0.0336, 0.0504); valores de malla de la Obs. 3.18.
+
+**Cómputo de la ronda 3:**
+
+| Tarea | CPU |
+|---|---|
+| `check_H3.py` (dos corridas) | ≈ 15 s |
+| `verify_H3.py` | 2 s |
+| `phase_margin.py`: tres corridas, la última es la válida | 366 s |
+| Compilaciones | ≈ 1 min |
+| **Total** | **≈ 7.5 min** |
+
+**Qué queda abierto tras la ronda 3:**
+1. (H_3) uniforme en d. Por la Prop. 3.17 exige controlar todas las derivadas; la vía natural, no hecha, es una inducción por analiticidad en una banda compleja |Im t| < η_d.
+2. d = 2. Las constantes a priori no bastan: 1.95 frente a < 0.685. Como K₁ es un polinomio trigonométrico explícito, la forma fina de (11) es un cálculo finito certificable. Una evaluación propia en malla, no certificada y solo en el scratchpad, da r₂·cota = 1.146 < 2 con el mayor r₂ admisible en f = ½.
+3. Certificación por intervalos de c₁, c₀′, κ̂_d y del grosor poligonal.
+4. Conjetura 3.23: margen de 0.23 % en d = 3 para alguna normalización; queda pendiente un barrido 2-D (β₂, β₃).
+5. p ≥ 3.
+6. Writhe poligonal exacto.
+7. Cr(K₂) exacto, con las pendientes 9 y 11.
+8. Extensión de 13 páginas.

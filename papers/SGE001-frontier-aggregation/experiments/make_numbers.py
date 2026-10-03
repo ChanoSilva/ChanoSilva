@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Turn results/results.json into LaTeX macros (manuscript/numbers.tex) and table bodies
-(manuscript/table_*.tex).  Every number in main.tex comes from here."""
+(manuscript/table_*.tex).  Every number in main.tex comes from here.  Since v0.4 it also reads
+theory/sharp_certificate_results.json (fourth-order certificate), after checking its SHA-256 against the frozen
+value in results/sharp_certificate.sha256."""
+import hashlib
 import json
 import os
 
@@ -265,6 +268,66 @@ write_table("e5", tr)
 E6 = res["E6"]
 M("EsixKinkEps", E6["kink"]["eps"]); M("EsixKinkSigma", E6["kink"]["sigma"]); M("EsixKinkYA", E6["kink"]["YA_per_unit"]); M("EsixKinkYB", fnum(E6["kink"]["YB_per_unit"], 2))
 M("EsixSqrtDelta", E6["sqrt"]["delta"]); M("EsixSqrtSigma", E6["sqrt"]["sigma"]); M("EsixSqrtYB", fnum(E6["sqrt"]["YB"], 4)); M("EsixSqrtYoneB", fnum(E6["sqrt"]["Y1B"], 4)); M("EsixSqrtYtwoB", fnum(E6["sqrt"]["Y2B"], 4))
+
+# ---------------------------------------------------------------- fourth-order certificate (v0.4)
+# Numbers of Proposition prop:sharp come from theory/sharp_certificate_results.json, written by
+# theory/check_sharp_certificate.py (reference run 3 October 2026, 259 s of CPU).  That JSON and the script are frozen:
+# their SHA-256 are stored in results/sharp_certificate.sha256 and checked here, so that the macros cannot silently
+# change if the theory script is re-run or edited (a re-run rewrites cpu_seconds and hence the hash).
+_frozen = {}
+for _line in open(os.path.join(ROOT, "results", "sharp_certificate.sha256")):
+    if _line.strip():
+        _h, _p = _line.split()
+        _frozen[_p] = _h
+for _p, _h in _frozen.items():
+    _got = hashlib.sha256(open(os.path.join(ROOT, _p), "rb").read()).hexdigest()
+    if _got != _h:
+        raise SystemExit(f"make_numbers: {_p} has SHA-256 {_got[:12]}..., but the frozen value in "
+                         f"results/sharp_certificate.sha256 is {_h[:12]}...; refusing to generate the fourth-order macros")
+SH = json.load(open(os.path.join(ROOT, "theory", "sharp_certificate_results.json")))
+M("SharpJsonSha", _frozen["theory/sharp_certificate_results.json"][:12]); M("SharpScriptSha", _frozen["theory/check_sharp_certificate.py"][:12])
+M("SharpCPUSeconds", int(round(SH["meta"]["cpu_seconds"])))
+g2 = lambda x: f"{x:.2g}"
+for law in ("LN", "SU"):
+    S = SH["E1"][f"CD-{law}"]["summary"]
+    for tag, key in (("SharpCertBoxSigma", "sigma_cert1|B3box"), ("SharpCertSigma", "sigma_cert1|B3seg"),
+                     ("SharpCertConeBoxSigma", "sigma_cert5|B3box"), ("SharpCertConeSigma", "sigma_cert5|B3seg"),
+                     ("SharpCertBoxScSigma", "sigma_cert1|B3box_s"), ("SharpCertConeBoxScSigma", "sigma_cert5|B3box_s"),
+                     ("SharpCertScSigma", "sigma_cert1|B3seg_s"), ("SharpCertConeScSigma", "sigma_cert5|B3seg_s"),
+                     ("OldCertBoxScSigma", "sigma_cert1|B2box_s"), ("OldCertConeBoxScSigma", "sigma_cert5|B2box_s"),
+                     ("OldCertScSigma", "sigma_cert1|B2seg_s"), ("OldCertConeScSigma", "sigma_cert5|B2seg_s")):
+        M(f"{tag}CD{law}", fnum(S[key], 3))
+    # the old Euclidean certificates of the theory run must be those of results.json (same draws)
+    S0 = E1["summary"][f"CD-{law}"]
+    assert (S["sigma_cert1|B2box"], S["sigma_cert1|B2seg"], S["sigma_cert5|B2box"], S["sigma_cert5|B2seg"]) == \
+        (S0["sigma_largest_cert_box"], S0["sigma_largest_cert_observable"], S0["sigma_largest_cert_c1_box"], S0["sigma_largest_cert_c1"]), law
+    M(f"SharpEtwoOverBMaxCD{law}", g2(S["maxE2overB|B3box"])); M(f"SharpEthreeOverBMaxCD{law}", g2(S["maxE3overB3|B3box"]))
+_cells = SH["E1"].values()
+M("SharpBoundsHold", "yes" if all(v for c in _cells for k, v in c["summary"].items()
+                                  if k.startswith(("bound_holds_all|", "boundE3_holds_all|", "cert_implies"))) else "NO")
+M("SharpSignedSame", "yes" if all(c["summary"][f"sigma_certsigned{k}|B3{b}"] == c["summary"][f"sigma_cert{k}|B3{b}"]
+                                  for c in _cells for k in (1, 5) for b in ("box", "seg", "box_s", "seg_s")) else "no")
+M("SharpIdentityGap", sci(max(c["summary"]["identity_max"] for c in _cells), 0, zero_below=None))
+_P = SH["prediction_LN_scaled"]
+M("SharpAold", fnum(_P["a_old"], 2)); M("SharpAnew", fnum(_P["a_new"], 2)); M("SharpAtrue", fnum(_P["a_true"], 2))
+M("SharpZmax", fnum(_P["zmax_median_N2000"], 2))
+for k, K in ((1, "Kone"), (5, "Kfive")):
+    M(f"SharpPredOld{K}LN", g2(_P[f"range_aware_LN_old_k{k}"])); M(f"SharpPredNew{K}LN", g2(_P[f"range_aware_LN_new_k{k}"]))
+_F = {r["sigma"]: r for r in SH["E4_no_capacity"]}
+for s, tag in ((0.1, "PointOne"), (0.2, "PointTwo"), (0.4, "PointFour")):
+    M(f"SharpEfourFrac{tag}", pct(_F[s]["new_B3seg"], 1)); M(f"SharpEfourBoxFrac{tag}", pct(_F[s]["new_B3box"], 1))
+    M(f"SharpEfourScFrac{tag}", pct(_F[s]["new_B3seg_s"], 1)); M(f"SharpEfourBoxScFrac{tag}", pct(_F[s]["new_B3box_s"], 1))
+    M(f"OldEfourScFrac{tag}", pct(_F[s]["old_seg_s"], 1)); M(f"OldEfourBoxScFrac{tag}", pct(_F[s]["old_box_s"], 1))
+    # the old Euclidean shares of the theory run must be those of results.json (same draws)
+    assert (pct(_F[s]["old_seg"], 1), pct(_F[s]["old_box"], 1)) == (pct(sm4[s]["certified_frac"], 1), pct(sm4[s]["certified_box_frac"], 1)), s
+M("SharpEfourCertReversals", sum(r["certified_reversals_new"] for r in SH["E4_no_capacity"]))
+for law in ("LN", "SU"):
+    C = SH["E1"][f"CES-{law}"]["summary"]
+    M(f"SharpCESCertBoxSigma{law}", fnum(C["sigma_cert1|B2box"], 3)); M(f"SharpCESNewCertBoxSigma{law}", fnum(C["sigma_cert1|B3box"], 3))
+    M(f"SharpCESNewCertBoxScSigma{law}", fnum(C["sigma_cert1|B3box_s"], 3))
+_T = SH["CES_enclosure_tightness"]
+M("SharpCESTightSmall", g2(max(_T["LN_sigma0.01_k3"], _T["LN_sigma0.01_k4"])))
+M("SharpCESTightLarge", g2(max(_T["LN_sigma0.1_k3"], _T["LN_sigma0.1_k4"])))
 
 # tables that are no longer used by main.tex (E1b, E3 and E5 per sigma live in results/tables.md)
 for stale in ("table_e1b.tex", "table_e3.tex", "table_e5b.tex"):
