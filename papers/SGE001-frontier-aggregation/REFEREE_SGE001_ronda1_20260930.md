@@ -1,5 +1,7 @@
 # Informe de arbitraje interno — SGE001 "Dynamic Aggregation of Production Frontiers" (ronda 1, 30/09/2026)
 
+> Numeración de enunciados: v0.1 (Lema 3.4 jerarquía, Lema 3.5 bisagra, Prop. 3.6 capacidad, Cor. 3.7, Obs. 3.8, Ej. 3.9, Prop. 3.10 margen); en v0.4–v0.5 son Lema 3.6, Lema 3.7, Prop. 3.8, Cor. 3.9, Obs. 3.10, Ej. 3.11, Prop. 3.12. [Nota añadida en la ronda 3.]
+
 Árbitro independiente (sesión Claude Code; no es el autor del borrador). Material revisado íntegramente: `README.md`, `CONTINUIDAD_SGE001_20260930.md`, `FICHA_SGE001_propuesta.md`, `manuscript/main.tex` (421 líneas), `refs.bib`, `numbers.tex`, `table_*.tex`, `main.pdf` (15 páginas, renderizado y revisado), `experiments/frontier_aggregation.py` (842 líneas), `experiments/make_numbers.py`, `results/results.json`, `results/tables.md`. Archivos de trabajo del árbitro (scripts y corrida de reproducción) en el scratchpad de la sesión, carpeta `referee_SGE001/` (`check_math.py`, `check_slope.py`, `check_cert.py`, `check_tau.py`, `repro/`). No se modificó nada en la carpeta del paper salvo la creación de este informe.
 
 Las referencias a líneas son de `manuscript/main.tex`; "Prop. 3.x" sigue la numeración del PDF.

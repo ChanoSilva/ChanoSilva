@@ -402,7 +402,7 @@ def main():
          "| dataset | potential | n | k | partitions | max rel err | sigma | lam_min(K) |", "|---|---|---|---|---|---|---|---|"]
     for r in res["E1"]["rows"]:
         L.append(f"| {r['dataset']} | {r['potential']} | {r['n']} | {r['k']} | {r['partitions']} | {r['max_rel_err']:.1e} | {r['sigma']:.3g} | {r['lam_min_K']:.3g} |")
-    L += ["", "| dataset | potential | negative-type label | lam_min of the Theorem-3.2(f) kernel | lam_max | PSD |", "|---|---|---|---|---|---|"]
+    L += ["", "| dataset | potential | negative-type label | lam_min of the Theorem-3.4(f) kernel | lam_max | PSD |", "|---|---|---|---|---|---|"]
     for r in res["E1"]["cnd_eigs"]:
         L.append(f"| {r['dataset']} | {r['potential']} | {r['cnd_label']} | {r['lam_min_cnd_kernel']:.3g} | {r['lam_max_cnd_kernel']:.3g} | {r['cnd_kernel_psd']} |")
     L += ["", f"## E2: identical trajectories {res['E2']['identical']}/{res['E2']['runs']}, max rel err of final energy {res['E2']['max_rel_err_energy']:.2e}; "

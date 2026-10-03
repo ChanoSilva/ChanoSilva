@@ -1,5 +1,7 @@
 # Respuesta del autor al informe de la ronda 2 — SGE001 (03/10/2026)
 
+> Numeración de enunciados: v0.2 = v0.3 (Lema 3.3, Lema 3.4 bisagra, Prop. 3.5, Cor. 3.6, Obs. 3.7, Ej. 3.8, Prop. 3.9, Ej. 3.10); en v0.4–v0.5 se desplazan tres lugares (Lema 3.6 … Ej. 3.13). [Nota añadida en la ronda 3.]
+
 Informe: `REFEREE_SGE001_ronda2_20261003.md` (cambios mayores acotados; 0 bloqueantes, 4 mayores, 13 menores; reproducción bit a bit).
 Estado de este documento: **completo** (escrito de forma incremental mientras se aplicaban los cambios; el registro de avance se conserva abajo).
 

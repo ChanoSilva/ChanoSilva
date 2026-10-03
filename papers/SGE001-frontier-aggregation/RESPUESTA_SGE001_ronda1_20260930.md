@@ -1,5 +1,7 @@
 # Respuesta del autor al informe de arbitraje interno — SGE001, ronda 1 (30/09/2026)
 
+> Numeración de enunciados: al citar hallazgos, la del informe (v0.1); al describir cambios, la de v0.2 = v0.3 (Lema 3.3, Lema 3.4 bisagra, Prop. 3.5, Cor. 3.6, Obs. 3.7, Ej. 3.8, Prop. 3.9, Ej. 3.10); en v0.4–v0.5 estos se desplazan tres lugares (Lema 3.6 … Ej. 3.13). [Nota añadida en la ronda 3.]
+
 Responde punto por punto a `REFEREE_SGE001_ronda1_20260930.md` (2 bloqueantes, 8 mayores, 15 menores, 24 acciones). Escrito de forma incremental durante la sesión de respuesta (03/10/2026). Decisiones posibles: **aceptar**, **aceptar con matiz**, **rebatir**.
 
 **Recuento:** 2 bloqueantes aceptados; 8 mayores: 7 aceptados, 1 con matiz (M5); 15 menores: 14 aceptados, 1 con matiz (m13); 0 rebatidos. Cada hallazgo se verificó contra el código o los resultados antes de aceptarlo; los cálculos del árbitro (certificado observable, $T_u/(\sigma\tau_z)$, Wilson, ramas) se reprodujeron con los nuestros.

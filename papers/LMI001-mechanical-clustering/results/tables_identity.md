@@ -37,7 +37,7 @@ seed = 20260930; fast = False; runtime = 158.7 s
 | iris | gauss | 150 | 3 | 203 | 7.2e-14 | 136 | -136 |
 | iris | log | 150 | 3 | 203 | 5.6e-14 | 423 | -423 |
 
-| dataset | potential | negative-type label | lam_min of the Theorem-3.2(f) kernel | lam_max | PSD |
+| dataset | potential | negative-type label | lam_min of the Theorem-3.4(f) kernel | lam_max | PSD |
 |---|---|---|---|---|---|
 | blobs | hooke | True | -7.08e-12 | 3.23e+04 | True |
 | blobs | hooke_lift | True | -1.04e-11 | 3.23e+04 | True |
