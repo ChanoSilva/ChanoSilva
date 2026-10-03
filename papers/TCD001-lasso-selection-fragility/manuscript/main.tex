@@ -271,13 +271,13 @@ Hardness is Theorems~\ref{thm:hard}(a) and~\ref{thm:enter2}, membership in NP as
 \end{proof}
 
 \begin{remark}[Exhaustive check]\label{rem:verify2}\status{computationally verified (exact arithmetic)}
-For \HardSource{} \tsc{Subset Sum} instances (\HardYes{} yes, \HardNo{} no, $n\le\HardMaxN$) and both rules, the Lasso was solved in rational arithmetic on all \HardSubsets{} subsamples (Appendix~\ref{app:repro}). A witness exists iff the answer is yes in \HardEquivOk/\HardPairs{} pairs; the set-by-set characterisation never fails; uniqueness is certified (full rank of $X_E$,~\citealp{tibshirani2013}) on every subsample; Proposition~\ref{prop:exact} and the guarded solver agree with the exact solution; the dynamic programme of Proposition~\ref{prop:pseudo} matches exhaustive search (\HardDPAgree/\HardPairs{} pairs, and \HardDPRandAgree/\HardDPRandTotal{} random cases with $p\in\{2,3\}$). Negative controls that violate $u^2>m$, $\kappa-\rho\le1/B$ or $\rho<1$ are detected.
+For \HardSource{} \tsc{Subset Sum} instances (\HardYes{} yes, \HardNo{} no, $n\le\HardMaxN$) and both rules, the Lasso was solved in rational arithmetic on all \HardSubsets{} subsamples (Appendix~\ref{app:repro}). A witness exists iff the answer is yes in \HardEquivOk/\HardPairs{} pairs; the set-by-set characterisation never fails; uniqueness is certified on every subsample by full rank of $X_E$~\citep{tibshirani2013}; Proposition~\ref{prop:exact} and the guarded solver agree with the exact solution; the dynamic programme of Proposition~\ref{prop:pseudo} matches exhaustive search (\HardDPAgree/\HardPairs{} pairs, and \HardDPRandAgree/\HardDPRandTotal{} random cases with $p\in\{2,3\}$). Negative controls that violate $u^2>m$, $\kappa-\rho\le1/B$ or $\rho<1$ are detected.
 \end{remark}
 
 \begin{conjecture}[Strong hardness for growing $p$]\label{conj:strong}\status{conjectural}
 With $p$ part of the input, \tsc{Selection-Witness} and \tsc{Deselection-Witness} are NP-hard in the strong sense, already for data in $\{-1,0,1\}$ up to a common scale and a rational $\mu$ of polynomial size.
 \end{conjecture}
-\noindent A route not carried out: $d$ absorbing variables whose integer slacks must all vanish (an exact vector sum, as in \tsc{Exact Cover by 3-Sets},~\citealp{garey1979}); the interaction of active absorbers through the Gram matrix is not controlled.
+\noindent A route not carried out: $d$ absorbing variables whose integer slacks must all vanish (an exact vector sum, as in \tsc{Exact Cover by 3-Sets}~\citep{garey1979}); the interaction of active absorbers through the Gram matrix is not controlled.
 
 \section{Experiments}\label{sec:experiments}
 
