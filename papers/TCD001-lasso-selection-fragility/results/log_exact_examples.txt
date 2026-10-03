@@ -5,3 +5,4 @@ Example 2 found after 11 trials: [[2, -1], [0, 2], [1, 1], [2, -2], [-1, 1]] [2,
    D\R support [1] signs [-1] exact True beta {1: '-5/12'} c {0: '11/4'} marg {0: '4', 1: '-6'}
    D\R' support [0] signs [1] exact True beta {0: '1/10'} c {1: '-17/10'} marg {0: '4', 1: '-2'}
   all subsets exact: True nonmonotone pairs: 3 stab. sel. var0: {'selected': 9, 'subsamples': 10, 'rule': 'P'} f_leave(P)= 1
+KKT guard: {'calls': 950, 'fallbacks': 91, 'fallbacks_tie_at_entry': 91, 'fallbacks_full_rank': 91, 'max_active_rel': np.float64(7.105427357601002e-15), 'max_inactive_rel': np.float64(5.921189464667501e-16), 'max_active_rel_rejected': np.float64(6.222222222222219), 'max_active_rel_fallback': np.float64(5.411671111232863e-12), 'max_inactive_rel_fallback': 0.0, 'enabled': True}

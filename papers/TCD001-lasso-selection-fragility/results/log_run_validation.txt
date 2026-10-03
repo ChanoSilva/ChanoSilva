@@ -12,27 +12,3 @@ B n=10 p=5 rule=C k=5: 300/300 agree, preserved 38, maxdiff 2.1e-15
 B n=10 p=5 rule=P k=2: 300/300 agree, preserved 179, maxdiff 6.4e-15
 B n=10 p=5 rule=P k=3: 300/300 agree, preserved 138, maxdiff 4.1e-15
 B n=10 p=5 rule=P k=5: 300/300 agree, preserved 76, maxdiff 4.1e-15
-B n=20 p=10 rule=C k=2: 300/300 agree, preserved 225, maxdiff 1.6e-15
-B n=20 p=10 rule=C k=3: 300/300 agree, preserved 146, maxdiff 1.8e-15
-B n=20 p=10 rule=C k=5: 300/300 agree, preserved 141, maxdiff 1.7e-15
-B n=20 p=10 rule=P k=2: 300/300 agree, preserved 197, maxdiff 2.4e-15
-B n=20 p=10 rule=P k=3: 300/300 agree, preserved 143, maxdiff 2.7e-15
-B n=20 p=10 rule=P k=5: 300/300 agree, preserved 170, maxdiff 4.7e-15
-B n=50 p=20 rule=C k=2: 300/300 agree, preserved 255, maxdiff 1.8e-15
-B n=50 p=20 rule=C k=3: 300/300 agree, preserved 231, maxdiff 1.6e-15
-B n=50 p=20 rule=C k=5: 300/300 agree, preserved 190, maxdiff 1.8e-15
-B n=50 p=20 rule=P k=2: 300/300 agree, preserved 235, maxdiff 1.8e-15
-B n=50 p=20 rule=P k=3: 300/300 agree, preserved 202, maxdiff 1.6e-15
-B n=50 p=20 rule=P k=5: 300/300 agree, preserved 187, maxdiff 2.0e-15
-B n=12 p=24 rule=C k=2: 300/300 agree, preserved 88, maxdiff 1.6e-15
-B n=12 p=24 rule=C k=3: 300/300 agree, preserved 39, maxdiff 3.9e-15
-B n=12 p=24 rule=C k=5: 300/300 agree, preserved 17, maxdiff 3.6e-15
-B n=12 p=24 rule=P k=2: 300/300 agree, preserved 76, maxdiff 2.9e-15
-B n=12 p=24 rule=P k=3: 300/300 agree, preserved 34, maxdiff 2.2e-15
-B n=12 p=24 rule=P k=5: 300/300 agree, preserved 11, maxdiff 1.3e-15
-C n=10 p=5: cor2 coverage 141/213, P(f=1)=0.87, P(k*>=1|f>=2)=0.0, gap=1.0
-C n=20 p=10: cor2 coverage 254/466, P(f=1)=0.87, P(k*>=1|f>=2)=0.0, gap=1.0
-C n=50 p=20: cor2 coverage 775/1269, P(f=1)=0.77, P(k*>=1|f>=2)=0.2857142857142857, gap=1.2857142857142858
-C n=12 p=24: cor2 coverage 46/166, P(f=1)=1.00, P(k*>=1|f>=2)=None, gap=None
-D throughput: oracle 1.1 us/subset, refit 442.3 us/subset, x399
-done in 7.2323691844940186 s

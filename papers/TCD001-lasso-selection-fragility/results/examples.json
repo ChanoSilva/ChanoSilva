@@ -733,5 +733,19 @@
   },
   "f_leave_var0_rule_P": 1
  },
- "seconds": 0.3290071487426758
+ "seconds": 0.48032498359680176,
+ "meta": {
+  "kkt_guard": {
+   "calls": 950,
+   "fallbacks": 91,
+   "fallbacks_tie_at_entry": 91,
+   "fallbacks_full_rank": 91,
+   "max_active_rel": 7.105427357601002e-15,
+   "max_inactive_rel": 5.921189464667501e-16,
+   "max_active_rel_rejected": 6.222222222222219,
+   "max_active_rel_fallback": 5.411671111232863e-12,
+   "max_inactive_rel_fallback": 0.0,
+   "enabled": true
+  }
+ }
 }

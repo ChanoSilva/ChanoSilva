@@ -24,7 +24,7 @@ X = [[2, -1], [0, 2], [1, 1], [2, -2], [-1, 1]], y = [2, -2, 3, -1, 0], mu = 7/2
 | D\R | 7/2 | [1] | [-1] | {1: '-5/12'} | {0: '11/4'} | {0: '4', 1: '-6'} |
 | D\R' | 7/2 | [0] | [1] | {0: '1/10'} | {1: '-17/10'} | {0: '4', 1: '-2'} |
 
-All 26 proper removal sets verified exactly: True. Non-monotone pairs for variable 1: 3.
+All 26 removal sets with |R| <= n-2 (including R = empty set) verified exactly: True. Non-monotone pairs for variable 1: 3.
 Stability-selection frequency of variable 1 (rule P, subsamples of size 2): 9/10; fragility number of 'variable 1 leaves' under rule P: 1.
 
-Time 0.3 s.
+Time 0.5 s.
