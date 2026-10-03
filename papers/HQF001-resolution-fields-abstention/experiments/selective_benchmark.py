@@ -13,6 +13,16 @@ flag; each pair has its own seeded generator and the "best reference" comparison
 of the direct one; B = 20000; synth-classcov uses a covariance spectrum for which the
 Bayes-error calibration has a solution (v0.1 hit the lower bound: coinciding means);
 inner-CV configurations that fail on some inner fold are discarded.
+
+v0.3 (2026-10-03, after internal review round 2; preregistered in PREREGISTRO_HQF001_rejilla_20261003.md):
+the field grid is widened from K_m in {20, 40, 80}, alpha in {0.05, 0.2, 0.5} (FIELD_GRID_V02) to
+K_m in {20, 40, 80, 160, 320}, alpha in {0.05, 0.2, 0.5, 0.7, 0.9}, because the v0.2 selection sat on the
+upper edge of the grid in most folds of several datasets; nominal K_m values that the cap
+min(K_m, n_train - 1) makes identical are listed largest first, so that among identical inner
+configurations the largest nominal value is kept (on iris, "all 79 inner points" then maps to "all 119
+outer points" instead of "80 of 120"); the fraction of folds whose selected hyper-parameter lies on an
+edge of its grid is stored ("saturation") and tabulated. References, folds, seeds, inner CV, intervals and
+the criterion are unchanged.
 """
 import os
 os.environ.setdefault("OMP_NUM_THREADS", "1")
@@ -46,7 +56,7 @@ warnings.filterwarnings("ignore")
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SEED = 20260930
-SCRIPT_VERSION = "v0.2 (2026-10-03)"
+SCRIPT_VERSION = "v0.3 (2026-10-03)"
 CRITERION_TEXT = ("residual gain = AURC of the field lower than that of the best reference (lowest mean AURC "
                   "among the references on that dataset) on a majority (>= n//2 + 1 of n datasets) of datasets, "
                   "with the paired 95% percentile-bootstrap interval over folds excluding zero; "
@@ -391,7 +401,9 @@ def m_field(Xtr, ytr, Xte, grid):
     gmu = np.vstack([Xtr[ytr == c].mean(0) for c in classes])  # global prototypes
     out = []
     for Km in Kms:
-        noms = [km for km in grid["K_m"] if cap[km] == Km]
+        # nominal values that the cap makes identical: largest first, so that the inner selection (which
+        # keeps the first of equal inner AURCs) keeps the largest nominal K_m (v0.3)
+        noms = sorted((km for km in grid["K_m"] if cap[km] == Km), reverse=True)
         idx = idx_all[:, :Km]
         P = Xtr[idx]
         lab = ytr[idx]
@@ -439,6 +451,12 @@ def m_field(Xtr, ytr, Xte, grid):
     return out
 
 
+# Field grid. v0.2 (the run of the predefined criterion, kept in results/v02/) used FIELD_GRID_V02;
+# v0.3 widens it as preregistered in PREREGISTRO_HQF001_rejilla_20261003.md.
+FIELD_GRID_V02 = dict(K_m=[20, 40, 80], alpha=[0.05, 0.2, 0.5])
+FIELD_GRID = dict(K_m=[20, 40, 80, 160, 320], alpha=[0.05, 0.2, 0.5, 0.7, 0.9])
+
+
 # Registry: name -> (function, grid, filter on params, group)
 def build_methods(fast):
     ks = [3, 5, 7, 11, 15, 21, 31]
@@ -451,7 +469,7 @@ def build_methods(fast):
         "RForest": (m_rforest, dict(n_estimators=100 if not fast else 50, min_samples_leaf=[1, 5]), None, "reference"),
         "DANN": (m_dann, dict(K_m=[50, 100], k=[5, 11, 21], eps=1.0), None, "reference"),
     }
-    fgrid = dict(K_m=[20, 40, 80], alpha=[0.05, 0.2, 0.5])
+    fgrid = dict(FIELD_GRID)
     for v, label in [("aniso", "Field-aniso"), ("iso", "Field-iso"), ("euclid", "Field-euclid"),
                      ("vol", "Field-vol"), ("anis", "Field-anis"), ("aniso_gproto", "Field-aniso-gproto")]:
         M[label] = (m_field, fgrid, v, "field")

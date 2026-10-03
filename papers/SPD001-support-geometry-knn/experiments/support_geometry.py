@@ -322,6 +322,16 @@ def selective_accuracy(correct, confidence, coverage=COVERAGE):
     return float(correct[idx].mean())
 
 
+def result_entry(corr, conf, loo, params, **extra):
+    """Per-fold record: accuracy, selective accuracy and the integer counts behind them."""
+    keep = int(math.ceil(COVERAGE * len(corr)))
+    idx = np.argsort(-conf, kind="stable")[:keep]
+    out = dict(acc=float(corr.mean()), sel=float(corr[idx].mean()), n_correct=int(corr.sum()),
+               n_test=int(len(corr)), sel_correct=int(corr[idx].sum()), sel_n=keep, loo=loo, params=params)
+    out.update(extra)
+    return out
+
+
 def m_candidates(k, d):
     return [m for m in M_GRID if m <= min(k - 1, d - 1)]
 
@@ -329,7 +339,7 @@ def m_candidates(k, d):
 # ----------------------------------------------------------------------------
 # one outer fold
 # ----------------------------------------------------------------------------
-def run_fold(Xtr, ytr, Xte, yte, classes):
+def run_fold(Xtr, ytr, Xte, yte, classes, grids):
     mu, sd = Xtr.mean(0), Xtr.std(0)
     sd = np.where(sd > 0, sd, 1.0)
     Xtr = (Xtr - mu) / sd
@@ -341,6 +351,8 @@ def run_fold(Xtr, ytr, Xte, yte, classes):
     yte_i = np.array([cidx[c] for c in yte])
     C = len(classes)
 
+    K_GRID = grids["k_grid"]
+    KNN_GRID = grids["knn_grid"]
     Ltr = LocalGeometry(Xtr, ytr, classes, K_GRID, Xtr, exclude_self=True)
     Lte = LocalGeometry(Xtr, ytr, classes, K_GRID, Xte)
     out = {}
@@ -366,8 +378,7 @@ def run_fold(Xtr, ytr, Xte, yte, classes):
             best = (acc, k)
     pred, conf = knn_scores(Lte, best[1])
     corr = (pred == yte_i)
-    out["kNN"] = dict(acc=float(corr.mean()), sel=selective_accuracy(corr, conf),
-                      loo=best[0], params={"k": best[1]})
+    out["kNN"] = result_entry(corr, conf, best[0], {"k": best[1]})
 
     # ---- HKNN scale: median over training points of the mean squared singular value
     #      of the true-class neighbourhood (leave-one-out)
@@ -405,8 +416,7 @@ def run_fold(Xtr, ytr, Xte, yte, classes):
         sc = best[2](Lte)
         pred = sc.argmin(1)
         corr = (pred == yte_i)
-        out[name] = dict(acc=float(corr.mean()), sel=selective_accuracy(corr, relative_margin(sc)),
-                         loo=best[0], params=dict(zip(param_names[name], best[1])))
+        out[name] = result_entry(corr, relative_margin(sc), best[0], dict(zip(param_names[name], best[1])))
 
     # ---- conditional-logit decomposition models
     for name in LOGIT_MODELS:
@@ -428,8 +438,7 @@ def run_fold(Xtr, ytr, Xte, yte, classes):
         Fte = (logit_features(Lte, k, m, which) - fm) / fs
         pred, conf, _ = clogit_predict(Fte, w)
         corr = (pred == yte_i)
-        out[name] = dict(acc=float(corr.mean()), sel=selective_accuracy(corr, conf), loo=acc0,
-                         params={"k": k, "m": m}, weights={f: float(x) for f, x in zip(which, w)})
+        out[name] = result_entry(corr, conf, acc0, {"k": k, "m": m}, weights={f: float(x) for f, x in zip(which, w)})
     return out
 
 

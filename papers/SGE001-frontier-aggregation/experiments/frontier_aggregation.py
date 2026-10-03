@@ -1000,11 +1000,15 @@ def write_tables(res):
     L += ["## E0 derivative self-test (max relative deviation from central differences)", ""]
     for k, v in res["E0"].items():
         L.append(f"- {k}: grad {v['grad']:.1e}, hess {v['hess']:.1e}, third {v['third']:.1e}")
-    L += ["", "## E1 dispersion sweep (median relative errors over reps with bootstrap 95% CI; r21 = |E1|/|E2| min over reps; cert = all reps satisfy 2 B2 < |Q2|)", "",
-          "| frontier | law | sigma | e1 | e2 | e2 CI | e3 | r21 min | r32 min | bound2 (rel) | E2/B2 max | cert |", "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    L += ["", "## E1 dispersion sweep (median relative errors over reps with bootstrap 95% CI; r21 = |E1|/|E2| min over reps; "
+          "certificates = fraction of reps with (k+1) B2 < |Q2|: micro-data = segmentwise B2, moment+range = B2box; k = 1 and k = 5)", "",
+          "| frontier | law | sigma | e1 | e2 | e2 CI | e3 | r21 min | r32 min | bound2 (rel) | E2/B2 max | cert k=1 micro | cert k=1 moment+range | cert k=5 micro | cert k=5 moment+range |",
+          "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    g = lambda r, k: (f"{r[k]:.2f}" if k in r else "--")
     for r in res["E1"]["rows"]:
         L.append(f"| {r['frontier']} | {r['law']} | {r['sigma']:.3g} | {r['e1_med']:.2e} | {r['e2_med']:.2e} | [{r['e2_ci'][0]:.2e}, {r['e2_ci'][1]:.2e}] | {r['e3_med']:.2e} | "
-                 f"{r['r21_min']:.1f} | {r['r32_min']:.1f} | {r.get('bound2_rel_med', float('nan')):.2e} | {r.get('ratio_E2_over_B2_max', float('nan')):.3f} | {r.get('cert_obs_holds_all', '--')} |")
+                 f"{r['r21_min']:.2f} | {r['r32_min']:.1f} | {r.get('bound2_rel_med', float('nan')):.2e} | {r.get('ratio_E2_over_B2_max', float('nan')):.3f} | "
+                 f"{g(r, 'cert_obs_frac')} | {g(r, 'cert_box_frac')} | {g(r, 'cert_c1_frac')} | {g(r, 'cert_c1_box_frac')} |")
     L += ["", "### E1 summary", ""]
     for k, v in res["E1"]["summary"].items():
         L.append(f"- {k}: " + ", ".join(f"{a}={b:.3g}" if isinstance(b, float) else f"{a}={b}" for a, b in v.items()))
@@ -1012,16 +1016,20 @@ def write_tables(res):
     for r in res["E1b"]["rows"]:
         L.append(f"| {r['sigma']:.3g} | {r['e2_med']:.2e} | {r['e2_theta_med']:.2e} | {r['cov_term_med']:.2e} | {r['floor_pred_med']:.2e} |")
     L += ["", "### E1b summary", ""] + [f"- {k}: {v}" for k, v in res["E1b"]["summary"].items()]
-    L += ["", "## E1c finite-N effect on the exponents (CD, LN, 6 reps, fit on sigma <= 0.05)", "", "| N | slope e1 | slope e2 | slope e3 |", "|---|---|---|---|"]
+    L += ["", "## E1c finite-N effect on the exponents (CD, LN, fit on sigma <= 0.05; bootstrap SE over replications in parentheses)", "",
+          "| N | reps | slope e1 | slope e2 | slope e3 | median abs(E2-E3)/Y at sigma = 0.01 | median abs(e3) at sigma = 0.01 |", "|---|---|---|---|---|---|---|"]
     for r in res["E1c"]["rows"]:
-        L.append(f"| {r['N']} | {r['slope_e1']:.2f} | {r['slope_e2']:.2f} | {r['slope_e3']:.2f} |")
-    L += ["", "## E2 capacity threshold (both laws; 'below branch' = min ratio over reps with f(xbar) <= c; tau = Tu/(sigma tau_z); tau(b) = shifted version)", "",
-          "| law | delta | sigma | e1 | e2 capped | e2 CI | e2 smooth | r21 min | r21 min below | reps mean above | N Tu / Y | -E2/(N Tu) | tau | tau(b) | two-sided bound | lower informative | frac above |",
-          "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+        L.append(f"| {r['N']} | {r['reps']} | {r['slope_e1']:.2f} ({r['slope_e1_se']:.2f}) | {r['slope_e2']:.2f} ({r['slope_e2_se']:.2f}) | {r['slope_e3']:.2f} ({r['slope_e3_se']:.2f}) | "
+                 f"{r['third_moment_term_med_smallest_sigma']:.2e} | {r['e3_med_smallest_sigma']:.2e} |")
+    L += ["", "## E2 capacity threshold (both laws; 'below branch' = min ratio over reps with f(xbar) <= c; tau = Tu/(sigma tau_z); tau(b) = shifted version, "
+          "median and [min, max] over reps; P<Q = fraction of reps with P_u < Q_u)", "",
+          "| law | delta | sigma | e1 | e2 capped | e2 CI | e2 smooth | r21 min | r21 min below | reps mean above | N Tu / Y | -E2/(N Tu) | tau | tau(b) | tau(b) range | med abs(tau(b)-1) | P<Q | two-sided bound | lower informative | frac above |",
+          "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     fmt = lambda v, f="%.3f": (f % v) if v is not None else "--"
     for r in res["E2"]["rows"]:
         L.append(f"| {r['law']} | {r['delta']:+.2f} | {r['sigma']:.3g} | {r['e1_med']:.2e} | {r['e2_med']:.2e} | [{r['e2_ci'][0]:.2e}, {r['e2_ci'][1]:.2e}] | {r['e2_smooth_med']:.2e} | {r['r21_min']:.3f} | "
                  f"{fmt(r['r21_min_below_branch'])} | {r['frac_reps_mean_above']:.2f} | {r['NTu_rel_med']:.2e} | {fmt(r['E2_over_minusNTu_med'])} | {fmt(r['Tu_over_sigma_tau_med'])} | {fmt(r['Tu_over_sigma_taub_med'])} | "
+                 f"[{fmt(r['Tu_over_sigma_taub_min'], '%.4f')}, {fmt(r['Tu_over_sigma_taub_max'], '%.4f')}] | {fmt(r['Tu_over_sigma_taub_absdev_med'], '%.4f')} | {r['frac_reps_P_below_Q']:.2f} | "
                  f"{r['two_sided_bound_holds']} | {r['lower_bound_informative']} | {r['frac_above_med']:.3f} |")
     L += ["", "### E2 summary", ""]
     for k, v in res["E2"]["summary"].items():
@@ -1033,11 +1041,12 @@ def write_tables(res):
     L += ["", "### E3 summary", ""]
     for k, v in res["E3"]["summary"].items():
         L.append(f"- {k}: {v}")
-    L += ["", "## E4 rank reversals (%, Wilson 95% intervals; C2 verdict for eligible cells: fail / pass / borderline)", "", "| prox | sigma | order 1 | CI | order 2 | CI | order 3 | CI | certified frac | certified reversals | mean A below cap | C2 |", "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    L += ["", "## E4 rank reversals (%, Wilson 95% intervals; C2 verdict for eligible cells: fail / pass / borderline)", "", "| prox | sigma | order 1 | CI | order 2 | CI | order 3 | CI | certified frac (micro-data B2) | certified reversals | certified frac (moment+range B2box) | its reversals | mean A below cap | C2 |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     ci = lambda c: f"[{100*c[0]:.1f}, {100*c[1]:.1f}]"
     for r in res["E4"]["rows"]:
         L.append(f"| {r['prox']} | {r['sigma']} | {100*r['rev1']:.1f} | {ci(r['rev1_ci'])} | {100*r['rev2']:.1f} | {ci(r['rev2_ci'])} | {100*r['rev3']:.1f} | {ci(r['rev3_ci'])} | "
-                 f"{r.get('certified_frac', float('nan')):.2f} | {r.get('certified_reversals', '--')} | {r['fracA_mean_below_cap']:.2f} | {r.get('C2_verdict', '--')} |")
+                 f"{r.get('certified_frac', float('nan')):.3f} | {r.get('certified_reversals', '--')} | {r.get('certified_box_frac', float('nan')):.3f} | {r.get('certified_box_reversals', '--')} | "
+                 f"{r['fracA_mean_below_cap']:.2f} | {r.get('C2_verdict', '--')} |")
     L += ["", "### E4 summary", ""]
     for k, v in res["E4"]["summary"].items():
         L.append(f"- {k}: {v}")

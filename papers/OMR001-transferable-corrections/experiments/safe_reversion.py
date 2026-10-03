@@ -415,6 +415,7 @@ def summarize(structure, departure, msweep, consts):
                                       bound_phi={a: w["ops"]["eb"]["rev"][a]["bound_phi"] for a in alphas},
                                       bound_alpha={a: w["ops"]["eb"]["rev"][a]["bound_alpha"] for a in alphas})
     summary["constants"] = consts
+    summary["worst_case"] = worst_case_table()
     return summary
 
 
@@ -442,8 +443,8 @@ def write_tables(structure, departure, msweep, consts, summary, path):
                  f" | {e['rev']['0.1']['risk_refit'][0]:.4f} ({100*e['rev']['0.1']['gain_refit_vs_Rn']['gain']:+.1f}%{'U' if e['rev']['0.1']['useful_refit'] else ''}) |")
     L.append("\n## T2. Departure sweep (EB operator, snr=%.1f, target shifted by dep x tau, m=%d)\n" % (CFG["snr_dep"], CFG["m_default"]))
     L.append("| dep/tau | R_e | R_n | always_e | always_n | harm%_e | " + " | ".join(f"rev a={a}" for a in alphas) + " | " +
-             " | ".join(f"harm% a={a}" for a in alphas) + " | excess a=0.1 (MC) | bound tight | bound phi | bound alpha | SURE | refit a=0.1 |")
-    L.append("|" + "---|" * (12 + 2 * len(alphas)))
+             " | ".join(f"harm% a={a}" for a in alphas) + " | excess a=0.1 (MC) | bound tight | bound kappa | bound phi | bound alpha | cap | SURE | refit a=0.1 |")
+    L.append("|" + "---|" * (14 + 2 * len(alphas)))
     for r in departure:
         e = r["ops"]["eb"]
         q = e["rev"]["0.1"]
@@ -451,7 +452,7 @@ def write_tables(structure, departure, msweep, consts, summary, path):
                  f"{100*e['always']['harm_freq']:.1f} | " +
                  " | ".join(f"{e['rev'][a]['risk'][0]:.4f}" for a in alphas) + " | " +
                  " | ".join(f"{100*e['rev'][a]['harm_freq']:.1f}" for a in alphas) +
-                 f" | {q['excess_vs_Re'][0]:+.5f} +- {q['excess_vs_Re'][1]:.5f} | {q['bound_tight']:.5f} | {q['bound_phi']:.4f} | {q['bound_alpha']:.4f}"
+                 f" | {q['excess_vs_Re'][0]:+.5f} +- {q['excess_vs_Re'][1]:.5f} | {q['bound_tight']:.5f} | {q['bound_kappa']:.4f} | {q['bound_phi']:.4f} | {q['bound_alpha']:.4f} | {q['bound_uniform']:.4f}"
                  f" | {e['sure']['risk'][0]:.4f} | {q['risk_refit'][0]:.4f} |")
     L.append("\n## T3. Held-out size (EB operator, tau^2 fixed at snr=%.1f relative to n_e=%d, alpha=0.1)\n"
              % (CFG["snr_dep"], CFG["n"] - CFG["m_default"]))
@@ -473,13 +474,21 @@ def write_tables(structure, departure, msweep, consts, summary, path):
             L.append(f"| {r['snr']:.0f} | {name} | {e['always']['risk'][0]:.4f} | {100*e['always']['harm_freq']:.1f} | "
                      f"{q['risk'][0]:.4f} | {100*q['harm_freq']:.1f} | {q['excess_vs_Re'][0]:+.5f} | {q['bound_phi']:.4f} | {q['bound_alpha']:.4f} |")
     L.append("\n## T5. Constants of Theorem 4.2, Corollary 4.3 and Proposition 4.5\n")
-    L.append("| alpha | z | phi(z) | kappa(alpha) | u* | kappa/phi | z+phi(0) |")
-    L.append("|---|---|---|---|---|---|---|")
+    L.append("| alpha | z | phi(z) | kappa(alpha) | u* | kappa/phi | kappa2(alpha) | kappa2/phi(1) | z+phi(0) |")
+    L.append("|---|---|---|---|---|---|---|---|---|")
     for c in consts:
-        L.append(f"| {c['alpha']} | {c['z']:.3f} | {c['phi_z']:.4f} | {c['kappa']:.4f} | {c['u_star']:.3f} | {c['ratio_kappa_over_phi']:.3f} | {c['regret_const']:.3f} |")
+        L.append(f"| {c['alpha']} | {c['z']:.3f} | {c['phi_z']:.4f} | {c['kappa']:.4f} | {c['u_star']:.3f} | {c['ratio_kappa_over_phi']:.3f} | "
+                 f"{c['kappa2']:.4f} | {c['ratio_kappa2_over_phi1']:.3f} | {c['regret_const']:.3f} |")
+    L.append("\n## T6. Worst case over operators at the design (Proposition 4.5(b), Corollary 4.3; analytic)\n")
+    L.append("| alpha | lower (construction) | upper (exact E-norm) | cap (Jensen) | cap, closed form phi |")
+    L.append("|---|---|---|---|---|")
+    for w in summary["worst_case"]:
+        L.append(f"| {w['alpha']} | {w['lower']:.4f} | {w['upper_exact']:.4f} | {w['cap']:.4f} | {w['cap_phi']:.4f} |")
     L.append("\n## Summary checks\n")
-    for k in ("n_configs_rev", "safe_phi_all", "safe_alpha_all", "safe_tight_all", "safe_harm_freq_all",
-              "safe_uniform_all", "max_excess_over_bound_uniform", "max_bound_phi_over_uniform", "max_identity_abs_z",
+    for k in ("n_configs_rev", "safe_phi_all", "safe_kappa_all", "safe_alpha_all", "safe_tight_all", "safe_harm_freq_all",
+              "safe_uniform_all", "safe_uniform_phi_all", "max_excess_over_bound_kappa", "max_excess_over_bound_uniform",
+              "max_excess_over_bound_uniform_phi", "max_bound_kappa_over_uniform", "max_bound_phi_over_uniform_phi",
+              "max_identity_abs_z",
               "n_identity_clt", "n_identity_poisson", "identity_ok_all", "n_identity_fail",
               "max_excess_over_bound_phi", "max_regret_over_bound",
               "useful_structure_eb", "useful_structure_always_eb", "useful_structure_always_full_eb", "useful_structure_sure_eb",
@@ -603,8 +612,11 @@ def make_figures(structure, departure):
     q = [r["ops"]["eb"]["rev"]["0.1"] for r in departure]
     ex = np.array([v["excess_vs_Re"][0] for v in q]); se = np.array([v["excess_vs_Re"][1] for v in q])
     ax.plot(x, [v["bound_alpha"] for v in q], color=C["yellow"], label=r"bound $\alpha\,E[\Delta^+]$", **mk)
-    ax.plot(x, [v["bound_phi"] for v in q], color=C["orange"], label=r"bound $\varphi(z_{1-\alpha})\,E[s]$", **mk)
-    ax.plot(x, [v["bound_tight"] for v in q], color=C["aqua"], label=r"bound $E[\Delta^+\Phi(-(\Delta^+ + c)/s)]$", **mk)
+    ax.plot(x, [v["bound_phi"] for v in q], color=C["orange"], label=r"closed form $\varphi(z_{1-\alpha})\,E[s]$", **mk)
+    ax.plot(x, [v["bound_kappa"] for v in q], color=C["violet"], label=r"bound $\kappa(\alpha)\,E[s]$", **mk)
+    ax.plot(x, [v["bound_tight"] for v in q], color=C["aqua"], label=r"identity bound $E[\Delta^+\pi]$", **mk)
+    ax.axhline(q[0]["bound_uniform"], color=C["text2"], linewidth=1.5, linestyle=(0, (4, 3)),
+               label="uniform cap (Corollary 4.3)")
     pos = ex > 0
     ax.errorbar(x[pos], ex[pos], yerr=2 * se[pos], color=C["blue"], capsize=2,
                 label=r"Monte Carlo excess risk ($\pm$2 SE); shown only where $>0$", **mk)
@@ -612,7 +624,7 @@ def make_figures(structure, departure):
     ax.set_xlabel(r"departure of the target, in units of $\tau$ (snr = 1, $\alpha$ = 0.1)")
     ax.set_ylabel("excess risk over reference $R$ (log)")
     ax.set_title("Do no harm: excess risk of the reverting estimator vs. Theorem 4.2", loc="left", color=C["text"])
-    ax.legend(fontsize=7.5, loc="lower right")
+    ax.legend(fontsize=7, loc="lower right", ncol=2)
     style(ax)
     fig.tight_layout()
     fig.savefig(os.path.join(FIGURES, "excess_vs_bounds.png"), dpi=200)
@@ -685,7 +697,7 @@ def main():
     import scipy, matplotlib
     meta = dict(seed=SEED, fast=FAST, seconds=seconds, python=platform.python_version(),
                 numpy=np.__version__, scipy=scipy.__version__, matplotlib=matplotlib.__version__,
-                date="2026-10-03", version="v0.2 (referee round 1 applied)")
+                date="2026-10-03", version="v0.3 (referee rounds 1 and 2 applied)")
     out = dict(meta=meta, config=CFG, criteria=dict(
         useful="lower end of the paired 95% CI of the relative risk gain with respect to the full-data reference Xbar_n is >= useful_threshold",
         safe="Monte Carlo excess risk over the estimation-sample reference <= bound + 2 SE, for every configuration and alpha",
@@ -696,8 +708,9 @@ def main():
         json.dump(out, fh, indent=1)
     write_tables(structure, departure, msweep, consts, summary, os.path.join(RESULTS, "tables.md"))
     make_figures(structure, departure)
-    print(json.dumps({k: summary[k] for k in ("safe_phi_all", "safe_alpha_all", "safe_tight_all", "safe_harm_freq_all",
-                                                "safe_uniform_all", "max_excess_over_bound_uniform",
+    print(json.dumps({k: summary[k] for k in ("safe_phi_all", "safe_kappa_all", "safe_alpha_all", "safe_tight_all",
+                                                "safe_harm_freq_all", "safe_uniform_all", "safe_uniform_phi_all",
+                                                "max_excess_over_bound_kappa", "max_excess_over_bound_uniform",
                                                 "max_identity_abs_z", "identity_ok_all", "n_identity_fail",
                                                 "max_excess_over_bound_phi", "max_regret_over_bound")}, indent=1))
     print(f"done in {seconds:.1f} s")

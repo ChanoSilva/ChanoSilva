@@ -171,8 +171,22 @@ neg_total = sum(res["results"][d]["main"]["summary"][mm]["sig"] == "neg" for d i
 mac("NNegCellsMain", neg_total)
 mac("NCellsMain", len(NAMES) * len(LOCAL))
 mac("NCellsAll", len(m["conditions"]) * len(NAMES) * len(LOCAL))
-mac("ExpectedFalseMain", f"{0.05 * len(NAMES) * len(LOCAL):.1f}")
-mac("ExpectedFalseAll", f"{0.05 * len(m['conditions']) * len(NAMES) * len(LOCAL):.1f}")
+# "expected by chance" (referee 2, M4): one-sided counts, nominal (0.025 N) and with the coverage of the
+# percentile bootstrap simulated by bootstrap_coverage.py (i.i.d. normal folds, the favourable case)
+cov = json.load(open(os.path.join(ROOT, "results", "bootstrap_coverage.json")))
+cc = cov["counts"]
+mac("CovTen", f"{100*cov['sim']['10']['coverage']:.1f}")
+mac("CovFive", f"{100*cov['sim']['5']['coverage']:.1f}")
+mac("OneSidedTen", f"{100*cov['sim']['10']['p_one_sided']:.1f}")
+mac("OneSidedFive", f"{100*cov['sim']['5']['p_one_sided']:.1f}")
+mac("CovReps", cov["sim"]["10"]["replications"])
+mac("ExpectedPosMainNominal", f"{cc['expected_above_main_nominal']:.1f}")
+mac("ExpectedPosRobustNominal", f"{cc['expected_above_robust_nominal']:.1f}")
+mac("ExpectedPosMain", f"{cc['expected_above_main_sim']:.1f}")
+mac("ExpectedPosRobust", f"{cc['expected_above_robust_sim']:.1f}")
+mac("PAtLeastRobustSim", f"{cc['p_at_least_obs_robust_sim']:.2f}")
+mac("PAtLeastRobustNominal", f"{cc['p_at_least_obs_robust_nominal']:.2f}")
+mac("PAtLeastMainSim", f"{cc['p_at_least_obs_main_sim']:.2f}")
 # range of the significant negative differences of the three local linear families on the multiscale sets
 neg_vals = [100 * res["results"][d]["main"]["summary"][mm]["diff_mean"] for d in REGIMES["multiscale"] for mm in ["knn_svm", "cell_svm", "llsvm"]
             if res["results"][d]["main"]["summary"][mm]["sig"] == "neg"]
