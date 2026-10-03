@@ -300,6 +300,134 @@ if wr:
     mac("RecheckMainCount", wr["count"]); mac("RecheckMainExpected", f"{wr['expected']:.0f}")
     mac("RecheckConfig", f"{opname[wr['operator']]}, $\\alpha={wr['alpha']:g}$, $m={wr['m']}$, departure ${wr['dep_over_tau']:g}\\tau$")
 
+# ------------------------------------------------------------------------------------------------
+# v0.4: transported refit and cross-fitting (Theorem thm:refit, Corollary cor:crossfit).
+# Simulation numbers come from results/results.json (same draws as above); the constants, caps and
+# Monte Carlo checks come from results/refit_check.json, written by theory/check_refit.py and frozen
+# with its SHA-256 in results/refit_check.json.sha256 (checked here).
+# ------------------------------------------------------------------------------------------------
+import hashlib  # noqa: E402
+
+_rf_path = os.path.join(ROOT, "results", "refit_check.json")
+_rf_hash = hashlib.sha256(open(_rf_path, "rb").read()).hexdigest()
+_rf_rec = open(_rf_path + ".sha256").read().split()[0]
+assert _rf_hash == _rf_rec, "results/refit_check.json does not match its recorded SHA-256"
+rf = json.load(open(_rf_path))
+mac("RfSHA", _rf_hash[:16]); mac("RfSeconds", f"{rf['meta']['seconds']:.0f}"); mac("RfCPU", f"{rf['meta']['seconds_cpu']:.0f}")
+mac("RfReps", f"{rf['meta']['replicates']:,}".replace(",", r"\,"))
+RC = {(c["alpha"], c["m"]): c for c in rf["constants"]}
+m0 = cfg["m_default"]
+mac("RfEtaDefault", f"{m0 / cfg['n']:g}")
+mac("RfPsiZeroTen", f"{RC[(0.1, m0)]['psi0']:.4f}")
+mac("RfSplitCostAbs", f"{RC[(0.1, m0)]['split']:.4f}")
+for a in cfg["alpha_grid"]:
+    c = RC[(a, m0)]; w = word(str(a))
+    mac(f"RfCap{w}", f"{c['cap_exact']:.4f}"); mac(f"RfLower{w}", f"{c['lower']:.4f}")
+    mac(f"RfFourAlphaSplit{w}", f"{4 * a * c['split']:.4f}")
+    mac(f"RfSplitLo{w}", f"{c['split_lo']:.4f}"); mac(f"RfSplitHi{w}", f"{c['split_hi']:.4f}")
+mac("RfClosedMin", f"{rf['closed_over_exact'][0]:.2f}"); mac("RfClosedMax", f"{rf['closed_over_exact'][1]:.1f}")
+_v1 = [c["v1_limit"] / c["split"] for c in rf["constants"]]
+mac("RfVOneTen", f"{RC[(0.1, m0)]['v1_limit'] / RC[(0.1, m0)]['split']:.2f}")
+mac("RfVOneMin", f"{min(_v1):.2f}"); mac("RfVOneMax", f"{max(_v1):.2f}")
+# worst-case comparison (Table tab:worstrefit): better / worse / inconclusive
+_cls = {}
+with open(os.path.join(out_dir, "table_worst_refit.tex"), "w") as fh:
+    for a in cfg["alpha_grid"]:
+        cells = [f"{a:g}"]
+        for m in cfg["m_grid"]:
+            c = RC[(a, m)]
+            v = f"{c['cap_exact']:.4f}"
+            if c["cap_exact"] < c["split_lo"]:
+                v, k = r"\textbf{" + v + "}", "better"
+            elif c["cap_exact"] > c["split_hi"]:
+                v, k = r"\textit{" + v + "}", "worse"
+            else:
+                k = "unclear"
+            _cls.setdefault(k, []).append((a, m))
+            cells.append(f"{v} vs [{c['split_lo']:.4f}, {c['split_hi']:.4f}]")
+        fh.write(" & ".join(cells) + " \\\\\n")
+with open(os.path.join(out_dir, "table_worst_split.tex"), "w") as fh:
+    fh.write(" & ".join(f"{RC[(0.1, m)]['split']:.4f}" for m in cfg["m_grid"]) + "\n")
+
+
+def _cls_text(pairs):
+    if not pairs:
+        return "no pair"
+    by_a = {}
+    for a, m in pairs:
+        by_a.setdefault(a, []).append(m)
+    parts = []
+    for a, ms in by_a.items():
+        ms_txt = "every $m$" if len(ms) == len(cfg["m_grid"]) else "$m\\in\\{" + ",".join(str(x) for x in ms) + "\\}$"
+        parts.append(f"$\\alpha={a:g}$ ({ms_txt})")
+    return ", ".join(parts)
+
+
+mac("RfBetterText", _cls_text(_cls.get("better", [])))
+mac("RfWorseText", _cls_text(_cls.get("worse", [])))
+mac("RfUnclearText", _cls_text(_cls.get("unclear", [])))
+assert all(k == "worse" for (a, m), k in [((a, m), k) for k, v in _cls.items() for (a, m) in v] if a == 0.5), \
+    "text claims that the refit is worse than the split at alpha = 0.5 for every m"
+# Monte Carlo checks (design, cross-fit, adversarial)
+dz = rf["design"]
+mac("RfDesignN", dz["n"])
+for k, tag in (("b2", "B"), ("b2c", "Bc"), ("cap", "Cap"), ("capc", "Capc")):
+    mac(f"RfDesignHold{tag}", dz["hold"][k]); mac(f"RfDesignMax{tag}", f"{dz['max_ratio'][k]:.2f}")
+mac("RfIdNz", dz["identity_n_z"]); mac("RfIdMaxZ", f"{dz['identity_max_z']:.2f}")
+mac("RfIdNPois", dz["identity_n_poisson"]); mac("RfIdFail", dz["identity_fail"])
+mac("RfSimHoldB", dz["simrefit_hold"]["b2"]); mac("RfSimHoldCap", dz["simrefit_hold"]["cap"])
+mac("RfSimMaxB", f"{dz['simrefit_max_ratio']['b2']:.2f}"); mac("RfSimMaxCap", f"{dz['simrefit_max_ratio']['cap']:.2f}")
+mac("RfReproDiff", f"{max(dz['repro_max_diff'], dz['replica_max_diff']):.0e}")
+cf = rf["crossfit"]
+mac("RfCfN", cf["n"]); mac("RfCfMs", ", ".join(str(x) for x in cf["m_values"]))
+mac("RfCfHoldB", cf["hold"]["b2"]); mac("RfCfHoldCap", cf["hold"]["cap"]); mac("RfCfJensen", cf["jensen_hold"])
+mac("RfCfMaxB", f"{cf['max_ratio']['b2']:.2f}"); mac("RfCfMaxCap", f"{cf['max_ratio']['cap']:.2f}")
+_cf0 = [r for r in cf["eb10"] if r["m"] == m0 and r["dep"] == 0.0]
+_rn = cfg["d"] * cfg["sigma"] ** 2 / cfg["n"]
+mac("RfCfSZeroGain", pct(-_cf0[0]["ex"][0] / _rn)); mac("RfCfSSixteenGain", pct(-[r for r in _cf0 if r["snr"] == 16.0][0]["ex"][0] / _rn))
+_cfd = [r for r in cf["eb10"] if r["m"] == m0 and r["snr"] == cfg["snr_dep"]]
+mac("RfCfDepMax", f"{max(r['ex'][0] for r in _cfd):+.4f}"); mac("RfCfK", cfg["n"] // m0)
+ad = rf["adversarial"]
+mac("RfAdvN", ad["n"])
+for k, tag in (("b2", "B"), ("cap", "Cap"), ("capc", "Capc")):
+    mac(f"RfAdvHold{tag}", ad["hold"][k]); mac(f"RfAdvMax{tag}", f"{ad['max_ratio'][k]:.2f}")
+mac("RfAdvIdN", ad["identity_n"]); mac("RfAdvIdMaxZ", f"{ad['identity_max_z']:.2f}"); mac("RfAdvIdAbove", ad["identity_n_above3"])
+mac("RfAdvWorstMin", f"{min(ad['worst_over_cap']):.2f}"); mac("RfAdvWorstMax", f"{max(ad['worst_over_cap']):.2f}")
+mac("RfAdvReflMin", f"{min(ad['reflect_over_lower']):.2f}"); mac("RfAdvReflMax", f"{max(ad['reflect_over_lower']):.2f}")
+ac = rf["adversarial_crossfit"]
+mac("RfAcfN", ac["n"]); mac("RfAcfHoldB", ac["hold"]["b2"]); mac("RfAcfHoldCap", ac["hold"]["cap"])
+mac("RfAcfMaxSplit", f"{ac['max_over_split']:.1f}"); mac("RfAcfMaxSplitM", ac["max_over_split_at"]["m"])
+mac("RfAcfMaxSplitAlpha", f"{ac['max_over_split_at']['alpha']:g}")
+_w10 = [r["ex"] / r["split"] for r in ac["worst"] if r["alpha"] == 0.1]
+mac("RfAcfTenMin", f"{min(_w10):.2f}"); mac("RfAcfTenMax", f"{max(_w10):.2f}")
+# transported refit inside the simulation (results.json, same draws as every other estimator)
+for a in A:
+    ww = word(a)
+    mac(f"UsefulTr{ww}", snrlist(summ["useful_structure_transported_eb"][a]))
+    mac(f"HarmfulTr{ww}Dep", snrlist(summ["harmful_vs_Rn_transported_eb_departure"][a]))
+mac("HarmfulRevHalfDep", snrlist(summ["harmful_vs_Rn_rev_eb_departure"]["0.5"]))
+for snr, tag in ((0.0, "Zero"), (1.0, "One"), (4.0, "Four"), (16.0, "Sixteen")):
+    q = S(snr)["ops"]["eb"]["rev"]
+    for a in ("0.5", "0.1"):
+        mac(f"S{tag}Tr{word(a)}Gain", pct(q[a]["gain_transported_vs_Rn"]["gain"]))
+_trd = [(r["ops"]["eb"]["rev"]["0.1"]["risk_transported"][0] / r["risk_Rn"][0], r["dep_over_tau"]) for r in departure]
+mac("DepTrTenMax", f"{max(_trd)[0]:.2f}"); mac("DepTrTenMaxAt", f"{max(_trd)[1]:g}")
+_trh = [(r["ops"]["eb"]["rev"]["0.5"]["risk_transported"][0] / r["risk_Rn"][0], r["dep_over_tau"]) for r in departure]
+mac("DepTrHalfMax", f"{max(_trh)[0]:.2f}"); mac("DepTrHalfMaxAt", f"{max(_trh)[1]:g}")
+mac("TrHarmMaxTen", pct_up(max(r["ops"]["eb"]["rev"]["0.1"]["harm_freq_transported"] for r in structure + departure)))
+# design table (EB operator, alpha = 0.1, m = m_default): excess over Xbar_n
+with open(os.path.join(out_dir, "table_refit_design.tex"), "w") as fh:
+    rows_out = []
+    for sweep, key, vals in (("structure", "snr", (0.0, 1.0, 4.0, 16.0)), ("departure", "dep", (4.0, 8.0, 16.0))):
+        for v in vals:
+            r = next(x for x in dz["eb10"] if x["sweep"] == sweep and x[key] == v and x["m"] == m0)
+            c = next(x for x in cf["eb10"] if x["m"] == m0 and x[key] == v and (sweep == "departure" or x["dep"] == 0.0)
+                     and (sweep == "structure" or x["snr"] == cfg["snr_dep"]))
+            lab = (f"$\\snr={v:g}$" if sweep == "structure" else f"$\\kappa={v:g}$")
+            rows_out.append(" & ".join([lab, f"${r['split']:+.4f}$", f"${r['ex'][0]:+.4f}$", f"{r['b2']:.4f}", f"{r['cap']:.4f}",
+                                        f"${r['simrf']:+.4f}$", f"${c['ex'][0]:+.4f}$"]))
+    fh.write(" \\\\\n".join(rows_out) + "\n")
+
 with open(os.path.join(out_dir, "numbers.tex"), "w") as fh:
     fh.write("% generated by experiments/make_numbers.py -- do not edit\n" + "\n".join(L) + "\n")
 
@@ -312,4 +440,4 @@ for fn in os.listdir(out_dir):
         if body.endswith("\\\\"):
             body = body[:-2].rstrip()
         open(fp, "w").write(body + "\n")
-print(f"wrote {len(L)} macros and 7 table bodies to {out_dir}")
+print(f"wrote {len(L)} macros and 10 table bodies to {out_dir}")

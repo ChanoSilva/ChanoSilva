@@ -486,6 +486,60 @@ assert all(abl[f"{k}_{r}"]["equiv_fail"] >= 1 and abl[f"{k}_{r}"]["char_fail"] >
            for k in ("u", "eta") for r in "CP"), "text: u = 1 and kappa = 2 break the equivalence"
 assert all(abl[f"rho_{r}"]["undetermined"] >= 1 and abl[f"rho_{r}"]["char_fail"] == 0 for r in "CP"), \
     "text: rho = 1 only loses certified uniqueness"
+# v0.5 (referee round 3, m2/m3): the frozen log has no timing line (a rerun reproduces its SHA-256), and
+# the KKT guard counter of the hardness check is reported.
+assert not any(line.startswith(b"elapsed") for line in hlog.splitlines()), "frozen hardness log must be time-free"
+assert hj["meta"].get("log_has_timing") is False
+hk = hj["meta"]["kkt_guard"]
+mac("HardKKTFits", thousands(hk["calls"]))
+mac("HardKKTFallbacks", hk["fallbacks"])
+assert hk["fallbacks"] == 0, "text: the KKT guard was never triggered in the hardness check"
+
+# ------------------------------------------------------------------ strong hardness, p in the input (v0.5)
+# experiments/check_strong.py -> results/strong_hardness.json, results/check_strong_output.txt (+ .sha256).
+sj = json.load(open(os.path.join(RES, "strong_hardness.json")))
+ssha = open(os.path.join(RES, "check_strong_output.sha256")).read().split()[0]
+slog = open(os.path.join(RES, "check_strong_output.txt"), "rb").read()
+assert hashlib.sha256(slog).hexdigest() == ssha == sj["meta"]["log_sha256"], "frozen strong log != SHA-256"
+assert sj["meta"]["log_has_timing"] is False and b"CPU" not in slog, "frozen strong log must be time-free"
+sr = sj["reduction"]
+mac("StrongInst", sr["n_instances"])
+mac("StrongYes", sr["n_yes"])
+mac("StrongNo", sr["n_no"])
+mac("StrongEquivOk", sr["equiv_ok"])
+mac("StrongSubsets", thousands(sr["subsets"]))
+mac("StrongMaxN", sr["max_n"])
+mac("StrongMaxP", sr["max_p"])
+mac("StrongMaxInt", thousands(sr["max_int"]))
+mac("StrongMaxMu", thousands(sr["max_mu"]))
+mac("StrongTies", thousands(sr["ties"]))
+mac("StrongLibChecked", thousands(sr["lib_checked"]))
+mac("StrongLibDisagree", sr["lib_disagree"])
+assert sr["q_values"] == [2, 3], "text: q in {2,3}"
+mac("StrongNqTwo", sr["n_q"][0])
+mac("StrongNqThree", sr["n_q"][1])
+sk = sj["meta"]["kkt_guard"]
+mac("StrongKKTCalls", thousands(sk["calls"]))
+mac("StrongKKTFallbacks", sk["fallbacks"])
+mac("StrongSeconds", int(round(sj["meta"]["cpu_seconds"])))
+mac("StrongSha", ssha[:16])
+mac("StrongCtrlInstances", next(iter(sj["controls"].values()))["n_instances"])
+assert sr["equiv_ok"] == sr["n_instances"] == sr["n_yes"] + sr["n_no"], "text: equivalence in all instances"
+assert sr["char_fail"] == 0 and sr["uncertified"] == 0 and sr["full_data_ok"] == sr["n_instances"], \
+    "text: characterisation never fails; uniqueness certified on every subsample; D ok"
+assert sr["inter_fail"] == 0 and sr["inter_neg_coef"] == 0, "text: Lemma absorb holds on every subsample"
+assert sr["lib_disagree"] == 0, "text: no support disagreement with the guarded solver"
+assert sr["max_int"] <= sr["max_mu"], "text: |x_ij| <= mu"
+assert all(c["detected"] for c in sj["controls"].values()), "text: every negative control is detected"
+cu = [c for k, c in sj["controls"].items() if k.startswith("u = 1")][0]
+assert cu["equiv_fail"] == 0 and cu["char_fail"] == 0 and cu["inter_fail"] > 0, \
+    "text: u = 1 is detected only through the intermediate claims"
+
+# ------------------------------------------------------------------ signed ANY for p = 1 (v0.5, Theorem 5.1(c))
+pj = json.load(open(os.path.join(RES, "signed_any_p1.json")))
+mac("SignedPOneAgree", thousands(pj["agree"]))
+mac("SignedPOneTotal", thousands(pj["instances"]))
+assert pj["agree"] == pj["instances"], "text: sorting rule = brute force on every instance"
 
 # table bodies: drop the trailing row terminator (main.tex supplies it after \input)
 for fn in os.listdir(OUT):

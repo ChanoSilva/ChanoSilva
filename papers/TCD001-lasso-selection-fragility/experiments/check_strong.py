@@ -334,6 +334,7 @@ def main():
     log(f"  library cross-check (lasso_lars with KKT guard, float): {tot['lib_disagree']} support disagreements in {tot['lib_checked']} fits")
     log(f"  largest integer in the data over all instances: {maxint}")
     log(f"  exact solves {STATS['solves']}, enumeration fallbacks {STATS['fallbacks']}")
+    main_stats = dict(STATS)  # before the negative controls
     log("")
     # negative controls: conditions of the proof violated; at least one failure expected for each
     log("NEGATIVE CONTROLS (each violates a condition of the proof; a failure must be detected):")
@@ -382,8 +383,9 @@ def main():
                        uncertified=tot["uncert"], uncertified_with_entry=tot["uncert_entry"], ties=tot["ties"],
                        inter_fail=tot["inter_fail"], inter_neg_coef=tot["inter_sign_fail"],
                        lib_checked=tot["lib_checked"], lib_disagree=tot["lib_disagree"],
-                       max_int=int(maxint), max_mu=int(maxmu), exact_solves=STATS["solves"],
-                       enum_fallbacks=STATS["fallbacks"], q_values=sorted(set(qs)),
+                       max_int=int(maxint), max_mu=int(maxmu), exact_solves=main_stats["solves"],
+                       enum_fallbacks=main_stats["fallbacks"], exact_solves_incl_controls=STATS["solves"],
+                       enum_fallbacks_incl_controls=STATS["fallbacks"], q_values=sorted(set(qs)),
                        n_q=[qs.count(v) for v in sorted(set(qs))], max_n=max(ns), max_p=max(ps)),
         controls=ctrl_summary)
     with open(os.path.join(RES, "strong_hardness.json"), "w") as fh:

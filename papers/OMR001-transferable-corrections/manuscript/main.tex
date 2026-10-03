@@ -218,6 +218,76 @@ When the correction helps ($\Delta<0$), Lemma~\ref{lem:unbiased} gives the condi
 (a) If $\sigma$ is unknown, the check can be the one-sided $t$-test at level $\alpha$ on the $m$ projections $\ip{C-R,Y_j}$; under Gaussian held-out observations it is exact at $\Delta=0$ with power monotone in the non-centrality \citep{lehmannromano2005}, so the $\alpha$-form of Theorem~\ref{thm:safe}(ii) and the harmful-event bound hold verbatim. (b) Nothing uses that $C$ is a function of $R$: all statements hold for any two $\mathcal F$-measurable candidates.
 \end{remark}
 
+\section{Refitting after the check, and cross-fitting}\label{sec:refit}
+
+Corollary~\ref{cor:split} charges the split cost $d\sigma^2m/(nn_e)$ to every correction, including $C=R$. The obvious repair, deciding on the held-out sample and then refitting on all $n$ observations, reuses the held-out sample, so that the decision and the final estimate are dependent and Theorem~\ref{thm:safe} does not apply. In the Gaussian model the dependence is one-dimensional, because the check sees the held-out sample only through $\ip{C-R,\Ybar-\theta}$ (Lemma~\ref{lem:unbiased}), and it can be computed exactly. Write $\eta=m/n$, $w=C-R$, $e=R-\theta$, $s=2\sigma\norm w/\sqrt m$, $z=z_{1-\alpha}$, $u=\Delta/s$, $\pi=\Phi(-(z+u))$, $\xi=\sqrt m\,\norm e/\sigma$, and $J=\mathbf 1\{\Dh\le-zs\}$ for the level-$\alpha$ check of Definition~\ref{def:main}(c). The \emph{refit with transported correction} adds the correction vector proposed on the estimation sample to the full-data mean:
+\[
+\hat\theta_{\rm rf}\ =\ \bar X_n+J\,(C-R).
+\]
+For an additive correction $C=R+v$ it applies $v$ to $\bar X_n$ itself. It is \emph{not} the ``refit'' variant of Section~\ref{sec:sim}, which re-applies the operator to $\bar X_n$ (for the EB operator with $\hat\lambda_n=\hat\tau^2/(\hat\tau^2+\sigma^2/n)$ instead of $\hat\lambda$); that variant remains without a guarantee. Define, for $x\ge0$ and $\xi\ge0$,
+\[
+\Psi_\eta(\alpha;x)=\sup_{u\in\R}\big\{(u+x)\Phi(-(z+u))+\eta\,\varphi(z+u)\big\},\qquad
+M_\eta(\alpha;\xi)=\sup_{\omega>0,\ |\delta-\omega^2|\le2\xi\omega} f_\eta(\omega,\delta),
+\]
+\[
+f_\eta(\omega,\delta)=\big((1-\eta)\delta+\eta\omega^2\big)\Phi\Big(-\Big(z+\frac{\delta}{2\omega}\Big)\Big)+2\eta\,\omega\,\varphi\Big(z+\frac{\delta}{2\omega}\Big),
+\]
+and $\bar\kappa_\eta(\alpha)=\max\{\kappa(\alpha)+\eta\varphi(z),\ \eta\varphi(0)\}$, $\kappa_\varphi(\alpha)=\sup_{u\ge0}u\,\varphi(z+u)\le\varphi(1)$, $c_d=\E\norm Z$ and $\mu_{3,d}=\E\norm Z^3$ for $Z\sim N(0,I_d)$.
+
+\begin{theorem}[Refit with transported correction]\label{thm:refit}
+Let $R=\bar X_e$, let $C$ be $\mathcal F$-measurable, let the held-out observations be Gaussian and $\alpha\in(0,\tfrac12]$. Then, for every $\theta$:
+\begin{enumerate}[leftmargin=2em,label=(\roman*)]
+\item \textup{(Identity.)}
+$\displaystyle \risk(\hat\theta_{\rm rf})-\risk(\bar X_n)=\E\Big[\big((1-\eta)\Delta+\eta\norm w^2\big)\pi+\eta\,s\,\varphi(z+u)\Big]
+=\E[\Delta\pi]+\eta\,\E\big[s\,\varphi(z+u)-2\ip{w,e}\pi\big].$
+\item \textup{(Bound proportional to the correction.)}
+\[
+\risk(\hat\theta_{\rm rf})-\risk(\bar X_n)\ \le\ \E\big[s\,\Psi_\eta(\alpha;\eta\xi)\big]
+\ \le\ \Psi_\eta(\alpha;0)\,\frac{2\sigma}{\sqrt m}\,\E\norm{C-R}+2\eta\,\E\big[\norm{C-R}\,\norm{R-\theta}\big],
+\]
+and $\Psi_\eta(\alpha;x)\le\bar\kappa_\eta(\alpha)+x\,\Phi(x-z)$.
+\item \textup{(Cap uniform in $\theta$ and $C$.)} $\risk(\hat\theta_{\rm rf})-\risk(\bar X_n)\le(\sigma^2/m)\,\E\big[M_\eta(\alpha;\xi)\big]$, where $M_\eta(\alpha;\xi)\le4\xi\bar\kappa_\eta+4\eta\xi^2\Phi(\eta\xi-z)+4\kappa_2+4\eta(\xi\kappa+\kappa_\varphi)$. Hence
+\[
+\risk(\hat\theta_{\rm rf})-\risk(\bar X_n)\ \le\ \frac{4\sigma^2(\bar\kappa_\eta+\eta\kappa)\,c_d}{\sqrt{n_e m}}
++4\alpha\,\frac{d\sigma^2 m}{n\,n_e}
++\frac{4\eta^2\varphi(0)\,\mu_{3,d}\,\sigma^2\sqrt m}{n_e^{3/2}}
++\frac{4\sigma^2(\kappa_2+\eta\kappa_\varphi)}{m}.
+\]
+\item \textup{(Attainment.)} For $d\ge2$, every $\theta$ and every $\varepsilon>0$ there is an $\mathcal F$-measurable $C$ with $\risk(\hat\theta_{\rm rf})-\risk(\bar X_n)\ge(\sigma^2/m)\E[M_\eta(\alpha;\xi)]-\varepsilon$. For every $d$, $C=2\theta_0-R$ gives at $\theta=\theta_0$ exactly $4\alpha\,d\sigma^2m/(nn_e)+4\eta\varphi(z)\sigma^2c_d/\sqrt{n_em}$; hence no bound uniform in $C$ can be smaller than $4\alpha$ times the split cost of Corollary~\ref{cor:split}, the multiple that appears in (iii).
+\end{enumerate}
+\status{proved here (Appendix~\ref{app:proofs}); not yet checked by an independent referee; $\Psi_\eta$, $M_\eta$ computed numerically; checked by Monte Carlo}
+\end{theorem}
+
+\begin{corollary}[Cross-fitted reversion]\label{cor:crossfit}
+Let $n=Km$ and split the target sample into folds $I_1,\dots,I_K$ of size $m$. Let $R_k$ be the mean outside $I_k$ (so $n_e=n-m$), let $C_k$ be measurable with respect to the sources and the data outside $I_k$, and let $J_k$ be the level-$\alpha$ check of $(R_k,C_k)$ on $I_k$. Then
+\[
+\hat\theta_{\rm cf}=\frac1K\sum_{k=1}^K\big(J_kC_k+(1-J_k)R_k\big)=\bar X_n+\frac1K\sum_{k=1}^KJ_k\,(C_k-R_k),
+\]
+so $\hat\theta_{\rm cf}=\bar X_n$ whenever no check passes, and $\risk(\hat\theta_{\rm cf})-\risk(\bar X_n)$ is at most the average over $k$ of the bounds of Theorem~\ref{thm:refit}(ii)--(iii) with $\eta=1/K$; in particular it is at most $(\sigma^2/m)\E[M_{1/K}(\alpha;\xi)]$, uniformly in $\theta$ and in the $C_k$. \status{proved here (Jensen); not yet checked by an independent referee}
+\end{corollary}
+
+\begin{remark}[What happens to the split cost]\label{rem:refitcost}
+(a)~\emph{For each given correction the split cost is gone}: the bound of Theorem~\ref{thm:refit}(ii) is the expectation of a quantity proportional to $\norm{C-R}$ and is zero for $C=R$, whereas the split estimator pays $d\sigma^2m/(nn_e)$ even then (Corollary~\ref{cor:split}). The price is a larger slope, $\Psi_\eta(\alpha;0)$ against $\kappa(\alpha)$ (\RfPsiZeroTen{} against \KappaTen{} at $\alpha=0.1$, $\eta=\RfEtaDefault$), plus the term $2\eta\E[\norm{C-R}\norm{R-\theta}]$; no analogue of the $\alpha$-form or of the harmful-event bound of Theorem~\ref{thm:safe}(ii) is proved for $\hat\theta_{\rm rf}$.
+(b)~\emph{Uniformly in $\theta$ and $C$ the split cost is only reduced}, and in the worst case at least the fraction $4\alpha$ of it remains (Theorem~\ref{thm:refit}(iv)). Table~\ref{tab:worstrefit} compares the exact worst case of $\hat\theta_{\rm rf}$ with that of the split estimator in the design of Section~\ref{sec:sim}: the refit is better in the worst case for \RfBetterText, worse for \RfWorseText, and the comparison is inconclusive (within the bracket of Proposition~\ref{prop:sharp}(b)) for \RfUnclearText. With plain hold-out ($\alpha=0.5$, $4\alpha=2$) the transported refit is \emph{worse} than the split in the worst case. The closed form in (iii) is valid but loose: between \RfClosedMin{} and \RfClosedMax{} times the exact cap on that grid.
+(c)~The route ``use $C$ if the check passes, otherwise $\bar X_n$'' does \emph{not} remove the split cost even for a vanishing correction: for $C=R-t(R-\theta_0)$ with $t\to0$ the check detects that $C$ beats $R$, not that it beats $\bar X_n$, and the exact limit of the excess (by quadrature, Appendix~\ref{app:proofs}) is \RfVOneTen{} times the split cost at $m=\Cm$, $\alpha=0.1$ (between \RfVOneMin{} and \RfVOneMax{} times on the grid). The correction has to be transported to $\bar X_n$.
+(d)~For the cross-fitted estimator the reflection of (iv) cancels in the average ($\frac1K\sum_k(R_k-\theta)=\bar X_n-\theta$), so the lower bound $4\alpha$ does not carry over; the Jensen step loses much (Section~\ref{sec:sim}), and a bound that exploits the averaging is open.
+\end{remark}
+
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{rcccc}
+\toprule
+$\alpha$ & $m=3$ & $m=6$ & $m=12$ & $m=24$\\
+\midrule
+\input{table_worst_refit.tex}\\
+\midrule
+split cost & \input{table_worst_split.tex}\\
+\bottomrule
+\end{tabular}
+\caption{Worst case over $\theta$ and $\mathcal F$-measurable $C$ of the excess risk over the full-data reference $\bar X_n$ ($d=\Cd$, $n=\Cn$, $\sigma=1$, $n_e=n-m$): transported refit, $(\sigma^2/m)\E[M_\eta(\alpha;\xi)]$ (Theorem~\ref{thm:refit}(iii)--(iv), computed numerically and attained by an explicit family of corrections within Monte Carlo error), against the bracket for the split estimator, split cost plus the interval of Proposition~\ref{prop:sharp}(b). Bold: refit better (below the bracket); italic: refit worse (above it).}
+\label{tab:worstrefit}
+\end{table}
+
 \section{Relation to known constructs, and the line's conclusion}\label{sec:related}
 
 \begin{proposition}[The reverting estimator is penalised hold-out selection]\label{prop:select}

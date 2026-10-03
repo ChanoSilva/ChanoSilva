@@ -1,0 +1,12 @@
+{
+ "instances": 2400,
+ "agree": 2400,
+ "selected": 1409,
+ "not_selected": 991,
+ "finite": 2015,
+ "rule_C": 1200,
+ "rule_P": 1200,
+ "cpu_seconds": 0.8,
+ "seed": 20261003,
+ "python": "3.11.15"
+}
