@@ -329,11 +329,12 @@ _T = SH["CES_enclosure_tightness"]
 M("SharpCESTightSmall", g2(max(_T["LN_sigma0.01_k3"], _T["LN_sigma0.01_k4"])))
 M("SharpCESTightLarge", g2(max(_T["LN_sigma0.1_k3"], _T["LN_sigma0.1_k4"])))
 
-# ---------------------------------------------------------------- E4 with the smaller bound (v0.5, round 3, m4)
-# results/e4_min_bound.json is written by experiments/e4_min_bound.py (deterministic output, no timing field); its
-# SHA-256 and the script's are frozen in results/e4_min_bound.sha256 and checked here, as for the theory JSON.
+# ---------------------------------------------------------------- round 3 checks (v0.5): E4 with the smaller bound (m4), CES grid (m6)
+# results/e4_min_bound.json and results/ces_grid_estimate.json are written by experiments/e4_min_bound.py and
+# experiments/ces_grid_estimate.py (deterministic output, no timing field); their SHA-256 and the scripts' are frozen in
+# results/round3_checks.sha256 and checked here, as for the theory JSON.
 _frozen_min = {}
-for _line in open(os.path.join(ROOT, "results", "e4_min_bound.sha256")):
+for _line in open(os.path.join(ROOT, "results", "round3_checks.sha256")):
     if _line.strip():
         _h, _p = _line.split()
         _frozen_min[_p] = _h
@@ -341,7 +342,7 @@ for _p, _h in _frozen_min.items():
     _got = hashlib.sha256(open(os.path.join(ROOT, _p), "rb").read()).hexdigest()
     if _got != _h:
         raise SystemExit(f"make_numbers: {_p} has SHA-256 {_got[:12]}..., but the frozen value in "
-                         f"results/e4_min_bound.sha256 is {_h[:12]}...; refusing to generate the E4 minimum macros")
+                         f"results/round3_checks.sha256 is {_h[:12]}...; refusing to generate the round-3 macros")
 MB = {r["sigma"]: r for r in json.load(open(os.path.join(ROOT, "results", "e4_min_bound.json")))["rows"]}
 M("MinEfourJsonSha", _frozen_min["results/e4_min_bound.json"][:12]); M("MinEfourScriptSha", _frozen_min["experiments/e4_min_bound.py"][:12])
 for s, tag in ((0.1, "PointOne"), (0.2, "PointTwo"), (0.4, "PointFour")):
@@ -350,6 +351,21 @@ for s, tag in ((0.1, "PointOne"), (0.2, "PointTwo"), (0.4, "PointFour")):
     # the single-bound shares of this script must be those of the frozen theory JSON (same draws, same code)
     assert (pct(MB[s]["third_seg_s"], 1), pct(MB[s]["fourth_seg_s"], 1)) == (pct(_F[s]["old_seg_s"], 1), pct(_F[s]["new_B3seg_s"], 1)), s
 M("MinEfourCertReversals", sum(r["certified_reversals"] for r in MB.values()))
+M("CesGridJsonSha", _frozen_min["results/ces_grid_estimate.json"][:12]); M("CesGridScriptSha", _frozen_min["experiments/ces_grid_estimate.py"][:12])
+_CG = json.load(open(os.path.join(ROOT, "results", "ces_grid_estimate.json")))
+for law in ("LN", "SU"):
+    G = _CG[f"CES-{law}"]
+    M(f"CesGridOldCertBoxSigma{law}", fnum(G["third_k1"], 3)); M(f"CesGridCertBoxSigma{law}", fnum(G["fourth_k1"], 3))
+    M(f"CesGridCertBoxScSigma{law}", fnum(G["fourth_s_k1"], 3))
+# E1 text (v0.5): "the micro-data versions reach one or two grid points further" than the moment-and-range ones
+_grid = {law: [round(r["sigma"], 10) for r in rows if r["frontier"] == "CD" and r["law"] == law] for law in ("LN", "SU")}
+for law in ("LN", "SU"):
+    S = SH["E1"][f"CD-{law}"]["summary"]
+    for k in (1, 5):
+        for o in ("B2", "B3"):
+            for sc in ("", "_s"):
+                _i = lambda key: _grid[law].index(round(S[key], 10))
+                assert _i(f"sigma_cert{k}|{o}seg{sc}") - _i(f"sigma_cert{k}|{o}box{sc}") in (1, 2), (law, k, o, sc)
 
 # tables that are no longer used by main.tex (E1b, E3 and E5 per sigma live in results/tables.md)
 for stale in ("table_e1b.tex", "table_e3.tex", "table_e5b.tex"):
