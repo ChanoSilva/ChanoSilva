@@ -58,7 +58,7 @@
 \author{Luciano Silva Alarco\\
 \small Pontificia Universidad Cat\'olica del Per\'u\\
 \small ORCID 0000-0002-3395-3129}
-\date{\small Working draft v0.6 --- research line MRT001 --- 3 October 2026}
+\date{\small Working draft v0.7 --- research line MRT001 --- 3 October 2026}
 
 \begin{document}
 \maketitle
@@ -390,11 +390,11 @@ A prime comparability graph with at least three vertices has exactly two transit
 \noindent The restriction to at least three vertices excludes the two-vertex graph without edges, which is prime in the sense above and has only the empty orientation. Permutation graphs are comparability graphs ($G_\pi$ is the comparability graph of the order $i<j$, $\pi(i)>\pi(j)$), so Theorem~\ref{thm:gallai} applies to them\if\HasRlawChk1; it was also checked numerically on all \RlawChkGallaiSimple{} simple permutations of length $4$ to \RlawChkGallaiNmax{} (Appendix~\ref{app:realizers})\fi. In a transitive orientation we write $x\to y$; the basic forcing rule~\citep{gallai1967,golumbic1980} is that if $x$ is adjacent to $a$ and $b$ and $a$, $b$ are not adjacent, then $x\to a$ iff $x\to b$, since $a\to x\to b$ would force the edge $ab$. Not every module of $G_\pi$ is an interval of $\pi$ (for the identity, $G_\pi$ has no edges and $\{1,3\}$ is a module), but the two notions agree where it matters.
 
 \begin{lemma}[Intervals and modules]\label{lem:simpleprime}
-Every interval of $\pi$ is a module of $G_\pi$. Conversely, if $n\ge3$ and $G_\pi$ has a module $M$ with $2\le|M|\le n-1$, then $\pi$ has an interval with between $2$ and $n-1$ elements. Hence, for $n\ge3$, $\pi$ is simple iff $G_\pi$ is prime, and no permutation of length $3$ is simple. \status{proved here}
+Every interval of $\pi$ is a module of $G_\pi$. Conversely, if $n\ge3$ and $G_\pi$ has a module $M$ with $2\le|M|\le n-1$, then $\pi$ has an interval with between $2$ and $n-1$ elements. Hence, for $n\ge3$, $\pi$ is simple iff $G_\pi$ is prime, and no permutation of length $3$ is simple. \status{known, e.g.~\citep{brignall2010}; proof included for completeness}
 \end{lemma}
 
 \begin{lemma}[Inflation of a simple permutation]\label{lem:inflation}
-If $\sigma\in S_m$ is simple, $m\ge4$, and $\pi=\sigma[\alpha_1,\dots,\alpha_m]$, then $t(G_\pi)=2\prod_{j=1}^m t(G_{\alpha_j})$. \status{proved here, using Theorem~\ref{thm:gallai}}
+If $\sigma\in S_m$ is simple, $m\ge4$, and $\pi=\sigma[\alpha_1,\dots,\alpha_m]$, then $t(G_\pi)=2\prod_{j=1}^m t(G_{\alpha_j})$. \status{classical, the prime-node case of Gallai's decomposition~\citep{gallai1967}; proof included for completeness}
 \end{lemma}
 
 \begin{theorem}[Realizer law]\label{thm:realizers}
