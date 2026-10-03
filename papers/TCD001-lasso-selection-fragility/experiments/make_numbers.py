@@ -541,6 +541,28 @@ mac("SignedPOneAgree", thousands(pj["agree"]))
 mac("SignedPOneTotal", thousands(pj["instances"]))
 assert pj["agree"] == pj["instances"], "text: sorting rule = brute force on every instance"
 
+# ------------------------------------------------------------------ signed ANY, p >= 2, empty support (v0.6, Prop. 5.12)
+# experiments/check_signed_any.py -> results/signed_any.json, results/check_signed_any_output.txt (+ .sha256).
+gj = json.load(open(os.path.join(RES, "signed_any.json")))
+gsha = open(os.path.join(RES, "check_signed_any_output.sha256")).read().split()[0]
+glog = open(os.path.join(RES, "check_signed_any_output.txt"), "rb").read()
+assert hashlib.sha256(glog).hexdigest() == gsha == gj["meta"]["log_sha256"], "frozen signed-ANY log != SHA-256"
+assert gj["meta"]["log_has_timing"] is False and b"elapsed" not in glog and b"seconds" not in glog
+ga, gb, gc = gj["A_empty_support"], gj["B_cauchy_binet"], gj["C_x3c_gadget"]
+mac("SignedEmptyTotal", ga["total"])
+mac("SignedEmptyGe", ga["ge_ok"])
+mac("SignedEmptyClean", ga["clean"])
+mac("SignedEmptyAgree", ga["agree"])
+mac("SignedEmptyTies", word(ga["tie_instances"]) if ga["tie_instances"] <= 10 else ga["tie_instances"])
+mac("SignedSeconds", int(round(gj["meta"]["cpu_seconds"])))
+mac("SignedSha", gsha[:16])
+assert ga["ge_ok"] == ga["total"] and ga["agree"] == ga["clean"] and ga["mismatches"] == 0, \
+    "text: lower bound always, equality on every certified instance"
+assert ga["clean"] + ga["tie_instances"] == ga["total"]
+assert gb["cb_ok"] == gb["cb_total"] and gb["var_ok"] == gb["var_total"], "notes: Cauchy-Binet identities"
+assert gc["id_ok"] == gc["res_ok"] == gc["id_total"] and gc["cover_strict_max"] == gc["cover_strict_min"] == 0, \
+    "notes: gadget identities; exact covers never strict extremisers of f"
+
 # table bodies: drop the trailing row terminator (main.tex supplies it after \input)
 for fn in os.listdir(OUT):
     if fn.startswith("table_") and fn.endswith(".tex"):

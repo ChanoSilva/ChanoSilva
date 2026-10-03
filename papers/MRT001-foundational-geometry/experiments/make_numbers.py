@@ -509,6 +509,7 @@ if os.path.exists(sh_path) and os.path.exists(sh_sha_path) and os.path.exists(sh
     with open(os.path.join(out_dir, "table_sharp.tex"), "w") as fh:
         body = [f"{a[0]} & {a[1]} & {float(a[4]):.2f} $\\pm$ {float(a[5]):.2f} & {float(b[0]):.3f} $\\pm$ {float(b[1]):.3f} & "
                 f"{so_exact[int(a[0])]:.3f} & {float(b[2]):.3f} & {float(z):.1f}" for a, b, z in zip(mc, dt, zz)]
+        fh.write(" \\\\\n".join(body) + "\n")
     # round 5, m2: at n = 50 the estimate exceeds the first-order value; macros for the text
     i50 = [int(a[0]) for a in mc].index(50)
     mc50, ci50, fo50 = float(dt[i50][0]), float(dt[i50][1]), float(dt[i50][2])
@@ -517,7 +518,6 @@ if os.path.exists(sh_path) and os.path.exists(sh_sha_path) and os.path.exists(sh
     L.append(rf"\newcommand{{\SharpFiftyFirst}}{{{fo50:.3f}}}")
     L.append(rf"\newcommand{{\SharpFiftyExcess}}{{{mc50 - fo50:.2f}}}")
     L.append(rf"\newcommand{{\SharpFiftyZ}}{{{(mc50 - fo50) / (ci50 / 1.96):.1f}}}")
-        fh.write(" \\\\\n".join(body) + "\n")
     L.append(rf"\newcommand{{\SharpMCnlo}}{{{mc[0][0]}}}")
     L.append(rf"\newcommand{{\SharpMCnhi}}{{{mc[-1][0]}}}")
     L.append(rf"\newcommand{{\SharpMCsamplesMin}}{{{min(int(a[1]) for a in mc)}}}")
