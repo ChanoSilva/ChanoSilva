@@ -55,7 +55,7 @@ Ninguno.
 
 **M1. El "certificado observable" no es computable desde los momentos: usa la cota por segmento, que requiere cada $x_i$; y se compara con un umbral de otra naturaleza.**
 - Ubicación: resumen (l. 53: "the improvement is certifiable from moments and derivative bounds when $2B_2<|Q_2|$ … valid up to σ = 0.056 …, while the improvement is observed up to σ = 0.42"); Prop. 3.1(e) (l. 119: "computed from $\bar x$, Σ, the $\|h_i\|$ and derivative bounds, without evaluating f at the units"); E1 (l. 245: "certifiable from moments alone … whereas the improvement itself is observed up to σ = 0.42"); l. 198 ("a comparison can be *certified* from moments and a derivative bound alone"); conclusión (l. 357); Tabla 6 (l. 339); README; ficha ES ("certificable desde los momentos") y EN ("certifiable from moments"); comentario del código l. 348 ("Q2 and B2 are functions of the moments").
-- Problema: (i) El $B_2$ que se evalúa en E1 y en E4 es $\frac16\sum_iM_3^{(i)}\|h_i\|^3$ con $M_3^{(i)}$ el supremo sobre la caja entre $\bar x$ y **cada** $x_i$ (`aggregate`, l. 294–302; apéndice l. 365). Eso exige los $N$ insumos individuales, que es justamente lo que el usuario de momentos no tiene (l. 86: "what a statistician holding group means and covariances, but not the micro data, can compute"); quien tiene los $x_i$ calcula $Y$ exactamente. La propia Prop. 3.1(e) lista "the $\|h_i\|$", que no son momentos. La versión que sí usa sólo un momento es $B_2\le\frac N6M_3m_3$, con $M_3$ sobre una región conocida que contenga la población (en el código, `B2box`, con la caja de rangos coordenados: momento $m_3$ + rango). (ii) El certificado $2B_2<|Q_2|$ certifica $|E_2|<|E_1|$ (razón > 1), pero se compara con σ = 0.42, que es el umbral de **C1** (razón ≥ 5 en todas las réplicas). La razón > 1 se observa en todas las réplicas hasta σ = 0.75 (LN: mínimo 1.10 en 0.75, 0.31 en 1.0; `E1.rows`); el análogo certificado de C1 es $6B_2<|Q_2|$ (pues entonces $|E_1|/|E_2|\ge(|Q_2|-B_2)/B_2>5$).
+- Problema: (i) El $B_2$ que se evalúa en E1 y en E4 es $\frac16\sum_iM_3^{(i)}\|h_i\|^3$ con $M_3^{(i)}$ el supremo sobre la caja entre $\bar x$ y **cada** $x_i$ (`aggregate`, l. 294–302; apéndice l. 365). Eso exige los $N$ insumos individuales, que es justamente lo que el usuario de momentos no tiene (l. 86: "what a statistician holding group means and covariances, but not the micro data, can compute"); quien tiene los $x_i$ calcula $Y$ exactamente. La propia Prop. 3.1(e) lista "the $\|h_i\|$", que no son momentos. La versión que sí usa sólo un momento es $B_2\le\frac N6M_3m_3$, con $M_3$ sobre una región conocida que contenga la población (en el código, `B2box`, con la caja de rangos coordenados: momento $m_3$ + rango). (ii) El certificado $2B_2<|Q_2|$ certifica $|E_2|<|E_1|$ (razón > 1), pero se compara con σ = 0.42, que es el umbral de **C1** (razón ≥ 5 en todas las réplicas). La razón > 1 se observa en todas las réplicas hasta σ = 0.75 (LN, ambas fronteras: mínimo 1.10 CD y 1.29 CES en 0.75; 0.31 y 0.48 en 1.0; `E1.rows`); el análogo certificado de C1 es $6B_2<|Q_2|$ (pues entonces $|E_1|/|E_2|\ge(|Q_2|-B_2)/B_2>5$).
 - Evidencia (`check_cert.py`, `check_e4cert.py`, mismos sorteos que la referencia): mayor σ con certificado en todas las réplicas, LN / SU: por segmento $2B_2<|Q_2|$: 0.056 / 0.071 (coincide con el artículo); con la cota de momento + rango $2B_2^{\rm box}<|Q_2|$: **0.042 / 0.054**; certificado de C1 $6B_2<|Q_2|$: **0.018 / 0.023** (segmento) y 0.018 / 0.023 (caja; a 0.024 LN sólo 30 % de réplicas con segmento, 0 % con caja). En E4, fracción de pares certificados con la cota por segmento / de caja: 100/100 (σ = 0.02), 99.7/99.6 (0.05), 97.0/94.4 (0.1), **70.9/6.5 (0.2)**, 0/0 (0.4); 0 reversiones certificadas en ambos casos. La cifra "70.9 % at σ = 0.2" (l. 307, README) depende, pues, de conocer los microdatos.
 - Corrección: (a) en Prop. 3.1(e) separar las dos versiones: "If $2B_2<|Q_2|$ … With the moment form $B_2\le\frac N6M_3m_3$, where $M_3$ bounds $\|D^3f\|$ on a known region containing the population, the certificate uses only $\bar x$, Σ, $m_3$ and that region; with the segmentwise $B_2$ it also needs the individual inputs (but not $f$ at the units)". (b) En E1 sustituir la frase por: "With the moment form of the bound (third absolute moment and the coordinate range of the population) the certificate $2B_2<|Q_2|$ holds in every replication for σ ≤ 0.042 (LN) and 0.054 (SU), and for σ ≤ 0.056 / 0.071 with the segmentwise bound, which needs the individual inputs; the improvement $|E_2|<|E_1|$ itself holds in every replication up to σ = 0.75 (LN). The fivefold improvement of C1 is certified ($6B_2<|Q_2|$) only for σ ≤ 0.018 (LN) / 0.023 (SU), against σ = 0.42 observed." Generar las tres macros desde el JSON (añadir `cert_obs_box_holds_all` y `cert_c1_holds_all` en `run_E1`). (c) En E4 informar la fracción certificada con ambas cotas (100/99.6/94.4/6.5/0 % con la de momentos) y decir cuál es observable. (d) Resumen: "certifiable from the input moments, their range and a derivative bound when $2B_2<|Q_2|$, a very conservative certificate (σ ≤ 0.042 on log-normal inputs, against an observed improvement up to σ = 0.75 and a fivefold one up to σ = 0.42)". (e) Ficha ES/EN y README con la misma cifra y "desde los momentos y el rango de los insumos". (f) Corregir el comentario del código l. 348.
 
@@ -104,14 +104,60 @@ Ninguno.
 
 **m13. Generador de bootstrap compartido.** `brng` se usa en E1, E2 y E3 (l. 995, 1006–1010): los intervalos de E2 y E3 cambian si E1 cambia, el mismo acoplamiento que m8 de la ronda 1 eliminó para los sorteos. Dar a cada experimento su generador de bootstrap (`spawn(12)`); no cambia ningún número del texto salvo intervalos.
 
+### Extensión y presentación
+
+El PDF tiene 12 páginas (compilado en copia: 12), ≈ 10.3 de cuerpo, 0.6 de apéndice y 1 de bibliografía; el objetivo es ≤ 10. El autor declara no recortar más para no quitar demostraciones ni números verificables. El exceso no está justificado: hay ≈ 2 páginas recortables sin tocar ninguna demostración de lo original (Prop. 3.5, Cor. 3.6, Ej. 3.8) ni la tabla de afirmaciones:
+1. Obs. 3.11 + E1b (eficiencias; l. 207–209 y l. 247, ≈ 0.45 p.): tangencial a la pregunta de la línea; dejar una frase en Limitaciones ("with independent efficiencies a covariance term of order $\sigma/\sqrt N$, which no moment correction removes, dominates the second-order remainder up to σ = 0.18 at N = 2000; see `results/tables.md`") y mover la observación a `results/tables.md`/nota.
+2. E2, párrafos l. 273–275 (≈ 0.9 p.): reducir a la mitad; la discusión de ramas y de la identidad cabe en el pie de la Tabla 2 y en dos frases.
+3. Figura 3 (decisión, l. 300–305, ≈ 0.35 p.): la Tabla 4 ya contiene las series sin capacidad y +0 %; la serie +10 % cabe como columna o en `tables.md`.
+4. Ej. 3.10 (reversiones cerradas, l. 200–203, ≈ 0.2 p.): dejar (ii) en dos líneas, quitar (i), que repite el mensaje del Ej. 3.8.
+5. Obs. 3.2, segunda mitad (constantes de Cobb–Douglas, l. 127, ≈ 0.15 p.): al apéndice de reproducibilidad, que ya describe las cotas.
+6. E3 (l. 279, ≈ 0.1 p.): quitar los intervalos entre corchetes (están en `tables.md`).
+
+Con 1–4 el PDF baja a ≈ 10 páginas.
+
 ## Bibliografía
 
-(pendiente)
+Crossref y arXiv no se consultaron directamente (el proxy los bloqueaba en la ronda 1); verificación con WebSearch (Econometric Society, JSTOR, RePEc, Wiley, Springer, Project Euclid, Cambridge Core). Entradas citadas en v0.2: 18.
+
+| Entrada | Estado | Corrección |
+|---|---|---|
+| harris2020 (Nature 585, 357–362; 26 autores; DOI 10.1038/s41586-020-2649-2) | nueva en ronda 1; correcta (lista oficial) | ninguna |
+| virtanen2020 (Nature Methods 17, 261–272; 34 autores + SciPy 1.0 Contributors; DOI 10.1038/s41592-019-0686-2) | nueva en ronda 1; correcta | ninguna |
+| gorman1953 (Econometrica 21(1), 63–80) | verificada ahora (Econometric Society; JSTOR 1906943) | ninguna |
+| fisher1969 (Econometrica 37(4), 553–577) | verificada ahora (Econometric Society; RePEc) | ninguna |
+| acms1961 (REStat 43(3), 225–250) | verificada ahora | ninguna |
+| farrell1957 (JRSS A 120(3), 253–290) | verificada ahora (Wiley, DOI 10.2307/2343100; el artículo propiamente dicho ocupa 253–281, el resto es la discusión) | ninguna (opcional: DOI) |
+| aigner1977 (J. Econometrics 6(1), 21–37) | verificada ahora (RePEc) | ninguna |
+| jensen1906 (Acta Math. 30, 175–193) | verificada ahora (Springer, DOI 10.1007/BF02418571) | opcional: DOI |
+| theil1954 (North-Holland, Amsterdam) | verificada ahora (Contributions to Economic Analysis, vol. VII) | ninguna |
+| dieudonne1960 (Academic Press, 1960; Cap. VIII) | verificada ahora (Cambridge Core, reseña Math. Gazette; el Cap. VIII es "Differential calculus" y contiene la fórmula de Taylor) | ninguna |
+| nataf1948, vangarderen2000, lewbel1992, houthakker1955, cobbdouglas1928, oehlert1992, stoker1984, felipefisher2003 | verificadas en la ronda 1; sin cambios | ninguna |
+| jones2005, stoker1993, hildenbrand1994, ccr1978, kumbhakarlovell2000, klein1946, meeusen1977 | ya no se citan (siguen en `refs.bib`; bibtex no las imprime) | ninguna; la nota de continuidad debe dejar de listarlas como "pendientes de cotejo antes de cualquier envío" o aclarar que no se citan |
+
+Uso de las citas: todas respaldan lo que se les atribuye. Resumen: 10 entradas verificadas en esta ronda (2 nuevas + 8 antes no verificadas), 8 verificadas en la ronda 1, 0 incorrectas; ninguna entrada citada queda sin verificar.
 
 ## Verificación computacional
 
-(pendiente)
+1. **Corrida completa** de `frontier_aggregation.py` (sin `--fast`) sobre una copia en el scratchpad, Python 3.11.15, NumPy 2.4.6, SciPy 1.17.1, Matplotlib 3.11.2 (las de la referencia): **41.3 s de pared, 34.6 s de CPU de usuario** (33 s de cálculo según `meta.seconds`). Comparación hoja a hoja con `results/results.json` (excluido `meta`): **8815 valores, diferencia relativa máxima 0.0, 0 diferencias**. `tables.md` idéntico salvo líneas de tiempo. El SHA-256 del script en disco coincide con `meta.script_sha256`.
+2. **Macros y tablas**: `make_numbers.py` sobre el JSON reproducido: `table_e1/e2/e4/e5.tex` idénticas; `numbers.tex` (291 macros) idéntico salvo `\MetaSeconds` y `\MetaCpuSeconds`. Muestreo adicional contra el JSON: certificados (0.056/0.071), E1c (3.186/3.291/4.247 → 3.2/3.3/4.2), E1b (0.806–0.917, 7144), E2 (pendientes 1.009/1.001/3.517/4.002; τ 0.9973), E4 (C2: 23/3/20/15; 14/2/7; celdas que pasan y limítrofes), E5 (todas las filas por σ), E6 (aritmética comprobada a mano). Todo coincide con el PDF.
+3. **Compilación** (`latexmk -pdf` en copia): 12 páginas, 0 cajas desbordadas, 0 referencias o citas indefinidas, 0 "??" en `pdftotext`. Figuras revisadas (Fig. 2 con eje [−0.6, 1.6] y punto recortado declarado).
+4. **Comprobaciones propias** (scratchpad `referee2_SGE001/`, < 15 s de CPU en total): certificado por segmento frente a cota de momentos + rango y certificado de C1 (`check_cert.py`, M1); fracción certificada en E4 con ambas cotas (`check_e4cert.py`, M1); E1c con 60 réplicas, bootstrap y N = 200000 (`check_e1c.py`, M3); razón desplazada réplica a réplica (`check_tau.py`, M4).
+5. **Matemáticas**: revisadas paso a paso Prop. 3.1(a)–(e), Lem. 3.3, Lem. 3.4, Prop. 3.5 (identidad (1) rederivada), Cor. 3.6 (constante de la cota desplegada: $\frac{M_2}{2}+\frac{M_2}{2}$ de $B_1$ y de $|T_u-\sigma\tau_z|$; límites), Obs. 3.7(i), Ej. 3.8 (momentos y cota $(1-\sqrt2/2)\sigma$), Prop. 3.9, Ej. 3.10 (0.99358, 1.00499, 0.99391), Obs. 3.11 (descomposición y varianza condicional). Todo correcto; los únicos problemas son de enunciado (m3, m4) y de interpretación (M1).
 
-## Lista de acciones
+Tiempo total de CPU usado en esta revisión: ≈ 65 s (corrida completa 35 s, comprobaciones ≈ 15 s, compilación ≈ 3 s, resto lectura).
 
-(pendiente)
+## Lista de acciones (por prioridad)
+
+1. Reescribe el certificado como lo que es: separa en la Prop. 3.1(e) la forma de momentos ($\frac N6M_3m_3$ con $M_3$ sobre una región conocida) de la forma por segmento (que necesita los $x_i$); añade a `run_E1` los certificados con `B2box` y con $6B_2<|Q_2|$ y cita 0.042/0.054 (momentos + rango), 0.056/0.071 (segmento), 0.018/0.023 (C1) frente a 0.75 (razón > 1 observada) y 0.42 (C1 observado); en E4 da la fracción certificada con ambas cotas (6.5 % frente a 70.9 % en σ = 0.2); corrige resumen, l. 198, l. 245, l. 357, Tabla 6, README, ficha y el comentario del código (M1).
+2. Separa C1 y C2 en el resumen y en la ficha ES/EN con el texto propuesto ("20 elegibles", "una celda con capacidad y una sin capacidad limítrofes") (M2).
+3. Sube E1c a 40 réplicas con N = 200, 2000, 20000, 200000 y error estándar bootstrap; reescribe la frase de E1 y la del resumen ("entre 3 y 4, de 3 a 4 al crecer N") (M3).
+4. Sustituye el "1.000" de la razón desplazada por el rango réplica a réplica (0.997–1.003) o por la mediana de $|{\rm razón}-1|$; corrige E2, Tabla 2 y README (M4).
+5. Añade al Scope la lectura de "hierarchical" y una frase sobre la jerarquía al resumen y a la ficha; alinea el "Estado" de la ficha con la nota (m1).
+6. Corrige el formateo de los huecos de identidad ("below $10^{-14}$") (m2) y la definición de $B_1$ en la Prop. 3.1(a) (m3); añade "under (c)" y la forma graduada $(k+1)B_2<|Q_2|$ a la Prop. 3.1(e) (m4).
+7. Cambia "grows like the inverse dispersion" por "at least like" (y "like its square for symmetric inputs"); corrige "a factor of order σ" en l. 357 (m5).
+8. Añade errores estándar bootstrap a los exponentes de E2 (m6).
+9. Reescribe la conclusión de E5 con la precisión sobre σ = 0.6 y sobre $1/(\lambda-1)$ (m7); corrige la atribución de "depends on σ_W only" y la frase de l. 144 (m8); comenta la discrepancia de E1b o sube sus réplicas (m9); di "as the condition guarantees" en el resumen (m10).
+10. Genera "50–1000" desde el JSON o matiza "every number" (m11); unifica los tiempos y el recuento de macros en README, CONTINUIDAD y respuesta (m12); da un generador de bootstrap por experimento (m13).
+11. Recorta hasta ≤ 10 páginas con los puntos 1–4 de la sección de extensión.
+12. Actualiza la nota de continuidad: la bibliografía citada está toda verificada; las 7 entradas no citadas no requieren cotejo.

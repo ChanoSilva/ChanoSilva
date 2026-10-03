@@ -104,11 +104,32 @@ Recortes concretos (≈ 4 pp.): (1) resumen a ≤ 170 palabras: quitar los paré
 
 ## Bibliografía
 
-(pendiente)
+Búsqueda web (WebSearch) para las entradas tocadas en la ronda 1, para micchelli2006 (cita nueva de m6) y para las que seguían sin páginas verificadas. No intenté Crossref/arXiv directamente (bloqueados por el proxy según la ronda 1); las fichas de Project Euclid, JMLR, ACM y TU Delft aparecieron en los resultados de búsqueda. Uso: cada cita respalda la afirmación para la que se usa (micchelli2006 para "universal kernel", viering2023 para curvas no monótonas, demsar2006/dietterich1998/nadeau2003 para la inferencia entre pliegues).
+
+| entrada | estado | corrección |
+|---|---|---|
+| ladicky2011 | verificada (ICML'11, pp. 985–992) | ninguna |
+| zhang2006 | verificada (CVPR 2006, pp. 2126–2136, DOI 10.1109/CVPR.2006.301); "vol. 2" no confirmado por la búsqueda, coherente con IEEE | ninguna |
+| viering2023 | verificada (TPAMI 45(6):7799–7819, DOI 10.1109/TPAMI.2022.3220744) | ninguna |
+| zhang2004 | verificada (Ann. Statist. 32(1):56–85, febrero de 2004) | añadir `doi = {10.1214/aos/1079120130}` |
+| stone1977 | verificada (Ann. Statist. 5(4):595–620; la discusión llega a 645) | añadir `doi = {10.1214/aos/1176343886}` |
+| micchelli2006 | verificada (JMLR 7:2651–2667, 2006) | ninguna |
+| cheng2007 | existencia verificada (SDM 2007; PDF del autor en cse.msu.edu); **páginas 461–466 no confirmadas** | confirmar en epubs.siam.org o quitar las páginas |
+| steinwart2007 | retirada (correcto; ninguna cita huérfana en `main.tex` ni en `main.bbl`) | — |
+| restantes 17 | sin cambios desde la ronda 1; no verificadas de nuevo | sin cambios propuestos |
 
 ## Verificación computacional
 
-(pendiente)
+Todo en copias en el scratchpad (`referee2_SVMF001/`), BLAS a un hilo. CPU total del árbitro ≈ 190 s.
+
+- **Compilación** (`latexmk -pdf` en una copia de `manuscript/` y `figures/`, sin `main.pdf` ni `main.bbl` previos): 3.1 s, salida 0, **14 páginas**, 0 advertencias de LaTeX/BibTeX, 0 referencias indefinidas, 0 "??" en el texto extraído.
+- **Macros y tablas**: `make_numbers.py` sobre copias de `results/` regenera `numbers.tex` (1803 macros) y los 26 `table_*.tex` **idénticos byte a byte** a los de la carpeta. De los 186 macros que usa `main.tex` (todos definidos), comprobé de forma independiente contra `results.json`/`posthoc_oracle.json`/`results/v01/` con scripts propios recuentos 9/1/14, 4/48 y 12/48, rangos 3.5–7.6 y 10.6–18.2 (v0.1), recuentos de saturación (20, 19, 11, 20, 19, 0, 6, 21/108), fracciones locales, caídas medias (7.1/6.4; 7.6, 5.5, 6.8, 4.9; 8.4, 5.8, 5.4, 5.4), medias del README:36 (95.6/88.5/89.2 …) y el veredicto del criterio. Todo coincide.
+- **Reproducción** (corrida completa del protocolo, no el modo rápido, sobre los tres conjuntos que deciden el resultado): `run_comparison.py --datasets moons_2scale checker_2scale` 99.0 s (CPU 99.8 s) y `--datasets gauss_linear` 54.5 s (CPU 54.9 s). Los 420 registros pliegue×método (exactitud, configuración elegida, puntuación interna), los 36 intervalos y los recuentos de saturación de esos tres conjuntos son **idénticos bit a bit** a `results/results.json` (las semillas dependen del nombre del conjunto, así que la corrida parcial es comparable). No volví a correr wine, breast cancer ni digits (≈ 100 s más) por presupuesto.
+- **Tolerancia 10⁻⁹** (`referee2_SVMF001/exact_ci.py`, 18 s): recalculé los 288 intervalos (3 condiciones × 6 conjuntos × 4 familias × {seleccionada, oráculo, lineal, RBF}) con las mismas secuencias aleatorias y aritmética racional exacta (aciertos/n_test por pliegue). Los extremos en coma flotante reproducen los publicados a 10⁻¹⁵, y la clasificación exacta coincide con la publicada en **288/288**. La regla estricta de v0.1 en coma flotante difiere solo en 3 intervalos: cell-SVM en el tablero con ruido frente a la referencia seleccionada, al oráculo y a la RBF; su extremo superior exacto es 0 (−2.2·10⁻¹⁷ es residuo), así que pasar de "neg" a "none" es la convención declarada, no un cambio de criterio. Otros tres intervalos tienen residuos ±2·10⁻¹⁷ (lunas sub25 kNN-SVM y LLSVM; oráculo LLSVM gaussiano), sin efecto con ninguna de las dos reglas. La tolerancia no puede absorber un extremo real: la resolución mínima no nula observada es 1/12600 ≈ 7.9·10⁻⁵ (wine; m3). Ningún intervalo de la condición principal ni ninguno positivo depende de la tolerancia.
+- **Cobertura del bootstrap** (`referee2_SVMF001/coverage.py`, 7 s): véase M4 (85.0 % con n = 5, 89.9 % con n = 10, observaciones independientes).
+- **Cronología del preregistro**: véase M5 (registro de sesión del agente autor; SHA-256 de las líneas 1–40).
+- **Matemáticas**: cada paso de Lema 2.2, Lema 3.1, Prop. 3.2, Prop. 3.4, Cor. 3.5 y Obs. 3.6 releído; único error, el paréntesis de M3 (y la condición de m6). Las sumas exactas (Tabla 1) no se recalcularon: `exact_example.py` no se volvió a correr en la ronda 1 y el árbitro anterior lo reprodujo cifra por cifra.
+- Entorno: Python 3.11.15, NumPy 2.4.6, SciPy 1.17.1, scikit-learn 1.9.1 (los declarados).
 
 ## Lista final de acciones
 

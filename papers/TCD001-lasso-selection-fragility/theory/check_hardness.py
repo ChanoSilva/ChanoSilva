@@ -112,14 +112,16 @@ def reduced_mu_exact(mu, n, k, rule):
 # ----------------------------------------------------------------------------------------------
 # The reduction
 # ----------------------------------------------------------------------------------------------
-def build_instance(b, t, rule):
-    """Instance of the reduction (rows: m items then the gadget; target variable index 1)."""
+def build_instance(b, t, rule, override=None):
+    """Instance of the reduction (rows: m items then the gadget; target variable index 1).
+    `override` (ablations only) replaces u, eta or rho by values that violate the proof's conditions."""
+    override = override or {}
     m, B = len(b), sum(b)
     assert 1 <= t <= B - 1
     s0 = F(1, 2)
-    eta = F(1, 2 * B)
+    eta = F(override.get("eta", F(1, 2 * B)))
     kappa = 1 + eta
-    u = m + 1
+    u = override.get("u", m + 1)
     if rule == "C":
         mu = t + s0
         yit = [F(bi) for bi in b]
@@ -128,7 +130,7 @@ def build_instance(b, t, rule):
         mu = lam * (m + 1)
         yit = [bi + lam for bi in b]
     eps = eta / (4 * mu)
-    rho = 1 - eps
+    rho = F(override.get("rho", 1 - eps))
     X = [[F(1), rho] for _ in range(m)] + [[F(u), kappa * u]]
     y = yit + [s0 / u]
     return X, y, mu, dict(s0=s0, eta=eta, kappa=kappa, u=u, eps=eps, rho=rho)
@@ -160,8 +162,8 @@ def stats_all_masks(X, y):
     return stats
 
 
-def check_reduction_instance(b, t, rule, lib_check=True):
-    X, y, mu, par = build_instance(b, t, rule)
+def check_reduction_instance(b, t, rule, lib_check=True, override=None, dp=True):
+    X, y, mu, par = build_instance(b, t, rule, override)
     n, m = len(X), len(b)
     full = (1 << n) - 1
     stats = stats_all_masks(X, y)
@@ -223,7 +225,8 @@ def check_reduction_instance(b, t, rule, lib_check=True):
             res["lib_fit_checked"] += 1
             res["lib_fit_disagree"] += supp_f != supp_e
     # dynamic programme over sufficient statistics (Proposition "pseudo-polynomial")
-    f_dp, nstates = dp_fragility(X, y, mu, rule, target="enter", j=1, S0=(0,), s0=(1,))
+    f_dp, nstates = (dp_fragility(X, y, mu, rule, target="enter", j=1, S0=(0,), s0=(1,))
+                     if dp else (None, 0))
     f_ex = min_R if min_R is not None else None
     res.update(ok_D=ok_D, yes=yes, witness=witness, f_enter=f_ex, f_dp=f_dp, dp_states=nstates,
                params=par, mu=mu)
@@ -317,6 +320,11 @@ def main():
         b = [rng.randint(1, 30) for _ in range(m)]
         t = rng.randint(1, sum(b) - 1)
         insts.append((b, t))
+    while len(insts) < 156:                   # larger instances, n = 11, 12
+        m = rng.randint(10, 11)
+        b = [rng.randint(1, 30) for _ in range(m)]
+        t = rng.randint(1, sum(b) - 1)
+        insts.append((b, t))
     tot = dict(inst=0, yes=0, no=0, equiv_ok=0, char_fail=0, subsets=0, undetermined=0, ties=0,
                okD=0, lib_test_disagree=0, lib_fit_disagree=0, lib_fit_checked=0, dp_agree=0,
                maxn=0)
@@ -371,6 +379,24 @@ def main():
         f" undetermined {tot['undetermined']}; ties {tot['ties']}; D ok {tot['okD']}/{tot['inst']};"
         f" closed-form test disagreements {tot['lib_test_disagree']}; solver disagreements"
         f" {tot['lib_fit_disagree']}/{tot['lib_fit_checked']}; DP agreement {tot['dp_agree']}/{tot['inst']}")
+    log("")
+    # ablations: the checks must detect a violation of each condition used in the proof
+    log("=== ablations (negative controls; each violates one condition of the proof) ===")
+    abl = [("u = 1 (violates u^2 > N)", {"u": 1}),
+           ("rho = 1 (items with x2 = x1; uniqueness on item-only subsamples lost)", {"rho": F(1)}),
+           ("eta = 1, kappa = 2 (violates kappa - rho <= 1/B)", {"eta": F(1)})]
+    abl_insts = [([3, 5, 7], 8), ([2, 3, 7], 5), ([1, 1, 20], 2), ([2, 2, 2, 30], 4), ([1, 2, 40], 3),
+                 ([4, 6, 9, 13], 10), ([5, 5, 50], 5)]
+    for name, ov in abl:
+        for rule in ("C", "P"):
+            nfail = nund = neq = 0
+            for b, t in abl_insts:
+                r = check_reduction_instance(b, t, rule, lib_check=False, override=ov, dp=False)
+                nfail += r["char_fail"]
+                nund += r["undetermined"]
+                neq += r["witness"] != r["yes"]
+            log(f"  {name}, rule {rule}: characterisation failures {nfail}, uncertified uniqueness {nund},"
+                f" equivalence failures {neq} (over {len(abl_insts)} instances)")
     log("")
     # DP versus exhaustive on random small integer data (implementation sanity check, p = 2, 3)
     log("=== DP over (|K|, X_K^T X_K, X_K^T y_K) vs exhaustive search, random integer data ===")
