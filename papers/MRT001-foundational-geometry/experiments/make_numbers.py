@@ -435,6 +435,13 @@ if os.path.exists(so_path) and os.path.exists(so_json_path) and os.path.exists(s
     for nn_, v_ in re.findall(r"^ +(\d+) +[\d.]+ +([\d.]+) +[+\-][\d.]+ +[\d.]+ +[\d.na]+$", so_txt, flags=re.M):
         so_exact[int(nn_)] = float(v_)
     macro("SecExactFifty", f"{so_exact[50]:.3f}")
+    macro("SecKappaOverFifty", f"{ke[2] / 50:.3f}")
+    macro("SecThreshExp", so_grab(r"\(bound > 1e(-\d+)\)").group(1))
+    m_ = so_grab(r"^   max over atoms and (\d+)<=n<=(\d+) of n\^2")
+    macro("SecAtomsNlo", m_.group(1))
+    m_ = so_grab(r"^D3 .*fits in 1/n of degree ([\d,]+) on (\d+)<=n<=(\d+)")
+    macro("SecFitLo", m_.group(2))
+    macro("SecFitHi", m_.group(3))
     L.append(r"\newcommand{\HasSecond}{1}")
 
 # v0.7 (round 4): frozen output of theory/check_sharp_rate.py (numerical check of the sharp rates),
