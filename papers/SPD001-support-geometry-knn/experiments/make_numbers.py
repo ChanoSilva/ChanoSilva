@@ -608,12 +608,12 @@ if os.path.exists(_v02p):
     rows = []
     for n in D:
         a, c = V2[n], C[n]
-        rows.append(f"{DSNAME[n]} & {ci(a['abl']['TD'], 2)} & {a['frac_td']:.0f} & {ci(c['ablation']['TD'], 2)} & "
-                    f"{FR[n]['k']['TD']:.0f}{'$^{c}$' if FR[n]['k_natural'] else ''} & {ci(a['vs_best'], 2)} & {ci(c['vs_best'], 2)}")
+        rows.append(f"{DSNAME[n]} & {ci(a['abl']['TD'])} & {a['frac_td']:.0f} & {ci(c['ablation']['TD'])} & "
+                    f"{FR[n]['k']['TD']:.0f}{'$^{c}$' if FR[n]['k_natural'] else ''} & {ci(a['vs_best'])} & {ci(c['vs_best'])}")
     for n in rn_new:
         a, c = v02_stats(v02r, n), RC[n]
-        rows.append(f"E2, $p={R[n]['p']}$ & {ci(a['abl']['TD'], 2)} & {a['frac_td']:.0f} & {ci(c['ablation']['TD'], 2)} & "
-                    f"{REGSAT[n]['k']['TD']:.0f} & {ci(a['vs_best'], 2)} & {ci(c['vs_best'], 2)}")
+        rows.append(f"E2, $p={R[n]['p']}$ & {ci(a['abl']['TD'])} & {a['frac_td']:.0f} & {ci(c['ablation']['TD'])} & "
+                    f"{REGSAT[n]['k']['TD']:.0f} & {ci(a['vs_best'])} & {ci(c['vs_best'])}")
     open(os.path.join(OUT, "table_v02.tex"), "w").write(body(rows))
     # v0.2 orthogonal-ablation range and counts, for the text
     mac("VtwoAblOrthMin", signed(min(V2[n]["abl"]["TD"]["mean"] for n in D)))

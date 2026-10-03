@@ -56,7 +56,7 @@
 
 \begin{abstract}
 \noindent
-For a query $q$ and its $k$ nearest training neighbours of a class, the residual from the neighbourhood centroid splits into a \emph{tangential} component along the local principal subspace and an \emph{orthogonal} component normal to it, and the position of $q$ among the neighbours can be summarised by a \emph{depth}. The research line SPD001 asked whether this description carries information for classification beyond nearest feature lines, local hulls and depth measures. We note that the regularised local-hyperplane distance of Vincent and Bengio is, by the ridge identity, exactly a data-weighted sum of the orthogonal component and the squared tangential coordinates, $h_\lambda^2=O^2+\sum_j \lambda t_j^2/(s_j^2+\lambda)$, while the local spatial depth is not a function of the two distances. We then run the isolating comparison the line had left pending (\NDatasets{} datasets, $\MetaSplits\times\MetaRepeats$ repeated cross-validation, six tuned references, a conditional-logit combination of the three components and its ablations) under a criterion fixed before the first complete run: a paired bootstrap interval above zero against the best reference on at least \NRequired{} of \NDatasets{} datasets. After an internal review showed that narrower grids truncated the reduced models, the grids were widened and preregistered and the whole study was re-run. The combination met the criterion on \NSigWins; its difference to the best reference ranged from \DeltaBestMin{} to \DeltaBestMax{} accuracy points, and the largest upper limit is \CiHiBestMax{} points with the bootstrap and \CiHiBestMaxNb{} with the Nadeau--Bengio variance, so the study excludes gains of a few points, not of one. Removing the orthogonal component costs up to \AblOrthMax{} points (interval above zero on \NAblOrthCiAboveZero{} of \NDatasets{} datasets with the bootstrap, \NAblOrthNbAboveZero{} with Nadeau--Bengio; two effects seen with the narrower grids did not survive); removing the depth or the tangential component never reduces accuracy significantly. Where the selected neighbourhood is larger than the dimension, HKNN has no hull term and is a regularised local Mahalanobis distance; the decomposition does not add predictive information beyond these HKNN-type local distances.
+For a query $q$ and its $k$ nearest training neighbours of a class, the residual from the neighbourhood centroid splits into a \emph{tangential} component along the local principal subspace and an \emph{orthogonal} component normal to it, and the position of $q$ among the neighbours can be summarised by a \emph{depth}. The research line SPD001 asked whether this description carries information for classification beyond nearest feature lines, local hulls and depth measures. We note that the regularised local-hyperplane distance of Vincent and Bengio is, by the ridge identity, exactly a data-weighted sum of the orthogonal component and the squared tangential coordinates, $h_\lambda^2=O^2+\sum_j \lambda t_j^2/(s_j^2+\lambda)$, while the local spatial depth is not a function of the two distances. We run the isolating comparison the line had left pending (\NDatasets{} datasets, $\MetaSplits\times\MetaRepeats$ repeated cross-validation, six tuned references, a conditional-logit combination of the three components and its ablations) under a criterion fixed before the first complete run, a paired bootstrap interval above zero against the best reference on at least \NRequired{} of \NDatasets{} datasets, with hyper-parameter grids widened and preregistered after an internal review found the earlier ones truncating. The combination met the criterion on \NSigWins; its difference to the best reference ranged from \DeltaBestMin{} to \DeltaBestMax{} accuracy points, and the largest upper limit is \CiHiBestMax{} points with the bootstrap and \CiHiBestMaxNb{} with the Nadeau--Bengio variance, so the study excludes gains of a few points, not of one. Removing the orthogonal component costs up to \AblOrthMax{} points (interval above zero on \NAblOrthCiAboveZero{} of \NDatasets{} datasets with the bootstrap, \NAblOrthNbAboveZero{} with Nadeau--Bengio; two effects seen with the narrower grids did not survive); removing the depth or the tangential component never reduces accuracy significantly. Where the selected neighbourhood is larger than the dimension, HKNN has no hull term and is a regularised local Mahalanobis distance; the decomposition does not add predictive information beyond these HKNN-type local distances.
 \end{abstract}
 
 \section{Introduction}\label{sec:intro}
@@ -183,12 +183,12 @@ Propositions~\ref{prop:pyth}--\ref{prop:nonredundant} are elementary \status{pro
 
 \begin{figure}[tb]
 \centering
-\includegraphics[width=0.56\linewidth]{../figures/decomposition.pdf}
+\includegraphics[width=0.5\linewidth]{../figures/decomposition.pdf}
 \caption{The decomposition on the two-moons data for one query $q$ (star) with respect to each class: circles are the $k=10$ class neighbours, the square their centroid, the line the one-dimensional tangent subspace $T_1$; the solid segment is the tangential component, the dashed segment the orthogonal one; the short rays are the unit vectors $S(x_i-q)$ whose mean defines the spatial depth.}
 \label{fig:schematic}
 \end{figure}
 
-Table~\ref{tab:main} gives the mean cross-validated accuracy of every method, Table~\ref{tab:delta} the primary comparison together with the comparison against \meth{HKNN}, and Table~\ref{tab:ablation} the ablations; Figure~\ref{fig:forest} shows the last two graphically. The comparison against every reference, the selective accuracies, the regime scan and the saturation of every grid are tabulated in \path{results/tables_appendix.md}, generated by the same script as this document; the hyper-parameters and the changes with respect to the narrower grids are in Appendix~\ref{app:tables}. The whole experiment, including the regime scan, took \MetaSecondsCpu{} CPU-seconds.
+Table~\ref{tab:main} gives the mean cross-validated accuracy of every method, Table~\ref{tab:delta} the primary comparison together with the comparison against \meth{HKNN}, and Table~\ref{tab:ablation} the ablations; Figure~\ref{fig:forest} shows the last two graphically. The comparison against every reference, the selective accuracies, the regime scan and the saturation of every grid are tabulated in \path{results/tables_appendix.md}, generated by the same script as this document; the changes with respect to the narrower grids are in Appendix~\ref{app:tables}. The whole experiment, including the regime scan, took \MetaSecondsCpu{} CPU-seconds.
 
 \begin{table}[tb]
 \centering\small\setlength{\tabcolsep}{3.6pt}
@@ -252,7 +252,7 @@ The ablations (Table~\ref{tab:ablation}, Figure~\ref{fig:forest}) say where the 
 
 \begin{table}[tb]
 \centering\small
-\begin{tabular}{p{0.74\linewidth}l}
+\begin{tabular}{p{0.75\linewidth}l}
 \toprule
 claim & status\\
 \midrule
@@ -261,7 +261,7 @@ Upper 95\% limit of the gain over the best reference: at most \CiHiBestMax{} poi
 C2: removing the orthogonal component costs up to \AblOrthMax{} points, interval above zero on \NAblOrthCiAboveZero/\NDatasets{} (bootstrap; \OrthRobustList), \NAblOrthNbAboveZero/\NDatasets{} (NB), all robust to the widened grids; depth and tangential components removable without significant loss (\NAblDepthCiAboveZero/\NDatasets{} and \NAblTangCiAboveZero/\NDatasets{} bootstrap, \NAblDepthNbAboveZero/\NDatasets{} and \NAblTangNbAboveZero/\NDatasets{} NB) & verified\\
 C2 on \OrthLostList: the orthogonal effects of the narrower grids do not survive; on the moons with noise the reduced model is still grid-limited & not established\\
 C3: no gain in selective accuracy at \MetaCoverage\% coverage (\NSelCiAboveZero{} bootstrap interval above zero against the best reference by accuracy, \NSelBySelCiAboveZero{} against the best by selective accuracy, \NSelNbAboveZero{} with NB) & verified\\
-E2: no off-manifold-noise regime with $p\le20$ in which TOD exceeds the best reference; the depth helps the logit model only at $p=2$ (\RegAblDepthPTwo{} points, bootstrap; NB $p=\RegAblDepthNbPPTwo$); orthogonal contribution for $p\ge5$ grid-limited & verified / not established\\
+E2: no off-manifold-noise regime with $p\le20$ in which TOD exceeds the best reference; the depth helps the logit model only at $p=2$ (\RegAblDepthPTwo{} points, bootstrap; NB $p=\RegAblDepthNbPPTwo$); orthogonal contribution for $p\ge5$ grid-limited & verified (partly)\\
 HKNN, LPH, TOD, TO, OD differ by at most \HullFamilyMaxSpread{} points on every dataset & verified\\
 Gains below \CiHiBestMaxNb{} points (below \CiHiBestMax{} under the bootstrap); behaviour on large or high-dimensional data; other depths & not established\\
 \bottomrule
@@ -280,19 +280,8 @@ Table~\ref{tab:claims} lists the claims with their status. The answer to the lin
 \section{Reproducibility}\label{app:repro}
 {\sloppy The directory contains \path{experiments/support_geometry.py} (the whole experiment, E1 and E2; flag \texttt{--fast} for a reduced run), \path{experiments/make_figures.py} and \path{experiments/make_numbers.py}, which converts \path{results/results.json} and \path{results/results_regime.json} into the macros and table bodies used by this document and into \path{results/tables_appendix.md}, so that every number in the text is generated and none is typed; the Nadeau--Bengio intervals, the saturation fractions, the modal hyper-parameters and the comparison with the narrower grids (\path{results/v02/}, summarised with the same resamples) are recomputed by that script from the per-fold lists and counts. The run used seed \MetaSeed, Python \MetaPython, NumPy \MetaNumpy~\citep{harris2020}, SciPy \MetaScipy~\citep{virtanen2020} and scikit-learn \MetaSklearn~\citep{pedregosa2011}, single-threaded BLAS, and took \MetaSecondsWall{} s wall / \MetaSecondsCpu{} s CPU on a shared four-core machine. Computation: per fold, all squared distances are computed once; for each class the $k_{\max}$ nearest same-class points are found by partial sorting, the feature-line distances, depths and mean distances for every $k$ come from prefix minima and cumulative sums over them, and each neighbourhood is decomposed through the eigen-decomposition of its smaller Gram matrix, directions with $s_j^2<10^{-10}s_1^2$ being treated as null so that the hull distance is exact also for non-generic neighbourhoods (constant pixels in digits); the test fold is processed only at the selected $k$. With the earlier grids this code reproduces the earlier run fold by fold on the moons. Logit weights are fitted by L-BFGS-B with the analytic gradient.\par}
 
-\section{Hyper-parameters and the effect of the grids}\label{app:tables}
-\begin{table}[htb]
-\centering\footnotesize\setlength{\tabcolsep}{3.2pt}
-\begin{tabular}{lrrrrrrcrrr}
-\toprule
-dataset & $\kNN$ & HKNN $(k,\lambda_{\rm rel})$ & LPH $(k,m)$ & SD $k$ & TOD $(k,m)$ & top $k$ & \shortstack{\% folds at top $k$\\(TOD / TD / HKNN)} & $w_T$ & $w_O$ & $w_D$\\
-\midrule
-\input{table_params}\\
-\bottomrule
-\end{tabular}
-\caption{Modal hyper-parameters over the \MetaFolds{} folds (ties towards the smallest values), the largest $k$ of the dataset's grid ($^{c}$: $k_{\rm cap}$, the whole class), the percentage of folds in which the chosen $k$ equals it, and the mean fitted weights of TOD on the standardised features $\log T_m$, $\log O_m$, $\log E$ (positive $=$ smaller value favours the class).}
-\label{tab:params}
-\end{table}
+\section{The effect of the grids}\label{app:tables}
+The modal hyper-parameters, the fitted weights and the per-method saturation of every grid are tabulated in \path{results/tables_appendix.md}; Table~\ref{tab:v02} summarises what changed when the grids were widened.
 
 \begin{table}[htb]
 \centering\footnotesize\setlength{\tabcolsep}{3pt}
