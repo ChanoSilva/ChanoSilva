@@ -15,6 +15,7 @@
 \usepackage{enumitem}
 \usepackage{array}
 \usepackage{caption}
+\usepackage{multicol}
 \captionsetup{font=small,labelfont=bf}
 \renewcommand{\topfraction}{0.9}\renewcommand{\bottomfraction}{0.7}
 \renewcommand{\textfraction}{0.07}\renewcommand{\floatpagefraction}{0.85}
@@ -137,9 +138,9 @@ The first identity is Definition~\ref{def:vi} with $F=\nabla P$. If $x$ minimise
 \end{proof}
 
 \begin{remark}[The three classical instances]\label{rem:instances}
-(a) \emph{Routing}~\citep{beckmann1956}. For continuous $c_e$, $P(f)=\sum_e\int_0^{f_e}c_e(s)\,\dd s$ is $C^1$ with $\partial P/\partial f_p=\sum_{e\in p}c_e(f_e)=c_p(f)$ by the fundamental theorem of calculus (no differentiability of $c_e$ is needed), and convex when the $c_e$ are nondecreasing; Wardrop equilibria are the minimisers of $P$, and the edge flows are unique when all $c_e$ are strictly increasing. Note that $P\ne C$: the potential integrates the cost, the social cost multiplies it; this is the whole of Section~\ref{sec:classical}.3.
+(a) \emph{Routing}~\citep{beckmann1956}. For continuous $c_e$, $P(f)=\sum_e\int_0^{f_e}c_e(s)\,\dd s$ is $C^1$ with $\partial P/\partial f_p=\sum_{e\in p}c_e(f_e)=c_p(f)$ (fundamental theorem of calculus), convex when the $c_e$ are nondecreasing; Wardrop equilibria minimise $P$, with unique edge flows when all $c_e$ are strictly increasing. $P\ne C$: the potential integrates the cost, the social cost multiplies it (Section~\ref{sec:classical}.3).
 (b) \emph{Concave games}~\citep{rosen1965}. Lemma~\ref{lem:nash} and Theorem~\ref{thm:mono}(a) give uniqueness under Rosen's diagonal strict concavity, which for unit weights is strict monotonicity of the pseudo-gradient.
-(c) \emph{Potential games}~\citep{mondererShapley1996}. A $C^1$ game is an exact potential game with potential $\Pi$ iff $F=-\nabla\Pi$; its equilibria are the stationary points of $-\Pi$ over $K$, its maximisers when $\Pi$ is concave. The potential is bookkeeping, not welfare: in general $\Pi\ne\sum_iu_i$ (Example~\ref{ex:cournot}(i) is a potential game whose equilibrium maximises no weighted welfare).
+(c) \emph{Potential games}~\citep{mondererShapley1996}. A $C^1$ game has exact potential $\Pi$ iff $F=-\nabla\Pi$; its equilibria are the stationary points of $-\Pi$ over $K$. The potential is bookkeeping, not welfare (Example~\ref{ex:cournot}(i)).
 \end{remark}
 
 \subsection{Monotonicity: uniqueness, existence and a solver}
@@ -314,25 +315,25 @@ For games with scalar actions in $[0,1]$ and quadratic payoffs with rational coe
 \end{proof}
 
 \begin{remark}[What remains of Question~8.1 of v0.2]\label{rem:q1}
-For polynomial payoffs on a polyhedral $K$, $\Lam(x^*)$ is semialgebraic (Tarski--Seidenberg, \citealp{bochnakCosteRoy1998}); it is polyhedral for $N=2$ (every closed convex cone of $\R^2$ is) and not in general for $N\ge3$ (Example~\ref{ex:nonpoly}). By Proposition~\ref{prop:hard}, unless P $=$ NP there is no polynomial-time test of $\lambda\in\Lam(x^*)$ or of $\Lam=\Lone$, and hence no polynomial-time computable description of $\Lam(x^*)$ by polynomial inequalities. We therefore withdraw the request of v0.2 for a characterisation ``in terms of the active-face pattern and the Hessians'': in that generality it has no efficiently checkable answer. Tractable subclasses (scalar actions with $N$ fixed, where the $3^N$ faces can be enumerated; or supermodular $W_\lambda$, as in Example~\ref{ex:nonpoly}, where polyhedrality still fails while the reduction above, built on a submodular cut function, does not apply) are directions, not questions we pose.
+For polynomial payoffs on a polyhedral $K$, $\Lam(x^*)$ is semialgebraic (Tarski--Seidenberg, \citealp{bochnakCosteRoy1998}), polyhedral for $N=2$ (as is every closed convex cone of $\R^2$) and not in general for $N\ge3$ (Example~\ref{ex:nonpoly}). By Proposition~\ref{prop:hard}, unless P $=$ NP there is no polynomial-time test of $\lambda\in\Lam(x^*)$ or of $\Lam=\Lone$, hence no polynomial-time computable description of $\Lam(x^*)$ by polynomial inequalities. We withdraw the request of v0.2 for a characterisation ``in terms of the active-face pattern and the Hessians'': in that generality it has no efficiently checkable answer. Tractable subclasses (scalar actions with $N$ fixed; supermodular $W_\lambda$, as in Example~\ref{ex:nonpoly}, where polyhedrality still fails and the cut-based reduction does not apply) are directions, not questions we pose.
 \end{remark}
 
 \section{Numerical checks}\label{sec:exp}
 
-All equilibria are computed by the projected-gradient iteration of Theorem~\ref{thm:mono}(b) (Remark~\ref{rem:hs}), run to a fixed-point step below $10^{-12}$, with the natural residual $\|x-\Pi_K(x-F(x))\|$ reported; $\Lone$ is tested by its linear system and $\Lam$ by exact maximisation over the box (enumeration of its $3^N$ faces, Appendix~\ref{app:repro}). Each script states its protocol and pass/fail criteria in its docstring, evaluates them and writes the flags into its JSON output; the phrases ``all criteria hold'' below are generated from those flags. There is no external pre-registration record: the criteria were written in the same session as the code and before the reference run. The experiments verify statements proved above and produce descriptive statistics of one sampling distribution; they discover nothing that is not proved.
+All equilibria are computed by the projected-gradient iteration of Theorem~\ref{thm:mono}(b) (Remark~\ref{rem:hs}), run to a fixed-point step below $10^{-12}$, with the natural residual $\|x-\Pi_K(x-F(x))\|$ reported; $\Lone$ is tested by its linear system and $\Lam$ by exact maximisation over the box (enumeration of its $3^N$ faces, Appendix~\ref{app:repro}). Each script states its protocol and pass/fail criteria in its docstring and writes the flags into its JSON output, from which the phrases ``all criteria hold'' are generated; there is no external pre-registration record (the criteria were written in the same session as the code, before the reference run). The experiments verify statements proved above; they discover nothing.
 
 \paragraph{E1: routing.} \CritTraffic. Pigou: PoA $=\PigouPoAOne$ for $d=1$ and $\PigouPoASixteen$ for $d=\PigouDmax$; closed form and grid search agree to \PigouGridGap. Affine parallel links: maximum PoA \AffPoAMax{} over \AffInstances{} instances, \AffViolations{} violations of $4/3$ (Figure~\ref{fig:poa}); \AffPoAOneCount{} instances have PoA $=1$ exactly (e.g.\ when every $b_e=0$); maximum residual \AffMaxResidual. The equilibrium and the optimum computed by the solver match exact water-filling to \AffMaxDevWaterfill. For affine costs the optimum is also the equilibrium of the tolled operator $c+\tau$ of Corollary~\ref{cor:toll}, which is the same function as $\nabla C$, so this is the only check of the tolls we offer (the separate ``E1c'' of v0.2 repeated it).
 
 \begin{figure}[t]
 \begin{minipage}[c]{0.40\textwidth}
 \centering
-\includegraphics[width=0.85\textwidth]{../figures/fig_cone_2player.pdf}
+\includegraphics[width=0.7\textwidth]{../figures/fig_cone_2player.pdf}
 \captionof{figure}{Example~\ref{ex:wedge}, $\alpha=\TwoAlpha$, $\beta_1=\beta_2=\TwoBetaOne$: shaded, the closed-form wedge; orange, its boundaries ($\TwoAngleLow^\circ$, $\TwoAngleHigh^\circ$); every fifth of the \TwoAngles{} tested directions, blue if the exact maximisation of $W_\lambda$ returns $x^*$, grey otherwise.}
 \label{fig:wedge}
 \end{minipage}\hfill
 \begin{minipage}[c]{0.55\textwidth}
 \centering
-\includegraphics[width=0.85\textwidth]{../figures/fig_poa.pdf}
+\includegraphics[width=0.75\textwidth]{../figures/fig_poa.pdf}
 \captionof{figure}{E1: price of anarchy of \AffInstances{} random affine parallel-link instances; dashed, the bound $4/3$ of Theorem~\ref{thm:poa}.}
 \label{fig:poa}
 \end{minipage}
@@ -368,11 +369,9 @@ $N$ & conc. & games & $\Lone\!\ne\!\{0\}$ & $\dim\Lone$: games & cone pts $\in\L
 \label{tab:random}
 \end{table}
 
-\section{What can be claimed}\label{sec:claims}
+\section{What can be claimed, limitations and open question}\label{sec:claims}\label{sec:limits}
 
-Every statement carries its status in line; the claim-by-claim table of v0.2 is now \path{results/CLAIMS.md}. Three lines summarise it: the classical results are theorems and are proved above; the ``formal relationship'' between equilibrium and welfare is the first-order coincidence of Proposition~\ref{prop:nec}, a definition rather than a mechanism; and $(F,K)$ carries no welfare information (Proposition~\ref{prop:notdet}), so welfare statements need the externalities as separate data, and even with them deciding whether a weighting makes an equilibrium optimal is co-NP-complete (Proposition~\ref{prop:hard}).
-
-\section{Limitations and open question}\label{sec:limits}
+Every statement carries its status in line; the claim-by-claim table of v0.2 is now \path{results/CLAIMS.md}. In three lines: the classical results are theorems, proved above; the ``formal relationship'' between equilibrium and welfare is the first-order coincidence of Proposition~\ref{prop:nec}, a definition rather than a mechanism; and $(F,K)$ carries no welfare information (Proposition~\ref{prop:notdet}), so welfare statements need the externalities as separate data, and even with them deciding whether a weighting makes an equilibrium optimal is co-NP-complete (Proposition~\ref{prop:hard}).
 
 \paragraph{Limitations.}
 (1) Everything is finite-dimensional, deterministic and $C^1$; mixed strategies, atomic congestion games, dynamics and stochastic demand are outside the note. (2) Theorem~\ref{thm:cone} is a first-order statement; its only general sufficient condition for equality is concavity, which excludes Cournot-type payoffs and multi-commodity routing costs. (3) The experiments verify theorems on quadratic games over boxes and on small networks; they are exact only because $N\le4$ (E2--E5, E7) or $n\le6$ (E6), and the reported frequencies describe one sampling distribution. (4) We have not surveyed the toll-pricing and multi-objective literature exhaustively (Remark~\ref{rem:novelty}).
@@ -391,7 +390,9 @@ In a multi-commodity network with affine costs let $C_k(f)=\sum_{p\in P_k}f_pc_p
 
 \paragraph{Random families.} E3--E4: $u_i(x)=-\tfrac12x^{\!\top}H_ix+h_i^{\!\top}x$ on $[0,1]^N$, concave family $H_i=B_iB_i^{\!\top}$ with Gaussian $B_i$, non-concave family $H_i$ Gaussian symmetric, diagonals raised so that the symmetric part of the Jacobian of $F$ has least eigenvalue $\tfrac12$, $h_i\sim N(1,1.5^2)$ (\RndNFourCBdry--\RndNThreeXBdry\% of equilibrium coordinates on the boundary); cone points are up to $12$ vertices of $\Lone\cap\{\mathbf 1^{\!\top}\lambda=1\}$ and their barycentre; the grid has step $1/12$ ($N=3$) or $1/8$ ($N=4$); exact maximisation cross-checked against multistart projected ascent on \RndPgaChecks{} concave instances (discrepancy \RndPgaDiff). E5: $a\sim U(0.05,1)$, $b=0$ with probability $\tfrac12$ and otherwise $U(0,1)$, \CmDirs{} directions $(\cos\theta,\sin\theta)$; \CmRandTolDis{} directions accepted by the exact test only within its tolerance while failing the linear test (largest first-order violation \CmRandTolDisViol) are recorded separately. The criteria themselves are listed in the script docstrings and in \path{results/tables_*.md}.
 
-\renewcommand{\bibfont}{\small}\setlength{\bibsep}{1pt plus 0.5pt}
+\renewcommand{\bibfont}{\footnotesize}\setlength{\bibsep}{0.5pt plus 0.5pt}
+\begin{multicols}{2}
 \bibliographystyle{plainnat}
 \bibliography{refs}
+\end{multicols}
 \end{document}
