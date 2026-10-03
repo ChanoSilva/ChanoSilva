@@ -1,0 +1,167 @@
+% =====================================================================================================================
+% d2_certified.tex  --  RTK001, block for v0.5 (theory/computation agent, 03/10/2026).  NOT \input by main.tex.
+%
+% WHERE TO PASTE.  Block A (Proposition prop:d2cert + Remark rem:d2method) goes right after Remark rem:H3status
+% ("what this gives and what it does not") and before the sentence "What remains unproved is therefore a statement
+% about the family ...".  It uses only commands already defined in main.tex (\status, \minRad, \thick, \dcsd).
+%
+% NUMBERS.  Every number is a macro.  The \providecommand defaults below are the current values; the integrator
+% should generate them in make_numbers.py from theory/certify_d2.json and theory/joint_phase_sweep.json
+% (frozen copies + SHA-256 in results/, as for check_H3), rounding in the SAFE direction:
+%   \DtwoCertBound      = ceil_3(B.max_total)                    (1.18616...)   upper bound -> round up
+%   \DtwoCertMinRad     = floor_3(1/B.max_total)                 (0.84305...)   lower bound -> round down
+%   \DtwoCertBoundHalf  = ceil_3(A["0.5"].bound_m2.total)        (1.20161...)
+%   \DtwoCertBoundTF    = ceil_3(A["0.35"].bound_m2.total)       (0.24452...)
+%   \DtwoCertBoundQ     = ceil_4(A["0.25"].bound_m2.total)       (0.08908...)
+%   \DtwoCertVmin       = floor_3(A["0.5"].v_min_lo)             (1.79891...)
+%   \DtwoCertKmax       = ceil_3(A["0.5"].kappa_max_hi)          (1.42634...)
+%   \DtwoCertNu         = ceil_3(A["0.5"].nu_hi)                 (0.43263...)
+%   \DtwoCertMu         = ceil_3(A["0.5"].mu_hi)                 (4.63786...)
+%   \DtwoCertNs = A["0.5"].Ns (4096);  \DtwoCertNsB = B.Ns (2048);  \DtwoCertNrB = B.nr (512)
+%   \DtwoCertFc         = B.f_c_minrad_gt_r                      (0.484375, exact box end)
+%   \DtwoCertCPU        = round(meta.seconds_cpu)                (8)
+%   \JointNEvals        = joint.summary.n_evals_256              (594)
+%   \JointMarginMin     = round_3(joint.summary.min_margin_256)  (0.2333)
+%   \JointMarginMinFine = round_3(joint.summary.fine[0].margin_512)  (0.2317)
+%   \JointBetaOne, \JointBetaTwo = joint.summary.argmin_256      (1.058, 0.671)
+%   \JointMarginMax     = round_1(joint.summary.max_margin_256)  (13.2)
+%   \JointPeriodDev     = round_2(max(period_check))             (0.05)
+%
+% WHAT CHANGES ELSEWHERE (replacement texts in Block B, commented, ready to paste):
+%   abstract and introduction (d = 2 no longer open); Remark rem:H3status (last clause); Hypothesis hyp (status
+%   line) and the paragraph "Status for (2,3) ..."; Corollary cor:rec (status: unconditional for d <= 2);
+%   caption of Table tab:consts (d = 2 column superseded); claims table (two rows split/changed, one row added);
+%   Limitations (1) and (4); Next steps (1) and (2); Conjecture conj and the normalisation paragraph of Section 4
+%   (joint sweep: margin stays positive, min 0.23 %, no refutation).
+% =====================================================================================================================
+\providecommand{\DtwoCertBound}{1.187}
+\providecommand{\DtwoCertMinRad}{0.843}
+\providecommand{\DtwoCertBoundHalf}{1.202}
+\providecommand{\DtwoCertBoundTF}{0.245}
+\providecommand{\DtwoCertBoundQ}{0.0891}
+\providecommand{\DtwoCertVmin}{1.798}
+\providecommand{\DtwoCertKmax}{1.427}
+\providecommand{\DtwoCertNu}{0.433}
+\providecommand{\DtwoCertMu}{4.638}
+\providecommand{\DtwoCertNs}{4096}
+\providecommand{\DtwoCertNsB}{2048}
+\providecommand{\DtwoCertNrB}{512}
+\providecommand{\DtwoCertFc}{0.484375}
+\providecommand{\DtwoCertCPU}{8}
+\providecommand{\JointNEvals}{594}
+\providecommand{\JointMarginMin}{0.233}
+\providecommand{\JointMarginMinFine}{0.232}
+\providecommand{\JointBetaOne}{1.058}
+\providecommand{\JointBetaTwo}{0.671}
+\providecommand{\JointMarginMax}{13.2}
+\providecommand{\JointPeriodDev}{0.05}
+
+% ------------------------------------------------- Block A ----------------------------------------------------------
+\paragraph{The case $d=2$ (added in v0.5).} At $d=2$ the base $K_1$ is an explicit trigonometric polynomial, so instead of the a priori constants of Remark~\ref{rem:H3status} one can insert into \eqref{eq:kaprec} rigorous enclosures of the four numbers of $K_1$ that it uses.
+
+\begin{proposition}[the case $d=2$]\label{prop:d2cert}\status{computer-assisted proof (interval arithmetic)}
+Let $(p_1,q_1)=(p_2,q_2)=(2,3)$, $0<r_1\le\frac12$ and $0<r_2\le r_1/2$, with arbitrary phases $\varphi_1,\varphi_2$ and arbitrary initial normals of the frames of $K_0$ and $K_1$. Then
+\[
+r_2\,\kappa_{\max}(K_2)\ \le\ \DtwoCertBound,\qquad\text{hence}\qquad \minRad(K_2)\ \ge\ \DtwoCertMinRad\,r_2\ >\ r_2/2 .
+\]
+Consequently, for every $f\le\frac12$, every $r_1\le f$ and every $r_2\le f\,\thick(K_1)$, $\thick(K_2)\ge r_2/2$: Hypothesis~\ref{hyp} with $c=\frac12$ holds at $d=2$ for every normalisation. Along the family $r_1=f$, $r_2\le f^2$ one has moreover $\minRad(K_2)>r_2$ for every $f\le\DtwoCertFc$.
+\end{proposition}
+\begin{proof}
+\emph{Reduction.} By Proposition~\ref{prop:curvrec} with $K=K_1$, $r=r_2$, $r_2\kappa_{\max}(K_2)\le\Phi$, where $\Phi$ is $r_2$ times the right-hand side of \eqref{eq:kaprec}, a function of $\kappa_{\max}(K_1)$, $v_{\min}(K_1)$, $\nu(K_1)$, $\mu(K_1)$, $r_2$ and $m_2$. $\Phi$ is non-decreasing in $\kappa_{\max}$, $\nu$, $\mu$, $r_2$ and $m_2$ and non-increasing in $v_{\min}$: $\varepsilon=r_2\kappa_{\max}$ and $\lambda=r_2m_2/v_{\min}$ increase, $\zeta'=v_{\min}(1-\varepsilon)/(r_2m_2)$ decreases, and $G$ is non-increasing. Since $\alpha_2\in(-\pi,\pi]$, $m_2=\frac32-\alpha_2/2\pi<2$, so $m_2$ may be replaced by $2$: the Bishop frame of $K_1$ does not enter. By Proposition~\ref{prop:upper}, $\thick(K_1)\le r_1$, so $r_2\le f\thick(K_1)$ with $f\le\frac12$ implies $r_2\le r_1/2$. A change of $\varphi_1$ or of the frame of $K_0$ moves $K_1$ by a rigid motion and a shift of the parameter, which leave the four numbers unchanged; the frame of $K_1$ and $\varphi_2$ enter \eqref{eq:kaprec} only through $|U|=1$.
+
+\emph{The base.} With $t=2s$, $K_1(s)=\bigl(e^{2is}(1+r_1\sin3s),\ r_1\cos3s\bigr)$ (first two coordinates as a complex number), i.e.\ $x+iy=e^{2is}+\frac{r_1}{2i}(e^{5is}-e^{-is})$, whose derivatives $D_j=d^jK_1/ds^j$ are explicit. With $v=|D_1|$: $\kappa=|D_1\times D_2|/v^3$, $|v'|/v^2=|D_1\cdot D_2|/v^3$ and, from $\Pi_\perp K_1'''=3vv'\boldsymbol\kappa+v^2\Pi_\perp\boldsymbol\kappa'$ and $\boldsymbol\kappa=\Pi_\perp D_2/v^2$, $|\kappa_{\rm par}'|/v=\bigl|\Pi_\perp D_3-3(D_1\cdot D_2)\,\Pi_\perp D_2/v^2\bigr|/v^3$, where $\Pi_\perp$ is the projection orthogonal to $D_1$. Moreover $K_1(s+2\pi/3)$ is $K_1(s)$ rotated by $4\pi/3$ about $e_z$, so suprema over $[0,2\pi]$ equal suprema over $[0,2\pi/3]$.
+
+\emph{Enclosure.} Cover $(0,\frac12]\times[0,2\pi/3]$ by $\DtwoCertNrB\times\DtwoCertNsB$ boxes in $(r_1,s)$; on each box enclose $\cos ks,\sin ks$ ($k=1,2,3,5$) with rigorous interval arithmetic (\texttt{mpmath.iv}), and evaluate the expressions above in binary64 interval arithmetic with every endpoint rounded outward by one ulp after each IEEE-754 operation ($+,-,\times,\div,\sqrt{\ }$), which encloses the exact value. On each $r_1$-box $[a,b]$ this gives an upper bound of $\kappa_{\max}$, $\nu$, $\mu$ and a lower bound of $v_{\min}$ over the box; $\Phi$ evaluated in the same arithmetic at these values with $r_2=b/2$ and $m_2=2$ is at most $\DtwoCertBound$ on every box (the maximum is on the last box, $r_1\in[0.499,0.5]$). Theorem~\ref{thm:Hc}(c) gives $\thick(K_2)\ge r_2/2$. For the last claim the same box data with $r_2=b^2$ give $\Phi<1$ on every box with $b\le\DtwoCertFc$.
+\end{proof}
+
+\begin{remark}[what is certified, and how]\label{rem:d2method}\status{computer-assisted proof; numbers from \texttt{theory/certify\_d2.py}}
+The certificate covers exactly the inequality $r_2\kappa_{\max}(K_2)\le\DtwoCertBound$ for $r_1\le\frac12$, $r_2\le r_1/2$, all phases and normalisations; with Theorem~\ref{thm:Hc}(c) (proved by hand) this settles $d=2$. For the concrete family at $f=\frac12$ ($r_1=\frac12$, $r_2\le\frac14$), a second computation over the full period ($\DtwoCertNs$ boxes, no symmetry) gives $v_{\min}(K_1)\ge\DtwoCertVmin$, $\kappa_{\max}(K_1)\le\DtwoCertKmax$, $\nu(K_1)\le\DtwoCertNu$, $\mu(K_1)\le\DtwoCertMu$ and $\Phi\le\DtwoCertBoundHalf$; at $f=0.35$ and $0.25$ ($r_2\le f^2$), $\Phi\le\DtwoCertBoundTF$ and $\le\DtwoCertBoundQ$. The trust base is the correctness of IEEE-754 binary64 arithmetic in NumPy, of \texttt{mpmath.iv}, and of about one hundred lines of code that implement the formulas of the proof; it is not a formal verification. The bound is loose by a factor of about three (a smooth, uncertified evaluation gives $r_2\kappa_{\max}(K_2)\approx0.40$ at $r_1=\frac12$, $r_2=\frac14$), because \eqref{eq:kaprec} takes the four suprema separately; this is why $\minRad(K_2)>r_2$ (the curvature part of Conjecture~\ref{conj}) is obtained only for $f\le\DtwoCertFc$, not at $f=\frac12$. The holonomy is not needed; as a check, $\alpha_2\equiv-\int\tau\,d\sigma\pmod{2\pi}$ (the Bishop frame is the Frenet frame rotated by minus the integrated torsion, $\kappa(K_1)>0$) agrees with the integrated frame. Nothing at $d\ge3$, and no polygonal quantity, is certified.
+\end{remark}
+% ------------------------------------------------ end Block A -------------------------------------------------------
+
+% ------------------------------------------------- Block B (replacements, commented) --------------------------------
+% (B1) Abstract, replace
+%   "... the derivative bound itself is not propagated (one derivative is lost per depth): $(\mathrm H_3)$ uniformly
+%    in $d$, and the case $d=2$, remain open, although every condition holds on the polygons (grid evaluation, uncertified)."
+% by
+%   "... the derivative bound itself is not propagated (one derivative is lost per depth). The case $d=2$ is settled by a
+%    computer-assisted proof (interval arithmetic on the explicit base $K_1$: $\minRad(K_2)\ge\DtwoCertMinRad\,r_2$ for every
+%    $f\le\frac12$ and every normalisation), so $\thick(K_d)\ge r_d/2$ is proved for $d\le2$; $(\mathrm H_3)$ uniformly in $d$
+%    remains open, although every condition holds on the polygons (grid evaluation, uncertified)."
+%   and "Under the thickness bound, $\Rop_d\le2\pi\Lambda_{\Rop}^d$" -> "Under the thickness bound (proved for $d\le2$), ..."
+%
+% (B2) Introduction, end of first paragraph: "... and a partial result on the uniformity of $(\mathrm H_3)$ is added
+%   (Lemma~\ref{lem:speedrec}--Proposition~\ref{prop:noclose})" -> append
+%   "; v0.5 adds a computer-assisted proof of the case $d=2$ (Proposition~\ref{prop:d2cert}) and a joint scan of the two
+%    frame normalisations that affect $K_3$".
+%
+% (B3) Remark rem:H3status, replace the clause
+%   "and at $d=2$ the a priori constants do not suffice: ... while the polygon values give $\HthreeDtwoLHS$."
+% by
+%   "and at $d=2$ the a priori constants do not suffice: ... while the polygon values give $\HthreeDtwoLHS$; the case $d=2$
+%    is settled instead by Proposition~\ref{prop:d2cert}, which inserts certified data of $K_1$ into \eqref{eq:kaprec}."
+%   and in its status: "grid evaluation with polygon inputs; uniformity open" (unchanged).
+%
+% (B4) Hypothesis hyp, status line:
+%   \status{for $(2,3)$ and $c=1/2$: proved at $d=1$ (Theorem~\ref{thm:Hc}) and at $d=2$ (computer-assisted,
+%   Proposition~\ref{prop:d2cert}); for $d\ge3$ reduced to a curvature bound (Theorem~\ref{thm:Hc}) and to a growth
+%   condition (Corollary~\ref{cor:tolerance}); verified numerically}
+%   Paragraph "Status for (2,3), f<=1/2, c=1/2" ->
+%   "\noindent\emph{Status for $(2,3)$, $f\le1/2$, $c=1/2$.} By Theorem~\ref{thm:Hc}(c), \eqref{eq:rho} holds at $d=1$ and,
+%    for $d\ge2$, is equivalent to $\minRad(K_d)\ge r_d/2$. At $d=2$ this is Proposition~\ref{prop:d2cert} (computer-assisted,
+%    every $f\le\frac12$, every normalisation). For $d\ge3$, under $(\mathrm H_3)$ it follows from $1/(r\hat\kappa_d)\ge1/2$,
+%    which the grid evaluation with polygon-measured inputs gives at $d=3$ ($\SsCkappaHalfThree$ at $f=1/2$;
+%    Table~\ref{tab:consts}), and from \eqref{eq:tol}, which the polygons satisfy at $d=3,4$ (Remark~\ref{rem:H3status}).
+%    This is evidence, not a proof: $\nu$, $\mu$ (and, for $\hat\kappa_d$, $\thick(K_{d-1})$) are only measured. Open:
+%    $(\mathrm H_3)$ uniformly in $d$ (here, a priori control of $\mu(K_{d-1})$) and certification for $d\ge3$. Numerically ..."
+%    (rest unchanged).
+%
+% (B5) Corollary cor:rec, status:
+%   \status{proved here; unconditional for $d\le2$ (Theorem~\ref{thm:Hc}, Proposition~\ref{prop:d2cert}); for $d\ge3$
+%   conditional on $\mathrm H_c$ for the family (for $(2,3)$, $c=1/2$: on $\minRad(K_d)\ge r_d/2$)}
+%   (In its chain $r_2=f\rho_1=f^2/2\le f\thick(K_1)$ because $\thick(K_1)\ge\rho_1$ is proved, so Prop. d2cert applies.)
+%
+% (B6) Caption of Table tab:consts: append "At $d=2$ the column $1/(r\hat\kappa_d)$ is superseded by the certified bound
+%   $\minRad(K_2)\ge\DtwoCertMinRad\,r_2$ of Proposition~\ref{prop:d2cert}."
+%
+% (B7) Claims table: replace the row
+%   "$\thick(K_d)\ge r_d/2$ at $d=2,3$ (Table~\ref{tab:consts}). & grid evaluation under $(\mathrm H_3)$, polygon inputs\\"
+% by
+%   "$\thick(K_2)\ge r_2/2$, $\minRad(K_2)\ge\DtwoCertMinRad\,r_2$, every $f\le\frac12$ and normalisation (Prop.~\ref{prop:d2cert}).
+%    & computer-assisted proof (interval arithmetic)\\
+%    $\minRad(K_2)>r_2$ for $r_1=f$, $r_2\le f^2$, $f\le\DtwoCertFc$ (Prop.~\ref{prop:d2cert}). & computer-assisted proof\\
+%    $\thick(K_3)\ge r_3/2$ (Table~\ref{tab:consts}). & grid evaluation under $(\mathrm H_3)$, polygon inputs\\"
+%   replace "$(\mathrm H_c)$, $(2,3)$, $c=\frac12$, all $d$; $(\mathrm H_3)$ uniformly in $d$; the case $d=2$. & open; ..."
+%   by      "$(\mathrm H_c)$, $(2,3)$, $c=\frac12$, $d\ge3$; $(\mathrm H_3)$ uniformly in $d$. & open; numerically true in
+%            $\HypLevels$ levels, margin $\ge\HypMinTauOverRho$\\"
+%   in the row of Cor. cor:rec: "proved, conditional on $(\mathrm H_c)$" -> "proved; unconditional for $d\le2$, conditional
+%   on $(\mathrm H_c)$ for $d\ge3$"
+%   in the row of Conj. conj: "($\ge\PhaseMarginThreeMin\%$ over normalisations)" -> "($\ge\JointMarginMinFine\%$ over a joint
+%   scan of both normalisations)".
+%
+% (B8) Limitations (1): "... and $d=2$ is open." -> "... ; $d=2$ is settled by a computer-assisted proof
+%   (Proposition~\ref{prop:d2cert}), whose bound is loose by a factor of about three; $d\ge3$ is open."
+%   Limitations (4): "... none uses interval arithmetic." -> "... only Proposition~\ref{prop:d2cert} uses interval
+%   arithmetic." and add "$\minRad(K_2)\ge\DtwoCertMinRad\,r_2$" to the list of analytic/certified constants.
+%
+% (B9) Next steps (1): delete "At $d=2$ the base $K_1$ is an explicit trigonometric polynomial, so \eqref{eq:kaprec} with
+%   $r_2\le r_1/2$ is a finite computation that interval arithmetic can certify." and add:
+%   "At $d=3$, Corollary~\ref{cor:tolerance} needs bounds on $\nu(K_2)$, $\mu(K_2)$; these depend only on the local data of
+%    $K_1$ (up to fourth derivatives), on $r_2$, $m_2$ and on the angle of $U$ in the normal plane, so an interval
+%    computation over boxes in $(s,\text{angle},r_2)$ -- with the angle ranging over the whole circle, which covers every
+%    normalisation -- would settle $d=3$ without integrating the frame."
+%   Next steps (2): "interval arithmetic for $c_1$, $c_0'$, $\hat\kappa_d$" -> "... for $c_1$, $c_0'$, $\hat\kappa_d$ ($d\ge3$)".
+%
+% (B10) Conjecture conj, last sentence -> "... by margins of only $\MarginHalfTwo\%$ and $\MarginHalfThree\%$ for the
+%   normalisation of Definition~\ref{def:family}, and of at least $\PhaseMarginTwoMin\%$ and $\JointMarginMinFine\%$ over the
+%   normalisations tested (for $d=3$ a joint scan of both frame normalisations; Section~\ref{sec:exp}). At $d=2$ the part
+%   $\minRad(K_2)>r_2$ is proved for $f\le\DtwoCertFc$ (Proposition~\ref{prop:d2cert})."
+%   Section 4, normalisation paragraph, after "... to $\PhaseMarginThreeMax\%$;" insert:
+%   "a joint scan of both normalisations ($\JointNEvals$ pairs $(\beta_1,\beta_2)$ at $N_0=256$: an $18\times24$ grid on
+%    $[0,\pi)^2$ and two local refinements; \texttt{theory/joint\_phase\_sweep.py}) gives minimum $\JointMarginMin\%$ at
+%    $(\beta_1,\beta_2)=(\JointBetaOne,\JointBetaTwo)$ ($\JointMarginMinFine\%$ at $N_0=512$) and maximum $\JointMarginMax\%$,
+%    with $\tau_3=r_3$ throughout; the minimum over $\beta_2$ has period $\pi/3$ in $\beta_1$ to $\JointPeriodDev$ percentage
+%    points (the coarse grid in $\beta_2$), and the margin stays positive:"
+%   and change "So $f_\ast(2),f_\ast(3)\ge\frac12$ holds for every normalisation tested, at $d=3$ only narrowly." (unchanged
+%   wording is still correct).
+% ------------------------------------------------ end Block B -------------------------------------------------------

@@ -262,12 +262,50 @@ if os.path.exists(_rt_path):
         return cast(m.group(group))
     rt_pass = grab(r"ALL CHECKS PASS: (\w+)", str) == "True"
     mac("CritRouting", "all criteria hold" if rt_pass else "SOME CRITERIA FAIL")
-    mac("RtGraphs", grab(r"\[explicit path sets\] graphs: (\d+)"))
-    mac("RtRandFive", grab(r"(\d+) random on 5 nodes"))
-    mac("RtRandSix", grab(r"random on 5 nodes and (\d+) on 6"))
-    mac("RtPairs", grab(r"pairs \(G,k\): (\d+)"))
-    mac("RtMembers", grab(r"members \(maxcut<k\): (\d+)"))
-    mac("RtNonmembers", grab(r"non-members \(maxcut>=k\): (\d+)"))
+    rt_graphs, rt_pairs = grab(r"\[explicit path sets\] graphs: (\d+)"), grab(r"pairs \(G,k\): (\d+)")
+    rt_mem, rt_non = grab(r"members \(maxcut<k\): (\d+)"), grab(r"non-members \(maxcut>=k\): (\d+)")
+    mac("RtGraphs", rt_graphs)
+    # (v0.5, round 4 m4) The log line "40 random on 5 nodes and 40 on 6, half with weights" is fixed text
+    # of the script, not a count, and is wrong (the generator makes 20 unit + 10 weighted graphs per n).
+    # The family sizes are therefore recomputed here by replaying the generator of
+    # theory/check_routing_hardness.py (main(), first lines: same seed, same order of random draws;
+    # theory/ is only read), and the replay is cross-checked against the counts the script computed
+    # (graphs, pairs, members, non-members) before any macro is written.
+    import itertools
+    import numpy as np
+    _rng = np.random.default_rng(grab(r"seed (\d+);"))
+    _fam = []  # (n, weighted edge list, family)
+    for _n in (3, 4):
+        _pp = list(itertools.combinations(range(_n), 2))
+        for _mask in range(1, 2 ** len(_pp)):
+            _fam.append((_n, [(i, j, 1) for t, (i, j) in enumerate(_pp) if (_mask >> t) & 1], "all"))
+    for _n in (5, 6):
+        _pp = list(itertools.combinations(range(_n), 2))
+        for _wt in ("unit", "w123"):
+            _cnt = 0
+            while _cnt < (20 if _wt == "unit" else 10):  # constants of the generator
+                _sel = [pq for pq in _pp if _rng.random() < 0.5]
+                if not _sel:
+                    continue
+                _ws = [1 if _wt == "unit" else int(_rng.integers(1, 4)) for _ in _sel]
+                _fam.append((_n, [(i, j, w) for (i, j), w in zip(_sel, _ws)], _wt)); _cnt += 1
+
+    def _maxcut(n, E):
+        return max(sum(w for i, j, w in E if ((s >> i) & 1) != ((s >> j) & 1)) for s in range(2 ** n))
+    _npairs = _nmem = 0
+    for _n, _E, _ in _fam:
+        _mc = _maxcut(_n, _E)
+        for _k in {1, max(1, _mc), _mc + 1}:
+            _npairs += 1; _nmem += _mc < _k
+    if (len(_fam), _npairs, _nmem, _npairs - _nmem) != (rt_graphs, rt_pairs, rt_mem, rt_non):
+        raise SystemExit("make_numbers.py: replayed E8 generator does not match the saved output")
+    mac("RtAllLabelled", sum(f == "all" for _, _, f in _fam))
+    mac("RtRandFive", sum(n == 5 for n, _, f in _fam if f != "all"))
+    mac("RtRandSix", sum(n == 6 for n, _, f in _fam if f != "all"))
+    mac("RtRandWeighted", sum(f == "w123" for _, _, f in _fam))
+    mac("RtPairs", rt_pairs)
+    mac("RtMembers", rt_mem)
+    mac("RtNonmembers", rt_non)
     mac("RtMism", grab(r"maxcut<k : mismatches (\d+)"))
     mac("RtFWgap", sci(grab(r"max Frank-Wolfe gap ([0-9.e+-]+)", float)))
     mac("RtMargin", grab(r"over non-members ([0-9.]+)", str))
@@ -280,7 +318,10 @@ if os.path.exists(_rt_path):
     mac("RtFaceDiff", sci(grab(r"\|min_B - min_A\| <= ([0-9.e+-]+)", float)))
     mac("RtDagPairs", grab(r"\[DAG realisation.*?\] (\d+) pairs"))
     mac("RtDagGraphs", grab(r"\[DAG realisation.*?\] \d+ pairs on (\d+)"))
-    mac("RtDagMaxPathsW", max(int(a) for a in re.findall(r"(\d+)/\d+", rt.split("paths of W / of z per instance:")[1].split("\n")[0])))
+    _pz = re.findall(r"(\d+)/(\d+)", rt.split("paths of W / of z per instance:")[1].split("\n")[0])
+    mac("RtDagMaxPathsW", max(int(a) for a, _ in _pz))
+    mac("RtDagMinPathsZ", min(int(b) for _, b in _pz))  # (v0.5, round 4 M1) paths of the switch in the DAG
+    mac("RtDagMaxPathsZ", max(int(b) for _, b in _pz))
     mac("RtCPU", f"{grab(r'total CPU time ([0-9.]+) s', float):.0f}")
     mac("RtSeed", grab(r"seed (\d+);"))
     mac("HasRouting", "1" if rt_pass else "0")
