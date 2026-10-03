@@ -82,3 +82,56 @@ norma ℓ1), y β̂ es único sii max/min β_k sobre M valen β̂_k para todo k:
 basta enumerar los 3^p soportes con signo.
 
 Estado: DEMOSTRADO (pendiente verificación exhaustiva exacta, §3).
+
+Nota sobre las condiciones: u^2 > N es SUFICIENTE (el término −(1−ρ)μ' da holgura extra); κ−ρ ≤ 1/B es lo
+que impide la entrada con signo negativo cuando Σb ≫ t (c_2 sigue bajando tras activarse la variable 1);
+ρ < 1 solo sirve para que también los D∖R sin gadget tengan minimizador único (con ρ = 1 son no únicos y,
+por la Def. 2.2, no son testigos; el teorema seguiría valiendo pero sería menos robusto).
+
+Lo que NO funciona (registrado para no repetirlo): (i) columnas con soporte disjunto ⇒ el Lasso se
+desacopla y "entra" vuelve a ser p = 1 (fácil); (ii) un solo gadget con s0 no entero bajo la regla P sin
+desplazar los y_i: Δ ∈ s0 + ℤ y la condición de absorción Δ_min·u²/(u²+N) > s0 falla; el desplazamiento
+y_i = b_i + λ con λ = μ/n hace que μ' = λ|K| se cancele exactamente con λN y deja Δ = β − t ∈ ℤ.
+
+## 2. Algoritmo pseudo-polinómico para p fijo (todas las metas, ambas reglas)
+
+Observación: el objetivo en D∖R es ½β^T G_K β − g_K^T β + const + μ'||β||_1 con G_K = X_K^T X_K,
+g_K = X_K^T y_K. El conjunto de minimizadores (y por tanto unicidad, soporte con signo y cualquier meta
+Π ∈ {any (con/sin signo), leave(j), enter(j)}) depende solo de (G_K, g_K, μ'), y μ' depende solo de |K|.
+Unicidad decidible desde (G, g, μ'): β̂ cualquiera (enumeración de 3^p soportes con signo para p fijo);
+minimizadores = {β : G(β − β̂) = 0, ||β||_1 ≤ ||β̂||_1} (Gv = 0 ⇔ X_K v = 0); 2p PL.
+Datos enteros |x_ij|, |y_i| ≤ M: las entradas de (G_K, g_K) son enteros en [−nM², nM²].
+DP: recorrer las filas manteniendo el conjunto de estados alcanzables (|K|, triu(G_K), g_K);
+#estados ≤ (n+1)(2nM²+1)^{d}, d = p(p+3)/2; cada paso O(d·#estados); al final evaluar Π en cada estado con
+1 ≤ |K| ≤ n−1; f_Π = n − max{|K| : Π se cumple con minimizador único}.
+Tiempo: O(c_p · n² (2nM²+1)^{p(p+3)/2}) operaciones sobre números de O(p log(nM) + bits(μ)) bits, c_p
+dependiente solo de p. ⇒ Para p fijo, existencia de testigo y f_Π son pseudo-polinómicos ⇒ ninguna de
+estas variantes con p fijo es NP-dura en sentido fuerte salvo P = NP. Esto delimita (a) del Thm 5.1 y el
+nuevo teorema: dureza fuerte requiere p no acotado. Para p = 1 se recupera la Obs. 5.2(i) (allí basta Σ a_i).
+Estado: DEMOSTRADO (argumento elemental; verificado por implementación en el script, §3).
+
+## 3. Verificación (theory/check_hardness.py → check_hardness_output.txt, 39 s)
+
+- 156 instancias fuente (78 SÍ, 78 NO; todas las t de 3 vectores b pequeños + 100 aleatorias, m ≤ 11,
+  n ≤ 12), reglas C y P: 312 pares; 137 328 subconjuntos D∖R resueltos en aritmética racional exacta.
+- Equivalencia (existe testigo de entrada ⇔ Subset Sum SÍ): 312/312.
+- Caracterización conjunto a conjunto (entra ⇔ gadget presente, ≥1 ítem, Σ b = t): 0 fallos.
+- Unicidad certificada (X_E de rango completo) en TODOS los subconjuntos; 0 empates KKT; D correcto 312/312.
+- Biblioteca: test cerrado de la Prop. 3.1 vs exacto: 0 discrepancias; lasso_lars (guarda KKT) vs exacto:
+  0 discrepancias de soporte en 33 172 ajustes.
+- DP de §2: f_enter igual al exhaustivo en 312/312; DP vs exhaustivo en datos enteros aleatorios
+  (p = 2, 3; metas enter/leave/any): 145/145.
+- Controles negativos (deben fallar): u = 1, κ = 2 y ρ = 1 producen fallos de caracterización, una
+  equivalencia rota (u = 1, κ = 2) o subconjuntos sin unicidad certificada (ρ = 1). El chequeo discrimina.
+
+## 4. Parte 3 (dureza fuerte con p creciente): NO demostrada
+
+Delimitación demostrada: por §2, con p fijo no hay dureza fuerte (salvo P = NP), para ninguna meta.
+Ruta candidata (NO verificada, no se afirma): generalizar el gadget a d absorbedores l = 1..d, cada uno con
+su Δ_l lineal en las filas quitadas; la entrada de la variable objetivo exigiría Δ_l ≤ 0 para todo l
+(absorbedores inactivos) y Σ_l Δ_l ≥ 0 (correlación suficiente), es decir Δ_l = 0 para todo l: una suma
+vectorial exacta con entradas pequeñas (p. ej. Exact Cover by 3-Sets: filas = tripletas, coordenadas =
+elementos), que es fuertemente NP-completa. Lo que falta: controlar la interacción de varios absorbedores
+activos a través de la matriz de Gram (con d > 1 la variable objetivo no queda absorbida automáticamente
+cuando solo algunos Δ_l > 0, y hay que excluir entradas con signo negativo), y la unicidad. Queda como
+conjetura.

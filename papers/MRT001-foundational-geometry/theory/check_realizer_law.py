@@ -230,19 +230,21 @@ def part_a():
             if n <= 6:
                 mism_bf += int(lc.brute_force_realizers_mod_swap(order_matrix(p)) != f)
             mism_u += int(brute_force_uorders(p) != f)
-            c, _ = lc.count_realizers_mod_swap(order_matrix(p), max_classes=12)
-            if c is None:
-                cc_skip += 1
-            else:
-                mism_cc += int(c != f)
+            if n <= 6:
+                c, _ = lc.count_realizers_mod_swap(order_matrix(p), max_classes=12)
+                if c is None:
+                    cc_skip += 1
+                else:
+                    mism_cc += int(c != f)
             N = n_desc(p)
             eq2N += int(f == 2 ** N)
             if n >= 5 and not intervals_of_length(p, set(range(3, n))):
                 inE += 1
                 inE_bad += int(f != 2 ** N)
         bf = f"{mism_bf}" if n <= 6 else "-"
+        cc = f"{mism_cc} ({cc_skip} skipped, >12 classes)" if n <= 6 else "- (see random n >= 10 below)"
         say(f"n={n}: {tot} perms | mismatches formula vs lc.brute_force: {bf}, vs u-order brute force: "
-            f"{mism_u}, vs colour classes: {mism_cc} ({cc_skip} skipped, >12 classes) | "
+            f"{mism_u}, vs colour classes: {cc} | "
             f"R == 2^N in {eq2N}/{tot} | in E_n: {inE}, of which R != 2^N: {inE_bad}")
     say(f"  ({time.time() - t0:.1f} s)")
 
@@ -285,8 +287,9 @@ def part_a():
     t0 = time.time()
     for n, exhaustive in [(8, True), (9, False)]:
         table = defaultdict(Counter)
+        rng9 = np.random.default_rng(SEED + n)
         it = itertools.permutations(range(n)) if exhaustive else \
-            (list(np.random.default_rng(SEED + n).permutation(n)) for _ in range(60000))
+            (list(rng9.permutation(n)) for _ in range(60000))
         for p in it:
             p = list(p)
             J = intervals_of_length(p, set(range(3, n)))
@@ -401,9 +404,9 @@ def part_c():
     worst_tv = 0.0
     for n in list(range(5, 61)) + [100, 200, 400]:
         law = [float(x) for x in law_N_exact(n)]
-        pois = [math.exp(-1) / math.factorial(j) for j in range(n)]
+        pois = [math.exp(-1 - math.lgamma(j + 1)) for j in range(n)]
         tv = 0.5 * (sum(abs(a - b) for a, b in zip(law, pois)) + max(0.0, 1 - sum(pois)))
-        bound = math.e ** 2 / n + (2 ** n + 1) / (2 * math.factorial(n))
+        bound = math.e ** 2 / n + math.exp(math.log(2 ** n + 1) - math.log(2) - math.lgamma(n + 1))
         worst_tv = max(worst_tv, tv / bound)
         if n in (10, 20, 50, 100, 200, 400):
             say(f"n={n}: d_TV(N, Po(1)) = {tv:.2e}  (n*d_TV = {n * tv:.3f});  bound e^2/n + ... = {bound:.2e}")
