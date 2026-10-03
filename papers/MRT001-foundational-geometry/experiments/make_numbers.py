@@ -382,7 +382,7 @@ if os.path.exists(sh_path) and os.path.exists(sh_sha_path) and os.path.exists(sh
     pairs = re.findall(r"^n = (\d+) exhaustive: .*equal: (\w+)", txt, flags=re.M)
     if not pairs or any(e != "True" for _, e in pairs):
         raise SystemExit("sharp check: pair moments disagree with enumeration")
-    L.append(rf"\newcommand{{\SharpPairsN}}{{{' and '.join(n_ for n_, _ in pairs)}}}")
+    L.append(rf"\newcommand{{\SharpPairsN}}{{{','.join(n_ for n_, _ in pairs)}}}")
     m_ = grab(r"^  20 <= n <= 3000: max of \[sum_\(k=4\)\^\(n-2\) E I_k\]/\(172/n\^2\) = ([\d.]+), E\[C\(I3,2\)\]/\(23/n\^2\) = ([\d.]+), E\[I3 I_\(n-1\)\]/\(25/n\^2\) = ([\d.]+), E\[C\(I_\(n-1\),2\)\]/\(3/n\^2\) = ([\d.]+)")
     if max(float(x) for x in m_.groups()) > 1:
         raise SystemExit("sharp check: a piece of Lemma B(a) exceeds its bound")

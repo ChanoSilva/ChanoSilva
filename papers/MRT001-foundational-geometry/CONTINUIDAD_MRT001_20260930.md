@@ -33,6 +33,8 @@ No se encontró ningún manuscrito previo titulado "Foundational Geometry". Se a
 - E5c: correlación L–τ 0.967 (n=250) → 0.990 (n=2000); pendiente L/(√n τ) 1.73 → 1.85 (límite 2); error relativo mediano de τ̂ (τ>1/4) 14% → 8% frente a τ, pero 23% → 17% frente al τ' de la configuración reparametrizada (el conteo fija el factor conforme).
 - E5d: RMSE de coordenadas 0.073 (n=250) → 0.031 (n=2000), aproximadamente n^-0.39 (más lento que n^-1/2 por el mal condicionamiento de las raíces cerca de u=v); desacuerdo de comparabilidad 7.6% → 3.7%.
 
+- Tasas exactas (v0.7; `theory/check_sharp_rate.py`, semilla 20261004, 116 s en un núcleo; salida de referencia sin tiempos en `results/check_sharp_rate_output.txt`): ley exacta de N_n para n ≤ 60 por tres vías (= fuerza bruta n ≤ 8); max |r_{n,k}|·n·k!(n−k+1)! = 0.97 (cota 1); n!|n·d_TV(N_n, Po(1)) − e⁻¹| ∈ [0.016, 0.95] (cota 2); n·d_TV(R_n, 2^Z) por Monte Carlo 1.261 ± 0.041, 1.231 ± 0.060, 1.165 ± 0.078, 1.206 ± 0.145 en n = 50, 100, 200, 400 frente a c₂ = 1 + 1/(2e) = 1.184; parte (F): el evento O(n⁻²) explica 2592 de 4921 excepciones en n = 20.
+
 ## Revisión arbitral interna (30/09/2026, misma sesión)
 Un subagente revisor independiente leyó el borrador v0.1 completo (texto, código y resultados) y produjo 18 hallazgos. Todos se atendieron en la revisión v0.2:
 1. Núcleo del orden causal: el resumen decía "es el grupo conforme"; se corrigió a "contiene al grupo conforme y es estrictamente mayor a n finito" y se añadió la Proposición 5.2 (las clases del núcleo son uniones de órbitas conformes sobre los realizadores de Dushnik–Miller del orden; ejemplo de la anticadena).
@@ -56,8 +58,8 @@ Un subagente revisor independiente leyó el borrador v0.1 completo (texto, códi
 
 ## Añadido tras la revisión (v0.3): medición directa de la clase ordinal (E2c)
 - Nueva Proposición (radio inscrito de la clase ordinal): si g(X) es la brecha mínima entre distancias consecutivas ordenadas, toda perturbación de cada punto menor que g/4 conserva el patrón; con pares extremos disjuntos, un desplazamiento explícito de g/4 produce un empate. Radio inscrito en [g/4, g/2], igual a g/4 en el caso disjunto. Demostración elemental (desigualdad triangular).
-- Script `experiments/ordinal_class.py`: verifica ambas partes numéricamente, mide g(X) frente a n (corrida completa: escala ~n^-4.2, coherente con el espaciamiento mínimo entre ~n²/2 valores: ~n^-4; 2240/2240 perturbaciones bajo g/4 conservan el patrón y 91/91 desplazamientos explícitos lo rompen; la cifra "92/92" de versiones anteriores de esta nota era un error de transcripción) y corre un paseo aleatorio restringido a la clase que da una cota inferior del radio en disparidad de Procrustes (~n^-8.0). En n=64 esa cota es dos órdenes de magnitud menor que la disparidad a la que se detuvo el solver de E2: el residuo del solver es pertenencia aproximada, no tamaño de clase.
-- Interpretación cuidada: el radio inscrito acota el grosor de la clase por arriba (ninguna bola de radio > g/2 cabe dentro); el paseo solo da una cota inferior del radio y muestra anisotropía. No hay cota superior del diámetro.
+- Script `experiments/ordinal_class.py`: verifica ambas partes numéricamente, mide g(X) frente a n (corrida completa: escala ~n^-4.2, coherente con el espaciamiento mínimo entre ~n²/2 valores: ~n^-4; 2240/2240 perturbaciones bajo g/4 conservan el patrón y 91/91 desplazamientos explícitos lo rompen; la cifra "92/92" de versiones anteriores de esta nota era un error de transcripción) y corre un paseo aleatorio restringido a la clase cuyo "rango del paseo" es una cota inferior de la extensión de la clase en disparidad de Procrustes (~n^-8.0; antes llamado, impropiamente, "radio"). En n=64 esa cota es dos órdenes de magnitud menor que la disparidad a la que se detuvo el solver de E2: el residuo del solver es pertenencia aproximada, no tamaño de clase.
+- Interpretación cuidada: el radio inscrito acota el grosor de la clase por arriba (ninguna bola de radio > g/2 cabe dentro); el paseo solo da una cota inferior de la extensión de la clase y muestra anisotropía. No hay cota superior del diámetro.
 - Pendiente teórico: demostrar la ley n^-4 de la brecha mínima y una cota superior del diámetro de la clase.
 - Segunda ronda de revisión arbitral interna realizada sobre v0.3 (véase la sección siguiente).
 
@@ -100,7 +102,7 @@ Estado tras la ronda 3: manuscrito v0.5 de 20 páginas (v0.4: 18; el aumento son
 Queda abierto tras la ronda 3:
 1. Cotejar el Teorema 3.7 (número de teorema, condición exacta de regularidad, modo de convergencia: uniforme en i ≤ n o puntual) y la frase sobre Terada–von Luxburg (condición exacta sobre k) con los PDF originales.
 2. Confirmar en el registro del MIT el año de la tesis de Meyer y, en Kaplansky 1945, el parámetro (1 para sucesiones en una dirección fija; 2 en cualquier orden según las fuentes secundarias consultadas).
-3. Demostrar la Conjetura 5.3: con probabilidad → 1 los únicos módulos no triviales del grafo de incomparabilidad de una permutación uniforme son las sucesiones descendentes (bloques de tamaño 2) y el cociente es primo; el conteo esperado de bloques de tamaño ≥ 3 es O(1/n).
+3. [Cerrado en v0.6: Teorema 5.6 y Proposición 5.7.] Demostrar la Conjetura 5.3: con probabilidad → 1 los únicos módulos no triviales del grafo de incomparabilidad de una permutación uniforme son las sucesiones descendentes (bloques de tamaño 2) y el cociente es primo; el conteo esperado de bloques de tamaño ≥ 3 es O(1/n).
 
 ## Integración de la Conjetura 5.3 demostrada (03/10/2026)
 Un agente teórico dejó en `theory/` una prueba de la Conjetura 5.3 (`realizer_law_theorem.tex`, notas `realizer_law_derivation.md`), su comprobación numérica (`check_realizer_law.py` y su salida) y tres entradas bibliográficas nuevas. El agente integrador la verificó antes de pasarla a `main.tex` (v0.5 → v0.6).
@@ -122,6 +124,33 @@ Un agente teórico dejó en `theory/` una prueba de la Conjetura 5.3 (`realizer_
 
 **Qué queda abierto.** (a) Cotejar el teorema de Gallai con el original o la traducción inglesa (número y enunciado exacto). (b) La cota de d_TV es holgada: e²/n frente a n·d_TV(N, Po(1)) = 0,368 ≈ e⁻¹ numérico, y la cota (a) 10/n es el doble de la tasa real 5/n; afinar ambas constantes queda pendiente (no se afirma ninguna constante óptima). (c) La tasa 5/n en E5f se contrasta con muestras pequeñas (13 excepciones observadas frente a 14,7 esperadas para n ≥ 100); el apoyo cuantitativo es la comprobación con 10 000–20 000 permutaciones por n. (d) El paso de sumas sesgadas de la fórmula exacta (Observación B.1) solo está esbozado; no se usa en las pruebas. (e) El contenido de Wolfowitz 1944 y Kaplansky 1945 no se cotejó más allá del título.
 
+## Ronda 4 de revisión interna (03/10/2026) e integración de las tasas exactas (v0.6 → v0.7)
+Informe: `REFEREE_MRT001_ronda4_20261003.md` (veredicto "cambios menores": 0 bloqueantes, 1 mayor, 10 menores; Lemas 5.4–5.5, Teorema 5.6 y Proposición 5.7 correctos; 13/13 puntos de la ronda 3 bien aplicados). Respuesta punto por punto: `RESPUESTA_MRT001_ronda4_20261003.md`. Recuento: 11/11 aceptados (m7 con una cota algo mejor; m6 superado por el Teorema 5.8), 0 rebatidos; las 12 acciones aplicadas.
+
+| hallazgo | acción aplicada |
+|---|---|
+| M1 atribución | Lema 5.4 "known, e.g. Brignall 2010; proof included for completeness"; Lema 5.5 "classical, the prime-node case of Gallai's decomposition; proof included"; añadidas y citadas `corteel2006` (DMTCS 8, 189–214: intervalos → Poisson(2)), `albert2003` (J. Integer Seq. 6, art. 03.4.4: simples ~ n!e⁻²(1 − 4/n + …)) y `brignall2010` (LMS LNS 376, 41–65), verificadas por WebSearch (PDF bloqueados); frase del primer momento clásico en el esbozo y en el Paso 2; "what we claim as new": ensamblaje en la traducción causal, constantes explícitas, clasificación de excepciones; tabla de afirmaciones "uses Gallai and classical interval statistics"; resumen/README/ficha: "autocontenida salvo Gallai; lemas conocidos y reprobados" |
+| m1 Obs. B.1 incompleta | texto del árbitro; 563412 y 4231 (razón 6) comprobados con `bf.py`; quitado "only sketched" |
+| m2 doble fuerza bruta | "two … on all 873 permutations of length at most 6 and one on the 5040 of length 7" (macros nuevas desde la salida congelada) |
+| m3 n = 20 y E5f | parte (F) nueva en `check_sharp_rate.py`: el evento O(n⁻²) explica 2592 de 4921 excepciones en n = 20 (720/2460 en 40, 134/984 en 100); "partly fortuitous" en el texto; IC del 95 % de nP (los 7 contienen 5; de [4.87, 5.11] a [3.0, 7.0]); quitada la comparación en n = 20 de la tabla de afirmaciones |
+| m4 n ≥ 20 | añadido en la fila del Teorema 5.6 |
+| m5 última frase | "with probability 1 − O(1/n)"; contraste euclidiano: "kernel class also open but never a finite union of similarity orbits" |
+| m6 d_TV(N_n, Po(1)) | Teorema 5.8: e⁻¹/n salvo 2/(n·n!) |
+| m7 cota sin derivar | derivada: 24/n² + 8/(n(n−1)(n−2)) |
+| m8 docstring | `realizer_law.py` describe el Teorema 5.6 y la Prop. 5.7 |
+| m9 nota, README, ficha | pendiente 3 cerrado; "radio" → "extensión de la clase"; salidas de referencia en `results/`; ficha: e⁻¹ demostrado, tasas de la Sección 5 demostradas |
+| m10 DOI Gallai | 10.1007/BF02020961 |
+
+**Tasas exactas (theory/, agente teórico terminado).** Verificadas por el autor antes de integrarlas: Lema A (inversión de momentos y cola alternante), Teorema A (signos de p_k − π_k; n ≥ 4 necesario para k = n−1), medida μ y cancelación de las excepciones de razón 2, Lema B(a) con 223/n² (momentos de pares recomputados: 4 patrones de longitud 4, 8 de longitud 5), Lema B(b), Lema C, Teorema B, cotas explícitas. **Correctas**, con un error de enunciado reparado: la "ocurrencia" fijaba también la ventana de valores y entonces la permutación contraída no es uniforme; ahora se define por posiciones y patrón (P = 1/(n(n−1)), contracción biyectiva sobre S_{n−2}); ninguna conclusión cambia. `check_sharp_rate.py` reejecutado (salida idéntica salvo tiempos) y comprobación independiente propia con el código del árbitro en n = 100 y 200 (todos los corolarios dentro de ±2 errores típicos). Integradas como Teoremas 5.8, 5.9, Proposición 5.10, Observación 5.11, Lema B.2, pruebas al final del Apéndice B y Tabla 11; etiqueta "not yet independently refereed". Salida congelada sin tiempos: `results/check_sharp_rate_output.txt`, SHA-256 `72d23ffe8f50726c66bd8d38b5f9e8a078c6f4f0063c5f13d7258448ec911282`; `make_numbers.py` genera de ella todos los números del apéndice (los del Bloque 3 de theory/ estaban tecleados). Corolarios contrastados con E5f por macro (z = +0.65, +1.94, +0.10, +0.20).
+
+**Estado tras la ronda 4.** Manuscrito v0.7 de 31 páginas (v0.6: 26); 0 errores, 0 referencias o citas indefinidas, 0 cajas desbordadas; 47 entradas en `refs.bib`; ningún número previo cambió (173 macros iguales), 80 macros nuevas. Cómputo ≈ 6 min de CPU.
+
+Queda abierto tras la ronda 4:
+1. Arbitraje independiente de los Teoremas 5.8 y 5.9, la Proposición 5.10 y el Lema B.2.
+2. Constante explícita del O(n⁻²) del Teorema 5.9; prueba de n²·d_TV(N_n, Po(1 − 1/n)) → 3/(4e) (Observación 5.11).
+3. Cotejos con fuentes primarias (bloqueadas por el proxy): Gallai 1967 (número de teorema; traducción de Maffray–Preissmann), Wolfowitz 1944 y Kaplansky 1945 (contenido), Kleindessner–von Luxburg (Teorema 3.7), página de Brignall 2010, enunciados exactos de Corteel–Louchard–Pemantle y Albert–Atkinson–Klazar.
+4. Opcional: fundir las Tablas 8 (E5e) y 9 (E5f) para reducir extensión.
+
 ## Decisiones tomadas
 - Objetos etiquetados en todos los formalismos (sin cociente por reetiquetado), para mantener las demostraciones elementales.
 - E1 con aritmética exacta y no con tolerancia flotante: la tolerancia 1e-9 produce ~1 triple espurio por configuración en n=50 (la brecha de betweenness es cuadrática en la distancia a la recta). Se menciona en el texto como advertencia metodológica.
@@ -134,5 +163,5 @@ Un agente teórico dejó en `theory/` una prueba de la Conjetura 5.3 (`realizer_
 3. Cota finita para el diámetro de las clases ordinales bajo muestreo uniforme (explicaría la caída ~n^-3.6 observada en E2).
 4. Extender E5d a 2+1 dimensiones (grupo conforme finito-dimensional) y a densidades no uniformes.
 5. Decidir destino: arXiv (math.MG / math.HO) o revista; ajustar formato.
-6. Actualizar la ficha MRT001 del CV web: de "En pausa" a "En desarrollo — borrador v0.6" (texto en `FICHA_MRT001_propuesta.md`).
-7. Hecho en v0.6: la Conjetura 5.3 está demostrada (Teorema 5.6). Queda cotejar el teorema de Gallai con la fuente original y, si interesa, afinar las constantes (véase "Integración de la Conjetura 5.3 demostrada").
+6. Actualizar la ficha MRT001 del CV web: de "En pausa" a "En desarrollo — borrador v0.7" (texto en `FICHA_MRT001_propuesta.md`).
+7. Hecho en v0.6: la Conjetura 5.3 está demostrada (Teorema 5.6). Hecho en v0.7: las constantes de primer orden están afinadas (Teoremas 5.8 y 5.9, Prop. 5.10). Queda cotejar el teorema de Gallai con la fuente original y **someter las tasas exactas a un árbitro independiente** (véase "Ronda 4 de revisión interna").

@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 """
-E5f: check of the conjectured law for the number of realizers of the causal
-order of a uniform sample of the 1+1 diamond (Proposition 5.2, E5e).
+E5f: check of Theorem 5.6 (realizer law) and Proposition 5.7 (where the exceptions
+come from) of the manuscript, on independent uniform samples of the 1+1 diamond.
+(Docstring updated in v0.7, round 4, item m8; the code and its output are unchanged.)
 
 Let pi be the permutation that sends the u-rank of a point to its v-rank, and
-let N be the number of descending successions of pi, i.e. the number of pairs
-of points adjacent in both coordinate orders with opposite directions.  Such a
-pair is a pair of incomparable twins of the order (every other point relates to
-both in the same way), its edge forms a colour class of its own in the
-incomparability graph, and both orientations are transitive, so each such pair
-doubles the number of realizers.  N has mean (n-1)/n and is asymptotically
-Poisson(1) (successions of a uniform random permutation).
-
-Conjecture (stated in the manuscript, not proved): for uniform samples the
-number of realizers modulo the swap equals 2^N with probability tending to one
-as n grows, so that its law tends to 2^{Poisson(1)}.
+let N be the number of descending successions of pi (indices i with
+pi(i+1) = pi(i) - 1), i.e. the number of pairs of points adjacent in both
+coordinate orders with opposite directions.  Such a pair is a pair of
+incomparable twins of the order, hence a module of the incomparability graph.
+Theorem 5.6 (proved in Appendix B, using Gallai's theorem): if pi has no
+interval with between 3 and n-1 elements, the number of realizers modulo the
+swap is exactly 2^N; this fails with probability <= 10/n + 166/n^2 (n >= 20),
+and the law of the count tends to 2^{Poisson(1)} at rate O(1/n).  Proposition
+5.7: the exceptions have rate 5/n + O(n^-2) and, up to O(n^-2), ratio
+count/2^N equal to 3/2 or 2.  (Not every succession pair "doubles" the count:
+when a larger module contains it the factor can be 3!, which is what the
+exceptions with ratio 3/2 record.)
 
 This script draws uniform samples, computes the exact count with the
 colour-class enumeration of lorentzian_chain.py, computes N, and records how

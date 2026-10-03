@@ -1,4 +1,19 @@
 % ============================================================================
+% NOTE (03/10/2026, round 4 integration, v0.7): this file is the theory agent's original
+% hand-off and is kept unchanged below for the record. The integrated version is in
+% manuscript/main.tex (Theorems 5.8, 5.9, Proposition 5.10, Remark 5.11, Lemma B.2 and the
+% proofs at the end of Appendix B). Changes made on integration, after the author's check:
+%  (1) an occurrence is now a pair (window of three positions, pattern); the window of values is
+%      not fixed. With the values fixed, the contracted permutation sigma is NOT uniform on S_m
+%      (sigma(j*) is fixed), contrary to what the text below says; with positions only, the
+%      contraction is a bijection onto S_{n-2} and all bounds of Lemma B and Theorem B hold as stated.
+%      A three-element occurrence then has probability 1/(n(n-1)), not (n-3)!/n!.
+%  (2) the numbers of Block 3 are no longer typed: make_numbers.py generates them from the frozen,
+%      timing-free output results/check_sharp_rate_output.txt (SHA-256 checked).
+%  (3) "the leading contributions suggest C of a few hundred" was dropped (not proved).
+%  (4) status labels add "not yet independently refereed".
+% ============================================================================
+% ============================================================================
 % theory/sharp_rate.tex -- sharp first-order rates for Theorem~\ref{thm:realizers}
 % and Proposition~\ref{prop:exceptions} (MRT001 v0.6).
 %

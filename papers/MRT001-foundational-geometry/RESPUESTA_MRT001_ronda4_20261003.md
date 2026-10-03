@@ -2,9 +2,16 @@
 
 Manuscrito revisado: v0.6 → **v0.7** (portada "Working draft v0.7 — 3 October 2026", fecha fija). Fecha de la respuesta: 03/10/2026. Informe atendido: `REFEREE_MRT001_ronda4_20261003.md` (veredicto "cambios menores": 0 bloqueantes, 1 mayor, 10 menores, 12 acciones). En esta pasada se integra además el trabajo de `theory/` sobre tasas exactas (`theory/sharp_rate.tex`, `sharp_rate_derivation.md`, `check_sharp_rate.py`), verificado por mí antes de integrarlo.
 
-*Documento escrito de forma incremental; las secciones marcadas "(en curso)" se completan al final.*
+Agradezco al árbitro la verificación en aritmética racional de cada constante, la fuerza bruta independiente desde pares de extensiones lineales (que reutilicé para verificar m1 y las tasas exactas) y la búsqueda bibliográfica que sostiene M1.
 
-## Recuento (en curso)
+## Recuento
+
+- Bloqueantes: 0.
+- Mayor: 1 → **aceptado** (M1: reetiquetado de los Lemas 5.4 y 5.5, tres referencias nuevas verificadas por WebSearch, frase del primer momento clásico, precisión de qué es propio).
+- Menores: 10 → **10 aceptados** (m7 con una cota algo mejor que la del texto; m6 superado por el Teorema 5.8 de theory/). Rebatidos: **0**. Las 12 acciones de la lista final están aplicadas (la 12 consiste en mantener abiertos los cotejos con fuentes primarias, que siguen en la nota de continuidad).
+- Tasas exactas de theory/: **correctas tras mi verificación**, con un error de enunciado en la definición de "ocurrencia" (uniformidad de la permutación contraída) que se repara sin cambiar ninguna conclusión; integradas como Teoremas 5.8 y 5.9, Proposición 5.10 y Observación 5.11 (enunciados tras la Prop. 5.7), Lema B.2 y pruebas al final del Apéndice B, Tabla 11. Llevan la etiqueta "not yet independently refereed".
+- Números del texto que cambiaron: **ninguno de los previos** (los 173 macros de v0.6 tienen el mismo valor; comprobado por programa). Se añadieron 80 macros (tasas exactas, intervalos de confianza de m3, alcance de la fuerza bruta de m2, contraste de los corolarios con E5f) y la tabla `table_sharp.tex`. En el texto cambiaron además una cota analítica (m7: 24/n² + 12/(n(n−1)) → 24/n² + 8/(n(n−1)(n−2)), ahora derivada) y el alcance declarado de la doble fuerza bruta (m2: n ≤ 6, no n ≤ 7).
+- Compilación: 0 errores, 0 referencias/citas indefinidas, `grep -c "??"` = 0, 0 cajas desbordadas. Páginas: 26 (v0.6) → 31 (v0.7).
 
 ## Hallazgo mayor
 
@@ -14,17 +21,47 @@ Tiene razón en los tres puntos, y el (a) es una incoherencia interna que debí 
 - Cambios: Lema 5.4 `[known, e.g. [Brignall 2010]; proof included for completeness]`; Lema 5.5 `[classical, the prime-node case of Gallai's decomposition [Gallai 1967]; proof included for completeness]`; la frase del árbitro sobre el primer momento (Poisson(2) de CLP; e⁻²(1 − 4/n + O(n⁻²)) de AAK) se añadió en el esbozo de las pruebas y al final del Paso 2 del Apéndice B. En el esbozo se precisa qué es propio: "What we have not found in the literature, and claim as new, is the assembly of these facts in the causal translation, the explicit constants, and the classification of the exceptions in Proposition 5.7". La introducción del Apéndice B dice ahora que el único resultado no reprobado es Gallai y que los dos lemas son conocidos y se reprueban. Teorema 5.6 y Prop. 5.7 conservan "proved here", y en la tabla de afirmaciones su estado pasa a "proved here (uses Gallai and classical interval statistics)". Resumen, README y ficha: "la prueba es autocontenida salvo el teorema de Gallai; los lemas combinatorios son conocidos y se reprueban".
 - De paso apliqué el recorte (1) de la sección "Extensión" del informe: el esbozo de las pruebas se redujo a la forma propuesta (dos frases de lemas + primer momento + inclusión–exclusión).
 
-## Hallazgos menores (en curso)
+## Hallazgos menores
 
 ### m1 — Observación B.1, lista de fuentes de razones incompleta. **Aceptado.**
 Comprobé los dos contraejemplos con la implementación independiente del árbitro (`bf.py`): una simple de longitud 12 inflada por el bloque interior 563412 = 12⊖12⊖12 da R/2^N = 6 (N = 0), y por 4231 también 6 (no 2·2). Texto sustituido por el del árbitro ("Ratios R/2^N other than 1, 3/2 and 2 require an interval with at least four elements … or two of the configurations of Proposition 5.7; by Step 2 and the proof of Proposition 5.7 these events have probability O(n⁻²)"), con una frase que cita los dos bloques como ejemplo de que la razón no es multiplicativa. Quitado "the skew-sum step is only sketched here" (el árbitro tiene razón en que el argumento está completo) y sustituido por "The formula is not used in the proofs of Theorem 5.6 and Proposition 5.7; it is used to compute R in the numerical checks".
 
+### m2 — Alcance de la doble fuerza bruta. **Aceptado.**
+La salida congelada lo confirma: para n = 7 la columna "vs lc.brute_force" es "-". Texto nuevo: "with two independent brute-force counts of realizers on all 873 permutations of length at most 6 and with one of them on the 5040 permutations of length 7 (0 mismatches in total)". Los cuatro números salen de macros nuevas (`\RlawChkBruteTwoPerms`, `\RlawChkBruteTwoNmax`, `\RlawChkBruteOnePerms`, `\RlawChkBruteOneN`) que `make_numbers.py` extrae de `results/check_realizer_law_output.txt` distinguiendo las filas con y sin la segunda fuerza bruta.
+
+### m3 — E5f y tabla de afirmaciones en n pequeño; intervalos de confianza. **Aceptado.**
+- Reproduje la observación del árbitro con datos congelados propios: añadí a `theory/check_sharp_rate.py` una parte (F) que cuenta exactamente todos los intervalos de 3..n−1 elementos (sin ventana) y clasifica las excepciones. Con 20 000 permutaciones por n: el evento malo 𝓔 del Lema B.2 tiene frecuencia 0.156 / 0.046 / 0.008 en n = 20 / 40 / 100 y explica 2592 de 4921 excepciones en n = 20 (53 %), 720 de 2460 en n = 40 y 134 de 984 en n = 100 (el árbitro obtuvo 2558 de 4964 en n = 20 con su propio código: coinciden).
+- Texto ("Sharpness and data"): la comparación 0.245 frente a 5/n = 0.250 en n = 20 se califica de "partly fortuitous, because at that size the event of probability O(n⁻²) is not small (in larger samples it accounts for 2592 of 4921 exceptions at n = 20)". Se dan los intervalos de confianza de nP(R_n ≠ 2^{N_n}) de la salida congelada: los 7 contienen 5 y se ensanchan de [4.87, 5.11] en n = 20 a [3.0, 7.0] en n = 2000 (macros `\RlawChkCI*`, calculadas de la columna "95% CI" de la salida).
+- Tabla de afirmaciones: quitada la comparación en n = 20; la subfila dice ahora "count = 2^N in 437 of 450 samples with n ≥ 100 (E5f); nP(R_n ≠ 2^{N_n}) between 4.83 and 5.40 for 20 ≤ n ≤ 2000".
+
+### m4 — "n ≥ 20" en la tabla de afirmaciones. **Aceptado.**
+Fila del Teorema 5.6: "… ≤ 10/n + 166/n² for n ≥ 20 …".
+
+### m5 — Última frase de "Sharpness and data". **Aceptado.**
+(a) "in general it is determined up to N_n binary choices" → "with probability 1 − O(1/n) it is determined up to N_n binary choices". (b) El contraste era falso (la clase causal también es abierta, Prop. 5.2). Nuevo: "it differs from the Euclidean ordinal case, where the kernel class is also open (Proposition 3.5) but is never a finite union of similarity orbits, since these preserve all distance ratios and therefore have empty interior". Comprobé el argumento: una órbita de semejanza es cerrada en el espacio de configuraciones inyectivas y tiene interior vacío (los cocientes D_ab/D_ac son constantes en ella), y una unión finita de cerrados de interior vacío tiene interior vacío, mientras que la clase ordinal de una configuración con distancias distintas es un abierto no vacío.
+
+### m6 — d_TV(N_n, Po(1)) = e⁻¹/n + O(n⁻²). **Aceptado, y superado.**
+El Teorema 5.8 (de theory/, verificado por mí) da más que lo pedido: |d_TV(N_n, Po(1)) − e⁻¹/n| < 2/(n·n!) para n ≥ 4, es decir, no hay término n⁻². "Sharpness and data" dice ahora que por eso el valor numérico n·d_TV = 0.368 aparecía en todos los n probados. Mantengo la cota cruda de 5.6(b) en el enunciado del Teorema 5.6 porque es la que revisó el árbitro; el Teorema 5.8 la afina.
+
 ### m7 — Cota 24/n² + 12/(n(n−1)) sin derivar. **Aceptado (con una cota algo mejor).**
 Derivación añadida en la prueba de la Prop. 5.7, en la forma del árbitro: condicionado a π(1) = n (prob. 1/n) el resto es uniforme, los intervalos de 3 que evitan la posición 1 tienen esperanza 6(n−3)/((n−1)(n−2)) ≤ 6/n y [1,3] es intervalo con prob. 2/((n−1)(n−2)); los cuatro eventos dan ≤ 24/n² + 8/(n(n−1)(n−2)). Sustituí la cota del texto por esta, que es la que se deriva.
 
-### m10 — DOI de Gallai. **Aceptado.** `doi = {10.1007/BF02020961}` en `gallai1967`. No añadí la traducción como entrada separada (no se usa su paginación).
+### m8 — Docstring obsoleto de `experiments/realizer_law.py`. **Aceptado.**
+Reescrito: "E5f: check of Theorem 5.6 (realizer law) and Proposition 5.7 …", con el enunciado demostrado y la advertencia de que no todo par de sucesión "duplica" el conteo (factor 3! cuando un módulo mayor lo contiene). Eliminadas "conjectured law", "Conjecture (stated in the manuscript, not proved)" y la afirmación de que ambas orientaciones del par son transitivas. El código y su salida no cambian (comprobado que el docstring no se usa en ninguna salida).
 
-## Integración de las tasas exactas (theory/) (en curso)
+### m9 — Nota interna, README y ficha. **Aceptado.**
+- CONTINUIDAD: el pendiente "3. Demostrar la Conjetura 5.3" queda marcado "[Cerrado en v0.6: Teorema 5.6 y Proposición 5.7.]"; "cota inferior del radio" → "cota inferior de la extensión de la clase ('rango del paseo')" en las dos frases donde aparecía; pendientes 6 y 7 actualizados a v0.7.
+- Dos copias de la salida de la comprobación: README y Apéndice A dicen ahora que las salidas de referencia son las de `results/` (SHA-256 comprobado por `make_numbers.py`) y que los `*_output.txt` de `theory/` son registros con tiempos. Para la nueva comprobación evité el problema de raíz: `check_sharp_rate.py` escribe en `results/` una copia **sin líneas de tiempo**, con SHA-256 reproducible, y el tiempo va aparte en `results/check_sharp_rate_meta.json`. No borré la copia de `theory/check_realizer_law_output.txt` (difiere solo en tiempos; está documentada).
+- FICHA: "coincide con él para cerca de un tercio de las muestras" → "con probabilidad que tiende a e⁻¹ ≈ 0,37 … (demostrado)"; "las tasas finitas observadas no están demostradas" → "…, salvo las de la ley de realizadores (Sección 5)"; "la prueba usa un único resultado citado" → "la prueba es autocontenida salvo el teorema de Gallai …; los lemas combinatorios que usa son conocidos y se reprueban"; tasa exacta con "(demostración del autor, aún sin arbitraje independiente)"; v0.7 y cuatro rondas. Versión inglesa en paralelo.
+
+### m10 — DOI de Gallai. **Aceptado.**
+`doi = {10.1007/BF02020961}` en `gallai1967`. No añadí la traducción como entrada separada (no se usa su paginación).
+
+### Observaciones opcionales del informe
+- Regla de forzado (Teorema 5.3): el paréntesis justifica ahora los dos sentidos ("since a → x → b, like b → x → a, would force the edge ab by transitivity").
+- Traducción de Gallai como entrada separada: no (no se usa su paginación).
+
+## Integración de las tasas exactas (theory/)
 
 ### Verificación propia de las pruebas (hecha antes de integrar)
 
@@ -37,4 +74,43 @@ Releí `theory/sharp_rate.tex` y `theory/sharp_rate_derivation.md` paso a paso y
 - **Lema B(b), Lema C y prueba del Teorema B: un error de enunciado, corregido.** El texto de theory/ define una ocurrencia de tres elementos fijando posiciones *y* ventana de valores (probabilidad (n−3)!/n!) y afirma que la permutación contraída σ "es uniforme en S_m sea cual sea ω". Eso es falso: con la ventana de valores fija, σ(j*) = v está fijado y σ es uniforme solo entre las permutaciones con σ(i) = v (por ejemplo, i = 1, v = 1 fuerza que [2, m] sea intervalo de σ). El argumento se repara sin cambiar ninguna conclusión definiendo la ocurrencia solo por posiciones y patrón (la ventana de valores la decide π): entonces P(ω) = (n−2)!/n! = 1/(n(n−1)), el peso total por patrón sigue siendo (n−2)/(n(n−1)), y la contracción es una biyección entre {π : [i,i+2] es intervalo con patrón p} y S_{n−2}, de modo que σ sí es uniforme y j* = i es una posición fija; las cotas por s_m y h_m (intervalos que contienen una posición fija) y P(δ ≠ 0 | ω) ≤ 2/m valen tal cual. Así lo escribí en el apéndice.
 - El resto de Lema B(b) (casos K disjunto, K ⊋ J, K solapado con U = J ∪ K y a lo sumo dos K por U; caso frontera π(1) = n con π' uniforme en S_{n−1}) y del Teorema B (ρ₁ ≤ 2^{n+1}/(n(n+1)!) + 1/n!, con |−π_k − ν(k)/n| ≤ π_k k/n para k ≥ n; ρ₂ ≤ P(E) + E[#ω; E]; |E g(X) − E g(Y)| ≤ 2P(X ≠ Y) y ≤ 2 d_TV) lo comprobé y es correcto.
 
-## Compilación, números y cómputo (en curso)
+### Verificación numérica
+
+- **`check_sharp_rate.py` reejecutado** en una copia en el scratchpad (116 s de pared, 112 s de CPU): salida idéntica a la de `theory/check_sharp_rate_output.txt` salvo las líneas de tiempo (diff vacío tras quitar tiempos). Todo lo que el texto de theory/ afirmaba de la salida se cumple, con dos excepciones menores de redacción: "n!(n d_TV − e⁻¹) entre 0.016 y 0.96" (el máximo es 0.9521, es decir 0.95; el mínimo 0.016 no estaba impreso en la salida: añadí la línea) y "deviations … about 0.035 and 0.018 in units of 1/n" (no sale de ninguna línea de la salida; la sustituí por la desviación tipificada máxima por átomo, que sí sale: 4.4, 2.3, 1.6, 3.3 en n = 50, 100, 200, 400).
+- **Comprobación independiente propia** (`scratchpad/author_r4/indep_check.py`, sin usar código de theory/: realizadores con la implementación del árbitro `bf.py`, detección exacta de todos los intervalos sin ventana, ley exacta de N_n por mi fórmula como variable de control; semillas 4041, 4042; 69 s de CPU). n = 100 (300 000 muestras) y n = 200 (150 000), valores de n·(P − P_Poisson) frente al primer orden:
+
+  | cantidad | n = 100 | n = 200 | primer orden |
+  |---|---|---|---|
+  | n(P(R=1) − e⁻¹) | −1.116 ± 0.043 | −1.028 ± 0.084 | −3e⁻¹ = −1.104 |
+  | n(P(R=2) − e⁻¹) | −0.031 ± 0.061 | −0.108 ± 0.121 | 0 |
+  | n(P(R=4) − e⁻¹/2) | +0.188 ± 0.057 | +0.147 ± 0.116 | e⁻¹/2 = 0.184 |
+  | n(P(R≤8) − (8/3)e⁻¹) | −0.599 | −0.525 | −(3/2)e⁻¹ = −0.552 |
+  | n·P(R no potencia de 2) | 1.036 ± 0.036 | 0.991 ± 0.071 | 1 |
+  | n·P(R = 6), n·P(R = 12) | 0.373 ± 0.022, 0.388 ± 0.022 | 0.361 ± 0.043, 0.341 ± 0.042 | e⁻¹ = 0.368 |
+  | n·P(R ≠ 2^N) | 4.953 ± 0.078 | 4.920 ± 0.157 | 5 |
+
+  Todo dentro de ±2 errores típicos salvo n·P(R no potencia de 2) en n = 100 (1.036 ± 0.036, al borde), compatible con un término O(1/n). Estos números no entran en el manuscrito (son mi verificación), pero los dejo aquí.
+- **Congelado**: modifiqué `theory/check_sharp_rate.py` para que (i) separe las líneas de tiempo (`tsay`) del resto, (ii) imprima el mínimo de n!|n d_TV − e⁻¹| y (iii) añada la parte (F) de m3; reejecutado en su sitio (116 s): `results/check_sharp_rate_output.txt` (sin tiempos), SHA-256 `72d23ffe8f50726c66bd8d38b5f9e8a078c6f4f0063c5f13d7258448ec911282` en `results/check_sharp_rate_output.sha256` y `results/check_sharp_rate_meta.json` (segundos y SHA). Las partes (A)–(E) son idénticas a la corrida del agente teórico. `make_numbers.py` comprueba el SHA-256 contra el `.sha256` y el `meta.json` antes de leer, y aborta si alguna comprobación de la salida es `False` o si una pieza del Lema B.2(a) supera su cota.
+
+### Qué se integró y dónde
+
+- Sección 5, tras la Prop. 5.7: párrafo "Sharp rates" con la advertencia "they have not yet been checked by an independent referee"; **Teorema 5.8** (ley de N_n: p_k = π_k(1 − (k−1)/n) + r_{n,k}, |r_{n,k}| ≤ 1/(n k!(n−k+1)!); d_TV(N_n, Po(1)) = e⁻¹/n salvo 2/(n·n!) para n ≥ 4); **Teorema 5.9** (medida μ, d_TV(R_n, 2^Z) = (1 + 1/(2e))/n + O(n⁻²) y los corolarios P(R=1) = e⁻¹(1 − 3/n), P(R=2) = e⁻¹, P(R=4) = ½e⁻¹(1 + 1/n), P(R=6) = P(R=12) = e⁻¹/n, P(R≤8) = (8/3)e⁻¹ − (3/2)e⁻¹/n, P(R no potencia de 2) = 1/n); **Proposición 5.10** (cotas explícitas para n ≥ 20: 5/n + 220/n² y (5 + e⁻¹)/n + 221/n²); párrafo sobre la composición de μ y la cancelación de las excepciones de razón 2; **Observación 5.11** (abierto: constante explícita del O(n⁻²); 3/(4e) como observación numérica). Etiquetas: "proved here[, using Theorem 5.3]; not yet independently refereed".
+- Esbozo de las pruebas: una frase sobre cómo se prueban 5.8 y 5.9.
+- "Sharpness and data": la cota de 5.6(b) se compara con el Teorema 5.8; **contraste de los corolarios con E5f por macro** (`make_numbers.py` lo calcula directamente de `results/results_realizer_law.json`): sumando las seis n de E5f, muestras con R = 1, 2, ≤ 8 y R = 2^N observadas 303, 340, 825, 767 frente a 294.0, 312.7, 824.5, 765.3 predichas, z = +0.65, +1.94, +0.10, +0.20; el texto dice que estas muestras no resuelven los términos 1/n y remite a la Tabla 11.
+- Apéndice B, al final: "Proofs of the sharp rates" (prueba del Teorema 5.8; definición corregida de ocurrencia; **Lema B.2** con 223/n²; pruebas del Teorema 5.9 y de la Prop. 5.10) y "Numerical check of the sharp rates" con la **Tabla 11** (Monte Carlo: n·P(R ≠ 2^N), n·d_TV con IC, ley de primer orden con pesos exactos, desviación tipificada máxima). Todos los números de ese párrafo y de la tabla salen de macros; ninguno está tecleado (los del Bloque 3 de theory/ lo estaban).
+- Tabla de afirmaciones: tres filas nuevas "proved here …; not yet independently refereed", una "verified" (Tabla 11) y una "open". Resumen, alcance, limitaciones y Apéndice A actualizados.
+- `theory/sharp_rate.tex` y `theory/sharp_rate_derivation.md` conservan el original con una nota de cabecera que explica la corrección hecha al integrar.
+
+## Compilación, números y cómputo
+
+- `manuscript/build.sh` (y `latexmk -g` para conservar el log): 0 errores, 0 referencias o citas indefinidas, `pdftotext main.pdf - | grep -c "??"` = 0, 0 cajas desbordadas o subllenas. **26 → 31 páginas**: ≈ 1 p. de enunciados en la Sección 5, ≈ 2,5 pp. de pruebas y ≈ 1 p. de comprobación numérica con la Tabla 11 en el Apéndice B, y una tabla de afirmaciones más larga. Apliqué el recorte (1) del informe (esbozo de las pruebas); no fundí las Tablas 8 y 9 (recorte (2), opcional) porque tienen columnas y muestras distintas y la fusión no ahorra más de un cuarto de página; el párrafo "Numerical check" del apéndice (recorte (3)) ya era corto y ahora además describe el alcance correcto de la fuerza bruta (m2). No se recortó ninguna demostración.
+- Renderizadas y revisadas las páginas 15–20 (Sección 5 y tabla de afirmaciones) y 25–31 (apéndice, Tabla 11).
+- `make_numbers.py` es determinista (dos ejecuciones dan `numbers.tex` y `table_*.tex` idénticos byte a byte); bibliografía 44 → 47 entradas.
+- Cómputo de la ronda: ≈ 6 min de CPU (dos corridas completas de `check_sharp_rate.py`, 112 s cada una; comprobación independiente 69 s; prueba de la parte (F), comprobaciones de m1 y del tiempo, ≈ 10 s; `make_numbers.py` y diez compilaciones ≈ 1 min). No se relanzaron E1–E5f ni `check_realizer_law.py` (no cambiaron).
+
+## Qué queda abierto
+
+1. **Arbitraje independiente de las tasas exactas** (Teoremas 5.8 y 5.9, Prop. 5.10, Lema B.2): verificadas solo por el autor y numéricamente.
+2. Constante explícita C en |d_TV(R_n, 2^Z) − c₂/n| ≤ C/n² (Observación 5.11); prueba de n²·d_TV(N_n, Po(1 − 1/n)) → 3/(4e) (la expansión de segundo orden lo hace casi inmediato, pero no está escrita).
+3. Cotejos con fuentes primarias bloqueadas por el proxy (acción 12): número de teorema y enunciado exacto de Gallai 1967 (o la traducción de Maffray–Preissmann); contenido de Wolfowitz 1944 y Kaplansky 1945; Kleindessner–von Luxburg (Teorema 3.7); página de Brignall 2010 donde se enuncia "simple ⇔ primo"; teorema exacto de Corteel–Louchard–Pemantle (Poisson(2)) y de Albert–Atkinson–Klazar (asintótica), verificados solo por resúmenes, fichas y OEIS A111111.
+4. Opcional: fundir las Tablas 8 y 9 si se quiere reducir extensión.
