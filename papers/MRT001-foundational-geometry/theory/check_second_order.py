@@ -532,6 +532,19 @@ def part_d(Afl, bound_fn):
     zero = sum(max(mu2all[k], 0) for k in allkeys if abs(mu_atom(k)) <= 1e-15)
     say(f"   consistency: sum over mu>0 atoms of mu_2 + sum over mu=0 atoms of mu_2^+ + untracked = "
         f"{pos + zero + est_rest[1]:+.6f} (atoms 2^k, 3*2^k with k<12)")
+    # conjectured closed forms read off these numbers (not proved)
+    P4 = lambda k: 12 * math.comb(k, 4) - 12 * math.comb(k, 3) + 12 * math.comb(k, 2) - 3 * k - 5  # noqa: E731
+    say("   e k! mu_2(2^k), k=0..9: " + ", ".join(f"{math.e * math.factorial(k) * mu2all[('p', k)]:+.3f}" for k in range(10)))
+    say("   conjecture 12C(k,4)-12C(k,3)+12C(k,2)-3k-5:  " + ", ".join(f"{P4(k):+d}" for k in range(10)))
+    say("   e (k-1)! mu_2(3*2^k), k=1..9: " + ", ".join(f"{math.e * math.factorial(k - 1) * mu2all[('t', k)]:+.3f}" for k in range(1, 10))
+        + "  (conjecture k+1)")
+    dev_p = max(abs(mu2all[("p", k)] - math.exp(-1) / math.factorial(k) * P4(k)) for k in range(12))
+    dev_t = max(abs(mu2all[("t", k)] - (math.exp(-1) * (k + 1) / math.factorial(k - 1) if k >= 1 else 0.0)) for k in range(12))
+    kconj = 3.5 + 13 / (6 * math.e)
+    say(f"   max |mu_2 - conjecture|: atoms 2^k {dev_p:.2e}, atoms 3*2^k {dev_t:.2e}; "
+        f"conjectured kappa = 7/2 + 13/(6e) = {kconj:.7f}")
+    RES["kappa_conjecture"] = kconj
+    RES["mu2_conj_maxdev"] = [dev_p, dev_t]
     RES["kappa_est"] = [float(v) for v in est_k]
     RES["kappa_consistency"] = float(pos + zero + est_rest[1])
     RES["mu2_est"] = {lab[k]: float(mu2all[k]) for k in allkeys}
@@ -606,11 +619,10 @@ def part_e():
         l = np.arange(2, m)
         hm = (np.minimum(l, m - l + 1) / (m - l + 1) * ei[2:m]).sum()
         worstF = max(worstF, float(Fm) / Fbar(m))
-        if m >= 20:
-            worsts = max(worsts, float(sm) / sbar(m))
-            worsth = max(worsth, float(hm) / hbar(m))
+        worsts = max(worsts, float(sm) / sbar(m))
+        worsth = max(worsth, float(hm) / hbar(m))
     say(f"E1 max sum_{{k=4}}^{{m-2}} E I_k / Fbar(m) over 12<=m<=3000: {worstF:.4f} (claim <= 1)")
-    say(f"   max s_m / sbar(m), h_m / hbar(m) over 20<=m<=3000: {worsts:.4f}, {worsth:.4f} (claim <= 1)")
+    say(f"   max s_m / sbar(m), h_m / hbar(m) over 12<=m<=3000: {worsts:.4f}, {worsth:.4f} (claim <= 1)")
     # E2: pair moments exact formulas (Lemma B.2) versus the simplified bounds
     worstP = 0.0
     for n in range(12, 3001):

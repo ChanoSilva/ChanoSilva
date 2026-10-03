@@ -1,5 +1,3 @@
-[EN CURSO]
-
 # Informe de árbitro interno independiente — TCD001, ronda 4 (03/10/2026)
 
 Árbitro: independiente y nuevo (no participó en las rondas 1–3).
@@ -8,7 +6,7 @@ Trabajo auxiliar (scripts propios y salidas): `/tmp/claude-0/-home-user-ChanoSil
 
 ## Veredicto
 
-**Cambios menores.** El Teorema 5.8 y el Teorema 5.1(c) son correctos: rehíce a mano cada paso del Apéndice B y del 5.1(c), y una verificación independiente propia en aritmética racional (30 instancias X3C, 85 446 submuestras, con instancias NO difíciles de cubierta casi exacta; 8 016 casos exactos para el 5.1(c)) no encuentra ningún fallo. Los números de la construcción están polinomialmente acotados (verificado: máx |x_ij| = 72q²m(m+1) ≤ μ = 72q²(m+1)² ≤ 72n⁴) y el margen θ = 1/(24q) es polinomial. No hay bloqueantes ni mayores. Quedan menores de redacción y de estado (tras esta ronda, el "not yet refereed" debe cambiar en ocho lugares), una mejora fácil (unicidad en *toda* submuestra, que la prueba ya casi contiene) y la extensión (13 páginas con el Apéndice B en `\footnotesize`), para la que propongo recortes concretos.
+**Cambios menores.** El Teorema 5.8 y el Teorema 5.1(c) son correctos: rehíce a mano cada paso del Apéndice B y del 5.1(c), y una verificación independiente propia en aritmética racional (30 instancias X3C —16 SÍ, 14 NO—, 85 956 submuestras, con instancias NO difíciles de cubierta casi exacta; 8 016 casos exactos para el 5.1(c)) no encuentra ningún fallo. Los números de la construcción están polinomialmente acotados (verificado: máx |x_ij| = 72q²m(m+1) ≤ μ = 72q²(m+1)² ≤ 72n⁴) y el margen θ = 1/(24q) es polinomial. No hay bloqueantes ni mayores. Quedan menores de redacción y de estado (tras esta ronda, el "not yet refereed" debe cambiar en ocho lugares), una mejora fácil (unicidad en *toda* submuestra, que la prueba ya casi contiene) y la extensión (13 páginas con el Apéndice B en `\footnotesize`), para la que propongo recortes concretos.
 
 Recuento: 0 bloqueantes, 0 mayores, 9 menores. Ronda 3: 14/14 puntos aplicados (13 bien, 1 aceptado con matiz —m10, extensión— aplicado a medias).
 
@@ -50,7 +48,7 @@ Para p = 1 el minimizador es único en todo D∖R (estrictamente convexo si x_K 
 | q = 3 (p = 10): NO casi-cubierta {012,345,567,078} (n = 13); SÍ m = 4; SÍ m = 5 (n = 14) | 3 | 32 762 | 3/3; 0 fallos |
 | q = 2 aleatorias (semilla 4004; 8 SÍ, 8 NO; m = 3…6) | 16 | 35 296 | 16/16; 0 fallos |
 | Instancia de cronometraje | 1 | 510 | 1/1 |
-| **Total** | **30** | **85 956** | **equivalencia 30/30; 0 fallos de caracterización; D: objetivo inactivo con minimizador único 30/30; minimizadores no únicos con β̂₀ ≠ 0: 0; f_ENTER = m − q en todas las SÍ; γ₀ − μ = θ exactamente (1/48, 1/72) en todo testigo; cota 72n⁴ 30/30** |
+| **Total** (16 SÍ, 14 NO según fuerza bruta sobre X3C) | **30** | **85 956** | **equivalencia 30/30; 0 fallos de caracterización; D: objetivo inactivo con minimizador único 30/30; minimizadores no únicos con β̂₀ ≠ 0: 0; f_ENTER = m − q en todas las SÍ; γ₀ − μ = θ exactamente (1/48, 1/72) en todo testigo; cota 72n⁴ 30/30** |
 | Unicidad en **todas** las submuestras (`ref4_uniq_all.py`) | 3 | 13 306 | rango completo de X_E en 13 306/13 306 (base de m3) |
 | Controles negativos propios | 4 | — | θ = 0: la instancia SÍ pierde su testigo (equivalencia falla: el margen es necesario); S = 0: 64 "testigos" sin anclas (63 fallos de caracterización); u = 1: no detectado en estas instancias pequeñas (la dominancia de anclas es suficiente, no necesaria aquí; coincide con lo que dice el Apéndice A) |
 
@@ -148,8 +146,12 @@ Releí el resumen, la introducción, las Secciones 2–5, la tabla de afirmacion
 | `ref4_strong.py controls` | 3.8 s | θ = 0 y S = 0 detectados; u = 1 no detectado en estas instancias. |
 | `ref4_uniq_all.py` | 9.6 s | unicidad por rango de X_E en 13 306/13 306 submuestras (m3). |
 | `ref4_p1.py` (Teorema 5.1(b)–(c)) | 0.6 s | 8 016/8 016. |
-| Reproducción de `experiments/check_strong.py` y `check_signed_any_p1.py` del autor en una copia | (pendiente) | (pendiente) |
+| Reproducción de `experiments/check_strong.py` y `check_signed_any_p1.py` del autor en una copia (`repro/`) | 108.4 + 0.7 s | Log de dureza fuerte **idéntico** al congelado (SHA-256 `157a5db1890d123e…`, `diff` vacío): 40/40, 0 fallos de caracterización en 81 840 submuestras, guarda KKT 340/1 560 retrocesos (empates por construcción), controles detectados (u = 1 sólo por las afirmaciones intermedias, como dice el Apéndice A). Teorema 5.1(c): 2 400/2 400 (1 409 seleccionadas, 991 no; 2 015 con f finito). Coincide con `\StrongEquivOk`, `\StrongSubsets`, `\StrongKKTFallbacks`, `\SignedPOneAgree`. |
 | `latexmk -pdf` en una copia | 2.7 s | 0 errores, 0 referencias o citas indefinidas, 0 "??" en el texto del PDF, 0 Overfull, 2 Underfull (tabla de afirmaciones, ya conocidos), 0 avisos de hyperref, bibtex sin avisos; **13 páginas** (cuerpo hasta p. 11; Apéndice A p. 11; Apéndice B pp. 11–13; referencias p. 13). |
+
+---
+
+CPU total de esta ronda ≈ 3.2 min (≈ 1.4 min de verificación propia, ≈ 1.8 min de reproducción). La reproducción del autor coincidió exactamente y mi verificación independiente confirma el Teorema 5.8, el Lema B.1, el Corolario 5.9 (f_ENTER = m − q) y el Teorema 5.1(c).
 
 ---
 
