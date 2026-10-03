@@ -8,6 +8,11 @@ normalised as in Definition def:family (N(0) = unit projection of e_z), and K_d 
 curves are trigonometric polynomials up to the spectral tail, reported).  Doubly critical pairs: all local minima of
 h_1^2 + h_2^2 (h_i = (X_1 - X_2).T_i) on the sample grid with distance < 1.15 * 2 r_d, refined by Newton's method on
 the Fourier interpolant (step < 1e-13), antipodal pairs of one normal disc excluded; margin = min distance/(2 r_d) - 1.
+Exclusion window (documented in v0.6, review round 5, m6): the grid stage discards pairs with |ds - pi| <= 0.05 in the
+normalised parameter of K_d (and pairs closer than r_d/2).  ds = pi is the antipodal pair of one normal disc; at d = 3 the
+window also discards pairs on opposite strands whose base points are < 0.1 apart in the parameter of K_2 (base arc of
+about 0.5, i.e. about 2.5 tau_2).  The round-5 referee re-ran this script with a window of 0.004 and obtained the same
+five margins to the printed digits, so the window does not affect the reported values.
 r_d as in the polygonal chain: r_1 = 1/2, r_2 = f tau(K_1) with the N_0 = 512 polygonal tau (results/results.json),
 r_3 = r_2/2.  Phases: (beta_2, beta_3) = rotation of the initial normal of the frames of K_1 and K_2 (= phi_2, phi_3).
 This is a smooth evaluation (spectral accuracy), not a certified bound.  Output: results/smooth_margin.json.

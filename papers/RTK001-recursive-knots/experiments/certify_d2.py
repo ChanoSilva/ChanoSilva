@@ -21,12 +21,29 @@ by interval arithmetic:
   * the boxes cover [0, 2pi] x [r_lo, r_hi] (s-box endpoints are themselves rigorous enclosures of 2pi j/N).
 The final inequality is evaluated in the same interval arithmetic with the monotonicity of eq:kaprec in each input.
 
-Bonus (not needed for the bound): an enclosure of the holonomy alpha_2 of K_1 through the total torsion
-(Bishop = Frenet rotated by -int tau dsigma; K_1 has kappa > 0), giving a certified m_2.
+Bonus (not needed for the bound, not used anywhere in the manuscript): an enclosure of the holonomy alpha_2 of K_1
+through the total torsion (Bishop = Frenet rotated by -int tau dsigma).  CORRECTED in v0.6 (review round 5, m1): this
+needs kappa(K_1) > 0, which is FALSE for r_1 = 4/13: kappa(K_1)(pi/2) = |4 - 13 r_1| / (4(1 - r_1)^2 + 9 r_1^2) vanishes
+there, at the three points s = pi/2 + 2 pi k/3.  The torsion enclosure is evaluated only at r_1 = 0.25, 0.35, 0.5, where
+kappa(K_1) > 0 (minima 0.267, 0.197, 0.769, attained at s = pi/2).  Moreover the "reduction to (-pi, pi]" below shifts
+the interval by the multiple of 2 pi nearest to its midpoint; when the enclosure straddles +-pi (as at r_1 = 0.5:
+alpha_2 in [-3.69, -2.38], which contains -pi) the shifted interval is only an enclosure of alpha_2 MODULO 2 pi and the
+printed "m_2" interval (which contains values > 2, impossible by definition) is NOT an enclosure of m_2.  The bound
+uses m_2 <= 2 a priori and is unaffected.
+
+v0.6 (review round 5) differences from theory/certify_d2.py, besides the output path: this docstring and comments
+(m1); explicit assertions that every enclosure is finite and that eps = r_2 kappa_max(K_1) < 1 on every box (m4); the
+per-box eps upper bound is stored in the rows and its maximum over the boxes of (B) in certify_d2.json["B"]["max_eps_hi"]
+(m2).  No arithmetic operation changed: stdout is identical up to timing lines, and certify_d2.json is identical up to
+meta timings and the added keys "eps_hi" (rows) and "max_eps_hi".
+
+Trust base: IEEE-754 binary64 in round-to-nearest mode without flush-to-zero (the NumPy/CPU defaults; one ulp of
+outward rounding is then enough, also across binades and in the subnormal range), Python's float() of an mpmath mpf
+rounding to nearest (then widened by one ulp in mp2f), mpmath.iv, and this file.
 
 Also: a plain floating-point evaluation on a fine point grid (NOT a proof) to show how tight the enclosures are.
 Output: certify_d2.json (all numbers for the text) and stdout (saved as certify_d2_output.txt).
-Deterministic, no randomness.  About 20-40 s CPU.
+Deterministic, no randomness.  About 10-40 s CPU.
 """
 import json
 import os
@@ -207,6 +224,12 @@ def base_quantities(D, torsion=False):
     return out
 
 
+def assert_finite(Q):
+    """v0.6 (review round 5, m4): explicit failure if any enclosure endpoint is NaN or infinite."""
+    for k, q in Q.items():
+        assert np.all(np.isfinite(q.lo)) and np.all(np.isfinite(q.hi)), f"non-finite enclosure of {k}"
+
+
 # ---------------------------------------------------------------------------------------------------------------
 # the bound of eq:kaprec, multiplied by r_2
 # ---------------------------------------------------------------------------------------------------------------
@@ -252,6 +275,7 @@ def certify_point(rstr, f, E, Ns_full, smax_frac):
     r = Iv(np.array([[rlo]]), np.array([[rhi]]))
     D = k1_derivs(E, r, 3)
     Q = base_quantities(D, torsion=(smax_frac == 1))
+    assert_finite(Q)
     V = float(Q["v"].lo.min())
     K = float(Q["kap"].hi.max())
     Nu = float(Q["nu"].mag().max())
@@ -260,6 +284,7 @@ def certify_point(rstr, f, E, Ns_full, smax_frac):
     out = dict(r1=rstr, f=f, r2_max=r2, Ns=Ns_full, s_domain=f"[0, 2pi*{smax_frac}]", v_min_lo=V, kappa_max_hi=K,
                nu_hi=Nu, mu_hi=Mu)
     out["bound_m2"] = kaprec_times_r(K, V, Nu, Mu, r2, 2.0)
+    assert out["bound_m2"]["ok"] and np.isfinite(out["bound_m2"]["total"])   # v0.6 (round 5, m4)
     # holonomy of K_1 from the total torsion (needs the full period)
     if smax_frac == 1:
         tv = Q["tv"]
@@ -271,7 +296,10 @@ def certify_point(rstr, f, E, Ns_full, smax_frac):
         tot = iv.mpf([I_lo.a, I_hi.b])                       # encloses int_0^{2pi} tau v ds
         alpha = -tot                                         # alpha = -total torsion (mod 2pi)
         k = int(round((float(alpha.a) + float(alpha.b)) / 2 / (2 * np.pi)))
-        alpha = alpha - 2 * k * iv.pi                        # reduce to (-pi, pi]
+        # shift by the multiple of 2pi nearest to the midpoint ("reduce to (-pi, pi]").  v0.6 (round 5, m1): if the
+        # interval straddles +-pi (r_1 = 0.5) the result encloses alpha_2 only modulo 2pi and "m2" below is NOT an
+        # enclosure of m_2 (it contains values > 2).  Not used by the bound, which takes m_2 <= 2 a priori.
+        alpha = alpha - 2 * k * iv.pi
         m2 = iv.mpf(1.5) - alpha / (2 * iv.pi)
         out["total_torsion"] = list(mp2f(tot))
         out["alpha2"] = list(mp2f(alpha))
@@ -301,14 +329,17 @@ def certify_continuum(E, Ns, nr, rmax=0.5, chunk=32):
         rhi = rmax * (idx + 1) / nr
         r = Iv(rlo[:, None], rhi[:, None])
         Q = base_quantities(k1_derivs(E, r, 3))
+        assert_finite(Q)
         V = Q["v"].lo.min(axis=1)
         K = Q["kap"].hi.max(axis=1)
         Nu = Q["nu"].mag().max(axis=1)
         Mu = Q["mu"].hi.max(axis=1)
         for a, b, Va, Ka, Na, Ma in zip(rlo, rhi, V, K, Nu, Mu):
             res = kaprec_times_r(Ka, Va, Na, Ma, float(b) / 2, 2.0)
+            # v0.6 (review round 5, m4): explicit failure instead of a later TypeError / make_numbers assertion
+            assert res["ok"] and np.isfinite(res["total"]), f"box r_1 in [{a}, {b}]: eps >= 1 or non-finite bound"
             row = dict(r1_lo=float(a), r1_hi=float(b), v_min_lo=float(Va), kappa_max_hi=float(Ka), nu_hi=float(Na),
-                       mu_hi=float(Ma), total=res["total"] if res["ok"] else None)
+                       mu_hi=float(Ma), total=res["total"] if res["ok"] else None, eps_hi=res["eps_hi"])
             rows.append(row)
             if worst is None or (row["total"] is None) or row["total"] > worst["total"]:
                 worst = row
@@ -372,12 +403,15 @@ def main():
         print(f"    r_1 in [{rw['r1_lo']:.6f}, {rw['r1_hi']:.6f}]: bound {rw['total']:.4f}")
     res["B"] = dict(Ns=Ns_B, nr=nr_B, s_domain="[0, 2pi/3]", worst=worst, all_below_2=all(rw["total"] < 2 for rw in rows),
                     max_total=max(rw["total"] for rw in rows), samples=sel)
+    # v0.6 (review round 5, m2): the proof of Prop. prop:curvrec needs only eps = r_2 kappa_max(K_1) < 1 (not f <= 1/2)
+    res["B"]["max_eps_hi"] = max(rw["eps_hi"] for rw in rows)
     # bonus: the part 'minRad(K_d) > r_d' of Conjecture conj at d = 2, along the family r_1 = f, r_2 <= f r_1 = f^2:
     # on the box r_1 = f in [a, b] use r_2 = b^2 (non-decreasing in r_2) -> largest f_c with r_2 kappa_max(K_2) < 1 for all f <= f_c
     fc = 0.0
     for rw in rows:
         bb = rw["r1_hi"]
         rr = kaprec_times_r(rw["kappa_max_hi"], rw["v_min_lo"], rw["nu_hi"], rw["mu_hi"], float(UP(bb * bb)), 2.0)
+        assert rr["ok"] and np.isfinite(rr["total"])          # v0.6 (round 5, m4)
         rw["total_family"] = rr["total"]
         if rr["total"] < 1:
             fc = bb

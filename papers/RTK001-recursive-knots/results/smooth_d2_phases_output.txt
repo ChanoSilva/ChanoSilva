@@ -1,0 +1,45 @@
+kappa_min(K_1) at r_1 = 0.25: 0.2667 at s = 1.5708; |4-13r|/(4(1-r)^2+9r^2) = 0.2667
+kappa_min(K_1) at r_1 = 0.35: 0.1970 at s = 1.5708; |4-13r|/(4(1-r)^2+9r^2) = 0.1970
+kappa_min(K_1) at r_1 = 4/13: 0.0000 at s = 1.5708; |4-13r|/(4(1-r)^2+9r^2) = 0.0000
+kappa_min(K_1) at r_1 = 0.5: 0.7692 at s = 1.5708; |4-13r|/(4(1-r)^2+9r^2) = 0.7692
+r_1 = 0.0500: alpha_2 = +0.0296, m_2 = 1.4953; r_2 kappa_max(K_2): phi_2 = 0 -> 0.0265, max over 24 phases 0.0266 (phi_2 = 0.785), min 0.0263
+r_1 = 0.1000: alpha_2 = +0.1198, m_2 = 1.4809; r_2 kappa_max(K_2): phi_2 = 0 -> 0.0553, max over 24 phases 0.0555 (phi_2 = 0.654), min 0.0544
+r_1 = 0.1500: alpha_2 = +0.2746, m_2 = 1.4563; r_2 kappa_max(K_2): phi_2 = 0 -> 0.0865, max over 24 phases 0.0865 (phi_2 = 1.178), min 0.0848
+r_1 = 0.2000: alpha_2 = +0.4990, m_2 = 1.4206; r_2 kappa_max(K_2): phi_2 = 0 -> 0.1210, max over 24 phases 0.1211 (phi_2 = 3.011), min 0.1187
+r_1 = 0.2500: alpha_2 = +0.7971, m_2 = 1.3731; r_2 kappa_max(K_2): phi_2 = 0 -> 0.1604, max over 24 phases 0.1608 (phi_2 = 2.880), min 0.1567
+r_1 = 0.3000: alpha_2 = +1.1697, m_2 = 1.3138; r_2 kappa_max(K_2): phi_2 = 0 -> 0.2062, max over 24 phases 0.2071 (phi_2 = 2.880), min 0.1990
+r_1 = 0.3500: alpha_2 = +1.6130, m_2 = 1.2433; r_2 kappa_max(K_2): phi_2 = 0 -> 0.2609, max over 24 phases 0.2620 (phi_2 = 1.309), min 0.2455
+r_1 = 0.4000: alpha_2 = +2.1178, m_2 = 1.1629; r_2 kappa_max(K_2): phi_2 = 0 -> 0.3266, max over 24 phases 0.3273 (phi_2 = 3.011), min 0.2951
+r_1 = 0.4500: alpha_2 = +2.6708, m_2 = 1.0749; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4046, max over 48 phases 0.4046 (phi_2 = 0.000), min 0.3463
+r_1 = 0.4525: alpha_2 = +2.6994, m_2 = 1.0704; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4088, max over 48 phases 0.4088 (phi_2 = 0.000), min 0.3489
+r_1 = 0.4550: alpha_2 = +2.7281, m_2 = 1.0658; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4131, max over 48 phases 0.4131 (phi_2 = 0.000), min 0.3515
+r_1 = 0.4575: alpha_2 = +2.7569, m_2 = 1.0612; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4174, max over 48 phases 0.4174 (phi_2 = 0.000), min 0.3540
+r_1 = 0.4600: alpha_2 = +2.7858, m_2 = 1.0566; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4217, max over 48 phases 0.4217 (phi_2 = 0.000), min 0.3566
+r_1 = 0.4625: alpha_2 = +2.8147, m_2 = 1.0520; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4261, max over 48 phases 0.4261 (phi_2 = 0.000), min 0.3592
+r_1 = 0.4650: alpha_2 = +2.8437, m_2 = 1.0474; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4304, max over 48 phases 0.4304 (phi_2 = 1.047), min 0.3617
+r_1 = 0.4675: alpha_2 = +2.8728, m_2 = 1.0428; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4348, max over 48 phases 0.4348 (phi_2 = 1.047), min 0.3643
+r_1 = 0.4700: alpha_2 = +2.9019, m_2 = 1.0381; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4393, max over 48 phases 0.4393 (phi_2 = 1.047), min 0.3669
+r_1 = 0.4725: alpha_2 = +2.9311, m_2 = 1.0335; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4437, max over 48 phases 0.4438 (phi_2 = 1.047), min 0.3694
+r_1 = 0.4750: alpha_2 = +2.9604, m_2 = 1.0288; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4482, max over 48 phases 0.4483 (phi_2 = 1.047), min 0.3720
+r_1 = 0.4775: alpha_2 = +2.9898, m_2 = 1.0242; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4528, max over 48 phases 0.4528 (phi_2 = 1.047), min 0.3746
+r_1 = 0.4800: alpha_2 = +3.0192, m_2 = 1.0195; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4573, max over 48 phases 0.4573 (phi_2 = 1.047), min 0.3771
+r_1 = 0.4825: alpha_2 = +3.0486, m_2 = 1.0148; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4619, max over 48 phases 0.4620 (phi_2 = 0.065), min 0.3797
+r_1 = 0.4850: alpha_2 = +3.0781, m_2 = 1.0101; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4665, max over 48 phases 0.4667 (phi_2 = 0.065), min 0.3823
+r_1 = 0.4875: alpha_2 = +3.1077, m_2 = 1.0054; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4711, max over 48 phases 0.4714 (phi_2 = 0.065), min 0.3848
+r_1 = 0.4900: alpha_2 = +3.1373, m_2 = 1.0007; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4758, max over 48 phases 0.4761 (phi_2 = 0.065), min 0.3874
+r_1 = 0.4901: alpha_2 = +3.1385, m_2 = 1.0005; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4760, max over 48 phases 0.4763 (phi_2 = 0.065), min 0.3875
+r_1 = 0.4902: alpha_2 = +3.1396, m_2 = 1.0003; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4762, max over 48 phases 0.4765 (phi_2 = 0.065), min 0.3876
+r_1 = 0.4903: alpha_2 = +3.1408, m_2 = 1.0001; r_2 kappa_max(K_2): phi_2 = 0 -> 0.4764, max over 48 phases 0.4767 (phi_2 = 0.065), min 0.3877
+r_1 = 0.4904: alpha_2 = -3.1412, m_2 = 1.9999; r_2 kappa_max(K_2): phi_2 = 0 -> 0.3894, max over 48 phases 0.4021 (phi_2 = 0.654), min 0.3894
+r_1 = 0.4905: alpha_2 = -3.1400, m_2 = 1.9997; r_2 kappa_max(K_2): phi_2 = 0 -> 0.3895, max over 48 phases 0.4022 (phi_2 = 0.654), min 0.3895
+r_1 = 0.4906: alpha_2 = -3.1388, m_2 = 1.9996; r_2 kappa_max(K_2): phi_2 = 0 -> 0.3896, max over 48 phases 0.4023 (phi_2 = 0.654), min 0.3896
+r_1 = 0.4907: alpha_2 = -3.1376, m_2 = 1.9994; r_2 kappa_max(K_2): phi_2 = 0 -> 0.3898, max over 48 phases 0.4025 (phi_2 = 0.654), min 0.3898
+r_1 = 0.4908: alpha_2 = -3.1364, m_2 = 1.9992; r_2 kappa_max(K_2): phi_2 = 0 -> 0.3899, max over 48 phases 0.4026 (phi_2 = 0.654), min 0.3899
+r_1 = 0.4925: alpha_2 = -3.1162, m_2 = 1.9960; r_2 kappa_max(K_2): phi_2 = 0 -> 0.3917, max over 48 phases 0.4049 (phi_2 = 1.702), min 0.3917
+r_1 = 0.4950: alpha_2 = -3.0865, m_2 = 1.9912; r_2 kappa_max(K_2): phi_2 = 0 -> 0.3945, max over 48 phases 0.4082 (phi_2 = 2.749), min 0.3945
+r_1 = 0.4975: alpha_2 = -3.0568, m_2 = 1.9865; r_2 kappa_max(K_2): phi_2 = 0 -> 0.3972, max over 48 phases 0.4116 (phi_2 = 1.702), min 0.3972
+r_1 = 0.5000: alpha_2 = -3.0270, m_2 = 1.9818; r_2 kappa_max(K_2): phi_2 = 0 -> 0.3999, max over 48 phases 0.4149 (phi_2 = 2.749), min 0.3999
+
+grid max r_2 kappa_max(K_2) = 0.4767 at r_1 = 0.4903, phi_2 = 0.065; refined 0.4767 at r_1 = 0.4903, phi_2 = 0.059 (alpha_2 = +3.1408)
+r_1 = 0.5: default phase 0.3999, max over phases 0.4149; alpha_2 = -3.0270, m_2 = 1.9818; last r_1 > 0.45 with alpha_2 > 0: 0.4903; spectral tail <= 1.2e-15
+wall 10.7 s, CPU 10.6 s; wrote smooth_d2_phases.json

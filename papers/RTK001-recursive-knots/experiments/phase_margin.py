@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Dependence on the normalisation of the Bishop frame (review round 3, M1).
-Note (review round 4, m7): at d = 2 the scan is not refined around the minimum; by the period pi/3 and the smooth
-evaluation (smooth_margin.py) the minimum is at beta_2 = 0 up to discretisation.  The joint scan of (beta_2, beta_3)
+Note (review round 4, m7; attribution corrected in v0.6, review round 5, m6): at d = 2 the scan is not refined around
+the minimum; by the period pi/3 and the smooth evaluation of the round-4 referee (a phase scan of their own; NOT
+smooth_margin.py, which evaluates d = 2 only at the default phase beta_2 = 0) the minimum is at beta_2 = 0 up to
+discretisation.  The joint scan of (beta_2, beta_3)
 is experiments/joint_phase_sweep.py; the polygonal values here are biased upwards (see smooth_margin.py).
 
 Rotating the initial normal N_{d-1}(0) of the closed Bishop frame by an angle beta is the same as replacing the phase
