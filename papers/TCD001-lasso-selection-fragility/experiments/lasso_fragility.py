@@ -32,6 +32,33 @@ ZERO_TOL = 1e-10  # |coef| below this is treated as an exact zero (LARS returns 
 # Solvers
 # ----------------------------------------------------------------------------------------------
 KKT_TOL = 1e-8    # relative KKT tolerance used to guard the homotopy output (see lasso_lars)
+KKT_GUARD = True  # False only for the with/without-guard comparison of exact_examples.py --no-guard
+
+# Counter of guarded fits (round-2 finding M1).  Every call of lasso_lars on a nonempty data set is
+# counted; "fallbacks" counts the fits whose homotopy output failed the KKT check and was replaced by
+# coordinate descent.  Errors are relative to max(1, mu): "max_active_rel" / "max_inactive_rel" are
+# the largest active-equation error and inactive violation (max_j |c_j| - mu, positive part) of the
+# accepted homotopy outputs; "max_active_rel_rejected" is the largest error of a rejected one;
+# "max_active_rel_fallback" / "max_inactive_rel_fallback" are those of the coordinate-descent outputs
+# that replaced them.  "fallbacks_tie_at_entry" counts fallbacks in which the largest |x_j^T y| is
+# attained by at least two variables exactly (an exact tie at the first entry of the path), and
+# "fallbacks_full_rank" those in which X has full column rank.  The run scripts reset the counter at
+# the start and store it in the "meta" field of their JSON output.
+KKT_STATS = {}
+
+
+def reset_kkt_stats():
+    KKT_STATS.clear()
+    KKT_STATS.update(calls=0, fallbacks=0, fallbacks_tie_at_entry=0, fallbacks_full_rank=0,
+                     max_active_rel=0.0, max_inactive_rel=0.0, max_active_rel_rejected=0.0,
+                     max_active_rel_fallback=0.0, max_inactive_rel_fallback=0.0)
+
+
+def kkt_stats() -> dict:
+    return dict(KKT_STATS)
+
+
+reset_kkt_stats()
 
 
 def lasso_lars(X: np.ndarray, y: np.ndarray, mu: float) -> np.ndarray:
@@ -41,7 +68,10 @@ def lasso_lars(X: np.ndarray, y: np.ndarray, mu: float) -> np.ndarray:
     penalty (an exact tie of correlations, e.g. X = I_2, y = (3, 3): it returns (5, 2) instead of
     (2, 2)).  Ties have probability zero for continuous designs but occur in integer data, so the
     output is checked against the KKT conditions and, if they fail, recomputed by coordinate descent
-    with a tight tolerance.  In the reference runs (Gaussian designs) the fallback is never needed.
+    with a tight tolerance; the coordinate-descent output is checked again and an error is raised if
+    it also fails.  Activations are counted in KKT_STATS.  In the v0.3 reference run the fallback was
+    triggered only in the integer-data search of E0 (exact_examples.py: exact ties of |x_j^T y| at
+    the first entry) and never in E1-E5 (Gaussian designs); see results/*.json, field meta.kkt_guard.
     """
     n = X.shape[0]
     if n == 0:
@@ -50,9 +80,25 @@ def lasso_lars(X: np.ndarray, y: np.ndarray, mu: float) -> np.ndarray:
     _, _, coefs = lars_path(X, y, method="lasso", alpha_min=alpha_min)
     beta = coefs[:, -1].copy()
     act, inact = kkt_residuals(X, y, beta, mu)
-    tol = KKT_TOL * max(1.0, mu)
-    if act > tol or inact > tol:
+    scale = max(1.0, mu)
+    tol = KKT_TOL * scale
+    KKT_STATS["calls"] += 1
+    if KKT_GUARD and (act > tol or inact > tol):
+        KKT_STATS["fallbacks"] += 1
+        KKT_STATS["max_active_rel_rejected"] = max(KKT_STATS["max_active_rel_rejected"], act / scale)
+        cxy = np.abs(X.T @ y)
+        KKT_STATS["fallbacks_tie_at_entry"] += int(np.sum(cxy == cxy.max()) >= 2) if cxy.size else 0
+        KKT_STATS["fallbacks_full_rank"] += int(np.linalg.matrix_rank(X) == X.shape[1])
         beta = lasso_cd(X, y, mu, tol=1e-12)
+        act, inact = kkt_residuals(X, y, beta, mu)
+        if act > tol or inact > tol:
+            raise RuntimeError(f"KKT check failed after the coordinate-descent fallback "
+                               f"(active error {act:.2e}, inactive violation {inact:.2e}, tol {tol:.1e})")
+        KKT_STATS["max_active_rel_fallback"] = max(KKT_STATS["max_active_rel_fallback"], act / scale)
+        KKT_STATS["max_inactive_rel_fallback"] = max(KKT_STATS["max_inactive_rel_fallback"], max(inact, 0.0) / scale)
+    else:
+        KKT_STATS["max_active_rel"] = max(KKT_STATS["max_active_rel"], act / scale)
+        KKT_STATS["max_inactive_rel"] = max(KKT_STATS["max_inactive_rel"], max(inact, 0.0) / scale)
     return beta
 
 
@@ -74,7 +120,9 @@ def signed_pattern(beta: np.ndarray):
 
 
 def kkt_residuals(X, y, beta, mu):
-    """Return (max active KKT error, max inactive |c_j| - mu, slack) for diagnostics."""
+    """Return (act, inact): act = max_{j in S} |c_j - mu sgn(beta_j)| (0 if S is empty) and
+    inact = max_{j not in S} |c_j| - mu (-inf if S^c is empty), with c = X^T (y - X beta).
+    beta satisfies the KKT conditions iff act = 0 and inact <= 0."""
     r = y - X @ beta
     c = X.T @ r
     S = support(beta)
