@@ -107,7 +107,7 @@ Lectura:
 - La cota nueva es mucho más ajustada (máx. $|E_2|/(|C_3|+B_3)=0.18$ frente a $0.006$ para la antigua, moment-and-range LN), pero sigue lejos de lo observado: certificado 0.075 frente a mejora observada hasta 0.75; quíntuple certificada 0.056 frente a 0.42.
 - A dispersión grande la cota nueva es **peor** que la antigua (por ejemplo LN $\sigma=0.316$: $B_3^{\rm box,s}/|Q_2|=60$ frente a $B_2^{\rm box,s}/|Q_2|=28$): la inflación del rango crece con la potencia $k-a_m$. Ambas son válidas y conviene usar el mínimo; en E1 esto no cambia los $\sigma^*$ (el nuevo domina en el umbral).
 
-## 5. Margen (Prop. 3.12) en E4 (salida §4)
+## 5. Margen (Prop. `prop:margin`, 3.9 en v0.3) en E4 (salida §4)
 
 Celdas sin capacidad de E4, **los 1000 ensayos** por celda, mismos sorteos (hijo "E4"; las fracciones antiguas 70.9 % y 6.5 % se reproducen exactamente, assert). Porcentaje de comparaciones certificadas:
 
