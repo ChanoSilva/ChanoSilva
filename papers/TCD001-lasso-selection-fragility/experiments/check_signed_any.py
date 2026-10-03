@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""TCD001 -- exact checks for the signed ANY target with p >= 2 (Proposition 5.12 of main.tex v0.6, and the
+"""TCD001 -- exact checks for the signed ANY target with p >= 2 (Proposition 5.12 of main.tex v0.6/v0.7, and the
 identities recorded in results/signed_any_notes.md).
 
 Copy of the derivation-time original theory/check_signed_any.py (identical computations, same seed); only the
@@ -7,6 +7,12 @@ output paths differ, and the run is frozen like check_strong.py: it writes resul
 (no timing lines), its SHA-256 to results/check_signed_any_output.sha256 (checked by make_numbers.py) and
 results/signed_any.json (the counts of theory/signed_any_results.json plus a "meta" block with the CPU time).
 Everything is in rational arithmetic (fractions.Fraction); seed fixed.
+
+v0.7 (round 5, m1): part (A) also evaluates the polynomial certificate of Proposition 5.12 -- the removal sets
+R*_j of size f0 produced by the per-column sort; if the minimiser on D minus some R*_j is certified unique, then
+f^signed = f0. The new counters use no random numbers and are logged after the unchanged lines of part (A), so
+every earlier count and line is reproduced verbatim; only the frozen log (hence its SHA-256: v0.6
+c3e7244d5c447f90..., see results/check_signed_any_output.sha256 for v0.7) and the JSON keys "cert_*" are new.
 
 Parts
   (A) Proposition prop:signed-empty: if S(D) = {} then a signed-ANY witness is exactly a subsample with
@@ -121,6 +127,31 @@ def f0_sorting(X, y, mu, rule):
     return best
 
 
+def rstar_sets(X, y, mu, rule, f0):
+    """The removal sets R*_j of size f0 produced by the sort of Theorem thm:hard(b), for every column j with
+    f0_j = f0: the f0 smallest a_ij = x_ij y_i (removal raises the sum) and/or the f0 largest (removal lowers
+    it), ties in the sort broken by row index. Each has |X_{K,j}^T y_K| > mu_{f0} by construction."""
+    n, p = len(X), len(X[0])
+    out = []
+    for j in range(p):
+        a = [X[i][j] * y[i] for i in range(n)]
+        order = sorted(range(n), key=lambda i: (a[i], i))
+        T = sum(a, F(0))
+        for k in range(1, n):
+            mk = mu_rule(mu, n, k, rule)
+            small = sum((a[i] for i in order[:k]), F(0))
+            large = sum((a[i] for i in order[n - k:]), F(0))
+            lo_ok, hi_ok = T - small > mk, T - large < -mk
+            if lo_ok or hi_ok:
+                if k == f0:
+                    if lo_ok:
+                        out.append(tuple(sorted(order[:k])))
+                    if hi_ok:
+                        out.append(tuple(sorted(order[n - k:])))
+                break
+    return out
+
+
 def exhaustive_signed(X, y, mu, rule):
     """Exhaustive signed-ANY fragility number on an instance with S(D) = {} (certified witnesses only)."""
     n = len(X)
@@ -149,6 +180,8 @@ def part_a(rng):
     tot = agree = ge_ok = 0
     tie_inst = 0
     rows = []
+    f0_inf = f0_fin = cert_ok = cert_fail = cert_ok_ties = 0
+    cert_open = []
     for trial in range(400):
         p = rng.choice([2, 3])
         n = rng.choice([5, 6, 7, 8])
@@ -165,6 +198,26 @@ def part_a(rng):
         fe, fnu, und = exhaustive_signed(X, y, mu, rule)
         fs = f0_sorting(X, y, mu, rule)
         tot += 1
+        # v0.7: polynomial certificate R*_j (no random numbers consumed)
+        if fs is None:
+            f0_inf += 1
+        else:
+            f0_fin += 1
+            cands = rstar_sets(X, y, mu, rule, fs)
+            assert cands, "the sort produces at least one R*_j of size f0"
+            sts = []
+            for Rs in cands:
+                K = [i for i in range(n) if i not in Rs]
+                G, q = gram(X, y, K)
+                st, _ = lasso_status(G, q, mu_rule(mu, n, len(Rs), rule))
+                assert st != "zero", "R*_j has ||X_K^T y_K||_inf > mu'"
+                sts.append(st)
+            if "unique" in sts:
+                cert_ok += 1
+                cert_fail += fe != fs
+                cert_ok_ties += und > 0
+            else:
+                cert_open.append((trial, p, n, rule, fe, fs, und))
         # f^signed >= f0 always (f = None means infinity)
         if fe is None or (fs is not None and fe >= fs):
             ge_ok += 1
@@ -186,8 +239,15 @@ def part_a(rng):
     log(f"instances with at least one undetermined (tied) subsample: {tie_inst}")
     for r in rows[:10]:
         log("  " + str(r))
+    log(f"[v0.7] instances with f0 = infinity (then f_signed = infinity = f0): {f0_inf}")
+    log(f"[v0.7] certificate R*_j (a sort-produced removal set of size f0 with a certified unique minimiser): "
+        f"closes f_signed = f0 in {cert_ok}/{f0_fin} instances with finite f0 ({cert_fail} failures); "
+        f"in {cert_ok_ties}/{tie_inst} instances with tied subsamples")
+    for r in cert_open[:10]:
+        log("  [v0.7] not closed by R*: (trial, p, n, rule, f_signed, f0, tied subsamples) = " + str(r))
     return dict(total=tot, ge_ok=ge_ok, clean=clean, agree=agree, tie_instances=tie_inst,
-                mismatches=len(rows))
+                mismatches=len(rows), f0_infinite=f0_inf, f0_finite=f0_fin, cert_ok=cert_ok,
+                cert_fail=cert_fail, cert_ok_ties=cert_ok_ties, cert_open=len(cert_open))
 
 
 # ----------------------------------------------------------------------------- part B
