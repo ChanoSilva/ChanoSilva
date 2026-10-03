@@ -6,6 +6,8 @@ Criterio de triaje: una línea es **tractable aquí** si su siguiente paso es un
 
 ## A. Avanzadas en esta sesión (carpeta propia en `papers/`)
 
+Actualización 03/10/2026: las diez carpetas pasaron una ronda de árbitro interno independiente (tres en el caso de MRT001) y la respuesta del autor está aplicada (v0.2; MRT001 v0.5). Estado detallado en `papers/README.md`.
+
 | Código | Línea | Avance | Carpeta |
 |---|---|---|---|
 | MRT001 | Invariantes y fundamentos geométricos | Manuscrito v0.4 (18 pp.), 5 proposiciones nuevas, 6 familias de experimentos (E1–E5e), dos rondas de revisión interna aplicadas | `MRT001-foundational-geometry/` |
