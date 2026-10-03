@@ -154,33 +154,51 @@ def ces_deriv(front, x, k):
     return T
 
 
-def ces_box_sup(front, k, lo, hi, s=None):
-    """Rigorous enclosure of
-    sup_{y in box} ||D^k f(y)|| for CES with rho < 0 and beta = nu/rho < 0: every Faa di Bruno term is
-    coef * S^(beta - r) * prod_j x_j^(ex_j) with negative exponents, and S = sum a_j x_j^rho is decreasing in
-    each x_j; so each positive factor lies between its values at the two corners, the interval of every entry
-    is the sum of the term intervals, and the Frobenius norm of the entrywise sup |.| bounds the norm.
-    Rounding: a relative margin 1e-9 and an absolute margin 1e-12 * sum |terms| per entry (the rounding error of
-    these few dozen floating-point operations is below 1e-14 * sum |terms|)."""
+def ces_entry_naive(front, idx, lo, hi):
+    """Upper bound of sup over the box of |d^k f / dx_idx| for CES with rho < 0 and beta = nu/rho < 0: every
+    Faa di Bruno term is coef * S^(beta - r) * prod_j x_j^(ex_j) with negative exponents, and S = sum a_j x_j^rho is
+    decreasing in each x_j; so each positive factor lies between its values at the two corners, the entry lies in
+    the sum of the term intervals.  Rounding: relative margin 1e-9 plus absolute margin 1e-12 * sum |terms| (the
+    rounding error of these few dozen floating-point operations is below 1e-14 * sum |terms|)."""
     assert front.rho < 0 and front.nu / front.rho < 0
+    S_max, S_min = front._S(lo), front._S(hi)
+    L = U = absum = 0.0
+    for c, ps, ex in ces_terms(front, idx):
+        assert ps < 0 and np.all(ex <= 0)
+        pmin = S_max ** ps * np.prod(hi ** ex, axis=-1)
+        pmax = S_min ** ps * np.prod(lo ** ex, axis=-1)
+        absum = absum + abs(c) * pmax
+        if c >= 0:
+            L, U = L + c * pmin, U + c * pmax
+        else:
+            L, U = L + c * pmax, U + c * pmin
+    return np.maximum(np.abs(L), np.abs(U)) * (1 + 1e-9) + 1e-12 * absum
+
+
+def ces_entry_point(front, idx, x):
+    """|d^k f / dx_idx (x)| plus the same rounding margin."""
+    S = front._S(x)
+    val = absum = 0.0
+    for c, ps, ex in ces_terms(front, idx):
+        t = c * S ** ps * np.prod(x ** ex, axis=-1)
+        val, absum = val + t, absum + np.abs(t)
+    return np.abs(val) * (1 + 1e-9) + 1e-12 * absum
+
+
+def ces_box_sup(front, k, lo, hi, s=None):
+    """Upper bound of sup_{y in box} ||D^k f(y)|| (or of the norm in the coordinates v = h / s): for every entry the
+    smaller of (i) the naive enclosure above and (ii) the centred (mean-value) form |g(c)| + sum_m sup|d_m g| w_m,
+    c the centre and w the half-widths of the box, with sup|d_m g| from the naive enclosure of the order-(k+1)
+    entry; the Frobenius norm of the entrywise bounds dominates the operator norm."""
     d = len(front.a)
-    S_lo_corner = front._S(lo)          # largest S on the box
-    S_hi_corner = front._S(hi)          # smallest S on the box
+    c = 0.5 * (lo + hi)
+    w = 0.5 * (hi - lo)
     tot = 0.0
     for idx in itertools.product(range(d), repeat=k):
-        L = 0.0
-        U = 0.0
-        absum = 0.0
-        for c, ps, ex in ces_terms(front, idx):
-            assert ps < 0 and np.all(ex <= 0)
-            pmin = S_lo_corner ** ps * np.prod(hi ** ex, axis=-1)
-            pmax = S_hi_corner ** ps * np.prod(lo ** ex, axis=-1)
-            absum = absum + abs(c) * pmax
-            if c >= 0:
-                L, U = L + c * pmin, U + c * pmax
-            else:
-                L, U = L + c * pmax, U + c * pmin
-        v = np.maximum(np.abs(L), np.abs(U)) * (1 + 1e-9) + 1e-12 * absum   # covers floating-point rounding
+        cen = ces_entry_point(front, idx, c)
+        for m in range(d):
+            cen = cen + ces_entry_naive(front, idx + (m,), lo, hi) * w[..., m]
+        v = np.minimum(ces_entry_naive(front, idx, lo, hi), cen)
         if s is not None:
             e = counts(idx, d)
             for m in range(d):
@@ -190,15 +208,28 @@ def ces_box_sup(front, k, lo, hi, s=None):
 
 
 def ces_box_sup_sub(front, k, lo, hi, s=None, n=4):
-    """Same enclosure, maximised over an n x n geometric subdivision of each (two-dimensional) box."""
-    best = 0.0
+    """Same bound, maximised over an n x n geometric subdivision of each (two-dimensional) box; entrywise maxima
+    over the sub-boxes are combined before the Frobenius norm is taken."""
+    d = len(front.a)
     r = (hi / lo) ** (1.0 / n)
-    for i in range(n):
-        for j in range(n):
-            l = lo * np.stack([r[..., 0] ** i, r[..., 1] ** j], axis=-1)
-            h = l * r
-            best = np.maximum(best, ces_box_sup(front, k, l, h, s))
-    return best
+    tot = 0.0
+    for idx in itertools.product(range(d), repeat=k):
+        best = 0.0
+        for i in range(n):
+            for j in range(n):
+                l = lo * np.stack([r[..., 0] ** i, r[..., 1] ** j], axis=-1)
+                h = l * r
+                c, w = 0.5 * (l + h), 0.5 * (h - l)
+                cen = ces_entry_point(front, idx, c)
+                for m in range(d):
+                    cen = cen + ces_entry_naive(front, idx + (m,), l, h) * w[..., m]
+                best = np.maximum(best, np.minimum(ces_entry_naive(front, idx, l, h), cen))
+        if s is not None:
+            e = counts(idx, d)
+            for m in range(d):
+                best = best * s[..., m] ** e[m]
+        tot = tot + best ** 2
+    return np.sqrt(tot)
 
 
 # --------------------------------------------------------------------------- bounds for one cell
@@ -564,7 +595,8 @@ def main():
     # ------------------------------------------------------------------ 5. CES suprema (summary)
     say("=" * 100)
     say("5. CES: enclosure of sup ||D^3 f||, sup ||D^4 f|| on boxes (Faa di Bruno + monotone factors; 4 x 4 subdivision for")
-    say("   the coordinate box of the population, none for the segment boxes); certificates on E1 printed in section 2.")
+    say("   the coordinate box of the population, none for the segment boxes; naive interval and centred form, the smaller);")
+    say("   certificates on E1 printed in section 2.")
     for law in ("LN", "SU"):
         c = res["E1"][f"CES-{law}"]["cells"]
         say(f"   CES-{law}: median scaled M3 over the box at the smallest / largest sigma: {c[0]['M3box_s_med']:.4f} / {c[-1]['M3box_s_med']:.4f}; "

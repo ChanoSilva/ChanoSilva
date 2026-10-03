@@ -1,0 +1,121 @@
+SVMF001 -- check_knn_localisation.py   (seed 20261003)
+
+[C] mu = 1.645: Bayes risk 0.04998
+    k-fixed limit, local nearest centroid  Rinf_nc(k): k=1: 0.07434, k=2: 0.07434, k=3: 0.08154, k=4: 0.08874, k=5: 0.09530, k=10: 0.12020, k=20: 0.15071, k=50: 0.19737, k=100: 0.23563, k=1000: 0.36013
+    k-fixed limit, local linear SVM = vote Rinf_vote(k): k=1: 0.07434, k=3: 0.05995, k=5: 0.05613, k=9: 0.05344, k=21: 0.05147, k=51: 0.05060
+    exact global R_nc(n): n=20: 0.054460, n=80: 0.051058, n=320: 0.050251, n=2000: 0.050027, n=20000: 0.049989
+    heuristic Q(rho) = 1/(rho v): rho=0.125: r=0.559 v=0.0861 Q=92.967, rho=0.25: r=0.984 v=0.1972 Q=20.286, rho=0.5: r=1.646 v=0.3564 Q=5.612, rho=0.75: r=2.320 v=0.5341 Q=2.497
+
+[C] mu = 0.500: Bayes risk 0.30854
+    k-fixed limit, local nearest centroid  Rinf_nc(k): k=1: 0.39797, k=2: 0.39797, k=3: 0.41292, k=4: 0.42786, k=5: 0.44032, k=10: 0.47389, k=20: 0.49194, k=50: 0.49899, k=100: 0.49986, k=1000: 0.50000
+    k-fixed limit, local linear SVM = vote Rinf_vote(k): k=1: 0.39797, k=3: 0.36808, k=5: 0.35318, k=9: 0.33825, k=21: 0.32333, k=51: 0.31508
+    exact global R_nc(n): n=20: 0.313038, n=80: 0.309642, n=320: 0.308813, n=2000: 0.308582, n=20000: 0.308542
+    heuristic Q(rho) = 1/(rho v): rho=0.125: r=0.178 v=0.0105 Q=759.938, rho=0.25: r=0.361 v=0.0424 Q=94.371, rho=0.5: r=0.762 v=0.1747 Q=11.448, rho=0.75: r=1.294 v=0.4216 Q=3.163
+
+[L] population local threshold has the Bayes sign at 1920 (x, r) pairs: True (min sign(x)(x - t_r(x))/|x| = 3.333e-05)
+
+[P1] uninformative neighbourhoods (kNN in W), nearest centroid: MC vs exact R_nc(k)
+    mu=1.645 n=  80 k=   1: MC 0.500000 +- 0.000000  exact 0.500000  z=+0.00  excess ratio vs k=n 419.457
+    mu=1.645 n=  80 k=   5: MC 0.096206 +- 0.000624  exact 0.096889  z=-1.10  excess ratio vs k=n 43.720
+    mu=1.645 n=  80 k=  20: MC 0.054465 +- 0.000082  exact 0.054460  z=+0.06  excess ratio vs k=n 4.171
+    mu=1.645 n=  80 k=  80: MC 0.051115 +- 0.000048  exact 0.051058  z=+1.19  excess ratio vs k=n 1.000
+    mu=1.645 n= 320 k=   1: MC 0.500000 +- 0.000000  exact 0.500000  z=+0.00  excess ratio vs k=n 1693.051
+    mu=1.645 n= 320 k=   5: MC 0.096587 +- 0.000419  exact 0.096889  z=-0.72  excess ratio vs k=n 176.465
+    mu=1.645 n= 320 k=  20: MC 0.054474 +- 0.000041  exact 0.054460  z=+0.34  excess ratio vs k=n 16.837
+    mu=1.645 n= 320 k=  80: MC 0.051067 +- 0.000020  exact 0.051058  z=+0.45  excess ratio vs k=n 4.036
+    mu=1.645 n= 320 k= 320: MC 0.050260 +- 0.000013  exact 0.050251  z=+0.72  excess ratio vs k=n 1.000
+    mu=0.500 n=  80 k=   1: MC 0.500000 +- 0.000000  exact 0.500000  z=+0.00  excess ratio vs k=n 173.287
+    mu=0.500 n=  80 k=   5: MC 0.337359 +- 0.000291  exact 0.337647  z=-0.99  excess ratio vs k=n 26.346
+    mu=0.500 n=  80 k=  20: MC 0.313024 +- 0.000080  exact 0.313038  z=-0.17  excess ratio vs k=n 4.073
+    mu=0.500 n=  80 k=  80: MC 0.309652 +- 0.000049  exact 0.309642  z=+0.19  excess ratio vs k=n 1.000
+    mu=0.500 n= 320 k=   1: MC 0.500000 +- 0.000000  exact 0.500000  z=+0.00  excess ratio vs k=n 695.404
+    mu=0.500 n= 320 k=   5: MC 0.337522 +- 0.000191  exact 0.337647  z=-0.65  excess ratio vs k=n 105.728
+    mu=0.500 n= 320 k=  20: MC 0.313074 +- 0.000041  exact 0.313038  z=+0.91  excess ratio vs k=n 16.344
+    mu=0.500 n= 320 k=  80: MC 0.309670 +- 0.000020  exact 0.309642  z=+1.36  excess ratio vs k=n 4.013
+    mu=0.500 n= 320 k= 320: MC 0.308815 +- 0.000012  exact 0.308813  z=+0.17  excess ratio vs k=n 1.000
+    linear SVM on X_1 (C=1): localised (kNN in W) vs learning curve at k (both MC)
+    n=320 k=10: localised 0.07485 +- 0.00062  curve 0.07421 +- 0.00051  z=+0.80
+    n=320 k=40: localised 0.05557 +- 0.00013  curve 0.05562 +- 0.00009  z=-0.30
+    global linear SVM on X_1, n=320: 0.05074 +- 0.00003
+
+[P2] informative neighbourhoods (kNN in X_1, d=1), k fixed, nearest centroid
+    mu=1.645 n=   320 k=  1: risk 0.07485 +- 0.00056  limit Rinf_nc 0.07434  global R_nc(n) 0.050251
+    mu=1.645 n=   320 k=  2: risk 0.07421 +- 0.00055  limit Rinf_nc 0.07434  global R_nc(n) 0.050251
+    mu=1.645 n=   320 k=  3: risk 0.08140 +- 0.00076  limit Rinf_nc 0.08154  global R_nc(n) 0.050251
+    mu=1.645 n=   320 k=  5: risk 0.09354 +- 0.00104  limit Rinf_nc 0.09530  global R_nc(n) 0.050251
+    mu=1.645 n=   320 k= 10: risk 0.11321 +- 0.00161  limit Rinf_nc 0.12020  global R_nc(n) 0.050251
+    mu=1.645 n=   320 k= 20: risk 0.12859 +- 0.00241  limit Rinf_nc 0.15071  global R_nc(n) 0.050251
+    mu=1.645 n=  2000 k=  1: risk 0.07441 +- 0.00025  limit Rinf_nc 0.07434  global R_nc(n) 0.050027
+    mu=1.645 n=  2000 k=  2: risk 0.07396 +- 0.00022  limit Rinf_nc 0.07434  global R_nc(n) 0.050027
+    mu=1.645 n=  2000 k=  3: risk 0.08118 +- 0.00031  limit Rinf_nc 0.08154  global R_nc(n) 0.050027
+    mu=1.645 n=  2000 k=  5: risk 0.09484 +- 0.00044  limit Rinf_nc 0.09530  global R_nc(n) 0.050027
+    mu=1.645 n=  2000 k= 10: risk 0.11853 +- 0.00066  limit Rinf_nc 0.12020  global R_nc(n) 0.050027
+    mu=1.645 n=  2000 k= 20: risk 0.14665 +- 0.00098  limit Rinf_nc 0.15071  global R_nc(n) 0.050027
+    mu=1.645 n= 20000 k=  1: risk 0.07451 +- 0.00015  limit Rinf_nc 0.07434  global R_nc(n) 0.049989
+    mu=1.645 n= 20000 k=  2: risk 0.07446 +- 0.00015  limit Rinf_nc 0.07434  global R_nc(n) 0.049989
+    mu=1.645 n= 20000 k=  3: risk 0.08156 +- 0.00018  limit Rinf_nc 0.08154  global R_nc(n) 0.049989
+    mu=1.645 n= 20000 k=  5: risk 0.09512 +- 0.00023  limit Rinf_nc 0.09530  global R_nc(n) 0.049989
+    mu=1.645 n= 20000 k= 10: risk 0.12037 +- 0.00031  limit Rinf_nc 0.12020  global R_nc(n) 0.049989
+    mu=1.645 n= 20000 k= 20: risk 0.15048 +- 0.00035  limit Rinf_nc 0.15071  global R_nc(n) 0.049989
+    mu=0.500 n=   320 k=  1: risk 0.39702 +- 0.00077  limit Rinf_nc 0.39797  global R_nc(n) 0.308813
+    mu=0.500 n=   320 k=  2: risk 0.39589 +- 0.00072  limit Rinf_nc 0.39797  global R_nc(n) 0.308813
+    mu=0.500 n=   320 k=  3: risk 0.40871 +- 0.00075  limit Rinf_nc 0.41292  global R_nc(n) 0.308813
+    mu=0.500 n=   320 k=  5: risk 0.43054 +- 0.00084  limit Rinf_nc 0.44032  global R_nc(n) 0.308813
+    mu=0.500 n=   320 k= 10: risk 0.44453 +- 0.00080  limit Rinf_nc 0.47389  global R_nc(n) 0.308813
+    mu=0.500 n=   320 k= 20: risk 0.42032 +- 0.00084  limit Rinf_nc 0.49194  global R_nc(n) 0.308813
+    mu=0.500 n=  2000 k=  1: risk 0.39824 +- 0.00033  limit Rinf_nc 0.39797  global R_nc(n) 0.308582
+    mu=0.500 n=  2000 k=  2: risk 0.39784 +- 0.00035  limit Rinf_nc 0.39797  global R_nc(n) 0.308582
+    mu=0.500 n=  2000 k=  3: risk 0.41248 +- 0.00038  limit Rinf_nc 0.41292  global R_nc(n) 0.308582
+    mu=0.500 n=  2000 k=  5: risk 0.43861 +- 0.00041  limit Rinf_nc 0.44032  global R_nc(n) 0.308582
+    mu=0.500 n=  2000 k= 10: risk 0.46755 +- 0.00045  limit Rinf_nc 0.47389  global R_nc(n) 0.308582
+    mu=0.500 n=  2000 k= 20: risk 0.47387 +- 0.00040  limit Rinf_nc 0.49194  global R_nc(n) 0.308582
+    mu=0.500 n= 20000 k=  1: risk 0.39807 +- 0.00026  limit Rinf_nc 0.39797  global R_nc(n) 0.308542
+    mu=0.500 n= 20000 k=  2: risk 0.39829 +- 0.00024  limit Rinf_nc 0.39797  global R_nc(n) 0.308542
+    mu=0.500 n= 20000 k=  3: risk 0.41310 +- 0.00027  limit Rinf_nc 0.41292  global R_nc(n) 0.308542
+    mu=0.500 n= 20000 k=  5: risk 0.44012 +- 0.00029  limit Rinf_nc 0.44032  global R_nc(n) 0.308542
+    mu=0.500 n= 20000 k= 10: risk 0.47301 +- 0.00027  limit Rinf_nc 0.47389  global R_nc(n) 0.308542
+    mu=0.500 n= 20000 k= 20: risk 0.48959 +- 0.00022  limit Rinf_nc 0.49194  global R_nc(n) 0.308542
+    neighbourhoods in all d coordinates (nc on X_1)
+    d=2 n=  320 k=  3: risk 0.07851 +- 0.00103  limit Rinf_nc 0.08154  global R_nc(n) 0.050251
+    d=2 n=  320 k= 10: risk 0.09985 +- 0.00198  limit Rinf_nc 0.12020  global R_nc(n) 0.050251
+    d=2 n= 2000 k=  3: risk 0.07868 +- 0.00054  limit Rinf_nc 0.08154  global R_nc(n) 0.050027
+    d=2 n= 2000 k= 10: risk 0.10947 +- 0.00098  limit Rinf_nc 0.12020  global R_nc(n) 0.050027
+    d=5 n=  320 k=  3: risk 0.07906 +- 0.00097  limit Rinf_nc 0.08154  global R_nc(n) 0.050251
+    d=5 n=  320 k= 10: risk 0.08904 +- 0.00202  limit Rinf_nc 0.12020  global R_nc(n) 0.050251
+    d=5 n= 2000 k=  3: risk 0.07625 +- 0.00053  limit Rinf_nc 0.08154  global R_nc(n) 0.050027
+    d=5 n= 2000 k= 10: risk 0.09410 +- 0.00095  limit Rinf_nc 0.12020  global R_nc(n) 0.050027
+
+[P3] informative neighbourhoods (d=1), k fixed, local linear SVM C=1
+    n=  320 k=1: risk 0.07389 +- 0.00216  limit Rinf_vote 0.07434  P(pred = local majority) 1.0000
+    n=  320 k=3: risk 0.06152 +- 0.00191  limit Rinf_vote 0.05995  P(pred = local majority) 1.0000
+    n=  320 k=5: risk 0.05650 +- 0.00123  limit Rinf_vote 0.05613  P(pred = local majority) 1.0000
+    n=  320 k=9: risk 0.05377 +- 0.00088  limit Rinf_vote 0.05344  P(pred = local majority) 1.0000
+    n= 2000 k=1: risk 0.07251 +- 0.00133  limit Rinf_vote 0.07434  P(pred = local majority) 1.0000
+    n= 2000 k=3: risk 0.06057 +- 0.00095  limit Rinf_vote 0.05995  P(pred = local majority) 1.0000
+    n= 2000 k=5: risk 0.05608 +- 0.00076  limit Rinf_vote 0.05613  P(pred = local majority) 1.0000
+    n= 2000 k=9: risk 0.05312 +- 0.00043  limit Rinf_vote 0.05344  P(pred = local majority) 1.0000
+    global linear SVM d=1 n=320: 0.05072 +- 0.00006
+    global linear SVM d=1 n=2000: 0.05010 +- 0.00001
+    majority lemma (radius < r0): 6646 of 6646 mixed queries predicted the majority
+
+[P4] informative neighbourhoods (d=1), k = rho n, nearest centroid: excess ratio vs global
+    mu=1.645 n= 2000 rho=0.25: excess 8.888e-03 +- 7.9e-04  ratio 209.501 +- 18.635  Q(rho) 20.286  1/rho 4.00
+    mu=1.645 n= 2000 rho=0.50: excess 2.345e-04 +- 1.3e-05  ratio 5.526 +- 0.313  Q(rho) 5.612  1/rho 2.00
+    mu=1.645 n= 2000 rho=1.00: excess 4.332e-05 +- 2.7e-06  ratio 1.021 +- 0.063  Q(rho) 1.000  1/rho 1.00
+    mu=1.645 n= 8000 rho=0.25: excess 6.915e-04 +- 1.7e-04  ratio 65.218 +- 16.091  Q(rho) 20.286  1/rho 4.00
+    mu=1.645 n= 8000 rho=0.50: excess 6.020e-05 +- 3.5e-06  ratio 5.678 +- 0.326  Q(rho) 5.612  1/rho 2.00
+    mu=1.645 n= 8000 rho=1.00: excess 1.035e-05 +- 6.0e-07  ratio 0.976 +- 0.057  Q(rho) 1.000  1/rho 1.00
+    mu=1.645 n=32000 rho=0.25: excess 5.056e-05 +- 2.9e-06  ratio 19.075 +- 1.107  Q(rho) 20.286  1/rho 4.00
+    mu=1.645 n=32000 rho=0.50: excess 1.622e-05 +- 8.7e-07  ratio 6.118 +- 0.328  Q(rho) 5.612  1/rho 2.00
+    mu=1.645 n=32000 rho=1.00: excess 2.367e-06 +- 1.5e-07  ratio 0.893 +- 0.055  Q(rho) 1.000  1/rho 1.00
+    mu=0.500 n= 2000 rho=0.25: excess 3.891e-03 +- 1.8e-04  ratio 88.399 +- 4.011  Q(rho) 94.371  1/rho 4.00
+    mu=0.500 n= 2000 rho=0.50: excess 5.058e-04 +- 2.7e-05  ratio 11.492 +- 0.616  Q(rho) 11.448  1/rho 2.00
+    mu=0.500 n= 2000 rho=1.00: excess 4.561e-05 +- 2.9e-06  ratio 1.036 +- 0.066  Q(rho) 1.000  1/rho 1.00
+    mu=0.500 n= 8000 rho=0.25: excess 9.730e-04 +- 4.9e-05  ratio 88.434 +- 4.497  Q(rho) 94.371  1/rho 4.00
+    mu=0.500 n= 8000 rho=0.50: excess 1.223e-04 +- 7.1e-06  ratio 11.118 +- 0.643  Q(rho) 11.448  1/rho 2.00
+    mu=0.500 n= 8000 rho=1.00: excess 1.010e-05 +- 5.8e-07  ratio 0.918 +- 0.053  Q(rho) 1.000  1/rho 1.00
+    mu=0.500 n=32000 rho=0.25: excess 2.308e-04 +- 1.2e-05  ratio 83.910 +- 4.533  Q(rho) 94.371  1/rho 4.00
+    mu=0.500 n=32000 rho=0.50: excess 3.352e-05 +- 2.0e-06  ratio 12.187 +- 0.722  Q(rho) 11.448  1/rho 2.00
+    mu=0.500 n=32000 rho=1.00: excess 2.684e-06 +- 1.5e-07  ratio 0.976 +- 0.053  Q(rho) 1.000  1/rho 1.00
+
+CPU seconds: 128.6

@@ -44,7 +44,20 @@ Nota sobre el teorema nuevo de dureza fuerte (integración de `theory/`): con é
 
 ## Hallazgos menores
 
-(pendiente)
+| Id | Decisión | Qué se cambió y dónde |
+|---|---|---|
+| m1 | Aceptado | Obs. 5.2(i): "(with the cardinality as a second state, which rule P needs also for the existence question)". |
+| m2 | Aceptado | `experiments/check_hardness.py` ya no escribe la línea `elapsed` en el log congelado (sólo la imprime y la guarda en `hardness.json`, `meta.seconds`); `meta.log_has_timing = false`. Nueva corrida (38 s): log idéntico al anterior salvo esa línea (diff vacío); SHA-256 nuevo `8652338a0a6d7921…`. `make_numbers.py` comprueba además que el log no tiene línea de tiempo. Lo mismo para `check_strong.py` (ver integración). Apéndice A: "the logs carry no timing lines (times go to the JSON files) and are frozen by SHA-256 prefixes that a rerun reproduces". |
+| m3 | Aceptado | `check_hardness.py` reinicia `lf.KKT_STATS` y lo vuelca en `hardness.json` (`meta.kkt_guard`): 33 484 llamadas, 0 retrocesos, error activo máximo 1.6·10⁻¹⁴ (coincide con la repetición del árbitro). Macros `\HardKKTFits`, `\HardKKTFallbacks` con aserción "0 retrocesos". Limitations: "never in E1–E5 (144,264 fits) or in the hardness check for fixed p (33,484 fits)". La verificación de dureza fuerte sí activa la guarda (340 de 1 560 ajustes, empates exactos por construcción) y así se dice. |
+| m4 | Aceptado | Apéndice B (la construcción pasó allí por m10(b)): "a shift that makes q₁ − μ′ = σ − t independent of \|K\| whenever the gadget is kept". |
+| m5 | Aceptado | Prueba de pertenencia a NP: "an initial piece of it from β̂ lies in one closed orthant, whose intersection with M is then a polytope of dimension ≥ 1 and has a vertex other than β̂"; y "(for p in the input see the proof of Theorem 5.8)", que da certificados duales. |
+| m6 | Aceptado | "Let … t ≥ 1 the target. If t ≥ B the answer is immediate (for t = B the construction below would have Δ = 0 on D, so variable 2 would be active on D) …"; se eliminó el caso t ≤ 0 (convención t ≥ 1). |
+| m7 | Aceptado | Tras el Teorema 5.4: "The conditions on D are checked in polynomial time for fixed p (proof of membership in NP), so instances violating them can be rejected"; en la prueba: "The same procedure checks the conditions on D". |
+| m8 | Aceptado | CONTINUIDAD: la línea desfasada dice ahora "La dureza es débil para datos enteros y todo p fijo, usa datos con estructura especial; con p en la entrada, ENTER es fuertemente NP-completo (regla C)". |
+| m9 | Aceptado | "In the construction (Appendix B) the slack Δ = σ − t between a kept subset sum and the target is an integer and the kink leaves a window of width less than one around Δ = 0, so …". |
+| m10 | Aceptado con matiz | (a) La Obs. 5.7 queda en una frase con remisión al Apéndice A; (b) el párrafo "Construction" del Teo. 5.4 pasó al Apéndice B (en el cuerpo queda una frase); (c) E4: se quitaron el factor por celda, los tiempos en ms de B y la lista de exactitud por n (todo está en `results/scaling.md`, al que se remite); (d) las filas de los Teo. 5.1 y 5.4 de la tabla de afirmaciones se unieron. Además: lemas 5.3 y "entry-any" de theory/ fusionados en un único Lema 5.3; Apéndice A comprimido; introducción, Obs. 3.3, 3.5, E3 y Limitations abreviadas; estilo `abbrvnat`. **Matiz:** con el teorema de dureza fuerte (enunciado, esquema y prueba completa, ≈ 1.5 páginas) el objetivo de ≤ 12 páginas no se alcanza sin quitar tablas o pruebas; ver "Cómputo y compilación". |
+| m11 | Aceptado | `\texorpdfstring{$n\le14$}{n <= 14}` y `\texorpdfstring{$n$}{n}` en los títulos de E2 y E4: 0 avisos "Token not allowed". |
+| m12 | Aceptado | Obs. 5.2(iii): Moitra–Rohatgi (algoritmo n^{O(d³)}, exclusión de n^{o(d)} bajo ETH) y el contraste unilateral/bilateral; junto a la Conjetura 5.11: "the ETH bound of Moitra and Rohatgi concerns least-squares signs and does not transfer". Opcionales: Hu et al. (NeurIPS 2024) añadido en E3 (verificado por búsqueda: autores, sede, arXiv:2409.18153; su resumen dice que las heurísticas voraces basadas en influencia pueden fallar incluso en regresión lineal y que la versión adaptativa captura parte de las interacciones, lo que coincide con E3); Konrad–Kuschnig (ICLR 2026) no se añade: no hay en el texto una afirmación que lo necesite. |
 
 ## Bibliografía
 

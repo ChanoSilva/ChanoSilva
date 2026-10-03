@@ -1,0 +1,163 @@
+% =============================================================================
+% theory/knn_localisation.tex -- SVMF001, block for manuscript/main.tex (v0.4)
+% Produced 3 October 2026 for pending item 2 of CONTINUIDAD_SVMF001_20260930.md
+% ("lower bound for neighbourhood localisation (kNN-SVM) in the Gaussian model").
+%
+% NUMBERS. Every number below is a macro \KL... generated from
+%   theory/knn_localisation_results.json  (key "macros")  by
+%   python theory/check_knn_localisation.py --macros > manuscript/knn_numbers.tex
+% and main.tex must \input{knn_numbers.tex} next to \input{numbers.tex}.
+% No number in this block is typed by hand.
+%
+% WHERE TO PASTE (main.tex v0.3 line numbers):
+%   1. Replace the paragraph "\paragraph{Rules not covered by the proposition.}"
+%      (main.tex:158) by the block between the markers BEGIN-BLOCK / END-BLOCK below.
+%      It goes after Corollary cor:exact and Figure fig:exact, inside Section 3.
+%   2. Remark rem:covers, item (iii) (main.tex:122): replace by the text marked
+%      REM-COVERS-iii below.
+%   3. Table tab:claims (main.tex:262-264): replace the third row ("Linear SVM learning
+%      curve decreasing ...") by the two rows marked CLAIMS-ROWS below, and in the first
+%      row add "; the identity extends to any selection made from label-free coordinates,
+%      including kNN neighbourhoods (Prop.~\ref{prop:select})".
+%   4. Introduction, "Scope" (main.tex:53): replace "the exact statement covers
+%      partition-based localisation and not neighbourhood-based localisation, which is only
+%      illustrated" by "the exact statement covers partition- and neighbourhood-based
+%      localisation along label-free coordinates; for neighbourhoods that use the signal
+%      coordinate only a fixed-$k$ limit is proved, in a Gaussian model".
+%   5. Limitations (main.tex:284): replace "Proposition~\ref{prop:thin} covers
+%      label-independent partitions only." by "Propositions~\ref{prop:thin}
+%      and~\ref{prop:select} cover localisation along label-free coordinates; for informative
+%      neighbourhoods only the fixed-$k$ limit of Theorem~\ref{thm:kfixed} is proved, in one
+%      Gaussian model, and the regime $k=\rho n$ rests on a heuristic
+%      (Remark~\ref{rem:rho})."
+%   6. Next steps (main.tex:286), item (a): replace by "(a) Make Remark~\ref{rem:rho}
+%      rigorous ($k=\rho n$) and treat the local SVM that also uses coordinates outside the
+%      neighbourhood metric, which Proposition~\ref{prop:select} and
+%      Theorem~\ref{thm:kfixed} leave out."
+%   7. Appendix app:sim, D1 (main.tex:293): replace "for small $k$ the neighbourhoods are
+%      mostly pure and the rule degenerates to a $k$-NN vote~\citep{cover1967,stone1977}" by
+%      "as $n\to\infty$ with $k$ fixed its risk tends to $\Risk_\infty(k)$ of
+%      Theorem~\ref{thm:kfixed}, which D1 (with $n=320$, $d=2$) has not reached"; and add at
+%      the end of the appendix the sentence marked APP-SIM below.
+%   Length: the block adds about two pages (v0.3 has 14, the round-2 referee asked for
+%      fewer); if needed, move the proofs of Lemmas lem:radius and lem:majority and of
+%      Theorem thm:kfixed to an appendix, keeping the statements in Section 3.
+%   8. Optional, abstract (after "...(closed form)."): "The identity extends to kNN
+%      neighbourhoods formed along label-free coordinates; with neighbourhoods in the signal
+%      coordinate and fixed $k$, the localised nearest-centroid and linear-SVM rules converge
+%      to explicit risks strictly above the Bayes risk."
+%   9. CONTINUIDAD_SVMF001_20260930.md, "Pendientes", item 2: mark as done in part, with
+%      what remains open (see theory/knn_localisation_derivation.md, section 7).
+% Labels introduced: prop:select, cor:knnfree, lem:radius, lem:popsign, lem:majority,
+%   thm:kfixed, cor:kfixed, rem:rho.  Labels used from main.tex: prop:thin, prop:exact,
+%   cor:exact, lem:approx, rem:covers, app:sim, app:repro; citation keys cover1967, stone1977.
+% =============================================================================
+
+% ---------------------------------------------------------------- BEGIN-BLOCK
+\paragraph{Neighbourhood (kNN) localisation.} Proposition~\ref{prop:thin} rests only on the selection of the local sample being independent of the pairs it selects. That extends to every selection made from label-free coordinates, kNN neighbourhoods included; when the neighbourhood uses the signal coordinate, the Gaussian model still allows an exact limit for fixed $k$.
+
+\begin{proposition}[Localisation along label-free coordinates]\label{prop:select}\status{proved here}
+Let $(X_i,W_i,Y_i)_{i\le n}$ and $(X,W,Y)$ be i.i.d., with $W$ (taking values in any measurable space) independent of $(X,Y)$, and let $U$ be an auxiliary random element (tie-breaking, random initialisation) independent of all of them. Let $I=\iota(W_1,\dots,W_n,W,U)\subseteq\{1,\dots,n\}$ be any measurable selection, $K=|I|$, and let $A$ be a learning rule that uses the pairs $(X_i,Y_i)$ only. The rule that predicts $A(S_I)(X)$ at a test point, with $S_I=((X_i,Y_i))_{i\in I}$ in index order, satisfies
+\[
+\E\,\Risk(\text{localised rule})=\E\bigl[\Risk_A(K)\bigr].
+\]
+In particular, for the $k$ nearest neighbours of $W$ among $W_1,\dots,W_n$ in any metric, $\E\,\Risk=\Risk_A(k)$; for $k$-means cells computed from the $W_i$, $K$ is the size of the test point's cell. If $\Risk_A$ is non-increasing on $\{0,\dots,n\}$ the risk is at least $\Risk_A(n)$, and strictly larger if $\Prob(\Risk_A(K)>\Risk_A(n))>0$.
+\end{proposition}
+\begin{proof}
+Let $\mathcal G=\sigma(W_1,\dots,W_n,W,U)$. Within each triple $W_i$ is independent of $(X_i,Y_i)$, the triples are independent and $U$ is independent of everything, so the block $B=((X_i,Y_i)_{i\le n},(X,Y))$ is independent of $\mathcal G$ and, conditionally on $\mathcal G$, has its unconditional law $P^{n+1}$. Since $I$ is $\mathcal G$-measurable, conditionally on $\mathcal G$ the sample $S_I$ consists of $K$ fixed distinct coordinates of an i.i.d.\ sample from $P$, hence is an i.i.d.\ sample of size $K$, independent of the remaining coordinate $(X,Y)\sim P$. Therefore $\Prob(A(S_I)(X)\neq Y\mid\mathcal G)=\Risk_A(K)$, and taking expectations gives the identity. The inequalities follow from $K\le n$.
+\end{proof}
+
+Proposition~\ref{prop:thin} is the case $I=\{i:Z_i=Z\}$ with $Z_i$ a function of $(W_i,U)$. The proposition requires that $A$ ignore $W$: a linear SVM on all coordinates sees local values $W_i$ concentrated near $W$, which are not distributed as $W$, and is not covered.
+
+\begin{corollary}[kNN in irrelevant coordinates, Gaussian model]\label{cor:knnfree}\status{proved here; numbers exact}
+In the model of Proposition~\ref{prop:exact} extended by coordinates $W$ independent of $(X_1,Y)$, the nearest-centroid threshold fitted on the $k$ nearest neighbours in $W$ has expected risk $\Risk_{A_{\mathrm{nc}}}(k)$, strictly above $\Risk_{A_{\mathrm{nc}}}(n)$ for $1\le k<n$. With $\mu=\ExMu$ and $n=\ExPartN$ it multiplies the global excess risk by $\KLSelRatioEighty$, $\KLSelRatioTwenty$ and $\KLSelRatioFive$ for $k=80$, $20$ and $5$. A Monte Carlo check (\KLSelReps{} training samples per case, $\mu\in\{\ExMu,\KLMuHard\}$, $n\in\{80,320\}$, \KLSelNRows{} cases with $1<k\le n$) agrees with the exact values within $\KLSelMaxZ$ standard errors; for the linear SVM on $X_1$ ($C=1$, $n=\ExPartN$, $k=40$), localised and learning-curve risks are $\KLSelSvmLoc\pm\KLSelSvmLocSe$ and $\KLSelSvmCurve\pm\KLSelSvmCurveSe$ (both Monte Carlo).
+\end{corollary}
+
+When the neighbourhood uses the signal coordinate, the local sample is not i.i.d.\ from $P$, but its structure is explicit.
+
+\begin{lemma}[Neighbours given the radius]\label{lem:radius}\status{proved here; classical order-statistics argument}
+Let $X\in\R^m$ have a density $f$, let $(X_i,Y_i)_{i\le n}$ be i.i.d., fix $x$ and $k\le n$, let $R$ be the $k$-th smallest of the distances $\|X_i-x\|$ (distinct almost surely), $J$ the index attaining it and $I=\{i:\|X_i-x\|<R\}$. Conditionally on $(I,J,R)=(I,j,r)$, the pairs $(X_i,Y_i)_{i\in I}$ are i.i.d.\ from $P_r=P(\cdot\mid\|X-x\|<r)$ and independent of $(X_j,Y_j)$, whose input has the law of $X$ given $\|X-x\|=r$.
+\end{lemma}
+\begin{proof}
+Given $(X_j,Y_j)=(z,y)$ with $\|z-x\|=s$, the other pairs are i.i.d.\ and independent of $(X_j,Y_j)$, so for measurable sets $B_i$ the probability that $(X_i,Y_i)\in B_i$ and $\|X_i-x\|<s$ for all $i\in I$ and $\|X_l-x\|>s$ for $l\notin I\cup\{j\}$ equals $\prod_{i\in I}P_s(B_i)\cdot F(s)^{k-1}(1-F(s))^{n-k}$, with $F(s)=\Prob(\|X-x\|<s)$. It depends on $(z,y)$ only through $s$ and factorises into $\prod_{i\in I}P_s(B_i)$ times a function of $s$; integrating against the law of $(X_j,Y_j)$ gives the claim.
+\end{proof}
+
+\begin{lemma}[The local population threshold is the Bayes rule]\label{lem:popsign}\status{proved here}
+In the model of Proposition~\ref{prop:exact}, for a window $[x-r,x+r]$ let $m_\pm=\E[X\mid Y=\pm1,\,|X-x|\le r]$ and $t_r(x)=\tfrac12(m_++m_-)$. Then $\sgn(x-t_r(x))=\sgn(x)$ for every $x\neq0$ and $r>0$.
+\end{lemma}
+\begin{proof}
+Let $g(u)$ be the mean of $N(u,1)$ truncated to $[-r,r]$; $g$ is odd and strictly increasing ($g'(u)$ is the variance of the truncated law). In offset coordinates $m_+-x=g(\mu-x)$ and $m_--x=g(-\mu-x)=-g(\mu+x)$, so $x-t_r(x)=\tfrac12[g(\mu+x)-g(\mu-x)]$, which has the sign of $x$.
+\end{proof}
+
+So the kNN-localised nearest-centroid rule with exact local means would be the Bayes rule for every window size: in this model informative localisation has no approximation error to remove either, and what it gains or loses is estimation (Lemma~\ref{lem:approx}). The next lemma makes precise the observation that a local SVM on a small neighbourhood becomes a vote.
+
+\begin{lemma}[A local linear SVM on a small neighbourhood predicts the majority]\label{lem:majority}\status{proved here}
+Let $z_j=x+D_j\in\R^m$, $j\le k$, with $\|D_j\|\le r$, labels $y_j$ with a strict majority, and let $(\hat w,\hat b)$ minimise $\tfrac12\|w\|^2+C\sum_j\max\{0,1-y_j(\langle w,z_j\rangle+b)\}$. If $r<r_0:=1/(k\sqrt{2Ck})$, then $\sgn(\langle\hat w,x\rangle+\hat b)$ is the majority label.
+\end{lemma}
+\begin{proof}
+Put $b'=b+\langle w,x\rangle$, so the objective is $F(w,b')=\tfrac12\|w\|^2+C\sum_j h(y_j(\langle w,D_j\rangle+b'))$ with $h(u)=\max\{0,1-u\}$, and the prediction at $x$ is $\sgn(b')$. Let the majority be positive, with $n_+>n_-$ labels. Then $F(\hat w,\hat b')\le F(0,0)=Ck$, so $\|\hat w\|\le\sqrt{2Ck}$, and $F(\hat w,\hat b')\le F(0,1)=2Cn_-$. As $h$ is 1-Lipschitz, $F(w,b')\ge C\sum_jh(y_jb')-Ckr\|w\|$, and $\sum_jh(y_jb')\ge k$ for $b'\le0$ (on $[-1,0]$ it equals $k+b'(n_--n_+)$; below $-1$ it is $n_+(1-b')\ge2n_+$). If $\hat b'\le0$ these give $Ck-Ckr\sqrt{2Ck}\le2Cn_-$, that is $1\le n_+-n_-\le kr\sqrt{2Ck}$, contradicting $r<r_0$. Hence $\hat b'>0$.
+\end{proof}
+
+\begin{theorem}[Informative neighbourhoods, fixed $k$]\label{thm:kfixed}\status{proved here}
+In the model of Proposition~\ref{prop:exact}, let $X=(X_1,W)\in\R^m$, $m\ge1$, with $W\sim N(0,I_{m-1})$ independent of $(X_1,Y)$ ($m=1$: the signal coordinate alone), and let the neighbourhood of a query be its $k$ nearest training points in Euclidean distance on $\R^m$. Write $a=\max\{\eta,1-\eta\}$ and $b=1-a$, functions of $X$. Fix $k\ge1$ and let $n\to\infty$.
+\begin{enumerate}[leftmargin=2em,label=(\roman*),itemsep=1pt]
+\item For the kNN-localised nearest-centroid threshold (fitted on $X_1$),
+\(
+\E\,\Risk\to\Risk_\infty(k):=\Risk^*+\E\bigl[(a-\tfrac12)(1-a^k+b^k)\bigr].
+\)
+Moreover $\Risk_\infty(1)=\Risk_\infty(2)=\E[2\eta(1-\eta)]>\Risk^*$, $\Risk_\infty$ is strictly increasing on $k\ge2$, and $\Risk_\infty(k)\to\tfrac12$ as $k\to\infty$.
+\item For the kNN-SVM of Section~\ref{sec:setting}(a) on $\R^m$ with fixed $C$ and odd $k$,
+\(
+\E\,\Risk\to\Risk^{\mathrm{vote}}_\infty(k):=\Risk^*+\E\bigl[(2a-1)\,\Prob(\mathrm{Bin}(k,a)<k/2)\bigr]>\Risk^*,
+\)
+the asymptotic risk of the $k$-nearest-neighbour vote, which tends to $\Risk^*$ as $k\to\infty$. The same limit holds when the inputs are standardised on the training sample, as in the experiment, because the proof of (ii) uses only $R_n\to0$ and the conditional independence of the labels given the inputs.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Fix a query $x$; let $R_n$ be the $k$-th nearest-neighbour distance and $D_j$ the offsets of the neighbours. Since $f$ is continuous and positive, $\Prob(R_n\ge\varepsilon)=\Prob(\mathrm{Bin}(n,F(\varepsilon))<k)\to0$ for every $\varepsilon>0$. Given all inputs, the labels are independent with $\Prob(Y_i=1)=\eta(X_i)$, and $|\eta'|\le\mu/2$, so the law of the neighbours' labels is within total variation $k\mu R_n/2$ of the law of $L'$, $k$ independent labels with parameter $\eta(x)$, independent of the inputs.
+
+(i) With $S=\tfrac12(\text{mean of }D_{j,1}\text{ over positive neighbours}+\text{mean over negative ones})$, the threshold is $x_1+S$, and a mixed neighbourhood predicts $+1$ iff $S<0$; as $S$ is homogeneous of degree one, the prediction is a function $\psi(L,U)$ of the labels and of the rescaled offsets $U=D/R_n$. By Lemma~\ref{lem:radius}, given $R_n=r$ the $k-1$ interior points of $U$ are i.i.d.\ with density proportional to $f(x+ru)$ on the unit ball and the last point has density proportional to $f(x+ru)$ on the unit sphere; by continuity of $f$ this law is within total variation $\tau(r)\to0$ of the law $U^\infty$ of $k-1$ uniform points in the ball and one uniform point on the sphere, independent. Hence the probability $\pi_n(x)$ of predicting $+1$ differs from $\E\,\psi(L',U^\infty)$ by at most $\E\min\{1,k\mu R_n/2\}+\E\min\{1,\tau(R_n)\}\to0$. If $L'$ is pure, $\psi$ returns its label (probabilities $\eta^k$ and $(1-\eta)^k$). If $L'$ is mixed, $k\ge2$, the law of $U^\infty$ is invariant under $u\mapsto-u$, $S$ changes sign under it, and $\Prob(S=0)=0$ because $S$ involves at least one interior point, whose first coordinate is continuous; so $\Prob(S<0)=\tfrac12$. Thus $\pi_n(x)\to\pi(x)=\eta^k+\tfrac12(1-\eta^k-(1-\eta)^k)$ for every $x$. The test label is independent of the training data given $X$, so $\E\,\Risk=\E[\pi_n(1-\eta)+(1-\pi_n)\eta]$, which converges by dominated convergence to $\E[\eta^k(1-\eta)+(1-\eta)^k\eta+\tfrac12(1-\eta^k-(1-\eta)^k)]$. Where $a=\eta$ (the other case is symmetric) the integrand minus $b$ is $a^kb+b^ka+\tfrac12-\tfrac12a^k-\tfrac12b^k-b=(a-\tfrac12)(1-a^k+b^k)$, using $\tfrac12-b=a-\tfrac12$; and $\E\,b=\Risk^*$. For $k=1$ this is $(a-\tfrac12)2b$, so the limit is $\E[2ab]$, and $a^2-b^2=a-b$ gives the same for $k=2$. Since $a^{k+1}-b^{k+1}-(a^k-b^k)=ab(b^{k-1}-a^{k-1})<0$ for $k\ge2$ and $a\in(\tfrac12,1)$, which holds for $x_1\neq0$, the integrand is strictly increasing in $k\ge2$; it is positive for $x_1\ne0$, and it tends to $a-\tfrac12$, whose expectation is $\tfrac12-\Risk^*$.
+
+(ii) On the event $R_n<r_0$ of Lemma~\ref{lem:majority}, whose probability tends to one, the kNN-SVM predicts the majority of the neighbours' labels (a pure neighbourhood is a majority too). By the coupling above, $\pi_n(x)\to\Prob(\mathrm{Bin}(k,\eta(x))>k/2)$; as in (i), the conditional excess risk tends to $(2a-1)\Prob(\mathrm{Bin}(k,a)<k/2)$, positive for $x_1\neq0$, and dominated convergence gives the limit. It tends to $\Risk^*$ as $k\to\infty$ by the law of large numbers and dominated convergence.
+\end{proof}
+
+\begin{corollary}[Fixed $k$ cannot match the global rule]\label{cor:kfixed}\status{proved here; numbers computed, simulations verified}
+In the setting of Theorem~\ref{thm:kfixed}, for every fixed $k$ (odd $k$ for the SVM) there is $n_0(k)$ such that for $n\ge n_0(k)$ both kNN-localised rules have larger expected risk than the global nearest-centroid threshold $\Risk_{A_{\mathrm{nc}}}(n)$, which tends to $\Risk^*$; no explicit $n_0$ is given. With $\mu=\ExMu$ ($\Risk^*=\ExBayes$) the limits are $\Risk_\infty(k)=\KLLimNcOne,\KLLimNcThree,\KLLimNcFive,\KLLimNcTen,\KLLimNcTwenty$ for $k=1,3,5,10,20$ and $\Risk^{\mathrm{vote}}_\infty(k)=\KLLimVoteThree,\KLLimVoteNine$ for $k=3,9$. In simulations with $d=1$ (Appendix~\ref{app:sim}, D5--D6) the risk at $n=\KLPtwoNBig$ is within $\KLPtwoMaxZ$ standard errors of $\Risk_\infty(k)$ for $k\le5$ and within $\KLPtwoMaxDiff$ of it for $k\le20$, for $\mu\in\{\ExMu,\KLMuHard\}$, and in all \KLPtwoNRows{} cases with $n\in\{320,2000,\KLPtwoNBig\}$ and $k\le20$ it exceeds $\Risk_{A_{\mathrm{nc}}}(n)$ by at least $\KLPtwoMinGap$; the local linear SVM ($C=1$) predicted the local majority at all \KLMajChecked{} mixed queries with radius below $r_0$, and its risk at $n=2000$, $k=3$, is $\KLPthreeKThree\pm\KLPthreeKThreeSe$ against $\KLPthreeGlobal\pm\KLPthreeGlobalSe$ for the global linear SVM.
+\end{corollary}
+
+\begin{remark}[Informative neighbourhoods with $k=\rho n$]\label{rem:rho}\status{first-order heuristic; verified numerically}
+With $d=1$ and $k=\rho n$, $0<\rho<1$, the window at a query near $0$ tends to $[-r_\rho,r_\rho]$ with $\Prob(|X|\le r_\rho)=\rho$, and by Lemma~\ref{lem:popsign} the rule is consistent. To first order its decision gap is $x-t(x)\approx v\,x$, with $v=v(\mu,r_\rho)$ the variance of $N(\mu,1)$ truncated to $[-r_\rho,r_\rho]$, and by Lemma~\ref{lem:radius} its threshold has variance $\approx v/(\rho n)$; with $|2\eta-1|\approx\mu|x|$ this gives an excess risk $\approx\mu\varphi(\mu)/(2\rho v n)$ against $\mu\varphi(\mu)/(2n)$ globally, a ratio $Q(\rho)=1/(\rho v)$. Since $v<1$, $Q(\rho)>1/\rho$, the factor for label-free cells of the same local size (Proposition~\ref{prop:thin} with $M=1/\rho$): to this order, neighbourhoods along the signal cost more than label-free ones. Second-order terms (random radius, unequal class proportions away from $0$, the boundary point) are not controlled. At $n=\KLPfourNBig$ the simulated ratios (D7) are $\KLRatioHalfMain\pm\KLRatioHalfMainSe$ against $Q(\tfrac12)=\KLQHalf$ for $\mu=\ExMu$, $\KLRatioHalfHard\pm\KLRatioHalfHardSe$ against $\KLQHalfHard$ for $\mu=\KLMuHard$, and, for $\rho=\tfrac14$, $\KLRatioQuarterMainC$ against $\KLQQuarter$ and $\KLRatioQuarterHardC$ against $\KLQQuarterHard$. The first-order regime can be far away: for $\rho=\tfrac14$ and $\mu=\ExMu$ the ratio is $\KLRatioQuarterMainA$ at $n=2000$ and $\KLRatioQuarterMainB$ at $n=8000$. In every simulated case with $\rho<1$ the localised rule is worse than the global one.
+\end{remark}
+% ---------------------------------------------------------------- END-BLOCK
+
+% ---------------------------------------------------------------- REM-COVERS-iii
+% (iii) Neighbourhood-based localisation and data-dependent partitions are covered by
+% Proposition~\ref{prop:select} when the neighbourhoods or cells are formed from coordinates
+% independent of $(X_1,Y)$ and the local rule uses $X_1$ only. When they use the signal
+% coordinate, the local samples are not i.i.d.\ from $P$ and no finite-sample identity is
+% available; in the Gaussian model Theorem~\ref{thm:kfixed} gives the limit for fixed $k$,
+% strictly above the Bayes risk, and Remark~\ref{rem:rho} a first-order heuristic for $k=\rho n$.
+% Nothing here says that such rules cannot help in general; Lemma~\ref{lem:approx} says only that
+% if they help, it must be through estimation, and Lemma~\ref{lem:popsign} shows that in the
+% Gaussian model the local population rule is already the Bayes rule.
+
+% ---------------------------------------------------------------- CLAIMS-ROWS
+% kNN localisation along label-free coordinates has risk $\Risk_A(k)$ (Prop.~\ref{prop:select});
+% with neighbourhoods in the signal coordinate and fixed $k$, the localised nearest-centroid and
+% linear-SVM rules tend to $\Risk_\infty(k)$ and $\Risk^{\mathrm{vote}}_\infty(k)$, both above
+% $\Risk^*$ (Thm.~\ref{thm:kfixed}); the local population rule is the Bayes rule
+% (Lemma~\ref{lem:popsign}) & proved here\\
+% Linear SVM learning curve decreasing in that model ($d=10$); partition-localised SVM risk grows
+% with $M$; kNN-localised rules above the global rule at the simulated sizes, the fixed-$k$ limits
+% reached at $n=\KLPtwoNBig$; first-order inflation $1/(\rho v)$ for $k=\rho n$
+% (Rem.~\ref{rem:rho}; Appendix~\ref{app:sim}) & verified, not proved; $1/(\rho v)$ heuristic\\
+
+% ---------------------------------------------------------------- APP-SIM
+% (D5--D7) \path{theory/check_knn_localisation.py} (seed \KLSeed, \KLCpu{} CPU-seconds; output in
+% \path{theory/check_knn_localisation_output.txt}): D5, kNN-localised nearest centroid with
+% neighbourhoods in the signal coordinate, $d=1$, $k\le20$, $n\in\{320,2000,\KLPtwoNBig\}$,
+% excess risk by quadrature over the query, \KLPtwoReps{} training samples per case; D6, the
+% local linear SVM ($C=1$) in the same setting, $k\in\{1,3,5,9\}$; D7, $k=\rho n$ with
+% $\rho\in\{\tfrac14,\tfrac12,1\}$ and $n$ up to \KLPfourNBig. With neighbourhoods in all of
+% $d=2$ or $5$ coordinates the risk at $n=2000$ is between those limits and the global rule
+% ($\KLPtwoDallMin$ to $\KLPtwoDallMax$ for $k\in\{3,10\}$).

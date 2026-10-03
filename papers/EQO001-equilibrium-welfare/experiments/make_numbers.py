@@ -282,6 +282,7 @@ if os.path.exists(_rt_path):
     mac("RtDagGraphs", grab(r"\[DAG realisation.*?\] \d+ pairs on (\d+)"))
     mac("RtDagMaxPathsW", max(int(a) for a in re.findall(r"(\d+)/\d+", rt.split("paths of W / of z per instance:")[1].split("\n")[0])))
     mac("RtCPU", f"{grab(r'total CPU time ([0-9.]+) s', float):.0f}")
+    mac("RtSeed", grab(r"seed (\d+);"))
     mac("HasRouting", "1" if rt_pass else "0")
 else:
     mac("HasRouting", "0")

@@ -28,6 +28,8 @@ or exactly given the fitted threshold when the test pair is independent of the s
 Every reported Monte Carlo number carries its standard error over independent training samples.
 
 Usage:  OMP_NUM_THREADS=1 python check_knn_localisation.py   (writes knn_localisation_results.json)
+        python check_knn_localisation.py --macros > ../manuscript/knn_numbers.tex   (adds key 'macros' to the JSON)
+        python check_knn_localisation.py --report   (re-prints the report from the JSON)
 """
 import json
 import os
@@ -231,11 +233,11 @@ def part_L():
 def part_P1(rng):
     """Uninformative neighbourhoods: kNN in W (W in R^2 independent of (X_1, Y))."""
     rows = []
-    reps, n_test = 400, 200
+    reps, n_test = 1000, 100
     for mu in (MU_MAIN, MU_HARD):
         Rs = bayes(mu)
         for n in (80, 320):
-            ks = [1, 5, 20, n // 4, n]
+            ks = sorted({1, 5, 20, n // 4, n})
             acc = {k: [] for k in ks}
             for _ in range(reps):
                 X, y = sample(rng, n, 3, mu)
@@ -259,9 +261,9 @@ def part_P1(rng):
     mu, n = MU_MAIN, 320
     for k in (10, 40):
         loc = []
-        for _ in range(60):
+        for _ in range(600):          # many training sets: the per-fit risk is heavy-tailed
             X, y = sample(rng, n, 3, mu)
-            Wt = rng.normal(size=(50, 2))
+            Wt = rng.normal(size=(10, 2))
             idx = NearestNeighbors(n_neighbors=k).fit(X[:, 1:]).kneighbors(Wt, return_distance=False)
             rr = []
             for i in range(len(Wt)):
@@ -273,7 +275,7 @@ def part_P1(rng):
                     rr.append(float(risk_lin1(m.coef_[0, 0], m.intercept_[0], mu)))
             loc.append(np.mean(rr))
         curve = []
-        for _ in range(3000):
+        for _ in range(8000):
             X, y = sample(rng, k, 1, mu)
             if np.all(y == y[0]):
                 curve.append(0.5)
@@ -347,7 +349,7 @@ def part_P3(rng):
     lemma_checked = 0; lemma_ok = 0
     for n in (320, 2000):
         for k in (1, 3, 5, 9):
-            r0 = 1.0 / (2 * k * np.sqrt(2 * C * k))
+            r0 = 1.0 / (k * np.sqrt(2 * C * k))      # Lemma lem:majority
             acc, frac_vote = [], []
             for _ in range(25):
                 X, y = sample(rng, n, 1, mu)
@@ -391,11 +393,11 @@ def part_P4(rng):
     for mu in (MU_MAIN, MU_HARD):
         Rs = bayes(mu)
         x, w = make_grid(mu, fine=1.0, n_fine=10000, n_coarse=4000)
-        for n in (2000, 8000):
+        for n in (2000, 8000, 32000):
             for rho in (0.25, 0.5, 1.0):
                 k = int(round(rho * n))
                 acc = []
-                for _ in range(300):
+                for _ in range(600):
                     X, y = sample(rng, n, 1, mu)
                     o = np.argsort(X[:, 0])
                     pred, _ = loc_nc_pred_1d(X[o, 0], y[o], x, k)
@@ -457,6 +459,94 @@ def fmt_report(res):
     return "\n".join(L)
 
 
+def _sig(x, sig=3):
+    """Format with `sig` significant digits, no exponent (for ratios)."""
+    if x == 0:
+        return "0"
+    from math import floor, log10
+    dec = max(0, sig - 1 - int(floor(log10(abs(x)))))
+    return f"{x:.{dec}f}"
+
+
+def _thou(n):
+    s = f"{int(n):,}"
+    return s.replace(",", "\\,")
+
+
+def make_macros(res):
+    """Macro name -> LaTeX string, all derived from the results dict (no typed numbers)."""
+    M = {}
+    mm = f"{res['meta']['mu_main']:.3f}"; mh = f"{res['meta']['mu_hard']:.3f}"
+    cm, ch = res["constants"][mm], res["constants"][mh]
+    M["KLSeed"] = str(res["meta"]["seed"])
+    M["KLCpu"] = f"{res['meta']['cpu_seconds']:.0f}"
+    M["KLMuHard"] = f"{res['meta']['mu_hard']:g}"
+    nc = res["P1"]["nc"]
+    row = {(r["mu"], r["n"], r["k"]): r for r in nc}
+    mu0 = res["meta"]["mu_main"]
+    for k, name in ((5, "Five"), (20, "Twenty"), (80, "Eighty")):
+        M[f"KLSelRatio{name}"] = _sig(row[(mu0, 320, k)]["excess_ratio_exact"])
+    M["KLSelReps"] = _thou(res["P1"]["reps"])
+    sel = [r for r in nc if 1 < r["k"] <= r["n"]]
+    M["KLSelNRows"] = str(len(sel))
+    M["KLSelMaxZ"] = f"{max(abs(r['z']) for r in sel):.1f}"
+    s40 = [r for r in res["P1"]["svm"] if r["k"] == 40][0]
+    M["KLSelSvmLoc"] = f"{s40['localised_mc']:.5f}"; M["KLSelSvmLocSe"] = f"{s40['localised_se']:.5f}"
+    M["KLSelSvmCurve"] = f"{s40['curve_mc']:.5f}"; M["KLSelSvmCurveSe"] = f"{s40['curve_se']:.5f}"
+    for k, name in ((1, "One"), (3, "Three"), (5, "Five"), (10, "Ten"), (20, "Twenty")):
+        M[f"KLLimNc{name}"] = f"{cm['Rinf_nc'][str(k)]:.4f}"
+        M[f"KLLimNc{name}Hard"] = f"{ch['Rinf_nc'][str(k)]:.4f}"
+    for k, name in ((3, "Three"), (9, "Nine")):
+        M[f"KLLimVote{name}"] = f"{cm['Rinf_vote'][str(k)]:.4f}"
+    d1 = res["P2"]["d1"]
+    nbig = max(r["n"] for r in d1)
+    M["KLPtwoNBig"] = _thou(nbig)
+    M["KLPtwoMaxZ"] = f"{max(abs(r['risk_mc'] - r['Rinf_nc_k']) / r['se'] for r in d1 if r['n'] == nbig and r['k'] <= 5):.1f}"
+    M["KLPtwoMaxDiff"] = f"{max(abs(r['risk_mc'] - r['Rinf_nc_k']) for r in d1 if r['n'] == nbig):.4f}"
+    M["KLPtwoNRows"] = str(len(d1))
+    M["KLPtwoMinGap"] = f"{min(r['risk_mc'] - r['R_nc_n'] for r in d1):.3f}"
+    M["KLPtwoReps"] = "200"
+    dall = [r for r in res["P2"]["dall"] if r["n"] == 2000]
+    M["KLPtwoDallMin"] = f"{min(r['risk_mc'] for r in dall):.3f}"
+    M["KLPtwoDallMax"] = f"{max(r['risk_mc'] for r in dall):.3f}"
+    p3 = res["P3"]
+    assert p3["lemma_queries_checked"] == p3["lemma_queries_majority"]
+    M["KLMajChecked"] = _thou(p3["lemma_queries_checked"])
+    r3 = [r for r in p3["rows"] if r["n"] == 2000 and r["k"] == 3][0]
+    M["KLPthreeKThree"] = f"{r3['risk_mc']:.4f}"; M["KLPthreeKThreeSe"] = f"{r3['se']:.4f}"
+    g = p3["global_svm"]["2000"]
+    M["KLPthreeGlobal"] = f"{g['mc']:.5f}"; M["KLPthreeGlobalSe"] = f"{g['se']:.5f}"
+    M["KLQHalf"] = f"{cm['Q']['0.5']['Q']:.2f}"; M["KLQHalfHard"] = f"{ch['Q']['0.5']['Q']:.1f}"
+    M["KLQQuarter"] = f"{cm['Q']['0.25']['Q']:.1f}"
+    M["KLQQuarterHard"] = f"{ch['Q']['0.25']['Q']:.1f}"
+    p4 = res["P4"]
+    nb4 = max(r["n"] for r in p4)
+    M["KLPfourNBig"] = _thou(nb4)
+    def r4(mu, n, rho):
+        return [r for r in p4 if r["mu"] == mu and r["n"] == n and r["rho"] == rho][0]
+    a = r4(mu0, nb4, 0.5); M["KLRatioHalfMain"] = f"{a['ratio']:.2f}"; M["KLRatioHalfMainSe"] = f"{a['ratio_se']:.2f}"
+    a = r4(res["meta"]["mu_hard"], nb4, 0.5); M["KLRatioHalfHard"] = f"{a['ratio']:.1f}"; M["KLRatioHalfHardSe"] = f"{a['ratio_se']:.1f}"
+    for n, tag in ((2000, "A"), (8000, "B"), (nb4, "C")):
+        a = r4(mu0, n, 0.25)
+        M[f"KLRatioQuarterMain{tag}"] = f"{a['ratio']:.0f}\\pm{a['ratio_se']:.0f}"
+    a = r4(res["meta"]["mu_hard"], nb4, 0.25)
+    M["KLRatioQuarterHardC"] = f"{a['ratio']:.0f}\\pm{a['ratio_se']:.0f}"
+    return M
+
+
+def write_macros():
+    path = os.path.join(HERE, "knn_localisation_results.json")
+    with open(path) as f:
+        res = json.load(f)
+    M = make_macros(res)
+    res["macros"] = M
+    with open(path, "w") as f:
+        json.dump(res, f, indent=1)
+    lines = ["% generated by theory/check_knn_localisation.py --macros from knn_localisation_results.json"]
+    lines += [f"\\newcommand{{\\{k}}}{{{v}}}" for k, v in M.items()]
+    print("\n".join(lines))
+
+
 def main():
     rng = np.random.default_rng(SEED)
     res = {"meta": {"seed": SEED, "mu_main": MU_MAIN, "mu_hard": MU_HARD, "python": platform.python_version(),
@@ -474,7 +564,9 @@ def main():
 
 
 if __name__ == "__main__":
-    if "--report" in sys.argv:
+    if "--macros" in sys.argv:
+        write_macros()
+    elif "--report" in sys.argv:
         with open(os.path.join(HERE, "knn_localisation_results.json")) as f:
             print(fmt_report(json.load(f)))
     else:
