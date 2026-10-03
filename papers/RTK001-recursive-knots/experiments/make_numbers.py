@@ -517,6 +517,8 @@ with open(os.path.join(out, "numbers.tex"), "w") as fh:
 # ---- table body (merged: default family + other patterns, finest resolution) --------------------
 rows = []
 for f in meta["fs"]:
+    if f > 0.5 + 1e-12 or f < 0.3:   # v0.6 (review round 5, M1): f = 0.25 (same behaviour as 0.35) and the probe
+        continue                      # f = 0.6 (outside r <= tau/2) only in results/tables.md
     c = chain("(2,3)", f, fine)
     for m in c["levels"][1:]:
         ftxt = f"{f}" + (r"$^\dagger$" if f > 0.5 + 1e-12 else "")
