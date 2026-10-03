@@ -68,3 +68,17 @@ Conectores: W sube de nivel (dz→p_m→e1_m→e2_m→ez_m→t_W; dz→o→t_W);
 ## Paso 6. Verificación numérica
 
 Ver theory/check_routing_hardness.py y su salida (se registra abajo al terminar).
+
+### Resultados (theory/check_routing_hardness_output.txt, CPU ≈ 27–46 s)
+* Rutas explícitas: 130 grafos (todos los etiquetados con ≥1 arista en 3 y 4 nodos; 80 aleatorios en 5–6 nodos, la mitad con pesos {1,2,3}), 381 pares (G,k), k ∈ {1, maxcut, maxcut+1}: 130 miembros, 251 no miembros.
+  - exacto (Fraction): f* Wardrop estricto 381/381; e_W ∈ Λ₁ 381/381; C_W(f*) = C* 381/381; testigo del corte máximo con mejora exacta maxcut−k+1/2: 251/251; el mismo testigo vence también con λ_ε = e_W + ε·1 (pesos interiores): 251/251.
+  - F fuertemente monótono: autovalor mínimo de DF en el espacio tangente ≥ 1.
+  - (A) minimización genérica (perfiles puros + QP convexo con brecha FW ≤ 1e-10): e_W ∈ Λ ⇔ maxcut < k, 0 discrepancias; margen exacto 1/2.
+  - (A') valores por vértice = forma cerrada h(x,z) hasta 2.7e-12.
+  - (U) e_h ∈ Λ para todo h ≠ W: 381/381 ⇒ Λ₁ = ortante y Λ = Λ₁ ⇔ maxcut < k.
+* Enumeración de caras (sin usar el lema de concavidad): 14 pares en 7 grafos pequeños, hasta 30 861 caras: 14/14, |min_B − min_A| ≤ 6e-14.
+* DAG (todas las rutas): 16 pares en 8 grafos; estructura de rutas 16/16; Wardrop exacto estricto, e_W ∈ Λ₁, testigos exactos; (A) con todas las rutas 16/16.
+
+### Estado final
+* Demostrado: Teorema thm:routinghard (co-NP-completo, rutas explícitas; dureza con λ unitario, equilibrio único, F fuertemente monótono, Λ₁ = ortante, aristas compartidas por ≤ 2 mercancías, todas salvo una con 2 rutas), Observación rem:interior (también con λ interior), Corolario cor:routingdag (DAG con todas las rutas), Lema lem:concave, Proposición prop:routingeasy (casos tratables).
+* Abierto: número fijo de mercancías (ya dos) con pesos positivos distintos; también si la dureza en DAG persiste con F fuertemente monótono (la construcción en DAG no lo da).
