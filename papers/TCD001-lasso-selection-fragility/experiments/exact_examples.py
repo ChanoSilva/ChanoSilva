@@ -10,7 +10,9 @@ solution and its support.
      driven out by variable 2 after removing R, and returns after removing R' ⊃ R, although its
      marginal correlation on D \\ R still exceeds the penalty (the exclusion is due to competition).
 
-Writes results/examples.json and results/examples.md.
+Writes results/examples.json and results/examples.md.  With --no-guard the KKT guard of lasso_lars is
+switched off and only results/examples_noguard.json is written, so that make_numbers.py can check that
+the examples do not depend on the guard (round-2 finding M1).
 """
 import itertools
 import json
@@ -22,11 +24,15 @@ from fractions import Fraction as F
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lasso_fragility import lasso_lars, reduced_mu, signed_pattern
+import lasso_fragility
+from lasso_fragility import kkt_stats, lasso_lars, reduced_mu, reset_kkt_stats, signed_pattern
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SEED = 20260930
+NO_GUARD = "--no-guard" in sys.argv
+if NO_GUARD:
+    lasso_fragility.KKT_GUARD = False
 
 
 def exact_solve(A, rhs):
@@ -118,6 +124,7 @@ def stability_selection_exact(X, y, mu, j, rule="P"):
 
 def main():
     t0 = time.time()
+    reset_kkt_stats()
     res = {"seed": SEED}
 
     # ---------------- Example 1: p = 1 ----------------
@@ -190,7 +197,8 @@ def main():
             # exact check of the mechanism: |x_0^T y| on D\R exceeds mu
             if not abs(F(an[1]["marginal_xy"][0])) > muq:
                 continue
-            # require that *every* proper removal set is exactly verifiable (no KKT ties)
+            # require that every removal set with |R| <= n-2, including R = {} (i.e. D itself), is
+            # exactly verifiable (no KKT ties); the 5 sets with |R| = n-1 (one row left) are not checked
             Xq = [[F(int(v)) for v in row] for row in X]
             yq = [F(int(v)) for v in y]
             table = []
@@ -240,7 +248,13 @@ def main():
     print("  all subsets exact:", found["all_subsets_exact_ok"], "nonmonotone pairs:", pairs,
           "stab. sel. var0:", found["stability_selection_var0"], "f_leave(P)=", f_leave_P)
     res["seconds"] = time.time() - t0
+    res["meta"] = dict(kkt_guard=dict(kkt_stats(), enabled=not NO_GUARD))
+    print("KKT guard:", res["meta"]["kkt_guard"])
     os.makedirs(os.path.join(ROOT, "results"), exist_ok=True)
+    if NO_GUARD:
+        with open(os.path.join(ROOT, "results", "examples_noguard.json"), "w") as fh:
+            json.dump(res, fh, indent=1)
+        return
     with open(os.path.join(ROOT, "results", "examples.json"), "w") as fh:
         json.dump(res, fh, indent=1)
     L = ["# E0 — Exact small examples of non-monotone support change", "",
@@ -256,7 +270,7 @@ def main():
           "| data set | mu | support | signs | beta (exact) | inactive c (exact) | marginal x^T y |", "|---|---|---|---|---|---|---|"]
     for e in f2["analysis"]:
         L.append(f"| {e['name']} | {e['mu']} | {e['support']} | {e['signs']} | {e['beta']} | {e['inactive_c']} | {e['marginal_xy']} |")
-    L += ["", f"All {len(f2['all_subsets'])} proper removal sets verified exactly: {f2['all_subsets_exact_ok']}. Non-monotone pairs for variable 1: {f2['nonmonotone_pairs_var0']}.",
+    L += ["", f"All {len(f2['all_subsets'])} removal sets with |R| <= n-2 (including R = empty set) verified exactly: {f2['all_subsets_exact_ok']}. Non-monotone pairs for variable 1: {f2['nonmonotone_pairs_var0']}.",
           f"Stability-selection frequency of variable 1 (rule P, subsamples of size 2): {f2['stability_selection_var0']['selected']}/{f2['stability_selection_var0']['subsamples']}; fragility number of 'variable 1 leaves' under rule P: {f2['f_leave_var0_rule_P']}.",
           "", f"Time {res['seconds']:.1f} s."]
     with open(os.path.join(ROOT, "results", "examples.md"), "w") as fh:

@@ -17,6 +17,7 @@ import scipy
 import sklearn
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import lasso_fragility as LF  # noqa: E402  (KKT-guard counter, round-2 finding M1)
 from lasso_fragility import (certificate_k, fit_state, fragility_exact, lasso_cd, lasso_lars,
                              make_instance, reduced_mu, refit_pattern, removal_test,
                              signed_pattern, single_removal_indices, support)
@@ -33,6 +34,7 @@ def same_pattern(S1, s1, S2, s2):
 
 def main():
     t_start = time.time()
+    LF.reset_kkt_stats()
     rng = np.random.default_rng(SEED)
     cells = [(10, 5), (20, 10), (50, 20), (12, 24)]
     reps = 4 if FAST else 15
@@ -158,6 +160,8 @@ def main():
     print(f"D throughput: oracle {t_oracle*1e6:.1f} us/subset, refit {t_refit*1e6:.1f} us/subset, x{t_refit/t_oracle:.0f}")
 
     out["meta"]["seconds"] = time.time() - t_start
+    out["meta"]["kkt_guard"] = LF.kkt_stats()
+    print("KKT guard:", out["meta"]["kkt_guard"])
     os.makedirs(os.path.join(ROOT, "results"), exist_ok=True)
     with open(os.path.join(ROOT, "results", "validation.json"), "w") as fh:
         json.dump(out, fh, indent=1)

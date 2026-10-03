@@ -2,7 +2,7 @@
 """
 E4: how the fragility number (any change of the signed support) scales with n.
   Part 1: exact minimal witnesses by exhaustive search with the closed-form removal test
-          (n up to 30, |R| <= 6), rules C and P.
+          (n up to 34, |R| <= 6), rules C and P.
   Part 2: greedy upper bounds (one-step exact greedy) and certificate lower bounds (Prop. 3.4)
           for n up to 400, rule C.
 Writes results/scaling.json and results/scaling.md.
@@ -18,6 +18,7 @@ import scipy
 import sklearn
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import lasso_fragility as LF  # noqa: E402  (KKT-guard counter, round-2 finding M1)
 from lasso_fragility import (FAMILIES, certificate_k, fit_state, fragility_exact, heuristic,
                              make_family_instance)
 
@@ -38,6 +39,7 @@ def reps_exact(n):
 
 def main():
     t_start = time.time()
+    LF.reset_kkt_stats()
     rng = np.random.default_rng(SEED)
     rec_exact, rec_greedy = [], []
     for fam in FAMILIES:
@@ -103,6 +105,12 @@ def main():
             a["t_onestep_mean"] = float(np.mean([r["t_onestep_C"] for r in rs]))
             a["t_amip_mean"] = float(np.mean([r["t_amip_C"] for r in rs]))
             a["cost_ratio_onestep_median"] = float(np.median([r["t_onestep_C"] / r["t_C"] for r in rs if r["t_C"] > 0]))
+            a["cost_ratio_onestep_q1"], a["cost_ratio_onestep_q3"] = (float(v) for v in np.percentile(
+                [r["t_onestep_C"] / r["t_C"] for r in rs if r["t_C"] > 0], [25, 75]))
+            a["t_C_median"] = float(np.median([r["t_C"] for r in rs]))
+            a["t_onestep_median"] = float(np.median([r["t_onestep_C"] for r in rs]))
+            a["greedy_onestep_hits_C"] = int(sum(r["g_onestep_C"] == r["f_C"] for r in fin))
+            a["n_finite_C"] = len(fin)
             a["cost_ratio_amip_median"] = float(np.median([r["t_amip_C"] / r["t_C"] for r in rs if r["t_C"] > 0]))
             a["amip_kpred_exact"] = float(np.mean([r["kpred_amip_C"] == r["f_C"] for r in fin])) if fin else None
             nontriv = [r for r in fin if r["f_C"] >= 2]
@@ -132,18 +140,20 @@ def main():
                          sklearn=sklearn.__version__, kmax=KMAX, ns_exact=NS_EXACT, ns_greedy=NS_GREEDY,
                          families=FAMILIES, seconds=time.time() - t_start),
                exact=agg_exact, greedy=agg_greedy, records_exact=rec_exact, records_greedy=rec_greedy)
+    out["meta"]["kkt_guard"] = LF.kkt_stats()
+    print("KKT guard:", out["meta"]["kkt_guard"])
     os.makedirs(os.path.join(ROOT, "results"), exist_ok=True)
     with open(os.path.join(ROOT, "results", "scaling.json"), "w") as fh:
         json.dump(out, fh, indent=1)
     L = ["# E4 — Scaling of the fragility number (any change of the signed support)", "",
          f"Seed {SEED}; exhaustive search with the closed-form removal test up to |R| <= {KMAX}.", "",
-         "## Exact (n <= 30)", "",
-         "| fam | n | inst | mean |S| | P(S=S*) | f_C dist (1..6, nf) | median C | mean C | mean/n C | P(f=1) C | median P | P(f=1) P | greedy onestep exact | amip exact | n f>=2 | onestep exact (f>=2) | amip exact (f>=2) | k* mean | P(k*>=1 given f>=2) | mean t_C (s) | mean oracle evals | cost ratio onestep | cost ratio amip | amip k_pred exact |",
-         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+         "## Exact (n <= 34)", "",
+         "| fam | n | inst | mean |S| | P(S=S*) | f_C dist (1..6, nf) | median C | mean C | mean/n C | P(f=1) C | median P | P(f=1) P | greedy onestep exact | amip exact | n f>=2 | onestep exact (f>=2) | amip exact (f>=2) | k* mean | P(k*>=1 given f>=2) | mean t_C (s) | mean oracle evals | cost ratio onestep | IQR cost ratio onestep | median t_C (ms) | median t onestep (ms) | cost ratio amip | amip k_pred exact |",
+         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for a in agg_exact:
         d = a["f_C_dist"]
         dist = ",".join(str(d[str(k)]) for k in range(1, KMAX + 1)) + f",{d['notfound']}"
-        L.append(f"| {a['family']} | {a['n']} | {a['instances']} | {a['mean_support']:.2f} | {a['frac_true_support']:.2f} | {dist} | {a['f_C_median']} | {a['f_C_mean']} | {a['f_C_mean_over_n']} | {a['f_C_frac1']:.2f} | {a['f_P_median']} | {a['f_P_frac1']:.2f} | {a['greedy_onestep_exact_C']} | {a['greedy_sorted_exact_C']} | {a['n_nontrivial']} | {a['greedy_onestep_exact_nontrivial_C']} | {a['greedy_sorted_exact_nontrivial_C']} | {a['kstar_mean']:.2f} | {a['frac_kstar_ge1_given_f_ge2']} | {a['t_C_mean']:.2f} | {a['oracle_C_mean']:.0f} | {a['cost_ratio_onestep_median']:.3f} | {a['cost_ratio_amip_median']:.3f} | {a['amip_kpred_exact']} |")
+        L.append(f"| {a['family']} | {a['n']} | {a['instances']} | {a['mean_support']:.2f} | {a['frac_true_support']:.2f} | {dist} | {a['f_C_median']} | {a['f_C_mean']} | {a['f_C_mean_over_n']} | {a['f_C_frac1']:.2f} | {a['f_P_median']} | {a['f_P_frac1']:.2f} | {a['greedy_onestep_exact_C']} | {a['greedy_sorted_exact_C']} | {a['n_nontrivial']} | {a['greedy_onestep_exact_nontrivial_C']} | {a['greedy_sorted_exact_nontrivial_C']} | {a['kstar_mean']:.2f} | {a['frac_kstar_ge1_given_f_ge2']} | {a['t_C_mean']:.2f} | {a['oracle_C_mean']:.0f} | {a['cost_ratio_onestep_median']:.3f} | [{a['cost_ratio_onestep_q1']:.3f}, {a['cost_ratio_onestep_q3']:.3f}] | {1e3*a['t_C_median']:.2f} | {1e3*a['t_onestep_median']:.2f} | {a['cost_ratio_amip_median']:.3f} | {a['amip_kpred_exact']} |")
     L += ["", "## Greedy upper bounds and certificate lower bounds (n up to 400, rule C unless stated)", "",
           "| fam | n | inst | mean |S| | P(S=S*) | onestep median [q1,q3] | mean/n | P(g=1) | amip median | P(amip<=onestep) | onestep rule P median | mean/n (P) | k* median | P(k*>=1) | mean (k*+1)/g | mean time onestep (s) |",
           "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]

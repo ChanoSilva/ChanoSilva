@@ -16,6 +16,7 @@ import scipy
 import sklearn
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import lasso_fragility as LF  # noqa: E402  (KKT-guard counter, round-2 finding M1)
 from lasso_fragility import (FAMILIES, certificate_k, fit_state, fragility_exact, heuristic,
                              lasso_lars, make_family_instance, refit_pattern, signed_pattern)
 
@@ -47,6 +48,7 @@ def change_type(S0, s0, S1, s1):
 
 def main():
     t_start = time.time()
+    LF.reset_kkt_stats()
     rng = np.random.default_rng(SEED)
     records = []
     for fam in FAMILIES:
@@ -200,18 +202,22 @@ def main():
             base = [r for r in records if r["family"] == fam and fkey in r and r[fkey] is not None]
             for meth in METHODS:
                 exact_hit = float(np.mean([r[f"g_{tgt}_{meth}_f"] == r[fkey] for r in base])) if base else None
-                ratio = float(np.median([r[f"g_{tgt}_{meth}_t"] / r[tkey] for r in base if r[tkey] > 0])) if base else None
+                ratios = [r[f"g_{tgt}_{meth}_t"] / r[tkey] for r in base if r[tkey] > 0]
+                ratio = float(np.median(ratios)) if ratios else None
+                q1, q3 = (float(v) for v in np.percentile(ratios, [25, 75])) if ratios else (None, None)
                 nontriv = [r for r in base if r[fkey] >= 2]
                 exact_nontriv = float(np.mean([r[f"g_{tgt}_{meth}_f"] == r[fkey] for r in nontriv])) if nontriv else None
                 verdict[f"{fam}_{tgt}_{meth}"] = dict(family=fam, target=tgt, method=meth, n=len(base), exact=exact_hit,
                                                      n_nontrivial=len(nontriv), exact_nontrivial=exact_nontriv,
-                                                     median_cost_ratio=ratio,
+                                                     median_cost_ratio=ratio, cost_ratio_q1=q1, cost_ratio_q3=q3,
                                                      advantage=bool(exact_hit is not None and exact_hit >= CRIT_EXACT and ratio is not None and ratio <= CRIT_COST))
     out = dict(meta=dict(seed=SEED, python=platform.python_version(), numpy=np.__version__, scipy=scipy.__version__,
                          sklearn=sklearn.__version__, reps=REPS, ns=NS, kmax_targeted=KMAX_TARGETED,
                          families=FAMILIES, criterion=dict(exact=CRIT_EXACT, cost=CRIT_COST),
                          seconds=time.time() - t_start),
                aggregates=agg, verdict=verdict, records=records)
+    out["meta"]["kkt_guard"] = LF.kkt_stats()
+    print("KKT guard:", out["meta"]["kkt_guard"])
     os.makedirs(os.path.join(ROOT, "results"), exist_ok=True)
     with open(os.path.join(ROOT, "results", "fragility.json"), "w") as fh:
         json.dump(out, fh, indent=1)
@@ -239,9 +245,10 @@ def main():
                 h = a[f"h_{tgt}_{meth}"]
                 L.append(f"| {a['family']} | {a['n']} | {tgt} | {meth} | {h['n']} | {h['found']} | {h['exact']} | {h['mean_gap']} | {h['max_gap']} | {h['median_cost_ratio']} | {h['mean_refits']} |")
     L += ["", f"### Verdict with the predefined criterion (exact >= {CRIT_EXACT}, median cost ratio <= {CRIT_COST}), pooled over n", "",
-          "| fam | target | method | n | exact | n nontrivial (f>=2) | exact on nontrivial | median cost ratio | advantage? |", "|---|---|---|---|---|---|---|---|---|"]
+          "Cost ratio = heuristic time / exhaustive-search time per instance; median and interquartile range [q1, q3] over the instances (round-2 finding m13).", "",
+          "| fam | target | method | n | exact | n nontrivial (f>=2) | exact on nontrivial | median cost ratio | IQR cost ratio | advantage? |", "|---|---|---|---|---|---|---|---|---|---|"]
     for k, v in verdict.items():
-        L.append(f"| {v['family']} | {v['target']} | {v['method']} | {v['n']} | {v['exact']} | {v['n_nontrivial']} | {v['exact_nontrivial']} | {v['median_cost_ratio']} | {v['advantage']} |")
+        L.append(f"| {v['family']} | {v['target']} | {v['method']} | {v['n']} | {v['exact']} | {v['n_nontrivial']} | {v['exact_nontrivial']} | {v['median_cost_ratio']:.3f} | [{v['cost_ratio_q1']:.3f}, {v['cost_ratio_q3']:.3f}] | {v['advantage']} |")
     L += ["", "## E5. Non-monotonicity: one-element supersets of minimal witnesses", "",
           "| fam | n | leave: instances | frac instances with re-entry | frac pairs re-entry | any: instances | frac instances restored | frac pairs restored |", "|---|---|---|---|---|---|---|---|"]
     for a in agg:
