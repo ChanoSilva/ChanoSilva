@@ -81,7 +81,7 @@ de minimizadores es M = {β : X_K β = X_K β̂, ||β||_1 ≤ ||β̂||_1} (todos
 norma ℓ1), y β̂ es único sii max/min β_k sobre M valen β̂_k para todo k: 2p programas lineales. Para p fijo
 basta enumerar los 3^p soportes con signo.
 
-Estado: DEMOSTRADO (pendiente verificación exhaustiva exacta, §3).
+Estado: DEMOSTRADO; verificación exhaustiva exacta en §3 (312/312). Texto final: hardness_p2.tex (Lema lem:entry, Teorema thm:enter2).
 
 Nota sobre las condiciones: u^2 > N es SUFICIENTE (el término −(1−ρ)μ' da holgura extra); κ−ρ ≤ 1/B es lo
 que impide la entrada con signo negativo cuando Σb ≫ t (c_2 sigue bajando tras activarse la variable 1);
@@ -135,3 +135,9 @@ elementos), que es fuertemente NP-completa. Lo que falta: controlar la interacci
 activos a través de la matriz de Gram (con d > 1 la variable objetivo no queda absorbida automáticamente
 cuando solo algunos Δ_l > 0, y hay que excluir entradas con signo negativo), y la unicidad. Queda como
 conjetura.
+
+## 5. Entregable y compilación
+hardness_p2.tex: Lema lem:entry, Teorema thm:enter2, Proposición prop:pseudo, Corolario cor:weak,
+Observación rem:verify2, Conjetura conj:strong (+ ediciones sugeridas a main.tex en comentarios, NO aplicadas).
+Compilado insertado en una copia de main.tex (scratchpad) antes de conj:enter: sin errores ni referencias
+indefinidas (13 páginas). main.tex no se tocó.

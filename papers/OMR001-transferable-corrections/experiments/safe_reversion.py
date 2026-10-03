@@ -12,7 +12,7 @@ Correction operators  C(x) = mu_hat + lam (x - mu_hat)  fitted on the sources:
   'eb'    lam = tau2_hat/(tau2_hat + sigma^2/n_e)  (Efron--Morris moment estimator)
   'pool'  lam = 0  (replace the task estimate by the pooled centre)
   'fixed' lam = 1/2 (fixed in advance)
-Reverting estimator (Theorem B of the manuscript):
+Reverting estimator (Theorem 4.2 of the manuscript):
   Dhat = ||C - Ybar||^2 - ||R - Ybar||^2   (held-out loss difference),
   s    = 2 sigma ||C - R|| / sqrt(m)       (its exact conditional sd),
   use C  iff  Dhat <= - z_{1-alpha} s,  else use R.
@@ -20,14 +20,17 @@ Also evaluated (no guarantee proved in the manuscript, empirical only):
   'refit' : same check, but the final estimate is built from all n observations;
   'sure'  : no held-out sample; use C iff SURE(C) < SURE(R) on the full sample.
 
-Predefined criteria (U and S were fixed before the runs, see manuscript Sec. 5;
-the Poisson comparison used in the identity check for rare acceptance replaced a
-paired z-test after a first run showed that the normal approximation fails there):
+Criteria (manuscript Sec. 6 and Appendix A).  U was fixed in writing before the runs;
+the 2-SE tolerance of S and the identity-check thresholds were chosen before the final
+run but not recorded beforehand; the Poisson comparison used in the identity check for
+rare acceptance replaced a paired z-test after a first run showed that the normal
+approximation fails there.  Round 2 (v0.3) adds checks against the kappa-form of
+Theorem 4.2(ii) and the sharpened cap of Corollary 4.3 (no simulated number changes):
   U  useful transfer at a configuration: the lower end of the 95% CI of the
      relative gain in risk with respect to the FULL-data reference Xbar_n is
      >= 0.05 (the split cost is charged to the method);
   S  safety: the Monte Carlo excess risk of the reverting estimator over the
-     estimation-sample reference R never exceeds the bound of Theorem B(ii)
+     estimation-sample reference R never exceeds the bounds of Theorem 4.2(i)-(ii)
      by more than two Monte Carlo standard errors;
   H  harmful-transfer event: the corrected estimate is used and its loss is
      larger than the loss of R (frequency reported).
@@ -74,14 +77,52 @@ PHI1 = float(norm.pdf(1.0))   # sup_x x phi(x)
 
 
 # ----------------------------------------------------------------------------
-# Constants of Theorem B: kappa(alpha) = sup_u u Phi(-(z+u)) versus phi(z)
+# Constants of Theorem 4.2 / Corollary 4.3: kappa(alpha) = sup_u u Phi(-(z+u)) versus phi(z),
+# kappa2(alpha) = sup_u u^2 Phi(-(z+u)) versus phi(1)
 # ----------------------------------------------------------------------------
-def kappa(alpha):
+def kappa(alpha, p=1):
+    """sup_{u >= 0} u^p Phi(-(z_{1-alpha} + u)) and its maximiser (p = 1: kappa, p = 2: kappa2)."""
     z = norm.ppf(1 - alpha)
-    f = lambda u: -u * norm.cdf(-(z + u))
+    f = lambda u: -(u ** p) * norm.cdf(-(z + u))
     res = minimize_scalar(f, bounds=(0.0, 20.0), method="bounded",
                           options={"xatol": 1e-10})
     return float(-res.fun), float(res.x)
+
+
+_KAP = {}
+
+
+def kap_all(alpha):
+    """(kappa, u*, kappa2) for one alpha, cached."""
+    if alpha not in _KAP:
+        k, us = kappa(alpha)
+        _KAP[alpha] = (k, us, kappa(alpha, 2)[0])
+    return _KAP[alpha]
+
+
+def chi_mean(d):
+    """E||Z|| for Z ~ N(0, I_d)."""
+    from scipy.special import gammaln
+    return float(np.sqrt(2) * np.exp(gammaln((d + 1) / 2) - gammaln(d / 2)))
+
+
+def worst_case_table():
+    """Proposition 4.5(b) and Corollary 4.3 at the design (R = Xbar_e, n_e = n - m_default):
+    worst case over theta and F-measurable C of the excess risk over R lies in [lower, upper_exact];
+    cap = Jensen form actually used in the simulation check; cap_phi = closed form of v0.2."""
+    d, sig, m = CFG["d"], CFG["sigma"], CFG["m_default"]
+    n_e = CFG["n"] - m
+    Ee = sig * chi_mean(d) / np.sqrt(n_e)
+    rows = []
+    for a in CFG["alpha_grid"]:
+        z = float(norm.ppf(1 - a))
+        k, us, k2 = kap_all(a)
+        rows.append(dict(alpha=a, d=d, n_e=n_e, m=m, E_norm_e=Ee, E_norm_e_jensen=sig * np.sqrt(d / n_e),
+                         lower=4 * sig / np.sqrt(m) * k * Ee + 4 * sig ** 2 / m * us * k,
+                         upper_exact=4 * sig / np.sqrt(m) * k * Ee + 4 * sig ** 2 / m * k2,
+                         cap=4 * sig ** 2 * (k * np.sqrt(d / (n_e * m)) + k2 / m),
+                         cap_phi=4 * sig ** 2 * (float(norm.pdf(z)) * np.sqrt(d / (n_e * m)) + PHI1 / m)))
+    return rows
 
 
 def constants_table():
@@ -89,8 +130,10 @@ def constants_table():
     for a in CFG["alpha_grid"]:
         z = float(norm.ppf(1 - a))
         k, ustar = kappa(a)
+        k2, u2 = kappa(a, 2)
         rows.append(dict(alpha=a, z=z, phi_z=float(norm.pdf(z)), kappa=k,
                          u_star=ustar, ratio_kappa_over_phi=k / float(norm.pdf(z)),
+                         kappa2=k2, u2_star=u2, ratio_kappa2_over_phi1=k2 / PHI1,
                          regret_const=z + PHI0))
     return rows
 
@@ -203,26 +246,30 @@ def evaluate(sim, m):
             L_rev = L_Re + Delta * acc
             with np.errstate(divide="ignore", invalid="ignore"):
                 p_acc = np.where(s > 0, norm.cdf(-(Delta + z * s) / np.where(s > 0, s, 1.0)), 0.0)
-            L_rev_rb = L_Re + Delta * p_acc            # Rao-Blackwell (identity B(i))
+            L_rev_rb = L_Re + Delta * p_acc            # Rao-Blackwell (identity 4.2(i))
             L_refit = L_Rn + o["Delta_n"] * acc
             ex_mc = mse(Delta * acc)
             ex_rb = mse(Delta * p_acc)
             bound_alpha = a * float(Dplus.mean())
-            bound_phi = float(norm.pdf(z)) * float(s.mean())
+            k_a, _, k2_a = kap_all(a)
+            bound_kappa = k_a * float(s.mean())                 # Theorem 4.2(ii), best constant
+            bound_phi = float(norm.pdf(z)) * float(s.mean())    # its closed form
             bound_tight = float((Dplus * p_acc).mean())
             regret_bound = (z + PHI0) * float(s.mean())
-            # uniform cap (Corollary 'uniform cap' of the manuscript): for ANY F-measurable C
-            # and every theta,  E[Delta^+ pi] <= 4 sigma phi(z) E||R-theta|| / sqrt(m) + 4 phi(1) sigma^2 / m,
-            # with E||R-theta|| <= sigma_e sqrt(d).  Closed form below (no Monte Carlo input).
+            # uniform cap (Corollary 4.3): for ANY F-measurable C and every theta,
+            # E[Delta^+ pi] <= 4 sigma kappa E||R-theta|| / sqrt(m) + 4 kappa2 sigma^2 / m,
+            # with E||R-theta|| <= sigma_e sqrt(d) (round 2, referee M2); closed form with
+            # (phi(z), phi(1)) kept as bound_uniform_phi.  No Monte Carlo input.
             n_e = CFG["n"] - m
             sig = CFG["sigma"]
-            bound_uniform = 4 * sig ** 2 * (float(norm.pdf(z)) * np.sqrt(CFG["d"] / (n_e * m)) + PHI1 / m)
+            bound_uniform = 4 * sig ** 2 * (k_a * np.sqrt(CFG["d"] / (n_e * m)) + k2_a / m)
+            bound_uniform_phi = 4 * sig ** 2 * (float(norm.pdf(z)) * np.sqrt(CFG["d"] / (n_e * m)) + PHI1 / m)
             r = dict(alpha=a, z=z, risk=mse(L_rev), risk_rb=mse(L_rev_rb),
                      gain_vs_Rn=rel_gain(L_Rn, L_rev), gain_vs_Re=rel_gain(L_Re, L_rev),
                      excess_vs_Re=ex_mc, excess_vs_Re_rb=ex_rb,
-                     bound_alpha=bound_alpha, bound_phi=bound_phi, bound_tight=bound_tight,
+                     bound_alpha=bound_alpha, bound_kappa=bound_kappa, bound_phi=bound_phi, bound_tight=bound_tight,
                      regret_vs_oracle=mse(L_rev - np.minimum(L_Re, o["L_b"])),
-                     regret_bound=regret_bound, bound_uniform=bound_uniform,
+                     regret_bound=regret_bound, bound_uniform=bound_uniform, bound_uniform_phi=bound_uniform_phi,
                      accept_freq=float(acc.mean()),
                      harm_freq=float((acc & (Delta > 0)).mean()),
                      accept_given_harmful=float(acc[Delta > 0].mean()) if (Delta > 0).any() else 0.0,
@@ -233,11 +280,13 @@ def evaluate(sim, m):
             r["safe_phi"] = bool(ex_mc[0] <= bound_phi + 2 * ex_mc[1])
             r["safe_alpha"] = bool(ex_mc[0] <= bound_alpha + 2 * ex_mc[1])
             r["safe_tight"] = bool(ex_mc[0] <= bound_tight + 2 * ex_mc[1])
+            r["safe_kappa"] = bool(ex_mc[0] <= bound_kappa + 2 * ex_mc[1])
             r["safe_uniform"] = bool(ex_mc[0] <= bound_uniform + 2 * ex_mc[1])
+            r["safe_uniform_phi"] = bool(ex_mc[0] <= bound_uniform_phi + 2 * ex_mc[1])
             hf = r["harm_freq"]; hb = a * always["harm_freq"]     # Corollary: P(harmful event) <= alpha P(Delta>0)
             r["harm_freq_bound"] = hb
             r["safe_harm_freq"] = bool(hf <= hb + 2 * np.sqrt(max(hf * (1 - hf), 1e-12) / Delta.size))
-            # identity B(i): E[Delta 1_A] = E[Delta P(A|F)].  Paired z-test where acceptance is
+            # identity 4.2(i): E[Delta 1_A] = E[Delta P(A|F)].  Paired z-test where acceptance is
             # frequent (>= 1%); where it is rare, compare the acceptance count with its expected
             # value sum(p_acc) through a Poisson 99% interval (the CLT does not apply there).
             idm, ids = mse(Delta * (acc - p_acc))
@@ -311,9 +360,15 @@ def summarize(structure, departure, msweep, consts):
         safe_alpha_all=all(x[3]["safe_alpha"] for x in allrev),
         safe_tight_all=all(x[3]["safe_tight"] for x in allrev),
         safe_harm_freq_all=all(x[3]["safe_harm_freq"] for x in allrev),
+        safe_kappa_all=all(x[3]["safe_kappa"] for x in allrev),
         safe_uniform_all=all(x[3]["safe_uniform"] for x in allrev),
+        safe_uniform_phi_all=all(x[3]["safe_uniform_phi"] for x in allrev),
+        max_excess_over_bound_kappa=max(x[3]["excess_vs_Re"][0] / x[3]["bound_kappa"]
+                                        for x in allrev if x[3]["bound_kappa"] > 0),
         max_excess_over_bound_uniform=max(x[3]["excess_vs_Re"][0] / x[3]["bound_uniform"] for x in allrev),
-        max_bound_phi_over_uniform=max(x[3]["bound_phi"] / x[3]["bound_uniform"] for x in allrev),
+        max_excess_over_bound_uniform_phi=max(x[3]["excess_vs_Re"][0] / x[3]["bound_uniform_phi"] for x in allrev),
+        max_bound_kappa_over_uniform=max(x[3]["bound_kappa"] / x[3]["bound_uniform"] for x in allrev),
+        max_bound_phi_over_uniform_phi=max(x[3]["bound_phi"] / x[3]["bound_uniform_phi"] for x in allrev),
         useful_structure_always_full_eb=[r["snr"] for r in structure if r["ops"]["eb"]["always_full"]["useful"]],
         harmful_vs_Rn_always_full_eb_structure=[r["snr"] for r in structure
                                                 if r["ops"]["eb"]["always_full"]["gain_vs_Rn"]["hi"] < 0],
@@ -417,7 +472,7 @@ def write_tables(structure, departure, msweep, consts, summary, path):
             e = r["ops"][name]; q = e["rev"]["0.1"]
             L.append(f"| {r['snr']:.0f} | {name} | {e['always']['risk'][0]:.4f} | {100*e['always']['harm_freq']:.1f} | "
                      f"{q['risk'][0]:.4f} | {100*q['harm_freq']:.1f} | {q['excess_vs_Re'][0]:+.5f} | {q['bound_phi']:.4f} | {q['bound_alpha']:.4f} |")
-    L.append("\n## T5. Constants of Theorem B\n")
+    L.append("\n## T5. Constants of Theorem 4.2, Corollary 4.3 and Proposition 4.5\n")
     L.append("| alpha | z | phi(z) | kappa(alpha) | u* | kappa/phi | z+phi(0) |")
     L.append("|---|---|---|---|---|---|---|")
     for c in consts:
@@ -476,7 +531,7 @@ def make_figures(structure, departure):
         Rn = np.array([r["risk_Rn"][0] for r in rows])
         fig, axes = plt.subplots(1, 2, figsize=(8.4, 3.5), sharey=True)
         for ax, series, sub in zip(axes, (left, right),
-                                   ("(a) with the guarantee of Theorem B", "(b) without guarantee (empirical)")):
+                                   ("(a) with the guarantee of Theorem 4.2", "(b) without guarantee (empirical)")):
             ax.axhline(1.0, color=C["text2"], linewidth=1.0)
             if sub.startswith("(a)"):
                 ax.plot(x, [r["risk_Re"][0] for r in rows] / Rn, color=C["text2"], linewidth=2,
@@ -535,14 +590,14 @@ def make_figures(structure, departure):
         ax.legend(fontsize=7.5, loc=loc)
         style(ax)
     axes[0].set_ylabel("risk / risk of full-data reference")
-    fig.suptitle("Reverting estimators with the guarantee of Theorem B (EB operator, m = %d)" % CFG["m_default"],
+    fig.suptitle("Reverting estimators with the guarantee of Theorem 4.2 (EB operator, m = %d)" % CFG["m_default"],
                  x=0.01, ha="left", color=C["text"], fontsize=10)
     fig.tight_layout()
     fig.savefig(os.path.join(FIGURES, "sweeps.png"), dpi=200)
     fig.savefig(os.path.join(FIGURES, "sweeps.pdf"))
     plt.close(fig)
 
-    # Figure 3: excess over the reference versus the bounds of Theorem B (alpha = 0.1)
+    # Figure 2: excess over the reference versus the bounds of Theorem 4.2 (alpha = 0.1)
     fig, ax = plt.subplots(figsize=(6.0, 3.6))
     x = np.array([r["dep_over_tau"] for r in departure])
     q = [r["ops"]["eb"]["rev"]["0.1"] for r in departure]
@@ -556,7 +611,7 @@ def make_figures(structure, departure):
     ax.set_yscale("log")
     ax.set_xlabel(r"departure of the target, in units of $\tau$ (snr = 1, $\alpha$ = 0.1)")
     ax.set_ylabel("excess risk over reference $R$ (log)")
-    ax.set_title("Do no harm: excess risk of the reverting estimator vs. Theorem B", loc="left", color=C["text"])
+    ax.set_title("Do no harm: excess risk of the reverting estimator vs. Theorem 4.2", loc="left", color=C["text"])
     ax.legend(fontsize=7.5, loc="lower right")
     style(ax)
     fig.tight_layout()
@@ -566,7 +621,7 @@ def make_figures(structure, departure):
 
 
 # ----------------------------------------------------------------------------
-# Re-checks of identity B(i) with their own random streams (the sweeps are unchanged)
+# Re-checks of identity 4.2(i) with their own random streams (the sweeps are unchanged)
 # ----------------------------------------------------------------------------
 def identity_recheck(structure, departure, msweep):
     """(a) one fixed triple (R, C, theta) and many independent held-out draws: the

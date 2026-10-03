@@ -7,7 +7,18 @@
   "sklearn": "1.9.1",
   "design": "b=2, rho=0.3, s0=2, sigma=1, c=1.0",
   "reps_per_cell": 15,
-  "seconds": 7.2323691844940186
+  "seconds": 8.6677725315094,
+  "kkt_guard": {
+   "calls": 16191,
+   "fallbacks": 0,
+   "fallbacks_tie_at_entry": 0,
+   "fallbacks_full_rank": 0,
+   "max_active_rel": 5.0175173213660105e-15,
+   "max_inactive_rel": 0.0,
+   "max_active_rel_rejected": 0.0,
+   "max_active_rel_fallback": 0.0,
+   "max_inactive_rel_fallback": 0.0
+  }
  },
  "A_single": [
   {
@@ -389,8 +400,8 @@
   "p": 6,
   "k": 4,
   "subsets": 1001,
-  "oracle_seconds_per_subset": 1.1073926073792547e-06,
-  "refit_seconds_per_subset": 0.0004423211049999054,
-  "speedup": 399.4257339740587
+  "oracle_seconds_per_subset": 1.814350849139833e-06,
+  "refit_seconds_per_subset": 0.0006700129899991225,
+  "speedup": 369.2852406781023
  }
 }

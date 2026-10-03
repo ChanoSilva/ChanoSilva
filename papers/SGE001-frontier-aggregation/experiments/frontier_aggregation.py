@@ -22,7 +22,8 @@ Experiments
 Usage: python3 frontier_aggregation.py [--fast]
 
 Random numbers: one independent generator per experiment, spawned from
-np.random.SeedSequence(SEED) (reference run v0.2; the v0.1 run shared one stream).
+np.random.SeedSequence(SEED), and one bootstrap generator for each of E1, E1c, E2, E3 (reference run v0.3;
+the draws of E0-E5 are those of v0.2; the v0.1 run shared one stream).
 """
 import argparse
 import datetime
@@ -344,10 +345,22 @@ def run_E1(rng, fast, brng):
                                 "bound1_holds": int(np.all(np.abs(A["E1"]) <= A["B1"])),
                                 "ratio_E2_over_B2_med": q(np.abs(A["E2"]) / A["B2"], .5),
                                 "ratio_E2_over_B2_max": float(np.max(np.abs(A["E2"]) / A["B2"])),
-                                # observable certificate of improvement: 2 B2 < |Q2| in every replication
-                                # (then |E2| <= B2 < |Q2| - B2 <= |E1|); Q2 and B2 are functions of the moments
+                                # certificates of improvement, (k+1) B2 < |Q2|  =>  |E1|/|E2| > k  (remainder-bound
+                                # proposition, (e)).  Two versions of B2:
+                                #  - micro-data certificate: segmentwise B2 (sup of D^3 f on the box spanned by xbar
+                                #    and each x_i) -- needs every individual input x_i (not f at the units);
+                                #  - moment-and-range certificate: B2box = N M3box m3 / 6, with M3box the sup over the
+                                #    coordinate box of the population -- needs only xbar, Sigma (for Q2), the third
+                                #    absolute central moment m3 and the coordinate range of the inputs.
+                                # k = 1 certifies |E2| < |E1|; k = 5 certifies the fivefold improvement of C1.
                                 "cert_obs_holds_all": int(np.all(2.0 * A["B2"] < np.abs(A["Q2"]))),
-                                "cert_obs_frac": float(np.mean(2.0 * A["B2"] < np.abs(A["Q2"])))})
+                                "cert_obs_frac": float(np.mean(2.0 * A["B2"] < np.abs(A["Q2"]))),
+                                "cert_box_holds_all": int(np.all(2.0 * A["B2box"] < np.abs(A["Q2"]))),
+                                "cert_box_frac": float(np.mean(2.0 * A["B2box"] < np.abs(A["Q2"]))),
+                                "cert_c1_holds_all": int(np.all(6.0 * A["B2"] < np.abs(A["Q2"]))),
+                                "cert_c1_frac": float(np.mean(6.0 * A["B2"] < np.abs(A["Q2"]))),
+                                "cert_c1_box_holds_all": int(np.all(6.0 * A["B2box"] < np.abs(A["Q2"]))),
+                                "cert_c1_box_frac": float(np.mean(6.0 * A["B2box"] < np.abs(A["Q2"])))})
                 rows.append(row)
     # small-dispersion exponents from the median curves (least squares on sigma <= 0.05)
     summary = {}
@@ -377,13 +390,19 @@ def run_E1(rng, fast, brng):
                 else:
                     first_fail = r["sigma"]
                     break
-            cert_largest = 0.0
-            if fname == "CD":
-                for r in sel:                   # largest sigma such that 2 B2 < |Q2| in all reps for all smaller sigma
-                    if r["cert_obs_holds_all"]:
-                        cert_largest = r["sigma"]
+            def largest_uniform(flag):          # largest sigma such that flag(row) holds for it and all smaller sigma
+                out = 0.0
+                for r in sel:
+                    if flag(r):
+                        out = r["sigma"]
                     else:
                         break
+                return float(out)
+            cert = {}
+            if fname == "CD":
+                for key in ("cert_obs", "cert_box", "cert_c1", "cert_c1_box"):
+                    cert[key] = largest_uniform(lambda r, key=key: r[f"{key}_holds_all"])
+            r21_gt1_largest = largest_uniform(lambda r: r["r21_min"] > 1.0)
             summary[f"{fname}-{law}"] = {"slope_e1": slopes["e1_med"], "slope_e2": slopes["e2_med"],
                                          "slope_e3": slopes["e3_med"],
                                          "slope_e1_se": slope_se[1], "slope_e2_se": slope_se[2], "slope_e3_se": slope_se[3],
@@ -404,8 +423,14 @@ def run_E1(rng, fast, brng):
                                          "bound2box_holds_all": (int(all(r["bound2box_holds"] for r in sel)) if fname == "CD" else None),
                                          # v0.1 test (medians, uses the true E1: not observable from moments); kept as a diagnostic only
                                          "sigma_largest_bound2_le_e1_median_nonobservable": (float(max([r["sigma"] for r in sel if r["bound2_rel_med"] < r["e1_med"]] or [0.0])) if fname == "CD" else None),
-                                         # observable certificate 2 B2 < |Q2| in every replication (B2)
-                                         "sigma_largest_cert_observable": (float(cert_largest) if fname == "CD" else None),
+                                         # certificates in every replication, uniformly from the smallest sigma:
+                                         # micro-data (segmentwise B2) and moment-and-range (B2box), k = 1 and k = 5
+                                         "sigma_largest_cert_observable": cert.get("cert_obs"),
+                                         "sigma_largest_cert_box": cert.get("cert_box"),
+                                         "sigma_largest_cert_c1": cert.get("cert_c1"),
+                                         "sigma_largest_cert_c1_box": cert.get("cert_c1_box"),
+                                         # observed improvement |E2| < |E1| in every replication, uniformly
+                                         "sigma_largest_r21_gt1_uniform": r21_gt1_largest,
                                          "ratio_E2_over_B2_max": (float(max(r["ratio_E2_over_B2_max"] for r in sel)) if fname == "CD" else None),
                                          "ratio_E2_over_B2_med_min": (float(min(r["ratio_E2_over_B2_med"] for r in sel)) if fname == "CD" else None),
                                          "ratio_B2box_over_B2_max": (float(max(r["bound2box_rel_med"] / r["bound2_rel_med"] for r in sel)) if fname == "CD" else None)}
@@ -438,32 +463,49 @@ def run_E1b(rng, fast):
             "largest_sigma_cov_dominates": float(max([r["sigma"] for r in rows if r["cov_dominates"]] or [0.0])),
             "ratio_cov_over_e2_smallest_sigma": rows[0]["cov_term_med"] / rows[0]["e2_med"],
             "ratio_cov_over_pred_max": float(max(r["cov_term_med"] / r["floor_pred_med"] for r in rows)),
-            "ratio_cov_over_pred_min": float(min(r["cov_term_med"] / r["floor_pred_med"] for r in rows))}
+            "ratio_cov_over_pred_min": float(min(r["cov_term_med"] / r["floor_pred_med"] for r in rows)),
+            # median of |Z| (Z standard normal) and the standard error of a median of |Z| over R replications
+            "median_abs_normal": float(norm.ppf(0.75)),
+            "se_median_abs_normal_R": float(1.0 / (2.0 * 2.0 * norm.pdf(norm.ppf(0.75)) * math.sqrt(R)))}
     return {"rows": rows, "N": N, "reps": R, "theta_law": "U(0.5,1)", "summary": summ}
 
 
-def run_E1c(rng, fast):
+def run_E1c(rng, fast, brng):
     """Finite-N effect on the second-order exponent (Cobb-Douglas, LN): the sample third central
     moment of N units has an O(sigma^3 N^{-1/2}) fluctuation, so at fixed N the fitted exponent of
-    |e2| on sigma <= 0.05 lies between 3 (noise) and 4 (population skewness)."""
-    Ns = [200, 2000, 20000] if not fast else [200, 2000]
-    R = 6
+    |e2| on sigma <= 0.05 lies between 3 (noise) and 4 (population skewness).  60 replications per N,
+    bootstrap standard errors of the exponents (resample replications, refit the median curve), and the
+    median size of the third-moment term |E2 - E3|/Y at the smallest sigma."""
+    Ns = [200, 2000, 20000, 200000] if not fast else [200, 2000]
+    R = 60 if not fast else 12
+    chunk = 6                                   # replications per call to aggregate (memory at N = 200000)
     xbar = np.array([2.0, 1.0])
     front = CobbDouglas()
     grid = [float(s) for s in np.logspace(-2, 0, 17) if s <= 0.05 + 1e-12]
+    ls = np.log(grid)
     rows = []
     for N in Ns:
-        Z = base_noise(rng, R, N, "LN")
-        meds = {1: [], 2: [], 3: []}
-        for s in grid:
-            A = aggregate(front, inputs(xbar, s, Z, "LN"), bounds=False)
+        E = {1: np.empty((len(grid), R)), 2: np.empty((len(grid), R)), 3: np.empty((len(grid), R)), "t3": np.empty((len(grid), R))}
+        for c0 in range(0, R, chunk):
+            Z = base_noise(rng, min(chunk, R - c0), N, "LN")
+            for si, s in enumerate(grid):
+                A = aggregate(front, inputs(xbar, s, Z, "LN"), bounds=False)
+                sl = slice(c0, c0 + Z.shape[0])
+                for k in (1, 2, 3):
+                    E[k][si, sl] = np.abs(A[f"E{k}"] / A["Y"])
+                E["t3"][si, sl] = np.abs((A["E2"] - A["E3"]) / A["Y"])
+        slopes = {k: float(np.polyfit(ls, np.log(np.median(E[k], axis=1)), 1)[0]) for k in (1, 2, 3)}
+        bs = {1: [], 2: [], 3: []}
+        for _ in range(500):
+            idx = brng.integers(0, R, size=R)
             for k in (1, 2, 3):
-                meds[k].append(q(np.abs(A[f"E{k}"] / A["Y"]), .5))
-        ls = np.log(grid)
+                bs[k].append(np.polyfit(ls, np.log(np.median(E[k][:, idx], axis=1)), 1)[0])
         rows.append({"N": N, "reps": R, "sigma_grid": grid,
-                     "slope_e1": float(np.polyfit(ls, np.log(meds[1]), 1)[0]),
-                     "slope_e2": float(np.polyfit(ls, np.log(meds[2]), 1)[0]),
-                     "slope_e3": float(np.polyfit(ls, np.log(meds[3]), 1)[0])})
+                     "slope_e1": slopes[1], "slope_e2": slopes[2], "slope_e3": slopes[3],
+                     "slope_e1_se": float(np.std(bs[1], ddof=1)), "slope_e2_se": float(np.std(bs[2], ddof=1)),
+                     "slope_e3_se": float(np.std(bs[3], ddof=1)),
+                     "third_moment_term_med_smallest_sigma": float(np.median(E["t3"][0])),
+                     "e3_med_smallest_sigma": float(np.median(E[3][0]))})
     return {"rows": rows}
 
 
@@ -476,6 +518,7 @@ def run_E2(rng, fast, brng):
     deltas = [-0.3, -0.1, -0.03, 0.0, 0.03, 0.1, 0.3]
     sig_grid = np.logspace(-2, 0, 13)
     rows = []
+    store = {}                                  # per-replication errors at sigma <= 0.05, for exponent SEs
     for law in ("LN", "SU"):
         Z = base_noise(rng, R, N, law)
         grid = sig_grid if law == "LN" else sig_grid[sig_grid <= 0.5]
@@ -487,6 +530,8 @@ def run_E2(rng, fast, brng):
                 As = aggregate(front, X, bounds=False)
                 e1, e2 = np.abs(Ac["E1"] / Ac["Y"]), np.abs(Ac["E2"] / Ac["Y"])
                 e2s = np.abs(As["E2"] / As["Y"])
+                if s <= 0.05 + 1e-12:
+                    store.setdefault((law, delta), []).append((float(s), e2, e2s))
                 NTu = N * Ac["Tu"]
                 two_sided = np.abs(Ac["E2"] + NTu) <= Ac["B2cap"]
                 lower = NTu - Ac["B2cap"]
@@ -507,6 +552,9 @@ def run_E2(rng, fast, brng):
                 with np.errstate(divide="ignore", invalid="ignore"):
                     tau_ratio = Ac["Tu"] / (s * tau_z)
                     taub_ratio = np.where(tau_zb > 0, Ac["Tu"] / (s * tau_zb), np.nan)
+                fin = np.isfinite(taub_ratio)
+                Pm = np.maximum(front.f(X) - cap, 0).sum(axis=1)
+                Qm = np.maximum(cap - front.f(X), 0).sum(axis=1)
                 row = {"law": law, "delta": delta, "sigma": float(s), "cap": cap,
                        "e1_med": q(e1, .5), "e2_med": q(e2, .5), "e2_smooth_med": q(e2s, .5),
                        "e1_ci": boot_median_ci(e1, brng), "e2_ci": boot_median_ci(e2, brng),
@@ -521,7 +569,14 @@ def run_E2(rng, fast, brng):
                        "E2_over_minusNTu_med": (float(np.nanmedian(-Ac["E2"] / np.where(NTu > 0, NTu, np.nan))) if np.any(NTu > 0) else None),
                        "Tu_over_sigma_tau_med": q(tau_ratio, .5),
                        "Tu_over_sigma_tau_ci": boot_median_ci(tau_ratio, brng),
-                       "Tu_over_sigma_taub_med": (float(np.nanmedian(taub_ratio)) if np.any(np.isfinite(taub_ratio)) else None),
+                       "Tu_over_sigma_taub_med": (float(np.nanmedian(taub_ratio)) if np.any(fin) else None),
+                       # per-replication distribution of the shifted ratio (its median can sit between two groups of
+                       # replications with deviations of opposite sign, set by the side of c on which the mean falls)
+                       "Tu_over_sigma_taub_min": (float(np.min(taub_ratio[fin])) if np.any(fin) else None),
+                       "Tu_over_sigma_taub_max": (float(np.max(taub_ratio[fin])) if np.any(fin) else None),
+                       "Tu_over_sigma_taub_absdev_med": (float(np.median(np.abs(taub_ratio[fin] - 1.0))) if np.any(fin) else None),
+                       "Tu_over_sigma_tau_absdev_med": q(np.abs(tau_ratio - 1.0), .5),
+                       "frac_reps_P_below_Q": float(np.mean(Pm < Qm)),
                        "identity_rel_gap_max": id_gap,
                        "two_sided_bound_holds": int(np.all(two_sided)),
                        "lower_bound_informative": int(np.all(lower > 0)),
@@ -543,6 +598,15 @@ def run_E2(rng, fast, brng):
                 "slope_e2_smooth": float(np.polyfit(ls, np.log([r["e2_smooth_med"] for r in sel]), 1)[0]),
                 "r21_min": float(min(r["r21_min"] for r in [x for x in rows if x["law"] == law and x["delta"] == delta])),
                 "r21_min_small_sigma": float(min(r["r21_min"] for r in sel))}
+            st = store[(law, delta)]
+            Rr = len(st[0][1])
+            bs = {"c": [], "s": []}
+            for _ in range(500):               # bootstrap SE of the exponents (resample replications, refit)
+                idx = brng.integers(0, Rr, size=Rr)
+                bs["c"].append(np.polyfit(ls, np.log([np.median(t[1][idx]) for t in st]), 1)[0])
+                bs["s"].append(np.polyfit(ls, np.log([np.median(t[2][idx]) for t in st]), 1)[0])
+            summ[f"{law}-delta{delta}"]["slope_e2_capped_se"] = float(np.std(bs["c"], ddof=1))
+            summ[f"{law}-delta{delta}"]["slope_e2_smooth_se"] = float(np.std(bs["s"], ddof=1))
     summ["two_sided_bound_holds_all"] = int(all(r["two_sided_bound_holds"] for r in rows))
     summ["n_cells"] = len(rows)
     inf = [r for r in rows if r["lower_bound_informative"]]
@@ -558,7 +622,13 @@ def run_E2(rng, fast, brng):
     summ["LN_delta0_r21_min_below_smallest_sigma"] = d0[0]["r21_min_below_branch"]
     summ["LN_delta0_frac_reps_mean_above_range"] = [min(r["frac_reps_mean_above"] for r in d0), max(r["frac_reps_mean_above"] for r in d0)]
     summ["LN_delta0_fxbar_minus_c_rel_max"] = max(r["fxbar_minus_c_rel_max"] for r in d0)
-    summ["LN_delta0_lower_informative_largest_sigma"] = float(max([r["sigma"] for r in d0 if r["lower_bound_informative"]] or [0.0]))
+    lw = 0.0
+    for r in d0:                                # largest sigma such that the lower bound is informative for all smaller sigma
+        if r["lower_bound_informative"]:
+            lw = r["sigma"]
+        else:
+            break
+    summ["LN_delta0_lower_informative_largest_sigma"] = float(lw)
     s0 = [r for r in rows if r["law"] == "SU" and r["delta"] == 0.0]
     summ["SU_delta0_r21_min_below_smallest_sigma"] = s0[0]["r21_min_below_branch"]
     summ["SU_delta0_frac_reps_mean_above_range"] = [min(r["frac_reps_mean_above"] for r in s0), max(r["frac_reps_mean_above"] for r in s0)]
@@ -682,6 +752,10 @@ def run_E4(rng, fast):
                 margin = np.abs(A["Y2"] - B["Y2"]) > (A["B2"] + B["B2"])
                 row["certified_frac"] = float(margin.mean())
                 row["certified_reversals"] = int(np.sum(margin & (np.sign(A["Y2"] - B["Y2"]) != true)))
+                # the same margin condition with the moment-and-range bound B2box (needs only moments and the input range)
+                margin_box = np.abs(A["Y2"] - B["Y2"]) > (A["B2box"] + B["B2box"])
+                row["certified_box_frac"] = float(margin_box.mean())
+                row["certified_box_reversals"] = int(np.sum(margin_box & (np.sign(A["Y2"] - B["Y2"]) != true)))
                 margin1 = np.abs(A["Y1"] - B["Y1"]) > (A["B1"] + B["B1"])
                 row["certified1_frac"] = float(margin1.mean())
                 row["certified1_reversals"] = int(np.sum(margin1 & (np.sign(A["Y1"] - B["Y1"]) != true)))
@@ -717,6 +791,7 @@ def run_E4(rng, fast):
             "C2_holds": int(len(fail) == 0),
             "certified_reversals_total": int(sum(r["certified_reversals"] for r in rows if r["prox"] == "none")),
             "certified1_reversals_total": int(sum(r["certified1_reversals"] for r in rows if r["prox"] == "none")),
+            "certified_box_reversals_total": int(sum(r["certified_box_reversals"] for r in rows if r["prox"] == "none")),
             "certified_frac_min": float(min(r["certified_frac"] for r in rows if r["prox"] == "none")),
             "certified_frac_max": float(max(r["certified_frac"] for r in rows if r["prox"] == "none")),
             "smooth_rev1_max": float(max(r["rev1"] for r in rows if r["prox"] == "none")),
@@ -990,7 +1065,9 @@ def main():
     t0 = time.time()
     c0 = time.process_time()
     # one independent generator per experiment (and one for the bootstrap), spawned from the master seed
-    names = ["E0", "E1", "E1b", "E1c", "E2", "E3", "E4", "E5", "boot"]
+    # (v0.3: the first nine children are those of v0.2, so the draws of E0-E5 and E1's bootstrap are unchanged;
+    # E1c, E2 and E3 now have bootstrap generators of their own)
+    names = ["E0", "E1", "E1b", "E1c", "E2", "E3", "E4", "E5", "boot", "bootE2", "bootE3", "bootE1c"]
     gens = dict(zip(names, (np.random.default_rng(s) for s in np.random.SeedSequence(SEED).spawn(len(names)))))
     brng = gens["boot"]
     with open(os.path.abspath(__file__), "rb") as fh:
@@ -1005,19 +1082,23 @@ def main():
     print("E0 ok", res["E0"], flush=True)
     res["E1"] = run_E1(gens["E1"], args.fast, brng); print("E1 done", time.time() - t0, flush=True)
     res["E1b"] = run_E1b(gens["E1b"], args.fast); print("E1b done", time.time() - t0, flush=True)
-    res["E1c"] = run_E1c(gens["E1c"], args.fast); print("E1c done", time.time() - t0, flush=True)
-    res["E2"] = run_E2(gens["E2"], args.fast, brng); print("E2 done", time.time() - t0, flush=True)
-    res["E3"] = run_E3(gens["E3"], args.fast, brng); print("E3 done", time.time() - t0, flush=True)
+    res["E1c"] = run_E1c(gens["E1c"], args.fast, gens["bootE1c"]); print("E1c done", time.time() - t0, flush=True)
+    res["E2"] = run_E2(gens["E2"], args.fast, gens["bootE2"]); print("E2 done", time.time() - t0, flush=True)
+    res["E3"] = run_E3(gens["E3"], args.fast, gens["bootE3"]); print("E3 done", time.time() - t0, flush=True)
     res["E4"] = run_E4(gens["E4"], args.fast); print("E4 done", time.time() - t0, flush=True)
     res["E5"] = run_E5(gens["E5"], args.fast); print("E5 done", time.time() - t0, flush=True)
     res["E6"] = run_E6()
+    # timing: "seconds"/"cpu_seconds" = computation of E0-E6; "seconds_total"/"cpu_seconds_total" = including
+    # tables and figures (interpreter start-up and imports are not included)
     res["meta"]["seconds"] = time.time() - t0
     res["meta"]["cpu_seconds"] = time.process_time() - c0
-    with open(os.path.join(RES, "results.json"), "w") as fh:
-        json.dump(res, fh, indent=1, default=float)
     write_tables(res)
     fig_E1(res["E1"]); fig_E2E3(res["E2"], res["E3"]); fig_E4(res["E4"])
-    print(f"total {time.time() - t0:.1f} s; wrote results/results.json, results/tables.md, figures/")
+    res["meta"]["seconds_total"] = time.time() - t0
+    res["meta"]["cpu_seconds_total"] = time.process_time() - c0
+    with open(os.path.join(RES, "results.json"), "w") as fh:
+        json.dump(res, fh, indent=1, default=float)
+    print(f"total {res['meta']['seconds_total']:.1f} s; wrote results/results.json, results/tables.md, figures/")
 
 
 if __name__ == "__main__":

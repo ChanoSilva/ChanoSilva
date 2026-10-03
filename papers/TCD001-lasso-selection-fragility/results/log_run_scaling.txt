@@ -1,23 +1,24 @@
 exact fam A n=10: mean f_C 1.43, notfound 0, mean t 0.00s, elapsed 0s
-exact fam A n=14: mean f_C 2.62, notfound 0, mean t 0.00s, elapsed 0s
+exact fam A n=14: mean f_C 2.62, notfound 0, mean t 0.00s, elapsed 1s
 exact fam A n=18: mean f_C 2.35, notfound 0, mean t 0.00s, elapsed 1s
-exact fam A n=22: mean f_C 3.48, notfound 1, mean t 0.02s, elapsed 3s
-exact fam A n=26: mean f_C 3.13, notfound 3, mean t 0.07s, elapsed 7s
-exact fam A n=30: mean f_C 3.73, notfound 2, mean t 0.20s, elapsed 17s
-exact fam A n=34: mean f_C 4.15, notfound 1, mean t 0.41s, elapsed 28s
-greedy fam A n=50: median g_onestep 6.0, median k* 1.0, elapsed 29s
-greedy fam A n=100: median g_onestep 6.5, median k* 2.0, elapsed 29s
-greedy fam A n=200: median g_onestep 9.5, median k* 3.0, elapsed 30s
-greedy fam A n=400: median g_onestep 10.5, median k* 5.0, elapsed 31s
-exact fam B n=10: mean f_C 1.00, notfound 0, mean t 0.00s, elapsed 31s
-exact fam B n=14: mean f_C 1.10, notfound 0, mean t 0.00s, elapsed 32s
-exact fam B n=18: mean f_C 1.12, notfound 0, mean t 0.00s, elapsed 32s
-exact fam B n=22: mean f_C 1.12, notfound 0, mean t 0.00s, elapsed 32s
-exact fam B n=26: mean f_C 1.50, notfound 0, mean t 0.00s, elapsed 32s
-exact fam B n=30: mean f_C 1.40, notfound 0, mean t 0.00s, elapsed 32s
-exact fam B n=34: mean f_C 1.30, notfound 0, mean t 0.00s, elapsed 32s
-greedy fam B n=50: median g_onestep 1.0, median k* 0.0, elapsed 33s
-greedy fam B n=100: median g_onestep 2.0, median k* 1.0, elapsed 33s
-greedy fam B n=200: median g_onestep 1.5, median k* 0.0, elapsed 33s
-greedy fam B n=400: median g_onestep 4.0, median k* 2.0, elapsed 34s
-done in 33.8167290687561 s
+exact fam A n=22: mean f_C 3.48, notfound 1, mean t 0.03s, elapsed 3s
+exact fam A n=26: mean f_C 3.13, notfound 3, mean t 0.09s, elapsed 8s
+exact fam A n=30: mean f_C 3.73, notfound 2, mean t 0.27s, elapsed 23s
+exact fam A n=34: mean f_C 4.15, notfound 1, mean t 0.57s, elapsed 38s
+greedy fam A n=50: median g_onestep 6.0, median k* 1.0, elapsed 39s
+greedy fam A n=100: median g_onestep 6.5, median k* 2.0, elapsed 40s
+greedy fam A n=200: median g_onestep 9.5, median k* 3.0, elapsed 40s
+greedy fam A n=400: median g_onestep 10.5, median k* 5.0, elapsed 42s
+exact fam B n=10: mean f_C 1.00, notfound 0, mean t 0.00s, elapsed 42s
+exact fam B n=14: mean f_C 1.10, notfound 0, mean t 0.00s, elapsed 42s
+exact fam B n=18: mean f_C 1.12, notfound 0, mean t 0.00s, elapsed 42s
+exact fam B n=22: mean f_C 1.12, notfound 0, mean t 0.00s, elapsed 42s
+exact fam B n=26: mean f_C 1.50, notfound 0, mean t 0.00s, elapsed 43s
+exact fam B n=30: mean f_C 1.40, notfound 0, mean t 0.00s, elapsed 43s
+exact fam B n=34: mean f_C 1.30, notfound 0, mean t 0.00s, elapsed 43s
+greedy fam B n=50: median g_onestep 1.0, median k* 0.0, elapsed 43s
+greedy fam B n=100: median g_onestep 2.0, median k* 1.0, elapsed 43s
+greedy fam B n=200: median g_onestep 1.5, median k* 0.0, elapsed 44s
+greedy fam B n=400: median g_onestep 4.0, median k* 2.0, elapsed 44s
+KKT guard: {'calls': 10365, 'fallbacks': 0, 'fallbacks_tie_at_entry': 0, 'fallbacks_full_rank': 0, 'max_active_rel': np.float64(3.559683893445129e-14), 'max_inactive_rel': 0.0, 'max_active_rel_rejected': 0.0, 'max_active_rel_fallback': 0.0, 'max_inactive_rel_fallback': 0.0}
+done in 44.32218265533447 s

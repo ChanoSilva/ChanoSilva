@@ -33,22 +33,11 @@ paired comparison against the best reference per dataset with a percentile
 bootstrap over folds and the Nadeau-Bengio corrected t statistic (p-value and
 95% interval with the inflated variance).
 
-Protocol v0.3 (internal review round 2, 03/10/2026; preregistered in
-../PREREGISTRO_SPD001_ronda2.md before this run, whose SHA-256 is stored in meta):
-  * widened grids for every method and ablation: per-class neighbourhood size
-    k in {5,10,20,30,50,75} restricted to k <= k_cap, plus k_cap itself when
-    k_cap < 75, where k_cap = min_c (n_c - ceil(n_c/5)) - 1 is the largest size
-    admissible in every training fold (leave-one-out); k_NN up to 121 (<= n_train-1);
-    lambda_rel up to 10^4; tangent dimension m up to 21 (m <= min(k-1, d-1));
-  * best reference decided by exact rational arithmetic on the integer counts of
-    correct test predictions; exact ties are kept as a set (see compare());
-  * one common matrix of bootstrap resampling indices for every comparison, so that
-    a pair of methods has a single interval;
-  * the E2 rows p=0 and p=10 are the E1 datasets moons and moons_noise10 (identical
-    data and folds) and are copied, not recomputed;
-  * per-fold counts of correct predictions are stored; NFL, depth and mean distance
-    are computed once at the largest k and sliced (prefix minima / cumulative sums).
-The v0.2 run (narrower grids) is kept in ../results/v02/.
+Changes after internal review round 1 (03/10/2026), none of which alters a stored
+result: paired_stats also returns nb_lo/nb_hi; the modal hyper-parameter is computed
+deterministically (ties towards the smallest values). results/results.json is still
+the reference run of 30/09/2026; make_numbers.py recomputes nb_lo/nb_hi and the mode
+from the per-fold lists, so the manuscript does not depend on a rerun.
 
 Everything is seeded (SEED = 20260930).  Usage:
     python3 support_geometry.py            # full run
@@ -81,13 +70,10 @@ RESULTS = os.path.join(ROOT, "results")
 
 SEED = 20260930
 EPS = 1e-6                       # floor inside logarithms (standardised units)
-# Grids of protocol v0.3 (PREREGISTRO_SPD001_ronda2.md). The neighbourhood and kNN grids
-# are restricted per dataset by the class sizes, see dataset_grids().
-K_BASE = [5, 10, 20, 30, 50, 75]             # per-class neighbourhood sizes (all class-neighbourhood methods)
-M_GRID = [1, 2, 3, 5, 8, 13, 21]             # tangent dimensions (restricted to m <= min(k-1, d-1))
-KNN_BASE = [1, 3, 5, 7, 9, 11, 15, 21, 31, 41, 61, 81, 121]
-LAMBDA_GRID = [0.0, 0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0]   # HKNN ridge, relative to the local scatter scale
-PREREG = "PREREGISTRO_SPD001_ronda2.md"
+K_GRID = [5, 10, 20, 30]         # per-class neighbourhood sizes
+M_GRID = [1, 2, 3, 5, 8]         # tangent dimensions (restricted to m <= min(k-1, d-1))
+KNN_GRID = [1, 3, 5, 7, 9, 11, 15, 21, 31, 41]
+LAMBDA_GRID = [0.0, 0.1, 1.0, 10.0, 100.0]   # HKNN ridge, relative to the local scatter scale
 COVERAGE = 0.8                   # coverage for selective accuracy
 N_BOOT = 10000
 RIDGE = 1e-3                     # L2 penalty on the conditional-logit weights
@@ -141,22 +127,6 @@ def make_datasets(seed, fast=False):
     return out, regime
 
 
-def dataset_grids(y, n_splits):
-    """Grids of protocol v0.3 for one dataset. k_cap is the largest per-class
-    neighbourhood admissible in every training fold with leave-one-out features:
-    min over classes of (n_c - ceil(n_c / n_splits)) - 1. The k grid is K_BASE cut at
-    k_cap, plus k_cap itself when k_cap < max(K_BASE) (the whole class but the point)."""
-    counts = np.bincount(np.searchsorted(np.unique(y), y))
-    k_cap = int(min(c - math.ceil(c / n_splits) for c in counts)) - 1
-    k_grid = [k for k in K_BASE if k <= k_cap]
-    if k_cap < max(K_BASE):
-        k_grid.append(k_cap)
-    n_train_min = len(y) - math.ceil(len(y) / n_splits)
-    knn_grid = [k for k in KNN_BASE if k <= n_train_min - 1]
-    return dict(k_grid=k_grid, k_cap=k_cap, knn_grid=knn_grid, m_grid=list(M_GRID),
-                lambda_grid=list(LAMBDA_GRID))
-
-
 # ----------------------------------------------------------------------------
 # local geometry of a set of queries with respect to a labelled training set
 # ----------------------------------------------------------------------------
@@ -199,28 +169,6 @@ class LocalGeometry:
             srt = np.argsort(sub, axis=1, kind="stable")
             order[ci] = idx[np.take_along_axis(part, srt, axis=1)]
         self.geo = {}
-        triu_mask = np.triu(np.ones((kmax, kmax), dtype=bool), 1)        # pairs i < j
-        per_class = []
-        for ci in range(self.C):
-            Xn = Xtr[order[ci]]                       # (nq, kmax, d), sorted by distance
-            A = Xq[:, None, :] - Xn                   # q - x_i
-            G = A @ A.transpose(0, 2, 1)              # (q - x_i).(q - x_j)
-            a2 = np.einsum("nkk->nk", G).copy()
-            num = a2[:, :, None] - G                  # (q - x_i).(x_j - x_i)
-            den = a2[:, :, None] + a2[:, None, :] - 2.0 * G   # |x_j - x_i|^2
-            with np.errstate(divide="ignore", invalid="ignore"):
-                dl2 = np.where(den > 1e-18, a2[:, :, None] - num * num / den, a2[:, :, None])
-            del num, den, G
-            dl2 = np.where(triu_mask[None], dl2, np.inf)
-            # line distance over all pairs among the first k neighbours = prefix minimum over
-            # the column-wise minima (pair (i, j), i < j, enters as soon as k > j)
-            nfl_prefix = np.minimum.accumulate(dl2.min(1), axis=1)   # (nq, kmax); entry j: pairs within the first j+1
-            del dl2
-            norms = np.sqrt(a2)
-            U = A / np.where(norms > 0, norms, 1.0)[:, :, None]
-            cumU = np.cumsum(U, axis=1)
-            cumN = np.cumsum(norms, axis=1)
-            per_class.append((Xn, nfl_prefix, cumU, cumN))
         for k in k_grid:
             kp = min(k, self.d)
             t2 = np.zeros((self.nq, self.C, kp))
@@ -229,9 +177,10 @@ class LocalGeometry:
             nfl2 = np.zeros((self.nq, self.C))
             lcd = np.zeros((self.nq, self.C))
             depth = np.zeros((self.nq, self.C))
+            iu = np.triu_indices(k, 1)
             for ci in range(self.C):
-                Xn_full, nfl_prefix, cumU, cumN = per_class[ci]
-                Xn = Xn_full[:, :k]                       # (nq, k, d)
+                nb = order[ci][:, :k]
+                Xn = Xtr[nb]                              # (nq, k, d)
                 mu = Xn.mean(1)
                 V = Xn - mu[:, None, :]                   # centred neighbourhood
                 r = Xq - mu                               # residual q - mu
@@ -240,9 +189,18 @@ class LocalGeometry:
                 t2[:, ci, :] = t * t
                 s2[:, ci, :] = s * s
                 r2[:, ci] = (r * r).sum(1)
-                nfl2[:, ci] = np.maximum(nfl_prefix[:, k - 1], 0.0)
-                depth[:, ci] = 1.0 - np.linalg.norm(cumU[:, k - 1], axis=1) / k
-                lcd[:, ci] = cumN[:, k - 1] / k
+                A = Xq[:, None, :] - Xn                   # q - x_i, (nq, k, d)
+                G = np.einsum("nkd,nld->nkl", A, A)
+                a2 = np.einsum("nkk->nk", G)
+                num = a2[:, :, None] - G                  # (q - x_i) . (x_j - x_i)
+                den = a2[:, :, None] + a2[:, None, :] - 2.0 * G   # |x_j - x_i|^2
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    dl2 = np.where(den > 1e-18, a2[:, :, None] - num * num / den, a2[:, :, None])
+                nfl2[:, ci] = np.maximum(dl2[:, iu[0], iu[1]].min(1), 0.0)
+                norms = np.sqrt(a2)
+                U = A / np.where(norms > 0, norms, 1.0)[:, :, None]
+                depth[:, ci] = 1.0 - np.linalg.norm(U.mean(1), axis=1)
+                lcd[:, ci] = norms.mean(1)
             self.geo[k] = dict(t2=t2, s2=s2, r2=r2, nfl2=nfl2, lcd=lcd, depth=depth,
                                rank=min(k - 1, self.d))
 

@@ -1,2 +1,10 @@
 Sat Oct  3 10:00:07 UTC 2026
 exact_examples exit 0
+run_validation exit 0
+run_fragility exit 0
+run_scaling exit 0
+exact_examples --no-guard exit 0
+figures written
+figures written
+Sat Oct  3 10:02:00 UTC 2026
+ALL_DONE

@@ -57,6 +57,6 @@ CD cross-check on 104 refits: 0 support disagreements, max coef diff 1.7e-13.
 
 ## D. Throughput
 
-n=14, p=6, all 1001 subsets of size 4: oracle 1.1 us/subset, refit 442.3 us/subset (x399).
+n=14, p=6, all 1001 subsets of size 4: oracle 1.8 us/subset, refit 670.0 us/subset (x369).
 
-Total time 7 s.
+Total time 9 s.

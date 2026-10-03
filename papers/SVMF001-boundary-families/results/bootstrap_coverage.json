@@ -1,0 +1,41 @@
+{
+ "meta": {
+  "seed": 20261003,
+  "what": "percentile bootstrap 95% CI of a mean of n i.i.d. N(0,1) fold differences",
+  "seconds": 10.037643432617188
+ },
+ "sim": {
+  "10": {
+   "n": 10,
+   "replications": 20000,
+   "B": 2000,
+   "coverage": 0.89885,
+   "p_above": 0.05135,
+   "p_below": 0.0498,
+   "p_one_sided": 0.050574999999999995
+  },
+  "5": {
+   "n": 5,
+   "replications": 20000,
+   "B": 2000,
+   "coverage": 0.835,
+   "p_above": 0.0851,
+   "p_below": 0.0799,
+   "p_one_sided": 0.08249999999999999
+  }
+ },
+ "counts": {
+  "n_main": 24,
+  "n_robust": 48,
+  "pos_main": 1,
+  "pos_robust": 4,
+  "expected_above_main_nominal": 0.6000000000000001,
+  "expected_above_robust_nominal": 1.2000000000000002,
+  "expected_above_main_sim": 1.2138,
+  "expected_above_robust_sim": 3.9599999999999995,
+  "p_at_least_obs_main_nominal": 0.4553584415571266,
+  "p_at_least_obs_main_sim": 0.7122231078173945,
+  "p_at_least_obs_robust_nominal": 0.03179631114731535,
+  "p_at_least_obs_robust_sim": 0.566860222047799
+ }
+}

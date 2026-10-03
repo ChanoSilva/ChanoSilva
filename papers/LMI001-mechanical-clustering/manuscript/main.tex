@@ -180,12 +180,12 @@ Write $S_{ic}=(K'\one_c)_i$ and $Q_c=\one_c^{\!\top}K'\one_c$. Removing $i$ from
 \noindent Item (ii) generalises the observation of \citet{telgarsky2010} for Euclidean $k$-means; item (iii) is the standard type of example. The consequence for the research line is that ``spring relaxation'' cannot converge to anything outside the set of kernel $k$-means fixed points.
 
 \begin{proposition}[Lloyd's rule is representation-dependent]\label{prop:shift}
-For $K'=K+\sigma I$, $\delta_{K'}(i,c)=\delta_K(i,c)+\sigma\bigl(1+\tfrac{1-2\cdot[i\in C_c]}{n_c}\bigr)$: the shift adds $\sigma(1+1/n_c)$ to the squared distance from $i$ to every other cluster $c$ and only $\sigma(1-1/n_a)$ to the distance to its own cluster $a$. Hence the Voronoi rule ``assign $i$ to $\arg\min_c\delta_{K'}(i,c)$'' favours staying, and as $\sigma\to\infty$ every partition becomes Voronoi-stable, while $E_\spec$ and the single-move dynamics are unchanged. \status{proved here; explicit form of an effect noted by \citealp{dhillon2004tr,dhillon2007}}
+For $K'=K+\sigma I$, $\delta_{K'}(i,c)=\delta_K(i,c)+\sigma\bigl(1+\tfrac{1-2\cdot[i\in C_c]}{n_c}\bigr)$: the shift adds $\sigma(1+1/n_c)$ to the squared distance from $i$ to every other cluster $c$ and only $\sigma(1-1/n_a)$ to the distance to its own cluster $a$. Hence the Voronoi rule ``assign $i$ to $\arg\min_c\delta_{K'}(i,c)$'' favours staying, and as $\sigma\to\infty$ every partition becomes Voronoi-stable, while $E_\spec$ and the single-move dynamics are unchanged. \status{proved here; explicit form of an effect noted by \citealp{dhillon2005tr,dhillon2007}}
 \end{proposition}
 \begin{proof}
 $(\sigma I\one_c)_i=\sigma[i\in C_c]$ and $\one_c^{\!\top}\sigma I\one_c=\sigma n_c$; substitute in $\delta$.
 \end{proof}
-\noindent \citet{dhillon2004tr,dhillon2007} already observe that a too large diagonal shift degrades the clusters that kernel $k$-means finds; the proposition is the explicit mechanism and E3 quantifies it. So ``kernel $k$-means with Lloyd's iteration'' is not one algorithm for a spring energy but one per PSD representative; the single-move relaxation is the representative-free one. For springs of negative type the natural representative is $\widetilde K$ of Theorem~\ref{thm:main}(f), which for Hooke springs is $2\langle x,y\rangle$ and reproduces ordinary Lloyd $k$-means; the experiments use it, and use the naively shifted $-A+\sigma I$ only as a control (E3).
+\noindent \citet{dhillon2005tr,dhillon2007} already observe that a too large diagonal shift degrades the clusters that kernel $k$-means finds; the proposition is the explicit mechanism and E3 quantifies it. So ``kernel $k$-means with Lloyd's iteration'' is not one algorithm for a spring energy but one per PSD representative; the single-move relaxation is the representative-free one. For springs of negative type the natural representative is $\widetilde K$ of Theorem~\ref{thm:main}(f), which for Hooke springs is $2\langle x,y\rangle$ and reproduces ordinary Lloyd $k$-means; the experiments use it, and use the naively shifted $-A+\sigma I$ only as a control (E3).
 
 \section{What leaves the family}\label{sec:escape}
 
@@ -296,7 +296,7 @@ $d^2$ is of negative type; Bernstein transforms preserve negative type (Prop.~\r
 Rest-length springs: covered dataset-wise; no universal kernel exhibited ($\widetilde K$ indefinite on all \EoneRestConfigs{} datasets) & proved / open (verified numerically)\\
 Lifting only changes the kernel; anchored Hooke springs are Lloyd $k$-means (Remark~\ref{rem:lift}) & trivial / classical\\
 Single-particle relaxation is Hartigan's method; its fixed points are Lloyd fixed points for every PSD representative (Prop.~\ref{prop:hartigan}) & proved here (generalises \citealp{telgarsky2010})\\
-Lloyd's rule depends on the PSD representative; large shifts freeze it (Prop.~\ref{prop:shift}) & proved here; explicit form of an effect noted by \citet{dhillon2004tr,dhillon2007}\\
+Lloyd's rule depends on the PSD representative; large shifts freeze it (Prop.~\ref{prop:shift}) & proved here; explicit form of an effect noted by \citet{dhillon2005tr,dhillon2007}\\
 The cluster-mean rest length, the triangle-area three-body term, the per-spring average and the cross-normalisation tested are not pairwise objectives (Thm.~\ref{thm:e4}) & proved here (exact arithmetic, two explicit configurations)\\
 Dynamic (position-relaxation) mechanical clustering is not a pairwise objective (Conj.~\ref{conj:dyn}) & conjectural\\
 Any statement about clustering quality on real data & not addressed\\
