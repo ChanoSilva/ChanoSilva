@@ -1,4 +1,4 @@
-# EQO001 — Continuidad interna, 30/09/2026 (actualizada el 03/10/2026 tras las rondas 1 y 2 de revisión interna)
+# EQO001 — Continuidad interna, 30/09/2026 (actualizada el 03/10/2026 tras las rondas 1, 2 y 3 de revisión interna; v0.4)
 
 Documento de trabajo interno. No incorporar al manuscrito ni a entregas institucionales. Las secciones originales (v0.1) se conservan con correcciones marcadas **[corregido 03/10]**; la sección final recoge la ronda 1.
 
@@ -115,3 +115,45 @@ Informe: `REFEREE_EQO001_ronda2_20261003.md` (cambios mayores de alcance acotado
 3. Bibliografía no cotejada en línea en esta ronda: Karp 1972, Schrijver 1986 (datos de conocimiento del autor), `number={2}` de Murty–Kabadi.
 4. Pendientes antiguos: E4 con $N=5,6$ y solver global; prerregistro externo inexistente; confirmar con el autor qué era la "formulación revisada".
 5. Decisión del autor sobre la ficha propuesta (`FICHA_EQO001_propuesta.md`, estado condicional).
+
+
+## Ronda 3 de revisión interna y teorema de ruteo (03/10/2026) — v0.4
+
+Informe: `REFEREE_EQO001_ronda3_20261003.md` (cambios menores; 0 bloqueantes, 1 mayor, 13 menores; los tres resultados nuevos de la v0.3 verificados por el árbitro). Respuesta punto por punto, con la verificación independiente del teorema de ruteo: `RESPUESTA_EQO001_ronda3_20261003.md`. Recuento: 12 aceptados, 2 con matiz (m5, m8), 0 rebatidos. Además se integró el resultado de `theory/routing_hardness.tex` (otro agente), después de verificarlo. Numeración del PDF v0.4: igual a la v0.3 hasta 5.10; nuevos Lema 5.11, Teorema 5.12, Obs. 5.13, Cor. 5.14 y Prop. 5.15; Pregunta 7.1 nueva; Apéndice B con las demostraciones de la complejidad.
+
+| Hallazgo | Acción |
+|---|---|
+| M1 Prop. 5.9 presentada como propia | Reetiquetada como "in substance the standard MAX-CUT encoding of box-constrained QP, transported to games by Prop. 5.3" en el estado, el Remark 5.2, el resumen ("when the number of players is part of the input … a standard reduction"), CLAIMS, ficha y README; `pardalosSchnitger1988` añadida. |
+| m1 Enunciado de la 5.9 | $x^*$ racional, cajas, "number of variables (players, or the dimension of their actions) is part of the input", alcance de "unit vector", $N=2$. |
+| m2 Prueba de la 5.9 | Complemento de MAX-CUT (sentido "co-"), $\sum_{\{i,j\}\in E}$, necesidad de $w\ge0$. |
+| m3 Citas | Murty–Kabadi con la formulación exacta ("not a local minimiser … NP-complete"); Schrijver "Theorem 10.2" en todas las apariciones. |
+| m4 E6 | 276 pares por caras ($n\le4$) y 13 410 sólo por vértices, ahora con macros generados (`\HdFacePairs`, `\HdVertexPairs`). |
+| m5 Pregunta 7.1 | Sustituida (respondida por el Teorema 5.12). Rutas explícitas: argumento de la 5.9 en flujos de ruta; DAG: flujos de arco por mercancía, como propuso el árbitro. |
+| m6 Remark 5.10 | "candidate tractable subclass"; descripción "polynomially many polynomial inequalities of polynomial size"; cuatro líneas; título sin referencias a versiones. |
+| m7 | Dos frases tras la 5.9: $F$ independiente de la instancia; dureza y no poliedralidad son independientes. |
+| m8 Extensión | §6 condensado, Tabla 1 → `results/tables_welfare.md`, Apéndice A y Ej. 5.5 abreviados, Remark 5.10 a cuatro líneas; Ej. 5.7 comprimido **sin** remitir aristas a E5; demostraciones de 5.9, 5.12 y 5.14 al Apéndice B. Texto principal ≈ 12.4 pp; total 17 pp (el teorema de ruteo añade ≈ 4.5). |
+| m9 | Fuera del manuscrito toda referencia a v0.x y a rondas; párrafo de agradecimientos con el crédito. |
+| m10 | README (Teorema 3.4; filas de resultados; fila `theory/`); `RESPUESTA…ronda1:79` → Teorema 3.7; línea 36 de esta nota marcada como superada. |
+| m11 | `vavasis1990` con `number={2}`; `pardalosSchnitger1988` y `kozlovTarasovKhachiyan1980` añadidas (36 entradas, todas citadas). |
+| m12 | Errata del Ej. 5.5 corregida. |
+| m13 | Ej. 5.6: $\varphi(\frac{3}{4(1-\varepsilon)})=0$ con pendiente cero (demostrado a mano); Ej. 5.8: frontera lineal fuera de $(\frac23,\frac32)$, marcada "checked numerically, not used". |
+| Teorema de ruteo (`theory/`) | Verificado a mano, re-ejecutado (salida idéntica salvo tiempos de CPU) y con un chequeo propio independiente (`scratchpad/eqo_r3/indep_check.py`, 54 pares y 16 DAG). **Hueco reparado:** en el Cor. 5.14 la cota $f_e\le D+1$ en $e^1_m,e^2_m$ es falsa en el DAG (vale $D+2$: flujo del interruptor por rutas de tipo (iii); se alcanza en 84 arcos), pero la conclusión se mantiene porque $D+2\le2(D+1)$; el programa lineal de dominancia en el peor caso da $-449<0$. Precisiones: $\mathbb R^{n+2}_+$ en lugar de $\mathbb R^m_+$; grafo con al menos una arista y sin nodos aislados; cota explícita de $c_{S_i}$ en la Obs. 5.13; sentido "co-" explícito; la Pregunta 7.1 incluye la variante DAG fuertemente monótona. Los archivos de `theory/` no se tocaron. |
+
+### Resultados de referencia añadidos en v0.4
+- **E8** (`theory/check_routing_hardness.py`, semilla 20261003; números leídos por `make_numbers.py` de la salida guardada): 130 grafos (todos los etiquetados con ≥ 1 arista en 3 y 4 nodos; 40 + 40 aleatorios en 5 y 6 nodos, la mitad con pesos en {1,2,3}); 381 pares $(G,k)$, 130 miembros y 251 no miembros, 0 discrepancias, margen exacto 1/2; brecha de Frank–Wolfe ≤ $9.6\times10^{-11}$; valores por vértice frente a $h$, $2.7\times10^{-12}$; autovalor mínimo de $DF$ en el espacio tangente ≥ 1; enumeración de caras en 14 pares (hasta 30 861 caras), diferencia $5.7\times10^{-14}$; DAG en 16 pares (hasta 66 rutas de $W$). CPU: 27 s en la corrida guardada; 45.4 s en la re-ejecución (con contención).
+- **Chequeo propio** (no publicado en el manuscrito; scratchpad de la sesión, semilla 4242, 135 s de CPU): forma cerrada (eq:CW) frente a $C_W$ arista por arista, $6.2\times10^{-16}$; SLSQP desde 25 arranques sin el lema: ningún punto por debajo del mínimo predicho y 54/54 decisiones correctas; gradiente proyectado converge a $f^*$ en 54/54; Obs. 5.13 en 36/36; DAG: estructura 16/16, dominancia de peor caso por programación lineal $<0$, $\max f_{e^2_m}=D+2$.
+- **E1–E7:** sin cambios; ningún número existente de `numbers.tex` cambió (sólo se añadieron 25 macros).
+
+### Bibliografía: notas de certeza (v0.4)
+- `pardalosSchnitger1988`: *Oper. Res. Lett.* 7(1), 33–35, 1988, DOI 10.1016/0167-6377(88)90049-1. La cotejó el árbitro de la ronda 3; yo la confirmé con WebSearch (un primer resultado resumido daba "33–45", que atribuyo a un error del resumen; la búsqueda dirigida da 33–35 y el DOI).
+- `kozlovTarasovKhachiyan1980`: el título de la ficha de Math-Net.Ru (vista con WebSearch) da "Zh. Vychisl. Mat. Mat. Fiz., 20:5 (1980), 1319–1323; U.S.S.R. Comput. Math. Math. Phys., 20:5 (1980), 223–228", lo que coincide con la entrada; añadí el original ruso como `note`. ScienceDirect, Crossref y arXiv están bloqueados por el proxy, así que **no pude abrir la página de la editorial** y el DOI no se incluye.
+- `schrijver1986`, "Theorem 10.2" (complejidad de vértices ≤ $4n^2\varphi$): número del teorema de memoria del autor y del árbitro; **no verificable desde la sesión**.
+- `vavasis1990`: `number={2}` según el árbitro (verificado por él).
+
+### Lo que queda abierto tras la ronda 3
+1. **Pregunta 7.1 (v0.4):** (i) complejidad de $\lambda\in\Lambda(f^*)$ en ruteo con un número fijo de mercancías (ya dos) y pesos positivos distintos; (ii) si el Cor. 5.14 (DAG con todas las rutas) vale con $F$ fuertemente monótono. La construcción actual no lo es: una ruta del interruptor por $q_0$, $dz$ y el último tramo de $T_M$, combinada con un movimiento de $W$ de $T_M$ a $O$, da una dirección tangente con $h^\top DFh=0$.
+2. Extensión: 17 páginas en total (texto principal ≈ 12.4). Bajar a 13 exigiría quitar demostraciones o reducir la letra; queda a decisión del autor.
+3. Ej. 5.8: la frontera lineal fuera de $(\frac23,\frac32)$ está sólo comprobada numéricamente (rama convexa $(\frac14,\frac23]$ demostrable por KKT; caso indefinido no escrito).
+4. Bibliografía: Schrijver Teorema 10.2 y la página editorial de KTK no verificables desde la sesión.
+5. Pendientes antiguos: E4 con $N=5,6$ y un solver global; prerregistro externo inexistente; confirmar con el autor qué era la "formulación revisada"; decisión del autor sobre la ficha propuesta (estado condicional, ahora v0.4).
+6. Una cuarta ronda de arbitraje debería centrarse en el Apéndice B (Teorema 5.12 y Cor. 5.14), que sólo verificó su autor y el autor de esta respuesta.

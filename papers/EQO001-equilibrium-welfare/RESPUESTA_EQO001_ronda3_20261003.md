@@ -1,12 +1,17 @@
 # Respuesta del autor al informe de ronda 3 — EQO001 (03/10/2026)
 
-**[EN CURSO]** — documento en redacción; este marcador se retira al terminar.
+Estado: **terminado** (03/10/2026).
 
 Objeto: borrador v0.3 → v0.4 (fecha fija 3 October 2026). Atiende (A) el informe `REFEREE_EQO001_ronda3_20261003.md` y (B) la integración del teorema de ruteo de `theory/routing_hardness.tex`, previa verificación independiente.
 
 ## 0. Resumen
 
-(pendiente)
+- **Informe de ronda 3** (veredicto: cambios menores; 0 bloqueantes, 1 mayor, 13 menores). Respuesta: **12 aceptados** (M1, m1–m4, m6, m7, m9–m13), **2 aceptados con matiz** (m5, m8) y **0 rebatidos**. Los tres residuos de la tabla "Verificación de la ronda 2" (M4 a medias, `number={2}` de Vavasis, "Teorema 3.8" en la respuesta de la ronda 1) quedan resueltos dentro de m8, m11 y m10.
+  - **M1 (mayor) → aceptado.** La Prop. 5.9 se etiqueta como "in substance the standard MAX-CUT encoding of box-constrained quadratic programming, transported to games by Proposition 5.3". El cambio se aplica en el estado, en el Remark 5.2 (con Murty–Kabadi y Pardalos–Schnitger), en el resumen ("when the number of players is part of the input … a standard reduction"), en `results/CLAIMS.md`, en la ficha (ES/EN) y en el README. Se añade la entrada `pardalosSchnitger1988`.
+- **Teorema de ruteo** (`theory/`): verificado a mano paso a paso, re-ejecutado (salida idéntica) y contrastado con un chequeo propio independiente (§1). Los cinco enunciados son correctos. En el Corolario `cor:routingdag` encontré un hueco menor: la cota $f_e\le D+1$ es falsa en el DAG (vale $D+2$), aunque la conclusión se mantiene. Lo reparé al integrarlo, junto con tres precisiones de redacción. Integrado como §5 "Routing" (Lema 5.11, Teorema 5.12, Observación 5.13, Corolario 5.14, Proposición 5.15), con las demostraciones completas en el Apéndice B, el párrafo E8 en §6 y la nueva Pregunta 7.1. La pregunta de ruteo de la v0.3 queda **respondida (co-NP-completa)**. Siguen **abiertos**: (i) un número fijo de mercancías con pesos positivos distintos y (ii) el DAG con $F$ fuertemente monótono.
+- **Ningún número existente cambió.** `numbers.tex` sólo gana macros: los de la partición caras/vértices de E6 y los de E8, que se leen de la salida guardada de `theory/check_routing_hardness.py`. No queda ninguna cifra de E8 tipeada a mano.
+- **Compilación:** 0 errores, 0 referencias o citas indefinidas, 0 `??`, 0 *Overfull* y 36 `\bibitem`. **Páginas:** la v0.3 tenía 13. La v0.4 tiene **17 en total**, con el **texto principal en ≈ 12.4** (termina en la p. 13); los apéndices ocupan ≈ 3.3 y la bibliografía ≈ 1.3. El teorema de ruteo añade ≈ 4.5 páginas de enunciados y demostraciones, y los recortes de m8 recuperan ≈ 1. Bajar el total a 13 exigiría quitar demostraciones o reducir la letra; no hice ninguna de las dos cosas.
+- **Cómputo:** ≈ 3.2 min de CPU (re-ejecución del script de `theory/` 45 s; chequeo propio 135 s; `make_numbers.py` y compilaciones aparte).
 
 ## 1. Verificación independiente del teorema de ruteo
 
@@ -62,4 +67,62 @@ Los cinco enunciados son correctos. No se degrada ninguno. Correcciones aplicada
 
 ## 2. Respuesta punto por punto al informe de ronda 3
 
-(pendiente)
+Numeración del PDF v0.4: igual a la v0.3 hasta el Remark 5.10; luego Lema 5.11, Teorema 5.12, Observación 5.13, Corolario 5.14, Proposición 5.15, §6 (E1–E8), §7 (Pregunta 7.1 nueva), Apéndice A (reproducibilidad) y Apéndice B (demostraciones de la complejidad).
+
+### Mayor
+
+**M1 (la Prop. 5.9 presentada como propia) → aceptado.** El árbitro tiene razón: las piezas (codificación multilineal de MAX-CUT, pertenencia a NP de la QP, dureza de certificar optimalidad) son conocidas, y lo único específico del juego es que $F$ puede fijarse de antemano (Prop. 5.3). Cambios:
+- Estado de la Prop. 5.9: "proved here; in substance the standard MAX-CUT encoding of box-constrained quadratic programming, transported to games by Proposition 5.3 (the equilibrium operator of the reduction does not depend on the instance); proof in Appendix B; checked in E6".
+- Remark 5.2: frase nueva ("Proposition 5.9 is likewise standard in substance … cf. Murty–Kabadi 1987, Pardalos–Schnitger 1988 for local optimality; the game adds only that the equilibrium operator can be fixed in advance"). En el mismo lugar digo con cautela que no encontré el Teorema 5.12 en la literatura consultada.
+- Resumen: "co-NP-complete when the number of players is part of the input, even for strongly monotone quadratic games (a standard reduction from box-constrained quadratic programming)".
+- `results/CLAIMS.md`, ficha (ES/EN) y README: con la redacción propuesta por el árbitro, más el papel de $N$ como parte de la entrada.
+- `refs.bib`: `pardalosSchnitger1988` (*Oper. Res. Lett.* 7(1), 33–35, 1988; DOI 10.1016/0167-6377(88)90049-1).
+
+No añadí Pardalos–Vavasis (1991, una sola raíz negativa), que el encargo menciona como alternativa. Pardalos–Schnitger 1988 es la referencia verificada por el árbitro y la pertinente para "certificar optimalidad".
+
+### Menores
+
+- **m1 (enunciado de la Prop. 5.9) → aceptado.** Nuevo enunciado: cajas y $x^*$ racional; "(and, for the first problem, a rational $\lambda\ge0$)"; "when the number of variables (players, or the dimension of their actions) is part of the input"; escalares en $[0,1]$ y también $N=2$; "for membership, $\lambda$ a unit vector". Así queda explícito que **$N$ (o la dimensión) es parte de la entrada**. Con $N$ fijo y acciones escalares, el problema es polinómico (Remark 5.10).
+- **m2 (prueba de la dureza) → aceptado.** (a) "We reduce the complement of MAX-CUT, which is co-NP-complete, to membership: YES-instances of MAX-CUT go to non-members". (b) $\sum_{\{i,j\}\in E}$ y $\deg_w(i)=\sum_{j:\{i,j\}\in E}w_{ij}$. (c) "$L\ge\mathrm{cut}$ … because $w\ge0$ (with a negative weight the reduction fails)". El mismo sentido "co-" se escribe en la prueba del Teorema 5.12.
+- **m3 (Murty–Kabadi; Schrijver) → aceptado.** "Deciding that a given point is *not* a local minimiser of an indefinite quadratic programme is NP-complete (Murty–Kabadi 1987); see also Pardalos–Schnitger 1988". Schrijver se cita como "Theorem 10.2" en las cuatro apariciones, incluidas las del material de ruteo, que decía "Ch. 10". El número del teorema es de memoria del autor y del árbitro; no pude cotejarlo con el libro (anotado en CONTINUIDAD).
+- **m4 (descripción de E6) → aceptado.** El texto dice ahora que la pertenencia se decidió por enumeración de caras en `\HdFacePairs` = 276 pares ($n\le4$) y sólo por vértices en `\HdVertexPairs` = 13 410, lo que presupone la multilinealidad de la prueba, con 36 cruces caras/vértices. Las cifras son macros nuevos de `make_numbers.py`, que suma `results_hardness.json` por `exact_method`.
+- **m5 (Pregunta 7.1: pertenencia a co-NP en ruteo) → aceptado con matiz.** La pregunta desaparece, porque el Teorema 5.12 la responde, pero la observación del árbitro se incorpora donde hace falta. (i) Con conjuntos de rutas explícitos, el número de variables de ruta es parte de la entrada y $K$ es un producto de símplices dado por desigualdades explícitas. El argumento de la Prop. 5.9, que ahora se enuncia para cualquier poliedro racional dado por desigualdades (gradiente proyectado sobre el espacio de direcciones de la cara), se aplica directamente. (ii) Con todas las rutas de un DAG (Cor. 5.14), que pueden ser exponencialmente muchas, la prueba trabaja, como propone el árbitro, en los flujos de arco por mercancía, de los que depende cada $C_k$, sobre el politopo de flujos multimercancía, de descripción polinómica.
+- **m6 (Remark 5.10) → aceptado.** "candidate tractable subclass that we do not study" y "no explicit description … by polynomially many polynomial inequalities of polynomial size computable in polynomial time". El Remark quedó en cuatro líneas, con el título "Descriptions of $\Lambda(x^*)$".
+- **m7 (observación tras la Prop. 5.9) → aceptado.** Párrafo nuevo: $F$ no depende del grafo, de modo que la dureza vive en las externalidades (Prop. 5.3); con $N=2$, $\Lambda$ es poliédrico y difícil, mientras que el Ej. 5.6 es no poliédrico y de tiempo constante. Son fenómenos independientes.
+- **m8 (extensión) → aceptado con matiz.**
+  - Recortes 1 (§6 condensado; la Tabla 1 pasa a `results/tables_welfare.md`), 2 (Apéndice A a un párrafo) y 3 (Ej. 5.5) aplicados.
+  - Recorte 5 (Remark 5.10) aplicado.
+  - Recorte 4 (Ej. 5.7), sólo en parte: comprimí la prosa, pero **mantuve el análisis de las cuatro aristas**. Remitir tres aristas a E5 ("dominated (E5)") convertiría un ejemplo "proved here" en uno parcialmente "verificado numéricamente".
+  - Además, las demostraciones largas (Prop. 5.9, Teorema 5.12, Corolario 5.14) pasaron al Apéndice B, con un esbozo de pocas líneas en el texto.
+  - Resultado: texto principal de ≈ 12.4 páginas (sin el material de ruteo, que ocupa ≈ 1.6 páginas del texto principal, quedaría en ≈ 11) y **17 páginas en total**, porque el teorema de ruteo con sus demostraciones completas añade ≈ 4.5. No cambié la letra (11 pt) ni los márgenes.
+- **m9 (referencias a versiones internas) → aceptado.** Retiradas del título del Remark 5.10, de E1 ("E1c of v0.2"), de §7 ("table of v0.2"), de los estados de los Ejemplos 5.6 y 5.8 y de la Prop. 5.9. La línea de fecha queda "Working draft v0.4 --- research line EQO001 --- 3 October 2026". El crédito pasa a un párrafo de agradecimientos (contraejemplo del Ej. 5.6, su variante, el Ej. 5.8, la reducción de la Prop. 5.9 y su reetiquetado). El historial queda en RESPUESTA y CONTINUIDAD. Comprobado con `grep`: no queda "v0.x" ni "internal review" salvo la fecha y los agradecimientos.
+- **m10 (archivos acompañantes) → aceptado.**
+  - `README.md`: "Teorema 3.5" → "Teorema 3.4"; filas de resultados con `hardness` y `three_commodity`, y fila nueva para `theory/`.
+  - `RESPUESTA_EQO001_ronda1_20260930.md:79`: "Teorema 3.8" → "Teorema 3.7" (anotado).
+  - `CONTINUIDAD:36`: marcado "[Superado: Prop. 5.9 … Teorema 5.12]".
+- **m11 (bibliografía) → aceptado.** `number={2}` en `vavasis1990`; `pardalosSchnitger1988` añadida. Además `kozlovTarasovKhachiyan1980`, que exige la Prop. 5.15(b) (cotejada; véase CONTINUIDAD). `refs.bib`: 36 entradas, todas citadas.
+- **m12 (errata) → aceptado.** "Collusion at $(\tfrac14,\tfrac14)$ gives each firm $\tfrac18>\tfrac19$." es ahora una frase propia.
+- **m13 (completar los Ejemplos 5.6 y 5.8) → aceptado.**
+  - Ej. 5.6: "$\varphi$ decreases to $\varphi(\frac{3}{4(1-\varepsilon)})=0$ with zero slope, so the boundary is tangent to the axis". Lo verifiqué a mano: en $\lambda_1=\frac3{4(1-\varepsilon)}$ se tiene $a=\lambda_1+\frac14=b=1+\varepsilon\lambda_1$, de donde $\varphi=\frac{3}{4(1-\varepsilon)}-\lambda_1=0$, y $\frac{d}{d\lambda}\frac{a^2}{2b}=1-\frac\varepsilon2$, de donde $\varphi'=0$. Es por tanto una afirmación demostrada.
+  - Ej. 5.8: la frontera lineal fuera de $(\frac23,\frac32)$ se añade marcada "checked numerically, not used". Sólo demostré la rama convexa $\lambda_1\in(\frac14,\frac23]$, por KKT en $(0,\frac15)$, no el caso indefinido, así que no la presento como demostrada.
+
+### Lista de acciones del árbitro (§6 del informe)
+
+| # | Acción | Estado |
+|---|---|---|
+| 1 | Reetiquetar la Prop. 5.9 (estado, Remark 5.2, resumen, CLAIMS, ficha, README) | hecho (M1) |
+| 2 | Enunciado de la Prop. 5.9 y sentido "co-", suma sobre aristas, $w\ge0$ | hecho (m1, m2) |
+| 3 | Murty–Kabadi, Schrijver Thm 10.2, descripción exacta de E6 | hecho (m3, m4) |
+| 4 | Dos frases tras la Prop. 5.9 | hecho (m7) |
+| 5 | Pregunta 7.1 y Remark 5.10 | hecho; la Pregunta 7.1 queda sustituida por la nueva tras el Teorema 5.12 (m5, m6) |
+| 6 | Recortes a ≈ 11 páginas | texto principal ≈ 12.4; total 17 por el teorema de ruteo (m8) |
+| 7 | Quitar referencias a versiones y rondas internas | hecho (m9) |
+| 8 | Cláusulas de los Ejemplos 5.6 y 5.8 | hecho (m13) |
+| 9 | README, RESPUESTA r1:79, CONTINUIDAD:36, Vavasis, Pardalos–Schnitger, errata | hecho (m10–m12) |
+
+## 3. Archivos modificados
+
+- `manuscript/main.tex` (v0.4), `manuscript/refs.bib` (+2 entradas y `number` de Vavasis), `manuscript/numbers.tex` (regenerado, 202 macros) y `manuscript/main.pdf`.
+- `experiments/make_numbers.py`: macros de E6 por método y macros de E8 leídos de `theory/check_routing_hardness_output.txt`, sólo lectura.
+- `results/CLAIMS.md`, `README.md`, `FICHA_EQO001_propuesta.md`, `CONTINUIDAD_EQO001_20260930.md` y `RESPUESTA_EQO001_ronda1_20260930.md` (línea 79).
+- **No** se modificó nada en `theory/` ni en otras carpetas de `papers/`. No se usó git.
