@@ -48,7 +48,7 @@ B4 e^2 s_m/m! at m=[50, 100, 200, 602]: 0.920689, 0.960188, 0.980049, 0.993361  
 (E) explicit constant of Proposition S3
 ==============================================================================
 E1 max sum_{k=4}^{m-2} E I_k / Fbar(m) over 12<=m<=3000: 0.9941 (claim <= 1)
-   max s_m / sbar(m), h_m / hbar(m) over 20<=m<=3000: 0.9998, 0.9990 (claim <= 1)
+   max s_m / sbar(m), h_m / hbar(m) over 12<=m<=3000: 0.9998, 0.9990 (claim <= 1)
 E2 (Lemma B.2 pieces with exact interval sums) / PEbar(n), 12<=n<=3000: max 0.9969 (claim <= 1)
 E3 n^2 B(n) non-increasing on 22<=n<=5000: True
    n0 -> n0^2 B(n0): 22: 421.49, 30: 363.11, 50: 314.33, 100: 285.80, 200: 273.63, 1000: 264.78; limit 262.68
@@ -59,10 +59,10 @@ E3 n^2 B(n) non-increasing on 22<=n<=5000: True
 ==============================================================================
 (C) exact law of R_n on the atoms 2^k, 3*2^k (substitution decomposition)
 ==============================================================================
-C1 exact integer generating function up to n=30 (0.3s)
+C1 exact integer generating function up to n=30 (0.2s)
 C2 GF law = law of Gallai's product formula (Remark B.1) on all permutations, n<=8: True
 C3 GF law = brute force over pairs of linear extensions, n<=6: True
-C4 scaled floating-point generating function up to n=600 (38.2s)
+C4 scaled floating-point generating function up to n=600 (42.9s)
 C5 float versus exact, n<=30, all tracked atoms: max relative error 1.09e-15
 ==============================================================================
 (D) d_TV(R_n, 2^Z) from the exact law
@@ -115,5 +115,9 @@ D3 extrapolated second-order coefficients mu_2(x) = lim n^2(P - P_Z - mu/n) (fit
    kappa = lim n^2 (d_TV - c2/n): +4.297100, +4.297071, +4.297072
    all tracked atoms, e * mu_2(x) (fit of degree 3): 1:-4.999998; 2:-7.999996; 4:+0.500001; 8:+1.666665; 16:+0.791665; 32:+0.333332; 64:+0.134722; 128:+0.044841; 256:+0.011781; 512:+0.002491; 1024:+0.000437; 2048:+0.000065; 3:+0.000000; 6:+2.000001; 12:+3.000001; 24:+2.000000; 48:+0.833332; 96:+0.249999; 192:+0.058333; 384:+0.011111; 768:+0.001786; 1536:+0.000248; 3072:+0.000030; 6144:+0.000003
    consistency: sum over mu>0 atoms of mu_2 + sum over mu=0 atoms of mu_2^+ + untracked = +4.297071 (atoms 2^k, 3*2^k with k<12)
+   e k! mu_2(2^k), k=0..9: -5.000, -8.000, +1.000, +10.000, +19.000, +40.000, +97.000, +226.000, +475.000, +904.000
+   conjecture 12C(k,4)-12C(k,3)+12C(k,2)-3k-5:  -5, -8, +1, +10, +19, +40, +97, +226, +475, +904
+   e (k-1)! mu_2(3*2^k), k=1..9: +2.000, +3.000, +4.000, +5.000, +6.000, +7.000, +8.000, +9.000, +10.000  (conjecture k+1)
+   max |mu_2 - conjecture|: atoms 2^k 1.31e-06, atoms 3*2^k 3.61e-07; conjectured kappa = 7/2 + 13/(6e) = 4.2970721
 ==============================================================================
-total CPU time: 46.8 s
+total CPU time: 51.3 s
