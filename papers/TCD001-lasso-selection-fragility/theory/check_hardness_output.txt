@@ -40,14 +40,14 @@ rule P: y_i = b_i + lam, lam = t+1/2, mu = lam*(m+1); kappa = 1+1/(2B), u = m+1,
 TOTAL reduction: 312 (instance, rule) pairs, n <= 12, 137328 subsets solved exactly; equivalence 312/312; characterisation failures 0; undetermined 0; ties 0; D ok 312/312; closed-form test disagreements 0; solver disagreements 0/33172; DP agreement 312/312
 
 === ablations (negative controls; each violates one condition of the proof) ===
-  u = 1 (violates u^2 > N), rule C: characterisation failures 0, uncertified uniqueness 0, equivalence failures 0 (over 7 instances)
-  u = 1 (violates u^2 > N), rule P: characterisation failures 0, uncertified uniqueness 0, equivalence failures 0 (over 7 instances)
-  rho = 1 (items with x2 = x1; uniqueness on item-only subsamples lost), rule C: characterisation failures 0, uncertified uniqueness 40, equivalence failures 0 (over 7 instances)
-  rho = 1 (items with x2 = x1; uniqueness on item-only subsamples lost), rule P: characterisation failures 0, uncertified uniqueness 65, equivalence failures 0 (over 7 instances)
-  eta = 1, kappa = 2 (violates kappa - rho <= 1/B), rule C: characterisation failures 16, uncertified uniqueness 0, equivalence failures 0 (over 7 instances)
-  eta = 1, kappa = 2 (violates kappa - rho <= 1/B), rule P: characterisation failures 10, uncertified uniqueness 0, equivalence failures 0 (over 7 instances)
+  u = 1 (violates u^2 > N), rule C: characterisation failures 30, uncertified uniqueness 0, equivalence failures 1 (over 10 instances)
+  u = 1 (violates u^2 > N), rule P: characterisation failures 30, uncertified uniqueness 0, equivalence failures 1 (over 10 instances)
+  rho = 1 (items with x2 = x1; uniqueness on item-only subsamples lost), rule C: characterisation failures 0, uncertified uniqueness 155, equivalence failures 0 (over 10 instances)
+  rho = 1 (items with x2 = x1; uniqueness on item-only subsamples lost), rule P: characterisation failures 0, uncertified uniqueness 262, equivalence failures 0 (over 10 instances)
+  eta = 1, kappa = 2 (violates kappa - rho <= 1/B), rule C: characterisation failures 82, uncertified uniqueness 0, equivalence failures 1 (over 10 instances)
+  eta = 1, kappa = 2 (violates kappa - rho <= 1/B), rule P: characterisation failures 14, uncertified uniqueness 0, equivalence failures 1 (over 10 instances)
 
 === DP over (|K|, X_K^T X_K, X_K^T y_K) vs exhaustive search, random integer data ===
   145/145 (instance, target) pairs agree; mean reachable states 156.2 vs mean 2^n = 170.4
 
-elapsed 38.9 s
+elapsed 38.3 s

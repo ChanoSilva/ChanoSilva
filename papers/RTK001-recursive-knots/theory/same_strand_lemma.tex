@@ -114,8 +114,7 @@ Under the hypotheses of Proposition~\ref{prop:Hccurv}, $\kappa_{K_d}\le\hat\kapp
 \sup_{|x|\le f,\ v_{\min}\le v\le v_{\max}}
 \frac{\Bigl[b_U^2(A+B)+\Bigl(rm\bigl(V_1(1-x)+rvK_1\bigr)+v(A+2B)\sqrt{\tau^{-2}-x^2/r^2}\Bigr)^2\Bigr]^{1/2}}{(A+B)^{3/2}},
 \]
-with $A=v^2(1-x)^2$, $B=r^2m^2$, $b_U=v^2(1-x)x/r-rm^2$. Hence $\minRad(K_d)\ge1/\hat\kappa_d$, and $\hat\kappa_d\le\bar\kappa_d$
-of \eqref{eq:Hckappa} is not used.
+with $A=v^2(1-x)^2$, $B=r^2m^2$, $b_U=v^2(1-x)x/r-rm^2$. Hence $\minRad(K_d)\ge1/\hat\kappa_d$.
 \end{proposition}
 \begin{proof}
 By the identity in the proof of Proposition~\ref{prop:Hccurv},
@@ -133,12 +132,12 @@ Proposition~\ref{prop:Hcsame}. Including the term $P_0$ of Proposition~\ref{prop
 raises $c_0'$ at $d=1$ to $0.650$ ($f=\frac12$) and $1.190$ ($f=0.35$). Proposition~\ref{prop:curvpsi} gives
 $1/(r\hat\kappa_d)=1.420,\,1.034,\,0.999$ ($f=\frac12$) and $2.215,\,1.879,\,1.855$ ($f=0.35$), against
 $1/(r\bar\kappa_d)=0.562,\,0.485,\,0.854$ and $1.019,\,1.594,\,1.845$. Hence in Theorem~\ref{thm:Hc} the constant
-$c=\min(c_1,c_0',1/(r\hat\kappa_d))$ is $0.509,\,0.699,\,0.707$ at $f=\frac12$ and $0.966,\,1.000,\,1.000$ at $f=0.35$
-(to three digits; the different-strand constant $c_1$ is the minimum except at $(f=\frac12,d=1)$). The same values hold at
+$c=\min(c_1,c_0',1/(r\hat\kappa_d))$ is $0.509,\,0.699,\,0.707$ at $f=\frac12$ and $0.966,\,0.9998,\,0.9998$ at $f=0.35$
+( the different-strand constant $c_1$ is the minimum except at $(f=\frac12,d=1)$). The same values hold at
 $N_0=512$ to four digits. All of these except the thresholds $\delta_{\rm turn}\ge\pi/3$ and $c_0'\ge\frac12$, which are
 analytic, are grid infima or suprema with an estimated Lipschitz correction. On every level checked, the
-inequalities in the proofs (the range of $\chi$, $|Y_i'|$, the bound on $a+b$, total turning $\le\tau\bar\Omega\delta$, $\hat\kappa_d\ge$
-measured $\kappa_d$) hold with nonnegative slack. No same-strand doubly critical pair with $\delta<\delta_{\rm turn}$ occurs
+inequalities used in the proofs hold: the range of $\chi$ (up to $3\cdot10^{-10}$), $|Y_i'|\le v/\tau+m\sin\chi_i\,v/v_{\min}$ (ratio $\le0.97$),
+the bound on $a+b$ (slack $\le-0.15$), total turning $\le\tau\bar\Omega\delta$, and $\hat\kappa_d\ge$ measured $\kappa_d$. No same-strand doubly critical pair with $\delta<\delta_{\rm turn}$ occurs
 on any polygon: the only ones with $\delta<\pi$ appear at $d=1$, with $\delta\ge1.96$ and distance $\ge3.70\,r$
 (\texttt{theory/check\_same\_strand\_output.txt}).
 \end{remark}
