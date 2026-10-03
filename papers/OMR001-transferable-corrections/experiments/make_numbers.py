@@ -25,6 +25,11 @@ def pct(g, signed=True):
     return (f"{100*g:+.1f}" if signed else f"{100*g:.1f}") + r"\%"
 
 
+def pct_up(g):
+    """Maxima quoted as 'never exceeds': round UP at two decimals (referee round 2, m7)."""
+    return f"{math.ceil(10000 * g - 1e-6) / 100:.2f}" + r"\%"
+
+
 def f4(x):
     return f"{x:.4f}"
 
@@ -43,7 +48,8 @@ def word(a):
 
 # meta and configuration
 mac("MetaSeed", meta["seed"]); mac("MetaR", f"{cfg['R']:,}".replace(",", r"\,"))
-mac("MetaSeconds", f"{meta['seconds']:.0f}"); mac("MetaPython", meta["python"])
+mac("MetaSeconds", f"{meta['seconds']:.0f}"); mac("MetaPython", meta["python"])   # wall-clock seconds
+mac("MetaCPUSeconds", f"{meta.get('seconds_cpu', float('nan')):.0f}")
 mac("MetaNumpy", meta["numpy"]); mac("MetaScipy", meta["scipy"]); mac("MetaMpl", meta["matplotlib"])
 mac("Cd", cfg["d"]); mac("CS", cfg["S"]); mac("Cns", cfg["n_s"]); mac("Cn", cfg["n"]); mac("Cm", cfg["m_default"])
 mac("Cne", cfg["n"] - cfg["m_default"]); mac("CsnrDep", f"{cfg['snr_dep']:g}")
@@ -70,15 +76,26 @@ def hmark(g):
 
 mac("RefRiskE", f4(cfg["d"] / (cfg["n"] - cfg["m_default"]))); mac("RefRiskN", f4(cfg["d"] / cfg["n"]))
 
-# constants of Theorem B
+# constants of Theorem 4.2, Corollary 4.3 and Proposition 4.5
 with open(os.path.join(out_dir, "table_constants.tex"), "w") as fh:
     for c in consts:
         fh.write(f"{c['alpha']:g} & {c['z']:.3f} & {c['phi_z']:.4f} & {c['kappa']:.4f} & {c['u_star']:.3f} & "
-                 f"{c['ratio_kappa_over_phi']:.3f} & {c['regret_const']:.3f} \\\\\n")
+                 f"{c['ratio_kappa_over_phi']:.3f} & {c['kappa2']:.4f} & {c['ratio_kappa2_over_phi1']:.3f} & "
+                 f"{c['regret_const']:.3f} \\\\\n")
 for c in consts:
     w = word(str(c["alpha"]))
     mac(f"Kappa{w}", f"{c['kappa']:.4f}"); mac(f"Phiz{w}", f"{c['phi_z']:.4f}")
-    mac(f"Ratio{w}", f"{c['ratio_kappa_over_phi']:.2f}")
+    mac(f"Ratio{w}", f"{c['ratio_kappa_over_phi']:.2f}"); mac(f"KappaTwo{w}", f"{c['kappa2']:.4f}")
+    mac(f"InvRatio{w}", f"{1 / c['ratio_kappa_over_phi']:.1f}")         # phi(z)/kappa(alpha)
+mac("InvRatioMin", f"{min(1 / c['ratio_kappa_over_phi'] for c in consts):.1f}")
+mac("InvRatioMax", f"{max(1 / c['ratio_kappa_over_phi'] for c in consts):.0f}")
+mac("UStarMax", f"{max(c['u_star'] for c in consts):.2f}")
+mac("UTwoStarMax", f"{max(c['u2_star'] for c in consts):.2f}")
+# worst case over operators at the design (Proposition 4.5(b), Corollary 4.3; analytic)
+for wc in summ["worst_case"]:
+    w = word(str(wc["alpha"]))
+    mac(f"WorstLower{w}", f"{wc['lower']:.4f}"); mac(f"WorstUpper{w}", f"{wc['upper_exact']:.4f}")
+    mac(f"CapPhi{w}", f"{wc['cap_phi']:.4f}"); mac(f"CapPhiOverCap{w}", f"{wc['cap_phi'] / wc['cap']:.1f}")
 
 # structure sweep tables (EB operator)
 with open(os.path.join(out_dir, "table_structure.tex"), "w") as fh:
@@ -140,19 +157,22 @@ with open(os.path.join(out_dir, "table_operators.tex"), "w") as fh:
                      f"{q['bound_phi']:.4f} & {q['bound_alpha']:.4f} \\\\\n")
 
 # summary macros
-mac("SafeAll", yesno(summ["safe_phi_all"] and summ["safe_alpha_all"] and summ["safe_tight_all"]))
+mac("SafeAll", yesno(summ["safe_phi_all"] and summ["safe_alpha_all"] and summ["safe_tight_all"]
+                     and summ["safe_kappa_all"]))
+mac("MaxExcessOverKappa", f"{summ['max_excess_over_bound_kappa']:.2f}")
+mac("MaxBoundKappaOverUniform", f"{summ['max_bound_kappa_over_uniform']:.1f}")
 mac("SafeHarmAll", yesno(summ["safe_harm_freq_all"]))
 mac("MaxExcessOverPhi", f"{summ['max_excess_over_bound_phi']:.2f}")
 mac("SafeUniformAll", yesno(summ["safe_uniform_all"]))
 mac("MaxExcessOverUniform", f"{summ['max_excess_over_bound_uniform']:.2f}")
-mac("MaxBoundPhiOverUniform", f"{summ['max_bound_phi_over_uniform']:.1f}")
+mac("SafeUniformPhiAll", yesno(summ["safe_uniform_phi_all"]))
 _q0 = departure[0]["ops"]["eb"]["rev"]
 for a in A:
     mac(f"UniformCap{word(a)}", f"{_q0[a]['bound_uniform']:.4f}")
 _re, _rn = cfg["d"] / (cfg["n"] - cfg["m_default"]), cfg["d"] / cfg["n"]
 mac("UniformCapTenOverRe", f"{_q0['0.1']['bound_uniform'] / _re:.2f}")
-mac("UniformCapTenRatioRn", f"{(_re + _q0['0.1']['bound_uniform']) / _rn:.1f}")
-mac("UniformCapHalfRatioRn", f"{(_re + _q0['0.5']['bound_uniform']) / _rn:.1f}")
+mac("UniformCapTenRatioRn", f"{(_re + _q0['0.1']['bound_uniform']) / _rn:.2f}")
+mac("UniformCapHalfRatioRn", f"{(_re + _q0['0.5']['bound_uniform']) / _rn:.2f}")
 # m sweep: tau^2 held fixed
 mac("MTauTwo", f"{msweep[0]['tau2']:.4f}")
 mac("MTauTwoFrac", f"1/{round(cfg['sigma'] ** 2 / msweep[0]['tau2'])}")
@@ -178,8 +198,9 @@ for a in A:
     w = word(a)
     mac(f"UsefulRev{w}", snrlist(summ["useful_structure_eb"][a]))
     mac(f"UsefulRefit{w}", snrlist(summ["useful_structure_refit_eb"][a]))
-    mac(f"HarmMax{w}", pct(summ["max_harm_freq_rev_eb"][a], signed=False))
-    mac(f"AccHarmMax{w}", pct(summ["max_accept_given_harmful_eb"][a], signed=False))
+    mac(f"HarmMax{w}", pct_up(summ["max_harm_freq_rev_eb"][a]))
+    mac(f"AccHarmMax{w}", pct_up(summ["max_accept_given_harmful_eb"][a]))
+    mac(f"UsefulRevMax{w}", f"{max(summ['useful_structure_eb'][a]):g}" if summ["useful_structure_eb"][a] else "none")
 mac("UsefulAlways", snrlist(summ["useful_structure_always_full_eb"]))
 mac("UsefulSure", snrlist(summ["useful_structure_sure_eb"]))
 mac("HarmfulAlwaysDep", snrlist(summ["harmful_vs_Rn_always_full_eb_departure"]))
@@ -234,10 +255,18 @@ for dep, tag in ((0.0, "Zero"), (4.0, "Four"), (8.0, "Eight"), (16.0, "Sixteen")
         mac(f"D{tag}Rev{ww}Excess", f"{q['excess_vs_Re'][0]:+.4f}")
         mac(f"D{tag}Rev{ww}ExcessSE", f"{q['excess_vs_Re'][1]:.4f}")
         mac(f"D{tag}Rev{ww}BoundPhi", f"{q['bound_phi']:.4f}")
+        mac(f"D{tag}Rev{ww}BoundKappa", f"{q['bound_kappa']:.4f}")
         mac(f"D{tag}Rev{ww}BoundAlpha", f"{q['bound_alpha']:.4f}")
         mac(f"D{tag}Rev{ww}BoundTight", f"{q['bound_tight']:.4f}")
     mac(f"D{tag}SureRatio", f"{e['sure']['risk'][0]/r['risk_Rn'][0]:.2f}")
+    mac(f"D{tag}UniformCapTen", f"{e['rev']['0.1']['bound_uniform']:.4f}")
     mac(f"D{tag}RefitTenRatio", f"{e['rev']['0.1']['risk_refit'][0]/r['risk_Rn'][0]:.2f}")
+# departure sweep: range of risk(rev)/risk(Xbar_n) for alpha <= 0.1 and maximum for alpha = 0.5 (referee round 2, m6)
+_rat = [(e["rev"][a]["risk"][0] / r["risk_Rn"][0], a, r["dep_over_tau"])
+        for r in departure for e in [r["ops"]["eb"]] for a in ("0.1", "0.05", "0.01")]
+mac("DepRevLowMin", f"{min(_rat)[0]:.2f}"); mac("DepRevLowMax", f"{max(_rat)[0]:.2f}")
+_h = max((r["ops"]["eb"]["rev"]["0.5"]["risk"][0] / r["risk_Rn"][0], r["dep_over_tau"]) for r in departure)
+mac("DepRevHalfMax", f"{_h[0]:.2f}"); mac("DepRevHalfMaxAt", f"{_h[1]:g}")
 # m sweep named points (alpha = 0.1)
 for r in msweep:
     q = r["ops"]["eb"]["rev"]["0.1"]

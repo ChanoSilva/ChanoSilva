@@ -3,7 +3,7 @@
   "seed": 20260930,
   "python": "3.11.15",
   "numpy": "2.4.6",
-  "seconds": 3.868962526321411
+  "seconds": 7.341529369354248
  },
  "E5a_fixed": {
   "y_star": [
@@ -12,6 +12,9 @@
   ],
   "residual": 0.0,
   "iterations": 9,
+  "L1_dim": 2,
+  "witness_dirs_axis": 1,
+  "witness_dirs_interior": 1,
   "pattern": [
    1,
    -1
@@ -659,7 +662,37 @@
   "tolerance_disagreements": 3,
   "max_tolerance_disagreement_violation": 5.114844852458846e-05,
   "max_residual": 3.803374282185246e-12,
-  "max_iterations": 1225
+  "max_iterations": 1225,
+  "by_pattern": {
+   "interior": {
+    "instances": 62,
+    "L1_dim0": 41,
+    "L1_dim1": 21,
+    "L1_dim2": 0,
+    "witness_instances": 0,
+    "witness_interior_dir_instances": 0
+   },
+   "one_interior": {
+    "instances": 105,
+    "L1_dim0": 54,
+    "L1_dim1": 42,
+    "L1_dim2": 9,
+    "witness_instances": 17,
+    "witness_interior_dir_instances": 7
+   },
+   "corner": {
+    "instances": 33,
+    "L1_dim0": 14,
+    "L1_dim1": 12,
+    "L1_dim2": 7,
+    "witness_instances": 4,
+    "witness_interior_dir_instances": 1
+   }
+  },
+  "witness_interior_dir_instances": 8,
+  "witness_axis_only_instances": 13,
+  "L1_dim2": 16,
+  "L1_dim1": 75
  },
  "E5b_rows": [
   {
@@ -678,6 +711,9 @@
    ],
    "residual": 2.4021959235422286e-13,
    "iterations": 159,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -721,6 +757,9 @@
    ],
    "residual": 1.1448619829934614e-12,
    "iterations": 205,
+   "L1_dim": 1,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -774,6 +813,9 @@
    ],
    "residual": 2.036149027162537e-12,
    "iterations": 534,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -817,6 +859,9 @@
    ],
    "residual": 3.104009255824302e-13,
    "iterations": 113,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -860,6 +905,9 @@
    ],
    "residual": 5.635492072997295e-13,
    "iterations": 120,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -903,6 +951,9 @@
    ],
    "residual": 3.831379657981415e-13,
    "iterations": 117,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -946,6 +997,9 @@
    ],
    "residual": 6.353622073726746e-13,
    "iterations": 225,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -989,6 +1043,9 @@
    ],
    "residual": 2.534872821625622e-14,
    "iterations": 34,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -1032,6 +1089,9 @@
    ],
    "residual": 4.076738946423575e-13,
    "iterations": 87,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -1075,6 +1135,9 @@
    ],
    "residual": 1.4869216968804722e-12,
    "iterations": 428,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -1118,6 +1181,9 @@
    ],
    "residual": 0.0,
    "iterations": 8,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -1161,6 +1227,9 @@
    ],
    "residual": 6.00474814969272e-13,
    "iterations": 210,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -1204,6 +1273,9 @@
    ],
    "residual": 7.035483307049617e-13,
    "iterations": 143,
+   "L1_dim": 1,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -1257,6 +1329,9 @@
    ],
    "residual": 1.5367463917810315e-13,
    "iterations": 92,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -1300,6 +1375,9 @@
    ],
    "residual": 4.362299237648827e-13,
    "iterations": 162,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -1343,6 +1421,9 @@
    ],
    "residual": 0.0,
    "iterations": 8,
+   "L1_dim": 2,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 3,
    "pattern": [
     -1,
     1
@@ -1396,6 +1477,9 @@
    ],
    "residual": 1.0840217612440028e-12,
    "iterations": 206,
+   "L1_dim": 1,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -1449,6 +1533,9 @@
    ],
    "residual": 9.986456106503283e-14,
    "iterations": 65,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -1492,6 +1579,9 @@
    ],
    "residual": 1.2318479569728424e-12,
    "iterations": 216,
+   "L1_dim": 2,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 5,
    "pattern": [
     0,
     -1
@@ -1545,6 +1635,9 @@
    ],
    "residual": 0.0,
    "iterations": 13,
+   "L1_dim": 1,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     -1
@@ -1598,6 +1691,9 @@
    ],
    "residual": 5.248024237403115e-13,
    "iterations": 149,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -1641,6 +1737,9 @@
    ],
    "residual": 0.0,
    "iterations": 14,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -1684,6 +1783,9 @@
    ],
    "residual": 2.5008620761093113e-14,
    "iterations": 29,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -1727,6 +1829,9 @@
    ],
    "residual": 8.604228440844963e-13,
    "iterations": 248,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -1770,6 +1875,9 @@
    ],
    "residual": 1.9606538614880265e-13,
    "iterations": 75,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -1813,6 +1921,9 @@
    ],
    "residual": 1.7541523789077473e-13,
    "iterations": 73,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     1
@@ -1856,6 +1967,9 @@
    ],
    "residual": 1.1034997680266986e-12,
    "iterations": 497,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -1899,6 +2013,9 @@
    ],
    "residual": 9.59399226729829e-13,
    "iterations": 216,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -1942,6 +2059,9 @@
    ],
    "residual": 3.955724636739433e-13,
    "iterations": 116,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     1
@@ -1985,6 +2105,9 @@
    ],
    "residual": 0.0,
    "iterations": 8,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -2028,6 +2151,9 @@
    ],
    "residual": 2.431388423929093e-13,
    "iterations": 73,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -2071,6 +2197,9 @@
    ],
    "residual": 3.37400046827522e-14,
    "iterations": 39,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -2114,6 +2243,9 @@
    ],
    "residual": 1.6081580511695392e-13,
    "iterations": 163,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -2157,6 +2289,9 @@
    ],
    "residual": 5.645437902612226e-13,
    "iterations": 257,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -2200,6 +2335,9 @@
    ],
    "residual": 7.049916206369744e-14,
    "iterations": 83,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -2243,6 +2381,9 @@
    ],
    "residual": 0.0,
    "iterations": 3,
+   "L1_dim": 2,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -2286,6 +2427,9 @@
    ],
    "residual": 0.0,
    "iterations": 24,
+   "L1_dim": 1,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     1
@@ -2339,6 +2483,9 @@
    ],
    "residual": 2.561284517810236e-13,
    "iterations": 75,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     1
@@ -2382,6 +2529,9 @@
    ],
    "residual": 1.1043388425946432e-12,
    "iterations": 312,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -2425,6 +2575,9 @@
    ],
    "residual": 2.051803171809752e-12,
    "iterations": 445,
+   "L1_dim": 2,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 7,
    "pattern": [
     -1,
     0
@@ -2478,6 +2631,9 @@
    ],
    "residual": 4.397593400540245e-13,
    "iterations": 142,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -2521,6 +2677,9 @@
    ],
    "residual": 2.049471703458039e-13,
    "iterations": 74,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -2564,6 +2723,9 @@
    ],
    "residual": 9.918732502001149e-13,
    "iterations": 203,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -2607,6 +2769,9 @@
    ],
    "residual": 0.0,
    "iterations": 7,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -2650,6 +2815,9 @@
    ],
    "residual": 6.847855615887966e-13,
    "iterations": 130,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -2693,6 +2861,9 @@
    ],
    "residual": 9.168977002074312e-14,
    "iterations": 64,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -2736,6 +2907,9 @@
    ],
    "residual": 2.947114152183417e-13,
    "iterations": 124,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -2779,6 +2953,9 @@
    ],
    "residual": 6.485922909860165e-13,
    "iterations": 137,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -2822,6 +2999,9 @@
    ],
    "residual": 2.123301534595612e-13,
    "iterations": 93,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     1
@@ -2865,6 +3045,9 @@
    ],
    "residual": 7.124737214392275e-13,
    "iterations": 386,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -2908,6 +3091,9 @@
    ],
    "residual": 1.0783596238184145e-12,
    "iterations": 197,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -2951,6 +3137,9 @@
    ],
    "residual": 8.65307825392847e-13,
    "iterations": 160,
+   "L1_dim": 2,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 5,
    "pattern": [
     -1,
     0
@@ -3004,6 +3193,9 @@
    ],
    "residual": 3.7769787297747826e-13,
    "iterations": 89,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -3047,6 +3239,9 @@
    ],
    "residual": 2.637889906509372e-13,
    "iterations": 85,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     1
@@ -3090,6 +3285,9 @@
    ],
    "residual": 8.159721111802283e-13,
    "iterations": 436,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -3133,6 +3331,9 @@
    ],
    "residual": 1.6964207816272392e-13,
    "iterations": 188,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -3176,6 +3377,9 @@
    ],
    "residual": 2.0594637106796654e-13,
    "iterations": 63,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -3219,6 +3423,9 @@
    ],
    "residual": 1.0296208330373702e-12,
    "iterations": 275,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -3262,6 +3469,9 @@
    ],
    "residual": 0.0,
    "iterations": 16,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     1
@@ -3305,6 +3515,9 @@
    ],
    "residual": 1.1320944182102721e-12,
    "iterations": 431,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -3348,6 +3561,9 @@
    ],
    "residual": 9.28389032488615e-13,
    "iterations": 523,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -3391,6 +3607,9 @@
    ],
    "residual": 6.874500968478969e-13,
    "iterations": 332,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     1
@@ -3434,6 +3653,9 @@
    ],
    "residual": 3.0331293032759277e-13,
    "iterations": 93,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -3477,6 +3699,9 @@
    ],
    "residual": 4.0679900292696413e-13,
    "iterations": 181,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -3520,6 +3745,9 @@
    ],
    "residual": 1.6475709685437323e-13,
    "iterations": 88,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -3563,6 +3791,9 @@
    ],
    "residual": 7.065459328714496e-13,
    "iterations": 175,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -3606,6 +3837,9 @@
    ],
    "residual": 4.503064587879635e-13,
    "iterations": 127,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -3649,6 +3883,9 @@
    ],
    "residual": 2.7321598394781566e-13,
    "iterations": 198,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -3692,6 +3929,9 @@
    ],
    "residual": 1.318944953254686e-13,
    "iterations": 58,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -3735,6 +3975,9 @@
    ],
    "residual": 9.71667191151937e-13,
    "iterations": 157,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -3778,6 +4021,9 @@
    ],
    "residual": 1.006750238730092e-12,
    "iterations": 173,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -3821,6 +4067,9 @@
    ],
    "residual": 1.0556813420438786e-12,
    "iterations": 676,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -3864,6 +4113,9 @@
    ],
    "residual": 1.2078529792268112e-12,
    "iterations": 728,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -3907,6 +4159,9 @@
    ],
    "residual": 2.460254222569347e-13,
    "iterations": 117,
+   "L1_dim": 2,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 2,
    "pattern": [
     -1,
     0
@@ -3960,6 +4215,9 @@
    ],
    "residual": 5.03073010825087e-13,
    "iterations": 334,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -4003,6 +4261,9 @@
    ],
    "residual": 0.0,
    "iterations": 4,
+   "L1_dim": 2,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -4046,6 +4307,9 @@
    ],
    "residual": 4.685141163918161e-13,
    "iterations": 109,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -4089,6 +4353,9 @@
    ],
    "residual": 9.96206652461455e-14,
    "iterations": 77,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -4132,6 +4399,9 @@
    ],
    "residual": 5.367928324062632e-13,
    "iterations": 101,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -4175,6 +4445,9 @@
    ],
    "residual": 5.359973025649049e-13,
    "iterations": 274,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -4218,6 +4491,9 @@
    ],
    "residual": 3.803374282185246e-12,
    "iterations": 867,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -4261,6 +4537,9 @@
    ],
    "residual": 6.230443616748885e-13,
    "iterations": 292,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -4304,6 +4583,9 @@
    ],
    "residual": 8.454813986451951e-13,
    "iterations": 407,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -4347,6 +4629,9 @@
    ],
    "residual": 7.741901907275214e-13,
    "iterations": 334,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -4390,6 +4675,9 @@
    ],
    "residual": 7.216449660063518e-13,
    "iterations": 167,
+   "L1_dim": 2,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -4433,6 +4721,9 @@
    ],
    "residual": 9.43689570931383e-14,
    "iterations": 57,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -4476,6 +4767,9 @@
    ],
    "residual": 1.170175067954915e-13,
    "iterations": 48,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -4519,6 +4813,9 @@
    ],
    "residual": 9.241496456979803e-13,
    "iterations": 183,
+   "L1_dim": 1,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -4572,6 +4869,9 @@
    ],
    "residual": 0.0,
    "iterations": 27,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     -1
@@ -4615,6 +4915,9 @@
    ],
    "residual": 0.0,
    "iterations": 5,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -4658,6 +4961,9 @@
    ],
    "residual": 1.2512213487525514e-12,
    "iterations": 208,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -4701,6 +5007,9 @@
    ],
    "residual": 8.287814878826794e-13,
    "iterations": 200,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -4744,6 +5053,9 @@
    ],
    "residual": 5.956332041427809e-13,
    "iterations": 266,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -4787,6 +5099,9 @@
    ],
    "residual": 0.0,
    "iterations": 12,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     -1
@@ -4830,6 +5145,9 @@
    ],
    "residual": 2.5810845032426026e-13,
    "iterations": 104,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -4873,6 +5191,9 @@
    ],
    "residual": 3.6004532688593827e-13,
    "iterations": 103,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -4916,6 +5237,9 @@
    ],
    "residual": 4.4297898682543746e-13,
    "iterations": 106,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -4959,6 +5283,9 @@
    ],
    "residual": 6.105175466544327e-13,
    "iterations": 295,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -5002,6 +5329,9 @@
    ],
    "residual": 8.415490526658687e-14,
    "iterations": 42,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -5045,6 +5375,9 @@
    ],
    "residual": 8.365530490550555e-14,
    "iterations": 61,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -5088,6 +5421,9 @@
    ],
    "residual": 1.8562928971732617e-13,
    "iterations": 69,
+   "L1_dim": 1,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -5141,6 +5477,9 @@
    ],
    "residual": 1.408594013186503e-13,
    "iterations": 93,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -5184,6 +5523,9 @@
    ],
    "residual": 4.18332035678759e-13,
    "iterations": 139,
+   "L1_dim": 2,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -5227,6 +5569,9 @@
    ],
    "residual": 5.791585273785365e-13,
    "iterations": 358,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -5270,6 +5615,9 @@
    ],
    "residual": 0.0,
    "iterations": 4,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     1
@@ -5313,6 +5661,9 @@
    ],
    "residual": 8.417087602301513e-13,
    "iterations": 432,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -5356,6 +5707,9 @@
    ],
    "residual": 1.1012736009231793e-12,
    "iterations": 711,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -5399,6 +5753,9 @@
    ],
    "residual": 1.7020385233120565e-13,
    "iterations": 72,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -5442,6 +5799,9 @@
    ],
    "residual": 9.063589468766955e-13,
    "iterations": 364,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -5485,6 +5845,9 @@
    ],
    "residual": 3.222422328974517e-13,
    "iterations": 183,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     1
@@ -5528,6 +5891,9 @@
    ],
    "residual": 0.0,
    "iterations": 10,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     -1
@@ -5571,6 +5937,9 @@
    ],
    "residual": 6.039613253960852e-14,
    "iterations": 45,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -5614,6 +5983,9 @@
    ],
    "residual": 0.0,
    "iterations": 6,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -5657,6 +6029,9 @@
    ],
    "residual": 6.119549311733863e-13,
    "iterations": 147,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -5700,6 +6075,9 @@
    ],
    "residual": 7.338574192772285e-13,
    "iterations": 156,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -5743,6 +6121,9 @@
    ],
    "residual": 5.284661597215745e-14,
    "iterations": 55,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     1
@@ -5786,6 +6167,9 @@
    ],
    "residual": 2.19824158875781e-13,
    "iterations": 130,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -5829,6 +6213,9 @@
    ],
    "residual": 0.0,
    "iterations": 6,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -5872,6 +6259,9 @@
    ],
    "residual": 4.901634653720066e-13,
    "iterations": 122,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -5915,6 +6305,9 @@
    ],
    "residual": 0.0,
    "iterations": 21,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -5958,6 +6351,9 @@
    ],
    "residual": 0.0,
    "iterations": 5,
+   "L1_dim": 2,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     1
@@ -6001,6 +6397,9 @@
    ],
    "residual": 8.071321389024888e-14,
    "iterations": 55,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -6044,6 +6443,9 @@
    ],
    "residual": 1.8997372617104705e-13,
    "iterations": 190,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -6087,6 +6489,9 @@
    ],
    "residual": 3.943512183468556e-13,
    "iterations": 141,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -6130,6 +6535,9 @@
    ],
    "residual": 1.284083950281456e-12,
    "iterations": 394,
+   "L1_dim": 1,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -6183,6 +6591,9 @@
    ],
    "residual": 7.298606163885779e-13,
    "iterations": 228,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -6226,6 +6637,9 @@
    ],
    "residual": 4.2665870836344766e-13,
    "iterations": 130,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -6269,6 +6683,9 @@
    ],
    "residual": 0.0,
    "iterations": 19,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     -1
@@ -6312,6 +6729,9 @@
    ],
    "residual": 0.0,
    "iterations": 13,
+   "L1_dim": 2,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     -1
@@ -6355,6 +6775,9 @@
    ],
    "residual": 0.0,
    "iterations": 9,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -6398,6 +6821,9 @@
    ],
    "residual": 9.739288710138047e-14,
    "iterations": 58,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -6441,6 +6867,9 @@
    ],
    "residual": 4.769518113789672e-13,
    "iterations": 113,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -6484,6 +6913,9 @@
    ],
    "residual": 1.1612932837579137e-13,
    "iterations": 43,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     1
@@ -6527,6 +6959,9 @@
    ],
    "residual": 0.0,
    "iterations": 11,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -6570,6 +7005,9 @@
    ],
    "residual": 2.2705496769008668e-13,
    "iterations": 95,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -6613,6 +7051,9 @@
    ],
    "residual": 1.370113961547169e-12,
    "iterations": 1225,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -6656,6 +7097,9 @@
    ],
    "residual": 3.425038030968608e-13,
    "iterations": 133,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -6699,6 +7143,9 @@
    ],
    "residual": 5.122569035620472e-13,
    "iterations": 131,
+   "L1_dim": 1,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -6752,6 +7199,9 @@
    ],
    "residual": 7.117639810871879e-13,
    "iterations": 145,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -6795,6 +7245,9 @@
    ],
    "residual": 0.0,
    "iterations": 2,
+   "L1_dim": 2,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     1
@@ -6838,6 +7291,9 @@
    ],
    "residual": 1.0250134074851758e-12,
    "iterations": 175,
+   "L1_dim": 2,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 5,
    "pattern": [
     -1,
     0
@@ -6891,6 +7347,9 @@
    ],
    "residual": 4.0084543879349994e-13,
    "iterations": 303,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -6934,6 +7393,9 @@
    ],
    "residual": 5.782916535421966e-13,
    "iterations": 500,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -6977,6 +7439,9 @@
    ],
    "residual": 6.283938916454147e-13,
    "iterations": 211,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -7020,6 +7485,9 @@
    ],
    "residual": 1.2225062326765762e-12,
    "iterations": 699,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -7063,6 +7531,9 @@
    ],
    "residual": 5.08366807174653e-13,
    "iterations": 230,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -7106,6 +7577,9 @@
    ],
    "residual": 5.605516051332415e-13,
    "iterations": 261,
+   "L1_dim": 1,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -7159,6 +7633,9 @@
    ],
    "residual": 1.2947180495111177e-12,
    "iterations": 765,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -7202,6 +7679,9 @@
    ],
    "residual": 1.029971672993625e-12,
    "iterations": 493,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -7245,6 +7725,9 @@
    ],
    "residual": 4.929390229335695e-14,
    "iterations": 33,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -7288,6 +7771,9 @@
    ],
    "residual": 6.550315845288424e-13,
    "iterations": 153,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -7331,6 +7817,9 @@
    ],
    "residual": 9.218906472037866e-13,
    "iterations": 595,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -7374,6 +7863,9 @@
    ],
    "residual": 1.4555023852835802e-13,
    "iterations": 64,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -7417,6 +7909,9 @@
    ],
    "residual": 1.7830181775480014e-13,
    "iterations": 186,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -7460,6 +7955,9 @@
    ],
    "residual": 4.692912725090537e-13,
    "iterations": 127,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -7503,6 +8001,9 @@
    ],
    "residual": 0.0,
    "iterations": 10,
+   "L1_dim": 1,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     -1
@@ -7556,6 +8057,9 @@
    ],
    "residual": 4.0278074264618473e-13,
    "iterations": 299,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -7599,6 +8103,9 @@
    ],
    "residual": 3.534079852040324e-13,
    "iterations": 208,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -7642,6 +8149,9 @@
    ],
    "residual": 2.76667577736589e-13,
    "iterations": 129,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -7685,6 +8195,9 @@
    ],
    "residual": 7.177591854201637e-14,
    "iterations": 72,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -7728,6 +8241,9 @@
    ],
    "residual": 1.0798584249016585e-12,
    "iterations": 188,
+   "L1_dim": 2,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 3,
    "pattern": [
     0,
     -1
@@ -7781,6 +8297,9 @@
    ],
    "residual": 1.6819878823071122e-12,
    "iterations": 443,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -7824,6 +8343,9 @@
    ],
    "residual": 4.214721581855419e-13,
    "iterations": 201,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -7867,6 +8389,9 @@
    ],
    "residual": 5.639967741413538e-13,
    "iterations": 354,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -7910,6 +8435,9 @@
    ],
    "residual": 4.705125178361413e-13,
    "iterations": 120,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -7953,6 +8481,9 @@
    ],
    "residual": 9.098277686803158e-13,
    "iterations": 153,
+   "L1_dim": 1,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -8006,6 +8537,9 @@
    ],
    "residual": 8.575362642204709e-13,
    "iterations": 194,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -8049,6 +8583,9 @@
    ],
    "residual": 2.364681544708855e-13,
    "iterations": 212,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -8092,6 +8629,9 @@
    ],
    "residual": 2.2451951592340367e-13,
    "iterations": 146,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -8135,6 +8675,9 @@
    ],
    "residual": 1.3911094498553211e-13,
    "iterations": 51,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     1
@@ -8178,6 +8721,9 @@
    ],
    "residual": 8.445466548323566e-13,
    "iterations": 334,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     1
@@ -8221,6 +8767,9 @@
    ],
    "residual": 3.452793606584237e-14,
    "iterations": 27,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -8264,6 +8813,9 @@
    ],
    "residual": 9.08162434143378e-13,
    "iterations": 278,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -8307,6 +8859,9 @@
    ],
    "residual": 1.687538997430238e-14,
    "iterations": 30,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -8350,6 +8905,9 @@
    ],
    "residual": 5.657146841815481e-13,
    "iterations": 261,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -8393,6 +8951,9 @@
    ],
    "residual": 4.1976510708881596e-13,
    "iterations": 184,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -8436,6 +8997,9 @@
    ],
    "residual": 2.617905892066119e-13,
    "iterations": 99,
+   "L1_dim": 1,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -8489,6 +9053,9 @@
    ],
    "residual": 3.4983127505938683e-13,
    "iterations": 99,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -8532,6 +9099,9 @@
    ],
    "residual": 0.0,
    "iterations": 4,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -8575,6 +9145,9 @@
    ],
    "residual": 0.0,
    "iterations": 18,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -8618,6 +9191,9 @@
    ],
    "residual": 1.535696510091354e-13,
    "iterations": 111,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -8661,6 +9237,9 @@
    ],
    "residual": 0.0,
    "iterations": 11,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     1
@@ -8704,6 +9283,9 @@
    ],
    "residual": 1.0724754417879012e-13,
    "iterations": 54,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0
@@ -8747,6 +9329,9 @@
    ],
    "residual": 2.935678458980405e-13,
    "iterations": 101,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -8790,6 +9375,9 @@
    ],
    "residual": 3.632649736573512e-13,
    "iterations": 160,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -8833,6 +9421,9 @@
    ],
    "residual": 3.5860203695392556e-14,
    "iterations": 31,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     0
@@ -8876,6 +9467,9 @@
    ],
    "residual": 8.65144346204675e-13,
    "iterations": 338,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -8919,6 +9513,9 @@
    ],
    "residual": 0.0,
    "iterations": 5,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -8962,6 +9559,9 @@
    ],
    "residual": 1.4344081478157023e-13,
    "iterations": 53,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     -1
@@ -9005,6 +9605,9 @@
    ],
    "residual": 6.086797732507421e-13,
    "iterations": 194,
+   "L1_dim": 2,
+   "witness_dirs_axis": 1,
+   "witness_dirs_interior": 1,
    "pattern": [
     -1,
     0
@@ -9058,6 +9661,9 @@
    ],
    "residual": 3.507501510850589e-13,
    "iterations": 133,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -9101,6 +9707,9 @@
    ],
    "residual": 5.083711229758592e-13,
    "iterations": 141,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     1
@@ -9144,6 +9753,9 @@
    ],
    "residual": 3.704216695692624e-13,
    "iterations": 131,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -9187,6 +9799,9 @@
    ],
    "residual": 0.0,
    "iterations": 9,
+   "L1_dim": 2,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -9230,6 +9845,9 @@
    ],
    "residual": 4.536712674296445e-13,
    "iterations": 175,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -9273,6 +9891,9 @@
    ],
    "residual": 0.0,
    "iterations": 4,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     1
@@ -9316,6 +9937,9 @@
    ],
    "residual": 0.0,
    "iterations": 11,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     1,
     -1
@@ -9359,6 +9983,9 @@
    ],
    "residual": 0.0,
    "iterations": 12,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     -1
@@ -9402,6 +10029,9 @@
    ],
    "residual": 3.2899340720509886e-13,
    "iterations": 212,
+   "L1_dim": 1,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     0,
     0
@@ -9445,6 +10075,9 @@
    ],
    "residual": 9.013900736931646e-13,
    "iterations": 169,
+   "L1_dim": 0,
+   "witness_dirs_axis": 0,
+   "witness_dirs_interior": 0,
    "pattern": [
     -1,
     0

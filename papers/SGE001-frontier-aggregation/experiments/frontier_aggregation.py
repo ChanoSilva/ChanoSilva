@@ -1083,7 +1083,7 @@ def main():
         script_sha = hashlib.sha256(fh.read()).hexdigest()
     res = {"meta": {"seed": SEED, "fast": args.fast, "python": platform.python_version(),
                     "numpy": np.__version__, "scipy": scipy.__version__, "matplotlib": matplotlib.__version__,
-                    "rng": "SeedSequence(SEED).spawn, one generator per experiment", "script_sha256": script_sha,
+                    "rng": "SeedSequence(SEED).spawn(12): one generator per experiment and one bootstrap generator for each of E1, E2, E3, E1c", "script_sha256": script_sha,
                     "date_utc": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M")}}
     res["E0"] = {"CD": selftest(CobbDouglas(), gens["E0"]), "CES": selftest(CES(), gens["E0"])}
     for k, v in res["E0"].items():

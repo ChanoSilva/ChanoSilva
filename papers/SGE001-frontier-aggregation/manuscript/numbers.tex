@@ -3,9 +3,11 @@
 \newcommand{\MetaPython}{3.11.15}
 \newcommand{\MetaNumpy}{2.4.6}
 \newcommand{\MetaScipy}{1.17.1}
-\newcommand{\MetaSeconds}{26}
-\newcommand{\MetaCpuSeconds}{26}
-\newcommand{\MetaScriptSha}{44f421345df7}
+\newcommand{\MetaSeconds}{52}
+\newcommand{\MetaCpuSeconds}{53}
+\newcommand{\MetaSecondsTotal}{56}
+\newcommand{\MetaCpuSecondsTotal}{57}
+\newcommand{\MetaScriptSha}{5b309162009c}
 \newcommand{\MetaDate}{2026-10-03}
 \newcommand{\EzeroCDthird}{\ensuremath{1.7\times 10^{-10}}}
 \newcommand{\EzeroCESthird}{\ensuremath{5.7\times 10^{-10}}}
@@ -29,7 +31,11 @@
 \newcommand{\EoneRttCellsCDLN}{15}
 \newcommand{\EoneCellsCDLN}{17}
 \newcommand{\EoneRttMinCDLN}{0.002}
+\newcommand{\EoneRatioGtOneSigmaCDLN}{0.75}
 \newcommand{\EoneCertSigmaCDLN}{0.056}
+\newcommand{\EoneCertBoxSigmaCDLN}{0.042}
+\newcommand{\EoneCertConeSigmaCDLN}{0.018}
+\newcommand{\EoneCertConeBoxSigmaCDLN}{0.018}
 \newcommand{\EoneBoundSigmaNonobsCDLN}{0.10}
 \newcommand{\EoneEtwoOverBtwoMaxCDLN}{0.018}
 \newcommand{\EoneBoxOverSegCDLN}{7215}
@@ -49,7 +55,11 @@
 \newcommand{\EoneRttCellsCDSU}{0}
 \newcommand{\EoneCellsCDSU}{15}
 \newcommand{\EoneRttMinCDSU}{1.000}
+\newcommand{\EoneRatioGtOneSigmaCDSU}{0.50}
 \newcommand{\EoneCertSigmaCDSU}{0.071}
+\newcommand{\EoneCertBoxSigmaCDSU}{0.053}
+\newcommand{\EoneCertConeSigmaCDSU}{0.023}
+\newcommand{\EoneCertConeBoxSigmaCDSU}{0.023}
 \newcommand{\EoneBoundSigmaNonobsCDSU}{0.12}
 \newcommand{\EoneEtwoOverBtwoMaxCDSU}{0.016}
 \newcommand{\EoneBoxOverSegCDSU}{13}
@@ -69,6 +79,7 @@
 \newcommand{\EoneRttCellsCESLN}{13}
 \newcommand{\EoneCellsCESLN}{17}
 \newcommand{\EoneRttMinCESLN}{0.035}
+\newcommand{\EoneRatioGtOneSigmaCESLN}{0.75}
 \newcommand{\EoneSlopeOneCESSU}{2.00}
 \newcommand{\EoneSlopeTwoCESSU}{4.00}
 \newcommand{\EoneSlopeThreeCESSU}{4.00}
@@ -84,6 +95,9 @@
 \newcommand{\EoneRttCellsCESSU}{0}
 \newcommand{\EoneCellsCESSU}{15}
 \newcommand{\EoneRttMinCESSU}{1.000}
+\newcommand{\EoneRatioGtOneSigmaCESSU}{0.50}
+\newcommand{\EoneLooseMin}{56}
+\newcommand{\EoneLooseMax}{1064}
 \newcommand{\EonebN}{2000}
 \newcommand{\EonebReps}{20}
 \newcommand{\EonebSdTheta}{0.19}
@@ -91,28 +105,49 @@
 \newcommand{\EonebRatioSmallest}{\ensuremath{7\times 10^{3}}}
 \newcommand{\EonebPredMin}{0.81}
 \newcommand{\EonebPredMax}{0.92}
-\newcommand{\EonecReps}{6}
-\newcommand{\EonecSlopeTwoNSmall}{3.2}
-\newcommand{\EonecSlopeThreeNSmall}{4.01}
+\newcommand{\EonecReps}{60}
+\newcommand{\EonecSlopeTwoNSmall}{3.16}
+\newcommand{\EonecSlopeTwoSeNSmall}{0.09}
+\newcommand{\EonecSlopeThreeNSmall}{4.00}
+\newcommand{\EonecSlopeThreeSeNSmall}{0.006}
+\newcommand{\EonecThirdTermNSmall}{\ensuremath{8.0\times 10^{-9}}}
 \newcommand{\EonecNSmall}{200}
-\newcommand{\EonecSlopeTwoNMid}{3.3}
+\newcommand{\EonecSlopeTwoNMid}{3.50}
+\newcommand{\EonecSlopeTwoSeNMid}{0.10}
 \newcommand{\EonecSlopeThreeNMid}{4.00}
+\newcommand{\EonecSlopeThreeSeNMid}{0.002}
+\newcommand{\EonecThirdTermNMid}{\ensuremath{2.3\times 10^{-9}}}
 \newcommand{\EonecNMid}{2000}
-\newcommand{\EonecSlopeTwoNLarge}{4.2}
+\newcommand{\EonecSlopeTwoNLarge}{4.05}
+\newcommand{\EonecSlopeTwoSeNLarge}{0.10}
 \newcommand{\EonecSlopeThreeNLarge}{4.00}
+\newcommand{\EonecSlopeThreeSeNLarge}{0.001}
+\newcommand{\EonecThirdTermNLarge}{\ensuremath{2.3\times 10^{-9}}}
 \newcommand{\EonecNLarge}{20000}
-\newcommand{\EonecNs}{200, 2000, 20000}
+\newcommand{\EonecSlopeTwoNHuge}{3.96}
+\newcommand{\EonecSlopeTwoSeNHuge}{0.02}
+\newcommand{\EonecSlopeThreeNHuge}{4.00}
+\newcommand{\EonecSlopeThreeSeNHuge}{0.000}
+\newcommand{\EonecThirdTermNHuge}{\ensuremath{2.6\times 10^{-9}}}
+\newcommand{\EonecNHuge}{200000}
+\newcommand{\EonecNs}{200, 2000, 20000, 200000}
+\newcommand{\EonecSlopeThreeMin}{4.00}
+\newcommand{\EonecSlopeThreeMax}{4.00}
+\newcommand{\EonecSlopeThreeSeMax}{0.006}
 \newcommand{\EtwoN}{2000}
 \newcommand{\EtwoReps}{20}
 \newcommand{\EtwoCells}{168}
 \newcommand{\EtwoTwoSided}{all}
 \newcommand{\EtwoLowerInformative}{33}
 \newcommand{\EtwoCrossingCells}{107}
-\newcommand{\EtwoIdentityGap}{\ensuremath{0}}
+\newcommand{\EtwoIdentityGap}{\ensuremath{2\times 10^{-15}}}
 \newcommand{\EtwoSlopeCappedLN}{1.01}
 \newcommand{\EtwoSlopeSmoothLN}{3.52}
 \newcommand{\EtwoSlopeCappedSU}{1.00}
 \newcommand{\EtwoSlopeSmoothSU}{4.00}
+\newcommand{\EtwoSlopeCappedSeLN}{0.003}
+\newcommand{\EtwoSlopeSmoothSeLN}{0.21}
+\newcommand{\EtwoSlopeTransitionSe}{0.11}
 \newcommand{\EtwoRatioMin}{0.38}
 \newcommand{\EtwoRatioMax}{1.40}
 \newcommand{\EtwoAmplification}{\ensuremath{1\times 10^{6}}}
@@ -138,10 +173,18 @@
 \newcommand{\EtwoTauSUci}{[0.997, 0.997]}
 \newcommand{\EtwoTauLN}{0.993}
 \newcommand{\EtwoTaubLN}{1.000}
+\newcommand{\EtwoTaubLNMin}{0.997}
+\newcommand{\EtwoTaubLNMax}{1.003}
+\newcommand{\EtwoTaubLNAbsDev}{0.0028}
+\newcommand{\EtwoTauSUAbsDev}{0.0027}
+\newcommand{\EtwoTaubLNPQ}{50}
+\newcommand{\EtwoTaubLNMaxAbsDevPct}{0.3}
 \newcommand{\EtwoTauSUPointOne}{0.975}
 \newcommand{\EtwoTaubLNPointOne}{0.976}
+\newcommand{\EtwoTaubLNPQPointOne}{100}
 \newcommand{\EtwoTauSUPointThree}{0.929}
 \newcommand{\EtwoTaubLNPointThree}{0.910}
+\newcommand{\EtwoTaubLNPQPointThree}{100}
 \newcommand{\EtwoLowerSigmaLN}{0.15}
 \newcommand{\EtwoSlopeTransition}{8.8}
 \newcommand{\EtwoSigmaMin}{0.01}
@@ -150,7 +193,7 @@
 \newcommand{\Ethreen}{50}
 \newcommand{\EthreeN}{2000}
 \newcommand{\EthreeReps}{20}
-\newcommand{\EthreeLemmaGap}{\ensuremath{0}}
+\newcommand{\EthreeLemmaGap}{\ensuremath{2\times 10^{-16}}}
 \newcommand{\EthreeBetterCells}{16}
 \newcommand{\EthreeCells}{16}
 \newcommand{\EthreeGainMin}{1.15}
@@ -226,6 +269,12 @@
 \newcommand{\EfourCertFracPointTwo}{70.9}
 \newcommand{\EfourCertFracPointFour}{0.0}
 \newcommand{\EfourCertOneFracPointTwo}{14.7}
+\newcommand{\EfourCertBoxFracSmall}{100.0}
+\newcommand{\EfourCertBoxFracPointTwo}{6.5}
+\newcommand{\EfourCertBoxFracPointOne}{94.4}
+\newcommand{\EfourCertFracPointOne}{97.0}
+\newcommand{\EfourCertBoxFracPointFour}{0.0}
+\newcommand{\EfourCertifiedBoxReversals}{0}
 \newcommand{\EfourCapZeroRevOneSmall}{31.2}
 \newcommand{\EfourCapZeroRevTwoSmall}{31.1}
 \newcommand{\EfourCapTenRevOnePointTwo}{23.1}
@@ -277,6 +326,17 @@
 \newcommand{\EfiveRegConeAll}{no}
 \newcommand{\EfiveRegConeSmooth}{no}
 \newcommand{\EfiveRegConeExclAbove}{no}
+\newcommand{\EfiveTestSigmaMax}{0.6}
+\newcommand{\EfiveTestSigmaSecond}{0.3}
+\newcommand{\EfiveRegLNSmoothMinExclMax}{9.23}
+\newcommand{\EfiveRegLNSmoothAtMax}{3.39}
+\newcommand{\EfiveOtwoLNSmoothMinExclMax}{11.96}
+\newcommand{\EfiveInvLambdaGlobal}{0.80}
+\newcommand{\EfiveInvLambdaBelow}{0.47}
+\newcommand{\EfiveRegLNBelowMid}{9.76, 6.47}
+\newcommand{\EfiveRegLNBelowMidSigmas}{0.15, 0.3}
+\newcommand{\EfiveRegLNBelowAtMax}{1.53}
+\newcommand{\EfiveOtwoLNBelowMaxExclSmall}{2.88}
 \newcommand{\EfiveAtFracAboveLNMin}{20}
 \newcommand{\EfiveAtFracAboveLNMax}{30}
 \newcommand{\EfiveAtFracAboveSUMin}{0}

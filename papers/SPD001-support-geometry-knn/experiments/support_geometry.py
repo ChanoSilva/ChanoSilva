@@ -62,6 +62,8 @@ import os
 import platform
 import sys
 import time
+import hashlib
+from fractions import Fraction
 
 # Single-threaded BLAS: the matrices are tiny and multi-threading only adds CPU time.
 for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
@@ -445,12 +447,26 @@ def run_fold(Xtr, ytr, Xte, yte, classes, grids):
 # ----------------------------------------------------------------------------
 # statistics
 # ----------------------------------------------------------------------------
-def paired_stats(a, b, n_test_over_n_train, rng, n_boot=N_BOOT):
-    """Fold-level paired differences a - b: mean, percentile bootstrap CI,
-    Nadeau-Bengio corrected t and two-sided p (J = number of folds)."""
-    dlt = np.asarray(a) - np.asarray(b)
+_BOOT_IDX = {}
+
+
+def boot_indices(J, n_boot=None):
+    """One common matrix of bootstrap resampling indices (n_boot x J) for every paired
+    comparison with J folds, seeded with the master seed: a given pair of methods on a
+    given dataset therefore has a single interval, whatever the order of the comparisons."""
+    n_boot = N_BOOT if n_boot is None else n_boot
+    key = (J, n_boot)
+    if key not in _BOOT_IDX:
+        _BOOT_IDX[key] = np.random.default_rng(SEED).integers(0, J, size=(n_boot, J))
+    return _BOOT_IDX[key]
+
+
+def paired_stats(a, b, n_test_over_n_train):
+    """Fold-level paired differences a - b: mean, percentile bootstrap CI (common
+    resampling indices), Nadeau-Bengio corrected t, two-sided p and 95% interval."""
+    dlt = np.asarray(a, float) - np.asarray(b, float)
     J = len(dlt)
-    boot = rng.choice(dlt, size=(n_boot, J), replace=True).mean(1)
+    boot = dlt[boot_indices(J)].mean(1)
     lo, hi = np.percentile(boot, [2.5, 97.5])
     var = dlt.var(ddof=1)
     nb_se = math.sqrt((1.0 / J + n_test_over_n_train) * var)     # Nadeau-Bengio standard error
@@ -467,67 +483,96 @@ def paired_stats(a, b, n_test_over_n_train, rng, n_boot=N_BOOT):
 
 def evaluate_dataset(name, X, y, n_splits, n_repeats, log):
     classes = np.unique(y)
+    grids = dataset_grids(y, n_splits)
     rskf = RepeatedStratifiedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=SEED)
     folds = []
     t0 = time.time()
     c0 = time.process_time()
     for tr, te in rskf.split(X, y):
-        folds.append(run_fold(X[tr], y[tr], X[te], y[te], classes))
+        folds.append(run_fold(X[tr], y[tr], X[te], y[te], classes, grids))
     wall = time.time() - t0
     cpu = time.process_time() - c0
     per_method = {}
     for mth in ALL_METHODS:
-        per_method[mth] = dict(
-            acc=[f[mth]["acc"] for f in folds],
-            sel=[f[mth]["sel"] for f in folds],
-            loo=[f[mth]["loo"] for f in folds],
-            params=[f[mth]["params"] for f in folds],
-        )
+        per_method[mth] = {key: [f[mth][key] for f in folds]
+                           for key in ("acc", "sel", "n_correct", "n_test", "sel_correct", "sel_n", "loo", "params")}
         if mth in LOGIT_MODELS:
             per_method[mth]["weights"] = [f[mth]["weights"] for f in folds]
-    log(f"  {name}: {len(folds)} folds in {wall:.1f}s wall / {cpu:.1f}s cpu; "
+    log(f"  {name}: {len(folds)} folds in {wall:.1f}s wall / {cpu:.1f}s cpu; grids k={grids['k_grid']} "
+        f"kNN<={max(grids['knn_grid'])}; "
         + ", ".join(f"{m}={np.mean(per_method[m]['acc']):.3f}" for m in ALL_METHODS))
     return dict(n=int(len(y)), d=int(X.shape[1]), classes=int(len(classes)),
                 class_counts=[int(v) for v in np.bincount(np.searchsorted(classes, y))],
-                folds=len(folds), n_splits=n_splits, n_repeats=n_repeats,
+                folds=len(folds), n_splits=n_splits, n_repeats=n_repeats, grids=grids,
                 seconds_wall=wall, seconds_cpu=cpu, methods=per_method)
 
 
-def compare(res, rng, criterion_datasets):
-    """Paired comparisons and the predefined criterion."""
+def exact_mean(correct, ntest):
+    """Mean accuracy over folds in exact rational arithmetic on the integer counts."""
+    return sum(Fraction(int(c), int(n)) for c, n in zip(correct, ntest)) / len(correct)
+
+
+def best_set(r, metric="acc"):
+    """References with the highest mean (exact ties kept): list in REFERENCES order."""
+    ck, nk = ("n_correct", "n_test") if metric == "acc" else ("sel_correct", "sel_n")
+    ex = {m: exact_mean(r["methods"][m][ck], r["methods"][m][nk]) for m in REFERENCES}
+    top = max(ex.values())
+    return [m for m in REFERENCES if ex[m] == top]
+
+
+def compare(res, criterion_datasets):
+    """Paired comparisons and the predefined criterion.
+
+    Tie rule (protocol v0.3): the best reference is decided on the exact mean accuracy
+    (rational arithmetic on the integer counts of correct predictions); when several
+    references tie exactly, all of them are kept. A significant win then requires an
+    interval above zero against every tied reference and a significant loss an interval
+    below zero against every tied reference; the representative shown in the tables
+    ('best_reference') is the tied reference with the highest bootstrap upper limit,
+    i.e. the one least favourable to a loss and most conservative for the bound on a gain."""
     comp = {}
     for name, r in res.items():
         acc = {m: np.array(r["methods"][m]["acc"]) for m in ALL_METHODS}
         ratio = 1.0 / (r["n_splits"] - 1)          # n_test / n_train for k-fold
         means = {m: float(acc[m].mean()) for m in ALL_METHODS}
-        best_ref = max(REFERENCES, key=lambda m: means[m])
-        entry = dict(best_reference=best_ref,
+        vs_each = {m: paired_stats(acc[PROPOSED], acc[m], ratio) for m in REFERENCES}
+        tied = best_set(r, "acc")
+        best_ref = max(tied, key=lambda m: (vs_each[m]["ci_high"], -REFERENCES.index(m)))
+        entry = dict(best_reference=best_ref, best_reference_tied=tied,
+                     win_vs_all_tied=all(vs_each[m]["ci_low"] > 0 for m in tied),
+                     loss_vs_all_tied=all(vs_each[m]["ci_high"] < 0 for m in tied),
+                     win_vs_all_tied_nb=all(vs_each[m]["nb_lo"] > 0 for m in tied),
+                     loss_vs_all_tied_nb=all(vs_each[m]["nb_hi"] < 0 for m in tied),
                      means=means,
+                     total_correct={m: int(sum(r["methods"][m]["n_correct"])) for m in ALL_METHODS},
                      sds={m: float(acc[m].std(ddof=1)) for m in ALL_METHODS},
-                     vs_best=paired_stats(acc[PROPOSED], acc[best_ref], ratio, rng),
-                     vs_each={m: paired_stats(acc[PROPOSED], acc[m], ratio, rng) for m in REFERENCES},
-                     ablation={m: paired_stats(acc[PROPOSED], acc[m], ratio, rng) for m in ABLATIONS + SINGLES})
+                     vs_best=vs_each[best_ref],
+                     vs_each=vs_each,
+                     ablation={m: paired_stats(acc[PROPOSED], acc[m], ratio) for m in ABLATIONS + SINGLES})
         sel = {m: np.array(r["methods"][m]["sel"]) for m in ALL_METHODS}
         entry["sel_means"] = {m: float(sel[m].mean()) for m in ALL_METHODS}
-        entry["sel_vs_best"] = paired_stats(sel[PROPOSED], sel[best_ref], ratio, rng)
-        entry["sel_best_reference_by_sel"] = max(REFERENCES, key=lambda m: entry["sel_means"][m])
-        entry["sel_vs_best_by_sel"] = paired_stats(sel[PROPOSED], sel[entry["sel_best_reference_by_sel"]], ratio, rng)
+        sel_each = {m: paired_stats(sel[PROPOSED], sel[m], ratio) for m in REFERENCES}
+        entry["sel_vs_each"] = sel_each
+        entry["sel_vs_best"] = sel_each[best_ref]
+        tied_sel = best_set(r, "sel")
+        entry["sel_best_reference_by_sel_tied"] = tied_sel
+        entry["sel_best_reference_by_sel"] = max(tied_sel, key=lambda m: (sel_each[m]["ci_high"], -REFERENCES.index(m)))
+        entry["sel_vs_best_by_sel"] = sel_each[entry["sel_best_reference_by_sel"]]
         # modal hyper-parameters and mean weights of the proposed model
         entry["params_mode"] = {}
         for m in ALL_METHODS:
             ps = [json.dumps(p, sort_keys=True) for p in r["methods"][m]["params"]]
             # deterministic mode: ties broken towards the smallest parameter values
-            # (max(set(ps), key=ps.count) depended on the hash seed when several settings tied)
             cnt = {s: ps.count(s) for s in set(ps)}
             top = max(cnt.values())
-            tied = [json.loads(s) for s, v in cnt.items() if v == top]
-            entry["params_mode"][m] = min(tied, key=lambda p: tuple(p[kk] for kk in sorted(p)))
+            tiedp = [json.loads(s) for s, v in cnt.items() if v == top]
+            entry["params_mode"][m] = min(tiedp, key=lambda p: tuple(p[kk] for kk in sorted(p)))
         entry["weights_mean"] = {m: {f: float(np.mean([w[f] for w in r["methods"][m]["weights"]]))
                                      for f in m} for m in LOGIT_MODELS}
         comp[name] = entry
     n_ds = len(criterion_datasets)
-    wins = [nm for nm in criterion_datasets if comp[nm]["vs_best"]["ci_low"] > 0]
-    losses = [nm for nm in criterion_datasets if comp[nm]["vs_best"]["ci_high"] < 0]
+    wins = [nm for nm in criterion_datasets if comp[nm]["win_vs_all_tied"]]
+    losses = [nm for nm in criterion_datasets if comp[nm]["loss_vs_all_tied"]]
     needed = n_ds // 2 + 1
     verdict = dict(datasets=criterion_datasets, n_datasets=n_ds, required_wins=needed,
                    significant_wins=wins, significant_losses=losses,
@@ -545,7 +590,7 @@ def fmt_ci(s):
 def write_tables(res, comp, verdict, regime, regime_comp, meta, path):
     L = []
     L.append("# SPD001 -- results (generated by experiments/support_geometry.py)\n")
-    L.append(f"Seed {meta['seed']}; {meta['n_splits']}x{meta['n_repeats']} repeated stratified k-fold; "
+    L.append(f"Protocol {meta['protocol']}; seed {meta['seed']}; {meta['n_splits']}x{meta['n_repeats']} repeated stratified k-fold; "
              f"total {meta['seconds_wall']:.0f} s wall, {meta['seconds_cpu']:.0f} s CPU.\n")
     L.append("## E1: accuracy (mean over folds, %)\n")
     L.append("| dataset | n | d | C | " + " | ".join(ALL_METHODS) + " | best ref |")
@@ -560,8 +605,8 @@ def write_tables(res, comp, verdict, regime, regime_comp, meta, path):
     for name in res:
         c = comp[name]
         s = c["vs_best"]
-        L.append(f"| {name} | {c['best_reference']} | {fmt_ci(s)} | {s['wins']}/{s['losses']}/{s['ties']} | {s['nb_p']:.3f} |")
-    L.append(f"\nPredefined criterion: TOD 'adds information' iff CI > 0 on at least {verdict['required_wins']} of "
+        L.append(f"| {name} | {'/'.join(c['best_reference_tied'])} | {fmt_ci(s)} | {s['wins']}/{s['losses']}/{s['ties']} | {s['nb_p']:.3f} |")
+    L.append(f"\nPredefined criterion: TOD 'adds information' iff CI > 0 (against every exactly tied best reference) on at least {verdict['required_wins']} of "
              f"{verdict['n_datasets']} datasets. Significant wins: {verdict['significant_wins']}; "
              f"significant losses: {verdict['significant_losses']}. **Verdict: adds_information = {verdict['adds_information']}**\n")
     L.append("\n## E1: TOD minus each reference (accuracy points, mean [CI])\n")
@@ -607,36 +652,57 @@ def write_tables(res, comp, verdict, regime, regime_comp, meta, path):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--fast", action="store_true")
+    ap.add_argument("--profile", default=None,
+                    help="time one fold of the named dataset with the v0.3 grids (no output files, no accuracies)")
     args = ap.parse_args()
     global N_BOOT
     n_splits, n_repeats = (3, 1) if args.fast else (5, 5)
     if args.fast:
         N_BOOT = 1000
+    data, regime_data = make_datasets(SEED, fast=args.fast)
+    if args.profile:
+        X, y, _ = data[args.profile] if args.profile in data else regime_data[int(args.profile.split("_p")[-1])]
+        grids = dataset_grids(y, 5)
+        tr, te = next(RepeatedStratifiedKFold(n_splits=5, n_repeats=1, random_state=SEED).split(X, y))
+        c0 = time.process_time()
+        run_fold(X[tr], y[tr], X[te], y[te], np.unique(y), grids)
+        print(f"{args.profile}: grids {grids}; one fold {time.process_time() - c0:.2f}s cpu")
+        return
     os.makedirs(RESULTS, exist_ok=True)
     t0 = time.time()
     c0 = time.process_time()
+    prereg_path = os.path.join(ROOT, PREREG)
+    prereg_sha = hashlib.sha256(open(prereg_path, "rb").read()).hexdigest() if os.path.exists(prereg_path) else None
 
     def log(msg):
         print(msg, flush=True)
 
-    data, regime_data = make_datasets(SEED, fast=args.fast)
-    log(f"SPD001 run: seed={SEED} splits={n_splits} repeats={n_repeats} fast={args.fast}")
+    log(f"SPD001 run (protocol v0.3): seed={SEED} splits={n_splits} repeats={n_repeats} fast={args.fast} "
+        f"prereg_sha256={prereg_sha}")
     res = {}
     for name, (X, y, desc) in data.items():
         res[name] = evaluate_dataset(name, X, y, n_splits, n_repeats, log)
         res[name]["description"] = desc
-    rng = np.random.default_rng(SEED)
-    comp, verdict = compare(res, rng, list(res.keys()))
-    log("E2: moons regime scan")
+    comp, verdict = compare(res, list(res.keys()))
+    log("E2: moons regime scan (p = 0 and p = 10 are the E1 datasets moons and moons_noise10)")
     regime = {}
+    reuse = {0: "moons", 10: "moons_noise10"}
     for p, (X, y, desc) in regime_data.items():
         nm = f"moons_p{p}"
-        regime[nm] = evaluate_dataset(nm, X, y, n_splits, n_repeats, log)
+        if p in reuse and reuse[p] in res:
+            X1, y1, _ = data[reuse[p]]
+            assert np.array_equal(X1, X) and np.array_equal(y1, y)
+            regime[nm] = json.loads(json.dumps(res[reuse[p]]))
+            regime[nm]["reused_from"] = reuse[p]
+            log(f"  {nm}: identical to {reuse[p]} (same data and folds), copied")
+        else:
+            regime[nm] = evaluate_dataset(nm, X, y, n_splits, n_repeats, log)
         regime[nm]["description"] = desc
         regime[nm]["p"] = p
-    regime_comp, _ = compare(regime, rng, list(regime.keys()))
-    meta = dict(seed=SEED, n_splits=n_splits, n_repeats=n_repeats, fast=args.fast,
-                k_grid=K_GRID, m_grid=M_GRID, knn_grid=KNN_GRID, lambda_grid=LAMBDA_GRID,
+    regime_comp, _ = compare(regime, list(regime.keys()))
+    meta = dict(seed=SEED, protocol="v0.3", preregistration=PREREG, preregistration_sha256=prereg_sha,
+                n_splits=n_splits, n_repeats=n_repeats, fast=args.fast,
+                k_base=K_BASE, m_grid=M_GRID, knn_base=KNN_BASE, lambda_grid=LAMBDA_GRID,
                 coverage=COVERAGE, n_boot=N_BOOT, ridge=RIDGE, eps=EPS,
                 python=platform.python_version(), numpy=np.__version__, scipy=scipy.__version__,
                 sklearn=sklearn.__version__, seconds_wall=time.time() - t0,

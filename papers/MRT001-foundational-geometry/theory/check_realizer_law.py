@@ -347,7 +347,7 @@ def part_b():
     say("(b) exception rate against n  (R computed by the exact formula of (a) on flagged samples)")
     say("=" * 78)
     rng = np.random.default_rng(SEED + 1)
-    say("n | samples | P(E_n^c) obs | s_n bound | P(R!=2^N) obs (95% CI) | 5/n | 3(n-2)/(n(n-1))+2/n | "
+    say("n | samples | P(E_n^c) obs | s_n (upper bound on P(E_n^c)) | P(R!=2^N) obs (95% CI) | 5/n | 3(n-2)/(n(n-1))+2/n | "
         "n*P obs | missed-interval bound | ratios R/2^N among exceptions")
     plan = [(20, 20000), (50, 20000), (100, 20000), (200, 20000), (500, 20000), (1000, 20000), (2000, 10000)]
     for n, S in plan:
@@ -411,8 +411,8 @@ def part_c():
         if n in (10, 20, 50, 100, 200, 400):
             say(f"n={n}: d_TV(N, Po(1)) = {tv:.2e}  (n*d_TV = {n * tv:.3f});  bound e^2/n + ... = {bound:.2e}")
     say(f"max over tested n of d_TV / bound = {worst_tv:.3f} (must be <= 1)")
-    worst = max(s_n(n) / (10 / n + 171 / n ** 2) for n in range(20, 3001))
-    say(f"s_n <= 10/n + 171/n^2 for 20 <= n <= 3000: max ratio = {worst:.4f} (must be <= 1); "
+    worst = max(s_n(n) / (10 / n + 166 / n ** 2) for n in range(20, 3001))
+    say(f"s_n <= 10/n + 166/n^2 for 20 <= n <= 3000: max ratio = {worst:.4f} (must be <= 1); "
         f"n*s_n at n=20, 100, 1000, 3000: " + ", ".join(f"{n * s_n(n):.3f}" for n in (20, 100, 1000, 3000)))
     say(f"P(E^c_n) - first order 10/n: n^2*(s_n - 10/n) at n=100, 1000, 3000: " +
         ", ".join(f"{n * n * (s_n(n) - 10 / n):.1f}" for n in (100, 1000, 3000)))

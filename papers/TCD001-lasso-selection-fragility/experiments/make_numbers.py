@@ -23,13 +23,45 @@ def mac(name, value):
     L.append(rf"\newcommand{{\{name}}}{{{value}}}")
 
 
+def _pct_digits(x, d):
+    """One extra decimal when rounding would print 100 for a value below 1 or 0 for a positive value
+    (round-2 finding m10: 237/238 must not print as 100%)."""
+    if d == 0 and x is not None and (0.995 <= x < 1.0 or 0.0 < x < 0.005):
+        return 1
+    return d
+
+
 def pct(x, d=0):
-    return "--" if x is None else f"{100*x:.{d}f}"
+    return "--" if x is None else f"{100*x:.{_pct_digits(x, d)}f}"
 
 
 def pctcell(x, d=0):
     """Percentage for a table cell: appends the % sign only when there is a value."""
-    return "--" if x is None else f"{100*x:.{d}f}\\%"
+    return "--" if x is None else f"{100*x:.{_pct_digits(x, d)}f}\\%"
+
+
+def sig2(x):
+    """Two significant digits (round-2 finding M2: cost ratios vary between runs, more digits are
+    spurious).  Integers >= 10 are printed without a decimal point."""
+    if x is None:
+        return "--"
+    if x == 0:
+        return "0"
+    if abs(x) >= 9.95:
+        return f"{x:.0f}"
+    out = f"{x:#.2g}"
+    return out.rstrip(".") if "e" not in out else f"{x:.2g}"
+
+
+def half(x):
+    """A median of integers: printed as an integer, or with one decimal when it is a half (m5)."""
+    return f"{x:.0f}" if float(x).is_integer() else f"{x:.1f}"
+
+
+def sci(x, digits=2):
+    """x as LaTeX scientific notation with `digits` significant digits, e.g. 3.6\\times10^{-14}."""
+    m, e = f"{x:.{digits-1}e}".split("e")
+    return rf"{m}\times10^{{{int(e)}}}"
 
 
 def num(x, d=2):
@@ -68,6 +100,40 @@ mac("MetaSecondsFragility", int(round(fra["meta"]["seconds"])))
 mac("MetaSecondsScaling", int(round(sca["meta"]["seconds"])))
 mac("MetaSecondsTotal", int(round(tot)))
 mac("MetaMinutesTotal", f"{tot/60:.1f}")
+
+
+def thousands(n):
+    return f"{n:,}".replace(",", "{,}")
+
+
+# ------------------------------------------------------------------ KKT guard of the solver (round-2 M1, m4)
+# Counters written by each script into meta.kkt_guard (lasso_fragility.KKT_STATS).  The manuscript
+# states (Limitations, Appendix A) that the fallback was triggered only in the integer-data search of
+# E0, always at an exact tie of |x_j^T y| at the first entry, without changing the examples, and never
+# in E1-E5; the assertions below make the build fail if a rerun contradicts that text.
+kg0 = exa["meta"]["kkt_guard"]
+kg_later = [val["meta"]["kkt_guard"], fra["meta"]["kkt_guard"], sca["meta"]["kkt_guard"]]
+mac("EzeroFits", kg0["calls"])
+mac("EzeroFallbacks", kg0["fallbacks"])
+mac("EzeroFallbacksTie", kg0["fallbacks_tie_at_entry"])
+mac("EzeroFallbacksFullRank", kg0["fallbacks_full_rank"])
+mac("EzeroRejectedMaxErr", f"{kg0['max_active_rel_rejected']:.1f}")
+mac("EzeroFallbackMaxErr", sci(kg0["max_active_rel_fallback"], 1) if kg0["max_active_rel_fallback"] > 0 else "0")
+mac("EoneToFiveFits", thousands(sum(k["calls"] for k in kg_later)))
+mac("EoneToFiveFallbacks", sum(k["fallbacks"] for k in kg_later))
+kkt_act = max(k["max_active_rel"] for k in kg_later)
+mac("KKTMaxActiveRel", sci(kkt_act, 2))
+mac("KKTMaxInactiveRel", sci(max(k["max_inactive_rel"] for k in kg_later), 2) if max(k["max_inactive_rel"] for k in kg_later) > 0 else "0")
+assert sum(k["fallbacks"] for k in kg_later) == 0, "text says the KKT fallback never fires in E1-E5"
+assert kg0["fallbacks_tie_at_entry"] == kg0["fallbacks"] == kg0["fallbacks_full_rank"], "text says all E0 fallbacks are exact ties with full-rank X"
+ng_path = os.path.join(RES, "examples_noguard.json")
+if os.path.exists(ng_path):
+    ng = json.load(open(ng_path))
+    a_cmp = {k: v for k, v in exa.items() if k not in ("seconds", "meta")}
+    b_cmp = {k: v for k, v in ng.items() if k not in ("seconds", "meta")}
+    assert a_cmp == b_cmp, "text says the examples are identical with and without the KKT guard"
+    mac("EzeroGuardIdentical", "identical")
+    mac("EzeroNoGuardFits", ng["meta"]["kkt_guard"]["calls"])
 
 # ------------------------------------------------------------------ E0 examples
 e2 = exa["example2"]
@@ -216,19 +282,21 @@ for fam in fm["families"]:
             rr = [(r[f"g_{tgt}_{meth}_t"] * (1 - 1 / r[f"g_{tgt}_{meth}_refits"])) / r[tkey] for r in base
                   if r.get(f"g_{tgt}_{meth}_refits")]
             adj_ratios[f"{fam}_{tgt}_{meth}"] = float(np.median(rr)) if rr else None
-mac("EthreeMinCostAdjusted", num(min(v for v in adj_ratios.values() if v is not None)))
-mac("EthreeMinCostRaw", num(min(v["median_cost_ratio"] for v in ver.values() if v["median_cost_ratio"] is not None)))
+mac("EthreeMinCostAdjusted", sig2(min(v for v in adj_ratios.values() if v is not None)))
+mac("EthreeMinCostRaw", sig2(min(v["median_cost_ratio"] for v in ver.values() if v["median_cost_ratio"] is not None)))
+assert min(v["median_cost_ratio"] for v in ver.values()) > crit["cost"] and min(adj_ratios.values()) > crit["cost"], \
+    "text says no heuristic meets the cost part at n <= 14, even after the adjustment"
 with open(os.path.join(OUT, "table_e3.tex"), "w") as fh:
     for fam in fm["families"]:
         for tgt in ["any", "leave", "enter"]:
             for meth in ["onestep", "amip", "cook"]:
                 v = ver[f"{fam}_{tgt}_{meth}"]
-                fh.write(f"{fam} & {tgt} & {names[meth]} & {v['n']} & {pct(v['exact'])}\\% $\\pm$ {se_pct(v['exact'], v['n'])} & {v['n_nontrivial']} & {pctcell(v['exact_nontrivial'])} & {num(v['median_cost_ratio'])} & {num(adj_ratios[f'{fam}_{tgt}_{meth}'])} & {'yes' if v['advantage'] else 'no'} \\\\\n")
+                fh.write(f"{fam} & {tgt} & {names[meth]} & {v['n']} & {pct(v['exact'])}\\% $\\pm$ {se_pct(v['exact'], v['n'])} & {v['n_nontrivial']} & {pctcell(v['exact_nontrivial'])} & {sig2(v['median_cost_ratio'])} & {sig2(adj_ratios[f'{fam}_{tgt}_{meth}'])} & {'yes' if v['advantage'] else 'no'} \\\\\n")
                 mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}Exact", pct(v["exact"]))
                 mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}ExactSE", se_pct(v["exact"], v["n"]))
                 mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}ExactNT", pct(v["exact_nontrivial"]))
-                mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}Cost", num(v["median_cost_ratio"]))
-                mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}CostAdj", num(adj_ratios[f"{fam}_{tgt}_{meth}"]))
+                mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}Cost", sig2(v["median_cost_ratio"]))
+                mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}CostAdj", sig2(adj_ratios[f"{fam}_{tgt}_{meth}"]))
                 mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}N", v["n"])
 # how far below the 90% threshold is the one-step greedy on ENTER, in standard errors
 for fam in fm["families"]:
@@ -283,10 +351,10 @@ with open(os.path.join(OUT, "table_e4.tex"), "w") as fh:
     for a in sca["exact"]:
         d = a["f_C_dist"]
         dist = "/".join(str(d[str(k)]) for k in range(1, sm["kmax"] + 1)) + f"/{d['notfound']}"
-        fh.write(f"{a['family']} & {a['n']} & {pct(a['frac_true_support'])}\\% & {dist} & {num(a['f_C_median'],1)} & {pct(a['f_C_frac1'])}\\% & {num(a['f_P_median'],1)} & {pct(a['greedy_onestep_exact_C'])}\\% & {pct(a['greedy_sorted_exact_C'])}\\% & {num(a['kstar_mean'])} & {num(a['t_C_mean'])} & {num(a['cost_ratio_onestep_median'],2)} \\\\\n")
+        fh.write(f"{a['family']} & {a['n']} & {pct(a['frac_true_support'])}\\% & {dist} & {num(a['f_C_median'],1)} & {pct(a['f_C_frac1'])}\\% & {num(a['f_P_median'],1)} & {pct(a['greedy_onestep_exact_C'])}\\% & {pct(a['greedy_sorted_exact_C'])}\\% & {num(a['kstar_mean'])} & {num(a['t_C_mean'])} & {sig2(a['cost_ratio_onestep_median'])} \\\\\n")
 with open(os.path.join(OUT, "table_e4b.tex"), "w") as fh:
     for a in sca["greedy"]:
-        fh.write(f"{a['family']} & {a['n']} & {pct(a['frac_true_support'])}\\% & {a['g_onestep_C_median']:.0f} [{a['g_onestep_C_q1']:.0f}, {a['g_onestep_C_q3']:.0f}] & {num(a['g_onestep_C_mean_over_n'],3)} & {a['g_sorted_C_median']:.0f} & {a['g_onestep_P_median']:.0f} & {a['kstar_median']:.0f} & {pct(a['frac_kstar_ge1'])}\\% & {num(a['mean_bracket_ratio'])} & {num(a['t_onestep_mean'],3)} \\\\\n")
+        fh.write(f"{a['family']} & {a['n']} & {pct(a['frac_true_support'])}\\% & {half(a['g_onestep_C_median'])} [{half(a['g_onestep_C_q1'])}, {half(a['g_onestep_C_q3'])}] & {num(a['g_onestep_C_mean_over_n'],3)} & {half(a['g_sorted_C_median'])} & {half(a['g_onestep_P_median'])} & {half(a['kstar_median'])} & {pct(a['frac_kstar_ge1'])}\\% & {num(a['mean_bracket_ratio'])} & {num(a['t_onestep_mean'],3)} \\\\\n")
 for a in sca["exact"]:
     tag = a["family"] + word(a["n"])
     mac(f"Efour{tag}Mean", num(a["f_C_mean"]))
@@ -296,13 +364,13 @@ for a in sca["exact"]:
     mac(f"Efour{tag}OnestepExact", pct(a["greedy_onestep_exact_C"]))
     mac(f"Efour{tag}AmipExact", pct(a["greedy_sorted_exact_C"]))
     mac(f"Efour{tag}KpredExact", pct(a["amip_kpred_exact"]))
-    mac(f"Efour{tag}CostOnestep", num(a["cost_ratio_onestep_median"], 3))
+    mac(f"Efour{tag}CostOnestep", sig2(a["cost_ratio_onestep_median"]))
     mac(f"Efour{tag}Instances", a["instances"])
 for a in sca["greedy"]:
     tag = a["family"] + word(a["n"])
-    mac(f"Efour{tag}Median", f"{a['g_onestep_C_median']:.0f}")
+    mac(f"Efour{tag}Median", half(a["g_onestep_C_median"]))
     mac(f"Efour{tag}MeanOverN", num(a["g_onestep_C_mean_over_n"], 3))
-    mac(f"Efour{tag}Kstar", f"{a['kstar_median']:.0f}")
+    mac(f"Efour{tag}Kstar", half(a["kstar_median"]))
     mac(f"Efour{tag}Bracket", num(a["mean_bracket_ratio"]))
     mac(f"Efour{tag}TimeMs", f"{1e3*a['t_onestep_mean']:.0f}")
 # pooled: exactness of one-step greedy over all exact instances with n>=18, nontrivial
@@ -316,17 +384,68 @@ for fam in sm["families"]:
     mac(f"Efour{fam}NT", len(nt))
     mac(f"Efour{fam}NAll", len(rr))
     mac(f"Efour{fam}OnestepMaxGap", int(max(r["g_onestep_C"] - r["f_C"] for r in rr)) if rr else "--")
-    mac(f"Efour{fam}CostOnestepMedian", num(np.median([r["t_onestep_C"] / r["t_C"] for r in rr if r["t_C"] > 0]), 2) if rr else "--")
+    mac(f"Efour{fam}CostOnestepMedian", sig2(np.median([r["t_onestep_C"] / r["t_C"] for r in rr if r["t_C"] > 0])) if rr else "--")
     big = [r for r in rr if r["n"] >= 22]
-    mac(f"Efour{fam}CostOnestepMedianBig", num(np.median([r["t_onestep_C"] / r["t_C"] for r in big if r["t_C"] > 0]), 3) if big else "--")
+    mac(f"Efour{fam}CostOnestepMedianBig", sig2(np.median([r["t_onestep_C"] / r["t_C"] for r in big if r["t_C"] > 0])) if big else "--")
     mac(f"Efour{fam}OnestepExactBig", pct(np.mean([r["g_onestep_C"] == r["f_C"] for r in big])) if big else "--")
     mac(f"Efour{fam}NBig", len(big))
     # same statistics over all instances with n >= 22, including those whose f was not found within the cap
     big_all = [r for r in recs if r["family"] == fam and r["n"] >= 22]
-    mac(f"Efour{fam}CostOnestepMedianBigAll", num(np.median([r["t_onestep_C"] / r["t_C"] for r in big_all if r["t_C"] > 0]), 2) if big_all else "--")
+    mac(f"Efour{fam}CostOnestepMedianBigAll", sig2(np.median([r["t_onestep_C"] / r["t_C"] for r in big_all if r["t_C"] > 0])) if big_all else "--")
     mac(f"Efour{fam}NBigAll", len(big_all))
     mac(f"Efour{fam}NotFoundAll", sum(r["f_C"] is None for r in recs if r["family"] == fam))
     mac(f"Efour{fam}KpredExactAll", pct(np.mean([r["kpred_amip_C"] == r["f_C"] for r in rr])) if rr else "--")
+
+# ------------------------------------------------------------------ E4 cost of the greedy (round-2 finding M2)
+# Accuracy of the one-step greedy at n = 34 (family A) with its binomial standard error.
+a34 = next(a for a in sca["exact"] if a["family"] == "A" and a["n"] == 34)
+p34 = a34["greedy_onestep_hits_C"] / a34["n_finite_C"]
+mac("EfourAThirtyfourHits", a34["greedy_onestep_hits_C"])
+mac("EfourAThirtyfourFinite", a34["n_finite_C"])
+mac("EfourAThirtyfourOnestepSE", se_pct(p34, a34["n_finite_C"], 0))
+mac("EfourAThirtyfourShortfallSE", f"{(crit['exact'] - p34) / np.sqrt(p34 * (1 - p34) / a34['n_finite_C']):.1f}")
+# Median wall-clock times in family B (current run): one batch of closed-form tests vs the greedy.
+bcells = [a for a in sca["exact"] if a["family"] == "B"]
+mac("EfourBExhMsMax", f"{1e3*max(a['t_C_median'] for a in bcells):.2f}")
+mac("EfourBGreedyMsMin", f"{1e3*min(a['t_onestep_median'] for a in bcells):.1f}")
+mac("EfourBGreedyMsMax", f"{1e3*max(a['t_onestep_median'] for a in bcells):.1f}")
+# Cell medians of the cost ratio of the one-step greedy over all archived complete runs
+# (results/cost_ratios_run_*.json, written by snapshot_cost_ratios.py) and the current run.
+import glob
+runs4 = [{f"{a['family']}_{a['n']}_onestep": a["cost_ratio_onestep_median"] for a in sca["exact"]}]
+runs3 = [{k: v["median_cost_ratio"] for k, v in ver.items()}]
+for fn in sorted(glob.glob(os.path.join(RES, "cost_ratios_run_*.json"))):
+    rj = json.load(open(fn))
+    runs4.append({k: v for k, v in rj["e4_median_cost_ratio"].items() if k.endswith("_onestep") and "ge22" not in k})
+    runs3.append(rj["e3_median_cost_ratio"])
+mac("CostRuns", {1: "one", 2: "two", 3: "three", 4: "four"}.get(len(runs4), len(runs4)))
+
+
+def span(keys):
+    vals = [r[k] for r in runs4 for k in keys]
+    return min(vals), max(vals)
+
+
+fac4 = {k: max(r[k] for r in runs4) / min(r[k] for r in runs4) for k in runs4[0]}
+kmax4 = max(fac4, key=fac4.get)
+mac("EfourRunFactor", sig2(fac4[kmax4]))
+mac("EfourRunFactorFam", kmax4.split("_")[0])
+mac("EfourRunFactorN", kmax4.split("_")[1])
+fac3 = {k: max(r[k] for r in runs3) / min(r[k] for r in runs3) for k in runs3[0]}
+mac("EthreeRunFactor", sig2(max(fac3.values())))
+groups = {"EfourACostSmall": [f"A_{n}_onestep" for n in (10, 14, 18)],
+          "EfourACostMid": [f"A_{n}_onestep" for n in (22, 26)],
+          "EfourAThirtyCost": ["A_30_onestep"], "EfourAThirtyfourCost": ["A_34_onestep"],
+          "EfourBCost": [f"B_{n}_onestep" for n in sm["ns_exact"]]}
+for name, keys in groups.items():
+    lo, hi = span(keys)
+    mac(name + "Lo", sig2(lo))
+    mac(name + "Hi", sig2(hi))
+# qualitative statements of Section 6 (E4), checked over every archived run:
+assert span(groups["EfourACostSmall"])[0] > 1 and span(groups["EfourBCost"])[0] > 1, "greedy slower: A n<=18, B all n"
+assert span(groups["EfourAThirtyCost"])[1] < 1, "greedy faster at A n=30"
+assert span(groups["EfourAThirtyfourCost"])[1] <= crit["cost"], "below the cost threshold at A n=34"
+assert all(span([k])[0] > crit["cost"] for k in runs4[0] if k != "A_34_onestep"), "only at A n=34 below the threshold"
 
 # table bodies: drop the trailing row terminator (main.tex supplies it after \input)
 for fn in os.listdir(OUT):

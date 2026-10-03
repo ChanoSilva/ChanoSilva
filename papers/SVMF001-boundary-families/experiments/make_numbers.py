@@ -355,6 +355,47 @@ if has_edge:
                   if res["results"][d]["main"]["summary"]["edge"][meth][par][side] is not None)
     mac("EdgeMainNCells", n_cells)
 
+# ---------------------------------------------------------------- referee 2 (03/10/2026): extra counts used in the text
+gmax = {k: max(v) for k, v in m["grid"].items() if isinstance(v, list)}
+fms = [f for d in REGIMES["multiscale"] for f in res["results"][d]["main"]["folds"]]
+mac("EdgeMainMultiLlsvmBothHi", sum(f["llsvm"]["cfg"]["M"] == gmax["llsvm_Ms"] and f["llsvm"]["cfg"]["C"] == gmax["llsvm_Cs"] for f in fms))
+mac("EdgeMainMultiCellBothHi", sum(f["cell_svm"]["cfg"]["M"] == gmax["cell_Ms"] and f["cell_svm"]["cfg"]["C"] == gmax["cell_Cs"] for f in fms))
+mac("EdgeMainMultiN", len(fms))
+mac("CellCMax", f"{gmax['cell_Cs']:g}")
+mac("LlsvmCMax", f"{gmax['llsvm_Cs']:g}")
+mac("LinCMin", f"{min(m['grid']['C_lin']):g}")
+mac("CellCMin", f"{min(m['grid']['cell_Cs']):g}")
+mac("LlsvmCMin", f"{min(m['grid']['llsvm_Cs']):g}")
+# M6: the positive Gaussian cell in test points (accuracies are hits / n_test, n_test = n - n_train)
+gd = "gauss_linear"
+gF = res["results"][gd]["main"]["folds"]
+nte = res["datasets"][gd]["n"] - res["results"][gd]["main"]["n_train"]
+hits = [{mm: int(round(f[mm]["acc"] * nte)) for mm in METHODS} for f in gF]
+pick = [f["best_global"]["cfg"]["pick"] for f in gF]
+vb_over_sel = sum(h["vb_rbf"] - h["best_global"] for h in hits)
+mac("GaussCellPts", vb_over_sel)
+mac("GaussCellN", nte * len(gF))
+mac("GaussVbOwnFolds", sum(h["vb_rbf"] > h["rbf"] for h in hits))  # VB above its own RBF member
+mac("GaussVbOwnPts", sum(h["vb_rbf"] - h["rbf"] for h in hits if h["vb_rbf"] > h["rbf"]))
+mac("GaussSelLinFolds", sum(p == "linear" for p in pick))
+mac("GaussSelLinLossFolds", sum(p == "linear" and h["rbf"] > h["linear"] for p, h in zip(pick, hits)))
+mac("GaussSelLinVbGainFolds", sum(p == "linear" and h["vb_rbf"] > h["best_global"] for p, h in zip(pick, hits)))
+mac("GaussPickRbfN", sum(p == "rbf" for p in pick))
+mac("GaussPickRbfLinBetter", sum(p == "rbf" and h["linear"] > h["rbf"] for p, h in zip(pick, hits)))
+mac("GaussPickRbfTie", sum(p == "rbf" and h["linear"] == h["rbf"] for p, h in zip(pick, hits)))
+mac("GaussPickRbfLinWorse", sum(p == "rbf" and h["linear"] < h["rbf"] for p, h in zip(pick, hits)))
+mac("GaussPickRbfLossMax", max(h["linear"] - h["rbf"] for p, h in zip(pick, hits) if p == "rbf"))
+assert vb_over_sel == sum(h["vb_rbf"] > h["best_global"] for h in hits) and all(h["vb_rbf"] >= h["best_global"] for h in hits)
+# the text says "by one point" / "one point each" / "the other differences cancel": check that it is so
+assert all(h["vb_rbf"] - h["rbf"] in (0, 1) for h in hits if h["vb_rbf"] >= h["rbf"])
+assert all(h["rbf"] - h["linear"] == 1 for p, h in zip(pick, hits) if p == "linear")
+assert sum(h["rbf"] - h["linear"] for p, h in zip(pick, hits) if p == "rbf") == -max(h["linear"] - h["rbf"] for p, h in zip(pick, hits) if p == "rbf")
+# m3: the upper end of the wine/cell-SVM interval, to three decimals of a percentage point
+mac("DiffHiExactMainWineCell", f"{100*res['results']['wine']['main']['summary']['cell_svm']['diff_ci'][1]:.3f}")
+# m5: the D1 worst case in excess risk (Bayes risk subtracted) as well as in risk
+mac("ExKnnCWorstExc", f"{ex['D1_knn_centroid']['rows'][str(max(ex['D1_knn_centroid']['rows'], key=lambda k: ex['D1_knn_centroid']['rows'][k]['mean']))]['mean'] - ex['meta']['bayes']:.4f}")
+mac("ExKnnCGlobalExc", f"{ex['D1_knn_centroid']['rows'][str(ex['B_partition']['n'])]['mean'] - ex['meta']['bayes']:.4f}")
+
 # ---------------------------------------------------------------- exact example
 e = ex
 mac("ExDelta", e["meta"]["delta"])

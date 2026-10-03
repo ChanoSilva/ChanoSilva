@@ -7,20 +7,19 @@ E1b  Random parallel-link networks with affine costs c_e(x) = a_e x + b_e (a_e >
      b_e >= 0): equilibrium and optimum computed by the projected-gradient VI solver
      on the simplex and, independently, by exact water-filling on the cost level;
      the price of anarchy is checked against the bound 4/3.
-E1c  Marginal-cost tolls tau_e(f) = f_e c_e'(f_e) = a_e f_e: the equilibrium of the
-     tolled operator c + tau, computed by the projected-gradient solver, is compared with
-     the social optimum computed INDEPENDENTLY by water-filling on the marginal costs
-     2 a_e f + b_e.  (For affine costs c + tau and grad C are the same function, so
-     comparing two runs of the same solver on them is vacuous; v0.1 did exactly that and
-     the internal review of 30/09/2026 caught it.)
+E1c  (merged into E1b in v0.3.)  For affine costs the tolled operator c + tau, tau_e = a_e f_e,
+     is the same function as grad C = 2 a f + b, so "the equilibrium of the tolled operator" and
+     "the optimum" are one solver call; v0.2 ran it twice and the two deviations from the
+     water-filling optimum coincided bit for bit (internal review, round 2, m1).  The optimum
+     computed by the solver is compared with the water-filling optimum in E1b, which is the
+     only content of that check.
 
 Criteria (stated in this docstring and evaluated by check_criteria() below, which writes a
 pass/fail flag and the margins into results/results_traffic.json; there is no external
 pre-registration record):
   * every VI residual <= 1e-8;
   * solver and water-filling agree to 1e-7 in flow (equilibrium and optimum);
-  * PoA <= 4/3 + 1e-9 in every affine instance; Pigou (d = 1) gives 4/3 to 1e-12;
-  * tolled equilibrium equals the water-filling optimum to 1e-7 in every instance.
+  * PoA <= 4/3 + 1e-9 in every affine instance; Pigou (d = 1) gives 4/3 to 1e-12.
 """
 import json
 import os
@@ -90,7 +89,6 @@ def run_affine_instances(rng, n_instances=200):
         x0 = np.full(m, 1.0 / m)
         f_eq, info_eq = solve_vi(cost, proj_simplex, x0, mu, L)
         f_opt, info_opt = solve_vi(mcost, proj_simplex, x0, 2 * mu, 2 * L)
-        f_toll, info_toll = solve_vi(lambda f: cost(f) + a * f, proj_simplex, x0, 2 * mu, 2 * L)
         f_eq_wf, _ = water_fill(a, b)
         f_opt_wf, _ = water_fill(2 * a, b)
         C = lambda f: float(np.sum(f * (a * f + b)))
@@ -104,7 +102,6 @@ def run_affine_instances(rng, n_instances=200):
             "contraction_factor_eq": info_eq["contraction_factor"],
             "dev_eq_vs_waterfill": float(np.max(np.abs(f_eq - f_eq_wf))),
             "dev_opt_vs_waterfill": float(np.max(np.abs(f_opt - f_opt_wf))),
-            "dev_tolled_vs_opt_wf": float(np.max(np.abs(f_toll - f_opt_wf))),   # independent of the solver
             "used_links_eq": int(np.sum(f_eq > 1e-9)),
             "used_links_opt": int(np.sum(f_opt > 1e-9)),
             "equal_cost_spread_eq": float(np.ptp(cost(f_eq)[f_eq > 1e-9])),
@@ -121,26 +118,14 @@ def make_figure(out):
     plt.rcParams.update({"font.size": 9, "axes.edgecolor": MUTED, "axes.labelcolor": INK,
                          "xtick.color": MUTED, "ytick.color": MUTED, "axes.spines.top": False,
                          "axes.spines.right": False})
-    fig, axes = plt.subplots(1, 2, figsize=(6.4, 2.6))
-    ax = axes[0]
-    ds = [r["d"] for r in out["E1a_pigou"]]
-    poa = [r["price_of_anarchy"] for r in out["E1a_pigou"]]
-    ax.plot(ds, poa, color=BLUE, lw=2, marker="o", ms=5)
-    for d, p in zip(ds, poa):
-        ax.annotate(f"{p:.2f}", (d, p), textcoords="offset points", xytext=(4, -10), fontsize=7, color=INK)
-    ax.axhline(4 / 3, color=ORANGE, lw=1.2, ls="--")
-    ax.text(5.2, 4 / 3 + 0.1, "4/3 (affine bound)", color=INK, fontsize=7)
-    ax.set_xscale("log", base=2); ax.set_xticks(ds); ax.set_xticklabels([str(d) for d in ds])
-    ax.set_xlabel(r"degree $d$ of $c_2(x)=x^d$"); ax.set_ylabel("price of anarchy")
-    ax.set_title("Pigou's example", fontsize=9, color=INK)
-    ax.grid(True, color="#e6e5e0", lw=0.5); ax.set_axisbelow(True)
-    ax = axes[1]
+    # v0.3: the Pigou-vs-d panel was dropped (it plots the closed form of Example 3.7; values in tables_traffic.md)
+    fig, ax = plt.subplots(figsize=(3.3, 2.5))
     vals = [r["price_of_anarchy"] for r in out["E1b_affine"]["rows"]]
     ax.hist(vals, bins=np.linspace(1.0, 4 / 3, 21), color=BLUE, edgecolor="#fcfcfb", lw=0.8)
     ax.axvline(4 / 3, color=ORANGE, lw=1.2, ls="--")
     ax.text(4 / 3 - 0.005, ax.get_ylim()[1] * 0.9, "4/3", color=INK, fontsize=8, ha="right")
     ax.set_xlabel("price of anarchy (affine parallel links)"); ax.set_ylabel("instances")
-    ax.set_title(f"{len(vals)} random instances, max {max(vals):.3f}", fontsize=9, color=INK)
+    ax.set_title(f"{len(vals)} random instances, max {max(vals):.3f}", fontsize=8.5, color=INK)
     ax.grid(True, axis="y", color="#e6e5e0", lw=0.5); ax.set_axisbelow(True)
     fig.tight_layout()
     os.makedirs(os.path.join(ROOT, "figures"), exist_ok=True)
@@ -158,7 +143,6 @@ def check_criteria(out):
         "solver_vs_waterfill_le_1e-7": {"value": e["max_dev_vs_waterfill"], "threshold": 1e-7},
         "poa_bound_violations_zero": {"value": e["bound_violations"], "threshold": 0},
         "pigou_d1_poa_minus_4_3_le_1e-12": {"value": abs(pig[1]["price_of_anarchy"] - 4.0 / 3.0), "threshold": 1e-12},
-        "tolled_vs_waterfill_optimum_le_1e-7": {"value": e["max_dev_tolled_vs_opt_wf"], "threshold": 1e-7},
     }
     for v in crit.values():
         v["pass"] = bool(v["value"] <= v["threshold"])
@@ -184,7 +168,6 @@ def main():
         "bound_violations": int(np.sum(poa > 4.0 / 3.0 + 1e-9)),
         "max_residual": float(max(max(r["residual_eq"], r["residual_opt"]) for r in rows)),
         "max_dev_vs_waterfill": float(max(max(r["dev_eq_vs_waterfill"], r["dev_opt_vs_waterfill"]) for r in rows)),
-        "max_dev_tolled_vs_opt_wf": float(max(r["dev_tolled_vs_opt_wf"] for r in rows)),
         "max_iterations": int(max(max(r["iterations_eq"], r["iterations_opt"]) for r in rows)),
         "max_equal_cost_spread_eq": float(max(r["equal_cost_spread_eq"] for r in rows)),
         "n_poa_equals_one": int(np.sum(np.abs(poa - 1.0) < 1e-9)),
@@ -207,12 +190,11 @@ def main():
     for r in out["E1a_pigou"]:
         L.append(f"| {r['d']} | {r['optimum_flow'][1]:.6f} | {r['optimum_cost']:.6f} | {r['price_of_anarchy']:.6f} |")
     e = out["E1b_affine"]
-    L += ["", "## E1b/E1c random affine parallel links", "",
+    L += ["", "## E1b random affine parallel links (E1c merged here in v0.3)", "",
           f"- instances: {e['instances']}", f"- PoA max {e['poa_max']:.6f}, mean {e['poa_mean']:.6f}, median {e['poa_median']:.6f}",
           f"- bound violations (PoA > 4/3): {e['bound_violations']}",
           f"- max VI residual: {e['max_residual']:.2e}",
           f"- max |solver - water-filling|: {e['max_dev_vs_waterfill']:.2e}",
-          f"- max |tolled equilibrium (solver) - optimum (water-filling, independent)|: {e['max_dev_tolled_vs_opt_wf']:.2e}",
           f"- max iterations: {e['max_iterations']}",
           f"- fraction of instances with PoA > 1.01: {e['fraction_poa_above_1p01']:.3f}; > 1.10: {e['fraction_poa_above_1p10']:.3f}",
           f"- instances with PoA = 1 exactly (equilibrium = optimum): {e['n_poa_equals_one']}/{e['instances']}", "",

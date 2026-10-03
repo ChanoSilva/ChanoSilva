@@ -76,8 +76,8 @@ Traducción a grafos: ⊕ ↔ nodo paralelo (bloques sin aristas entre sí en G_
 **Lema 8 (primer momento).** Sea `I_k` el nº de intervalos de longitud k. `E I_k = (n−k+1)^2 k!(n−k)!/n! = (n−k+1)^2 / C(n,k)` (posición inicial, valor inicial, k!(n−k)! ordenaciones). En particular
 `E I_2 = 2(n−1)/n`, `E I_3 = 6(n−2)/(n(n−1))`, `E I_{n−1} = 4/n`, `E I_{n−2} = 18/(n(n−1))`, `E I_{n−3} = 96/(n(n−1)(n−2))`, `E I_4 = 24(n−3)/(n(n−1)(n−2))`, `E I_{n−4} = 600/(n(n−1)(n−2)(n−3))`,
 y para `5 ≤ k ≤ n−5`, `E I_k ≤ (n−4)^2/C(n,5)`, con `n−9` términos cuya suma es `≤ 120(n−4)(n−9)/(n(n−1)(n−2)(n−3)) ≤ 120/n^2` (pues `n(n−4)(n−9) ≤ (n−1)(n−2)(n−3)` ⟺ `7n^2 − 25n − 6 ≥ 0`). Para n ≥ 20:
-`P(E_n^c) ≤ s_n := Σ_{k=3}^{n−1} E I_k ≤ 10/n + 171/n^2`
-(6/n + 4/n más `19 + 24 + 5.7 + 2.1 + 120 ≤ 171` sobre n^2). Asintóticamente `s_n = 10/n + O(n^{-2})`. (Comprobado numéricamente en la sección 5.)
+`P(E_n^c) ≤ s_n := Σ_{k=3}^{n−1} E I_k ≤ 10/n + 166/n^2`
+(`E I_3 = 6/n − 6/(n(n−1)) ≤ 6/n − 6/n^2`, `E I_{n−1} = 4/n`, y `24 + 19 + 6 + 3 + 120` sobre n^2 para I_4, I_{n−2}, I_{n−3}, I_{n−4} y el centro; **corrección**: en un primer borrador puse 2.1 para I_{n−4}, pero en n=20 vale 2.06·n^{−2}, así que uso 3 y compenso con el −6/n^2 de I_3). Asintóticamente `s_n = 10/n + O(n^{-2})`. (Comprobado numéricamente en la sección 5.)
 
 **Lema 9 (momentos factoriales de N, exactos).** Para `0 ≤ r ≤ n−1`, `E[(N)_r] = 1 − r/n`; `E[(N)_r] = 0` si r ≥ n.
 *Prueba.* Para un conjunto A de r índices de `[n−1]`, el suceso `{π(i+1) = π(i)−1 ∀ i∈A}` dice que cada racha maximal de A (índices consecutivos `i..i+l−1`) ocupa posiciones `i..i+l` con valores consecutivos decrecientes. Contraer cada racha a un elemento es una biyección con `S_{n−r}` (inversa: inflar con bloques decrecientes de las longitudes dadas). Luego la probabilidad es `(n−r)!/n!` sea cual sea A, y `E[(N)_r] = r!·C(n−1,r)·(n−r)!/n! = (n−r)/n`. ∎
@@ -89,9 +89,9 @@ Además `P(N=j) = (e^{−1}/j!)(1 − (j−1)/n) + O(1/(n−j)!)`; p.ej. `P(N=0)
 Clásico: Wolfowitz (1944), Kaplansky (1945) (sucesiones *ascendentes*; π ↦ π∘reverso intercambia ambos tipos y preserva la uniformidad).
 
 **Teorema (ley de los realizadores).** Sea R_n el nº de realizadores módulo intercambio del orden causal de n puntos iid uniformes del diamante 1+1 y N_n el nº de pares adyacentes en ambos órdenes de coordenadas con direcciones opuestas. Para n ≥ 20:
-(a) `P(R_n ≠ 2^{N_n}) ≤ P(E_n^c) ≤ 10/n + 171/n^2`;
+(a) `P(R_n ≠ 2^{N_n}) ≤ P(E_n^c) ≤ 10/n + 166/n^2`;
 (b) `E[(N_n)_r] = 1 − r/n` y `d_TV(N_n, Po(1)) ≤ e^2/n + (2^n+1)/(2 n!)`;
-(c) `d_TV(R_n, 2^Z) ≤ (10 + e^2)/n + 172/n^2`, Z ~ Po(1). En particular `P(R_n=1) → e^{−1}`, `P(R_n=2) → e^{−1}`, `P(R_n ≤ 8) → (8/3)e^{−1}`, con error O(1/n).
+(c) `d_TV(R_n, 2^Z) ≤ (10 + e^2)/n + 167/n^2`, Z ~ Po(1). En particular `P(R_n=1) → e^{−1}`, `P(R_n=2) → e^{−1}`, `P(R_n ≤ 8) → (8/3)e^{−1}`, con error O(1/n).
 
 ## 4. Las excepciones: de dónde salen y cuánto valen
 
@@ -107,3 +107,26 @@ Con probabilidad `1 − O(n^{−2})`, π tiene a lo sumo un intervalo J con long
 Cada patrón de longitud 3 aparece con esperanza `(n−2)/(n(n−1))`, y `P(π(1)=n) = P(π(n)=1) = 1/n`. Por tanto
 **`P(R_n ≠ 2^{N_n}) = 3(n−2)/(n(n−1)) + 2/n + O(n^{−2}) = 5/n + O(n^{−2})`**
 (cota superior: lo anterior; inferior: Bonferroni, con intersecciones O(n^{−2})). Comparación con la Tabla E5f: n=20: 5/n = 0.25 vs 49/200 = 0.245; n=50: 0.10 vs 21/200 = 0.105; n=100: 0.05 vs 8/200 = 0.04; n=200: 0.025 vs 2/100; n=300: 0.017 vs 2/100; n=500: 0.010 vs 1/50.
+
+## 5. Comprobación numérica (resumen; detalle en `check_realizer_law_output.txt`)
+
+* Fórmula exacta por descomposición por sustitución = fuerza bruta en **todos** los casos: n ≤ 6 todas las π contra `lc.brute_force_realizers_mod_swap` y contra clases de color (`lc.count_realizers_mod_swap`); n ≤ 7 todas las π contra una fuerza bruta independiente sobre órdenes `u` (torneo `L2` transitivo ⟺ grados de salida 0..n−1); π aleatorias n = 10…120 contra clases de color. 0 discrepancias.
+* Gallai en permutaciones simples: 2, 6, 46, 338, 2926 simples para n = 4..8 (OEIS A111111), todas con R = 1 y una sola clase de color.
+* Lema 7: en E_n, R = 2^N en todos los casos (n = 5, 6, 7 exhaustivo: 22, 154, 1194 permutaciones).
+* Tabla de factores de la sección 4: reproducida exactamente (n = 8 exhaustivo, n = 9 muestreado).
+* Identidades exactas: `E[(N)_r] = 1 − r/n` y la ley exacta de N (n ≤ 8, aritmética racional). `n·d_TV(N, Po(1)) = 0.368 ≈ e^{−1}` para n = 10…400: la cota e^2/n es correcta pero ~20 veces holgada; el término principal es `(1/2n) Σ_j e^{−1}|j−1|/j! = e^{−1}/n`.
+* Tasa de excepciones: `n·P(R ≠ 2^N)` = 4.99, 5.10, 4.83, 4.96, 5.40, 4.90, 5.00 para n = 20, 50, 100, 200, 500, 1000, 2000 (20000 muestras; 10000 en n=2000), frente a 5 teórico; razón entre los factores 3/2 y 2 ≈ 1:4 (teórico: 1/n frente a 4/n).
+* Para n ≤ 8 la tasa exacta es grande (0.55 en n = 8): las excepciones de orden O(n^{−2}) dominan para n pequeño; `n·P` sube 1.0, 1.5, 1.67, 2.2, 3.0, 3.8, 4.4 hacia 5.
+
+## 6. Resultados clásicos usados y verificación de citas
+
+| Resultado | Uso | Cita | Verificación |
+|---|---|---|---|
+| Prop. 5.2 (realizadores ↔ o.t.) | todo | main.tex | demostrada en main.tex (relectura propia: correcta) |
+| Gallai: grafo de comparabilidad primo ⇒ exactamente 2 o.t. | Lema 4, Lema 7 | Gallai 1967, Acta Math. Acad. Sci. Hungar. 18:25–66 | enunciado confirmado con WebSearch en fuentes secundarias (p.ej. arXiv 2609.08057, Dagstuhl ISAAC 2022.51); título y año confirmados; volumen/páginas y nº de teorema **no verificados en línea**. Comprobado numéricamente (todas las simples n ≤ 8). |
+| Descomposición por sustitución (⊕, ⊖, inflación de simple ≥ 4) | sólo la fórmula exacta general (Prop. 6), **no** el Teorema | Albert–Atkinson 2005, Discrete Math. 300:1–15 | datos bibliográficos confirmados (WebSearch); el número de proposición **no verificado en línea**, por eso no se cita |
+| Poisson(1) de las sucesiones | contexto histórico; la prueba (Lema 9) es autocontenida | Wolfowitz 1944, AMS 15(1):97–98; Kaplansky 1945, AMS 16(2):200–203 | datos bibliográficos confirmados en Project Euclid (doi 10.1214/aoms/1177731319 y 10.1214/aoms/1177731121); el contenido (sucesiones ascendentes, límite de Poisson) **no verificado en línea** más allá del título |
+| Producto de Gallai sobre el árbol modular | sólo como identificación de la Prop. 6 | Gallai 1967; Golumbic 1980 cap. 5 | demostrado aquí para grafos de permutación (Lemas 4–5) salvo Gallai-primo; cap./teorema de Golumbic **no verificado en línea** |
+
+Lo demostrado aquí sin citas: Lemas 1–5, 7–9, Teorema, Proposición de excepciones (5/n).
+Lo que depende de una cita no demostrada aquí: `t(G_σ) = 2` para σ simple (Gallai).

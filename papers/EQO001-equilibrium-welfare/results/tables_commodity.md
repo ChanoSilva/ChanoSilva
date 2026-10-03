@@ -1,6 +1,6 @@
 # E5: commodity-weight cones in two-commodity routing
 
-Seed 20260930; 3.9 s.
+Seed 20260930; 7.3 s.
 
 ## E5a fixed instance (a0=1, b0=2, a1=1/4, b1=0, a_s=1, b_s=0)
 - f* = [1.0, 0.0] (shared-edge flows of commodities 1, 2), residual 0.0e+00, C(f*) = [1.0, 0.25], Hessian determinants [-1.0, -1.0]
@@ -21,6 +21,11 @@ Seed 20260930; 3.9 s.
 - max_tolerance_disagreement_violation: 5.114844852458846e-05
 - max_residual: 3.803374282185246e-12
 - max_iterations: 1225
+- by_pattern: {'interior': {'instances': 62, 'L1_dim0': 41, 'L1_dim1': 21, 'L1_dim2': 0, 'witness_instances': 0, 'witness_interior_dir_instances': 0}, 'one_interior': {'instances': 105, 'L1_dim0': 54, 'L1_dim1': 42, 'L1_dim2': 9, 'witness_instances': 17, 'witness_interior_dir_instances': 7}, 'corner': {'instances': 33, 'L1_dim0': 14, 'L1_dim1': 12, 'L1_dim2': 7, 'witness_instances': 4, 'witness_interior_dir_instances': 1}}
+- witness_interior_dir_instances: 8
+- witness_axis_only_instances: 13
+- L1_dim2: 16
+- L1_dim1: 75
 
 ## Criteria
 

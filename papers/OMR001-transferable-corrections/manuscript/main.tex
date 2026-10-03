@@ -140,12 +140,12 @@ Expand $\norm{C-\Ybar}^2-\norm{R-\Ybar}^2=\norm{C}^2-\norm{R}^2-2\ip{C-R,\Ybar}$
 Let $R,C$ be $\mathcal F$-measurable, let the held-out sample be independent of $\mathcal F$ given $\theta$ with mean $\theta$, and let $\hat\theta_\rev$ be the reverting estimator with margin $c\ge0$. Write $s=2\sigma\norm{C-R}/\sqrt m$.
 \begin{enumerate}[leftmargin=2em,label=(\roman*)]
 \item \textup{(Identity.)} $\ \risk(\hat\theta_\rev)-\risk(R)=\E[\Delta\,\pi]\ \le\ \E[\Delta^+\pi]$, where $\pi=\Prob(\Dh\le-c\mid\mathcal F,\theta)$.
-\item \textup{(Gaussian held-out, test at level $\alpha\in(0,\tfrac12]$, $c=z_{1-\alpha}s$.)}
+\item \textup{(Gaussian held-out, test at level $\alpha\in(0,\tfrac12]$, $c=z_{1-\alpha}s$.)} With $\kappa(\alpha)=\sup_{u\ge0}u\,\Phi(-(z_{1-\alpha}+u))\le\varphi(z_{1-\alpha})$ (Table~\ref{tab:constants}),
 \[
-\risk(\hat\theta_\rev)-\risk(R)\ \le\ \min\Big\{\alpha\,\E[\Delta^+],\ \ \varphi(z_{1-\alpha})\,\frac{2\sigma}{\sqrt m}\,\E\norm{C-R}\Big\},
+\risk(\hat\theta_\rev)-\risk(R)\ \le\ \min\Big\{\alpha\,\E[\Delta^+],\ \ \kappa(\alpha)\,\frac{2\sigma}{\sqrt m}\,\E\norm{C-R}\Big\},
 \]
-and the probability of a \emph{harmful transfer event} satisfies $\Prob(\hat\theta_\rev=C,\ \Delta>0)\le\alpha\,\Prob(\Delta>0)\le\alpha$.
-\item \textup{(Bounded held-out.)} If instead $\norm{Y_j-\theta}\le\rho$ a.s.\ and $c=2\rho\norm{C-R}\sqrt{2\log(1/\alpha)/m}$, then the same two statements hold with $\varphi(z_{1-\alpha})\,2\sigma/\sqrt m$ replaced by $2\rho/\sqrt{e\,m}$.
+and the probability of a \emph{harmful transfer event} ($C$ is used and $\Delta>0$) satisfies $\Prob(\hat\theta_\rev=C,\ \Delta>0)\le\alpha\,\Prob(\Delta>0)\le\alpha$; equivalently, given $\Delta>0$, $C$ is used with probability at most $\alpha$.
+\item \textup{(Bounded held-out.)} If instead $\norm{Y_j-\theta}\le\rho$ a.s.\ and $c=2\rho\norm{C-R}\sqrt{2\log(1/\alpha)/m}$, then the same two statements hold with $\kappa(\alpha)\,2\sigma/\sqrt m$ replaced by $2\rho/\sqrt{e\,m}$.
 \item \textup{(Near-oracle selection, Gaussian held-out, $c=z_{1-\alpha}s$.)}
 \[
 \risk(\hat\theta_\rev)\ \le\ \E\big[\min\{\ell(R),\ell(C)\}\big]+\big(z_{1-\alpha}+\varphi(0)\big)\frac{2\sigma}{\sqrt m}\,\E\norm{C-R}.
@@ -157,11 +157,11 @@ and the probability of a \emph{harmful transfer event} satisfies $\Prob(\hat\the
 \begin{proof}
 (i) $\ell(\hat\theta_\rev)=\ell(R)+\Delta\,\mathbf 1\{\Dh\le-c\}$. Take expectations conditionally on $(\mathcal F,\theta)$, on which $\Delta$ is measurable: $\E[\ell(\hat\theta_\rev)-\ell(R)\mid\mathcal F,\theta]=\Delta\pi$. On $\{\Delta\le0\}$ this is $\le0$, whence the inequality.
 
-(ii) By Lemma~\ref{lem:unbiased}, on $\{\Delta>0\}$ we have $\pi=\Phi(-(z+u))$ with $z=z_{1-\alpha}\ge0$ and $u=\Delta/s\ge0$ (if $s=0$ then $C=R$, $\Delta=0$ and there is nothing to prove). First bound: $\Phi(-(z+u))\le\Phi(-z)=\alpha$, so $\E[\Delta^+\pi]\le\alpha\E[\Delta^+]$. Second bound: by the Mills ratio inequality $\Phi(-x)\le\varphi(x)/x$ for $x>0$,
+(ii) By Lemma~\ref{lem:unbiased}, on $\{\Delta>0\}$ we have $\pi=\Phi(-(z+u))$ with $z=z_{1-\alpha}\ge0$ and $u=\Delta/s\ge0$ (if $s=0$ then $C=R$, $\Delta=0$ and there is nothing to prove). First bound: $\Phi(-(z+u))\le\Phi(-z)=\alpha$, so $\E[\Delta^+\pi]\le\alpha\E[\Delta^+]$. Second bound: $\Delta^+\pi=s\,u\,\Phi(-(z+u))\le s\,\kappa(\alpha)$ by definition of $\kappa$; take expectations. By the Mills ratio inequality $\Phi(-x)\le\varphi(x)/x$ for $x>0$ and since $\varphi$ decreases on $[0,\infty)$,
 \[
-\Delta^+\pi=s\,u\,\Phi(-(z+u))\le s\,\frac{u}{z+u}\,\varphi(z+u)\le s\,\varphi(z+u)\le s\,\varphi(z),
+u\,\Phi(-(z+u))\le \frac{u}{z+u}\,\varphi(z+u)\le \varphi(z+u)\le \varphi(z),
 \]
-using that $\varphi$ decreases on $[0,\infty)$. Taking expectations gives $\varphi(z)\E[s]$. For the harmful event, $\Prob(\hat\theta_\rev=C,\Delta>0)=\E[\mathbf 1\{\Delta>0\}\pi]\le\alpha\Prob(\Delta>0)$.
+so $\kappa(\alpha)\le\varphi(z)$. For the harmful event, $\Prob(\hat\theta_\rev=C,\Delta>0)=\E[\mathbf 1\{\Delta>0\}\pi]\le\alpha\Prob(\Delta>0)$.
 
 (iii) Write $\Dh-\Delta=\frac1m\sum_j W_j$ with $W_j=-2\ip{C-R,Y_j-\theta}$, independent given $(\mathcal F,\theta)$, mean zero and $|W_j|\le B:=2\rho\norm{C-R}$. Hoeffding's inequality \citep{hoeffding1963} gives $\Prob(\Dh-\Delta\le-t\mid\mathcal F,\theta)\le\exp(-mt^2/(2B^2))$. On $\{\Delta\ge0\}$, $\pi\le\exp(-m(c+\Delta)^2/(2B^2))\le\exp(-mc^2/(2B^2))=\alpha$ for the stated $c$, which yields the $\alpha$-bound and the bound on the harmful event. Also $\Delta^+\pi\le\Delta^+\exp(-m(\Delta^+)^2/(2B^2))\le\sup_{x\ge0}x e^{-mx^2/(2B^2)}=B/\sqrt{em}$.
 
@@ -171,19 +171,18 @@ using that $\varphi$ decreases on $[0,\infty)$. Taking expectations gives $\varp
 \begin{corollary}[A cap uniform in the parameter]\label{cor:cap}
 Under the hypotheses of Theorem~\ref{thm:safe}(ii), with $R=\bar X_e$ and \emph{any} $\mathcal F$-measurable $C$, for every $\theta$,
 \[
-\risk(\hat\theta_\rev)-\risk(R)\ \le\ \frac{4\sigma}{\sqrt m}\,\varphi(z_{1-\alpha})\,\E\norm{R-\theta}+\frac{4\varphi(1)\,\sigma^2}{m}
-\ \le\ 4\sigma^2\Big(\varphi(z_{1-\alpha})\sqrt{\frac{d}{n_e\,m}}+\frac{\varphi(1)}{m}\Big),
+\risk(\hat\theta_\rev)-\risk(R)\ \le\ \frac{4\sigma}{\sqrt m}\,\kappa(\alpha)\,\E\norm{R-\theta}+\frac{4\sigma^2}{m}\,\kappa_2(\alpha)
+\ \le\ 4\sigma^2\Big(\kappa(\alpha)\sqrt{\frac{d}{n_e\,m}}+\frac{\kappa_2(\alpha)}{m}\Big),
 \]
-where $\varphi(1)=\sup_{x\ge0}x\varphi(x)=\PhiOne$. \status{proved here}
+where $\kappa_2(\alpha)=\sup_{u\ge0}u^2\Phi(-(z_{1-\alpha}+u))\le\varphi(1)=\sup_{x\ge0}x\varphi(x)=\PhiOne$, so that $(\varphi(z_{1-\alpha}),\varphi(1))$ may replace $(\kappa,\kappa_2)$ as a closed form. Theorem~\ref{thm:safe}(ii) is sharper when $\E\norm{C-R}$ is small; the cap takes over when it is large, where the bound of Theorem~\ref{thm:safe}(ii) grows without limit although the harm does not. \status{proved here}
 \end{corollary}
 \begin{proof}
-Write $a=\norm{C-R}$ and $e=R-\theta$, so that $\Delta=\norm{(C-R)+e}^2-\norm e^2=a^2+2\ip{C-R,e}\ge a(a-2\norm e)$. On $\{\Delta>0\}$, with $u=\Delta/s$ and $z=z_{1-\alpha}$, the chain in the proof of Theorem~\ref{thm:safe}(ii) gives $\Delta^+\pi\le s\,\varphi(z+u)$. If $a\le2\norm e$, then $\Delta^+\pi\le s\varphi(z)\le(4\sigma\norm e/\sqrt m)\varphi(z)$. If $a>2\norm e$, then $u\ge w:=\sqrt m\,(a-2\norm e)/(2\sigma)>0$ and $s=(2\sigma/\sqrt m)\,a=4\sigma\norm e/\sqrt m+4\sigma^2w/m$, so
+Write $a=\norm{C-R}$, $e=R-\theta$ and $z=z_{1-\alpha}$, so that $\Delta=\norm{(C-R)+e}^2-\norm e^2=a^2+2\ip{C-R,e}\ge a(a-2\norm e)$; on $\{\Delta>0\}$ put $u=\Delta/s$, so that $\Delta^+\pi=s\,u\,\Phi(-(z+u))$. If $a\le2\norm e$, then $s\le4\sigma\norm e/\sqrt m$ and $\Delta^+\pi\le s\,\kappa\le(4\sigma\norm e/\sqrt m)\kappa$. If $a>2\norm e$, then $u\ge w:=\sqrt m\,(a-2\norm e)/(2\sigma)>0$ and $s=(2\sigma/\sqrt m)\,a=4\sigma\norm e/\sqrt m+4\sigma^2w/m$, so, because $w\le u$,
 \[
-\Delta^+\pi\ \le\ s\,\varphi(z+w)\ =\ \frac{4\sigma\norm e}{\sqrt m}\varphi(z+w)+\frac{4\sigma^2}{m}\,w\,\varphi(z+w)\ \le\ \frac{4\sigma\norm e}{\sqrt m}\varphi(z)+\frac{4\sigma^2}{m}\varphi(1),
+\Delta^+\pi\ =\ \frac{4\sigma\norm e}{\sqrt m}\,u\,\Phi(-(z+u))+\frac{4\sigma^2}{m}\,w\,u\,\Phi(-(z+u))\ \le\ \frac{4\sigma\norm e}{\sqrt m}\,\kappa+\frac{4\sigma^2}{m}\,\kappa_2 .
 \]
-because $w\varphi(z+w)\le(z+w)\varphi(z+w)\le\sup_{x\ge0}x\varphi(x)=\varphi(1)$. In both cases $\Delta^+\pi\le(4\sigma\norm e/\sqrt m)\varphi(z)+4\sigma^2\varphi(1)/m$; take expectations in Theorem~\ref{thm:safe}(i) and use $\E\norm e\le(\E\norm e^2)^{1/2}=\sigma\sqrt{d/n_e}$. Nothing is assumed about $C$ beyond measurability, and the right side does not depend on $\theta$.
+Take expectations in Theorem~\ref{thm:safe}(i) and use $\E\norm e\le(\E\norm e^2)^{1/2}=\sigma\sqrt{d/n_e}$. Finally, by the Mills ratio and $z\ge0$, $u^2\Phi(-(z+u))\le u\,\varphi(z+u)\le(z+u)\varphi(z+u)\le\varphi(1)$. Nothing is assumed about $C$ beyond measurability, and the right side does not depend on $\theta$.
 \end{proof}
-Theorem~\ref{thm:safe}(ii) is the sharper statement when $\E\norm{C-R}$ is small; the corollary takes over when it is large, where the $\varphi$-bound grows without limit although the harm does not.
 
 \begin{corollary}[Price of the split]\label{cor:split}
 Let $R_n=\bar X_n$ be the reference computed from all $n=n_e+m$ target observations, with risk $d\sigma^2/n$. Then
@@ -193,15 +192,21 @@ Let $R_n=\bar X_n$ be the reference computed from all $n=n_e+m$ target observati
 so the total cost of the safety mechanism relative to ``do nothing with all the data'' is the split cost $d\sigma^2 m/(n n_e)$, a fraction $m/n_e$ of the full-data risk $d\sigma^2/n$ (equivalently $m/n$ of the risk of $R$), plus the controlled term of Theorem~\ref{thm:safe}. \status{proved here (arithmetic)}
 \end{corollary}
 
-\begin{proposition}[Sharpness of the constant]\label{prop:sharp}
-For $\alpha\in(0,\tfrac12]$ let $\kappa(\alpha)=\sup_{u\ge0}u\,\Phi(-(z_{1-\alpha}+u))$. Then $\kappa(\alpha)\le\varphi(z_{1-\alpha})$ and, for every $\varepsilon>0$, there is a Gaussian target model and an $\mathcal F$-measurable pair $(R,C)$ with
+\begin{proposition}[Sharpness]\label{prop:sharp}
+Fix $\alpha\in(0,\tfrac12]$ and the check of Theorem~\ref{thm:safe}(ii), and let $u^\ast$ attain $\kappa(\alpha)$.
+\begin{enumerate}[leftmargin=2em,label=(\alph*)]
+\item \textup{(Best constant.)} For every $\varepsilon>0$ there are a Gaussian target model and an $\mathcal F$-measurable pair $(R,C)$ with $\risk(\hat\theta_\rev)-\risk(R)\ge(\kappa(\alpha)-\varepsilon)\,\frac{2\sigma}{\sqrt m}\,\E\norm{C-R}$. Thus $\kappa(\alpha)$ is the best constant in Theorem~\ref{thm:safe}(ii); the closed form $\varphi(z_{1-\alpha})$ loses the factor $\varphi(z_{1-\alpha})/\kappa(\alpha)$, from \InvRatioMin{} to \InvRatioMax{} in Table~\ref{tab:constants}.
+\item \textup{(Rate for a fixed estimation sample.)}\footnote{Part~(b), and the constants $\kappa,\kappa_2$ in Theorem~\ref{thm:safe}(ii) and Corollary~\ref{cor:cap}, are due to the second internal review of this note.} Let $R=\bar X_e$ and $c_d=\E\norm Z$ for $Z\sim N(0,I_d)$, so that $\E\norm{R-\theta}=\sigma c_d/\sqrt{n_e}$ and $c_d\le\sqrt d$. For all $d$, $n_e$ and $m$, the supremum over $\theta$ and over $\mathcal F$-measurable $C$ of $\risk(\hat\theta_\rev)-\risk(R)$ lies between
 \[
-\risk(\hat\theta_\rev)-\risk(R)\ \ge\ \big(\kappa(\alpha)-\varepsilon\big)\,\frac{2\sigma}{\sqrt m}\,\E\norm{C-R}.
+4\sigma^2\Big(\frac{\kappa(\alpha)\,c_d}{\sqrt{n_e\,m}}+\frac{u^\ast\kappa(\alpha)}{m}\Big)\qquad\text{and}\qquad 4\sigma^2\Big(\frac{\kappa(\alpha)\,c_d}{\sqrt{n_e\,m}}+\frac{\kappa_2(\alpha)}{m}\Big).
 \]
-Consequently, \emph{for the one-sided check at any fixed level $\alpha\in(0,\tfrac12]$}, the second bound in Theorem~\ref{thm:safe}(ii) cannot be improved beyond the factor $\varphi(z_{1-\alpha})/\kappa(\alpha)$, and no choice of $m$ makes the worst-case harm $o(\sigma\E\norm{C-R}/\sqrt m)$ uniformly over correction operators. The statement is about this class of checks: a check with a larger margin (in the limit, never using $C$) has smaller worst-case harm and pays for it through the regret term of Theorem~\ref{thm:safe}(iv). The worst case within the class is a \emph{small} correction, $u^\ast<1$ in Table~\ref{tab:constants}, not a large one. \status{proved here; constants computationally verified, Table~\ref{tab:constants}}
+For a fixed estimation sample the worst-case harm is therefore of exact order $m^{-1/2}$, and the first term of Corollary~\ref{cor:cap} is attained; as $n_e\to\infty$ it is of order $1/m$.
+\end{enumerate}
+Both parts concern this class of checks: a larger margin (in the limit, never using $C$) has smaller worst-case harm and pays for it through the regret term of Theorem~\ref{thm:safe}(iv). The worst case is a correction that is \emph{small} relative to the noise of the check, $\Delta/s=u^\ast\le\UStarMax$. \status{proved here; constants computed numerically, Table~\ref{tab:constants}; (b) also checked by Monte Carlo, Appendix~\ref{app:repro}}
 \end{proposition}
 \begin{proof}
-The inequality $\kappa\le\varphi(z)$ is the chain displayed in the proof of Theorem~\ref{thm:safe}(ii). For the lower bound take $R=\bar X_e$ and $C=R+v$ with a fixed vector $v\ne0$ (an additive correction fixed in advance, as in Theorem~\ref{thm:nfl}(b)). Then $\norm{C-R}=\norm v$, $s=2\sigma\norm v/\sqrt m$ is deterministic and $\Delta=\norm v^2+2\ip{v,R-\theta}$. By Theorem~\ref{thm:safe}(i) the excess risk equals $\E[g(\Delta)]$ with $g(x)=x\,\Phi(-(x+z s)/s)$, a continuous function with $|g(x)|\le|x|$. As $n_e\to\infty$, $\Delta\to\norm v^2$ in $L^2$, so $\E[g(\Delta)]\to g(\norm v^2)=s\,u\,\Phi(-(z+u))$ with $u=\norm v^2/s=\norm v\sqrt m/(2\sigma)$, which can be given any prescribed value $u\ge0$ by the choice of $\norm v$. Choosing $u$ within $\varepsilon/2$ of the supremum and $n_e$ large gives the claim.
+(a) Take $R=\bar X_e$ and $C=R+v$ with a fixed vector $v\ne0$ (an additive correction fixed in advance, as in Theorem~\ref{thm:nfl}(b)). Then $\norm{C-R}=\norm v$, $s=2\sigma\norm v/\sqrt m$ is deterministic and $\Delta=\norm v^2+2\ip{v,R-\theta}$. By Theorem~\ref{thm:safe}(i) the excess risk equals $\E[g(\Delta)]$ with $g(x)=x\,\Phi(-(x+z s)/s)$, a continuous function with $|g(x)|\le|x|$. As $n_e\to\infty$, $\Delta\to\norm v^2$ in $L^2$, so $\E[g(\Delta)]\to g(\norm v^2)=s\,u\,\Phi(-(z+u))$ with $u=\norm v^2/s=\norm v\sqrt m/(2\sigma)$, which can be given any prescribed value $u\ge0$ by the choice of $\norm v$. Choosing $u=u^\ast$ and $n_e$ large gives the claim.
+(b) The upper bound is Corollary~\ref{cor:cap}. For the lower bound fix $\theta_0$, let $e=R-\theta_0$ (nonzero a.s.) and $C=\theta_0-(1+t)e$ with $t=2\sigma u^\ast/(\sqrt m\norm e)$, an $\mathcal F$-measurable function of $R$. At $\theta=\theta_0$: $C-R=-(2+t)e$, $\Delta=\big((1+t)^2-1\big)\norm e^2=t(2+t)\norm e^2>0$ and $s=2\sigma(2+t)\norm e/\sqrt m$, so $\Delta/s=t\norm e\sqrt m/(2\sigma)=u^\ast$ and $s=4\sigma\norm e/\sqrt m+4\sigma^2u^\ast/m$. By Lemma~\ref{lem:unbiased} and Theorem~\ref{thm:safe}(i) the excess risk is $\E[s\,u^\ast\Phi(-(z+u^\ast))]=\kappa(\alpha)\big(4\sigma\E\norm e/\sqrt m+4\sigma^2u^\ast/m\big)$.
 \end{proof}
 
 \begin{remark}[Detectability, not estimability]\label{rem:power}
@@ -209,7 +214,7 @@ When the correction helps ($\Delta<0$), Lemma~\ref{lem:unbiased} gives the condi
 \end{remark}
 
 \begin{remark}[Variants of the check]
-(a) If $\sigma$ is unknown, the check can be the one-sided $t$-test at level $\alpha$ on the $m$ projections $\ip{C-R,Y_j}$; under Gaussian held-out observations it is exact at $\Delta=0$ with power monotone in the non-centrality \citep{lehmannromano2005}, so the $\alpha$-form of Theorem~\ref{thm:safe}(ii) and the harmful-event bound hold verbatim. (b) With only second moments ($\Var\ip{C-R,Y_j-\theta}\le\sigma^2\norm{C-R}^2$) and $c=zs$, $z>0$, Chebyshev's inequality and $(c+\Delta)^2\ge4c\Delta$ give $\risk(\hat\theta_\rev)-\risk(R)\le\E[s]/(4z)$: the same order in $m$, a worse constant. (c) Nothing uses that $C$ is a function of $R$: all statements hold for any two $\mathcal F$-measurable candidates.
+(a) If $\sigma$ is unknown, the check can be the one-sided $t$-test at level $\alpha$ on the $m$ projections $\ip{C-R,Y_j}$; under Gaussian held-out observations it is exact at $\Delta=0$ with power monotone in the non-centrality \citep{lehmannromano2005}, so the $\alpha$-form of Theorem~\ref{thm:safe}(ii) and the harmful-event bound hold verbatim. (b) Nothing uses that $C$ is a function of $R$: all statements hold for any two $\mathcal F$-measurable candidates.
 \end{remark}
 
 \section{Relation to known constructs, and the line's conclusion}\label{sec:related}
@@ -314,7 +319,7 @@ $\kappa$ & $\bar X_n$ & all data & $\alpha{=}0.5$ & $\alpha{=}0.2$ & $\alpha{=}0
 \end{figure}
 
 \paragraph{Results: safety (S).}
-Across all \CnConfigs{} (configuration, operator, $\alpha$) combinations the three bounds hold with the two-standard-error allowance: \SafeAll; the harmful-event frequency bound holds: \SafeHarmAll; the cap of Corollary~\ref{cor:cap} holds: \SafeUniformAll{} (largest ratio of excess to cap \MaxExcessOverUniform; at $m=\Cm$ and $\alpha=0.1$ the cap is \UniformCapTen, \UniformCapTenOverRe{} times the risk of $R$, and the $\varphi$-bound exceeds it by up to \MaxBoundPhiOverUniform{} times on the grid). Where $\Delta>0$ almost surely, the comparison with $\E[\Delta^+\pi]$ is a check of identity~(i) between two Monte Carlo estimates of the same quantity, not of a bound. The largest ratio of the Monte Carlo excess to the closed-form bound $\varphi(z)\E[s]$ is \MaxExcessOverPhi, and to the regret bound of Theorem~\ref{thm:safe}(iv) it is \MaxRegretOverBound. The identity of Theorem~\ref{thm:safe}(i) was checked replicate by replicate: where acceptance is frequent (\NIdentityCLT{} combinations) the paired $z$-statistic has maximum modulus \MaxIdentityZ; where it is rare (\NIdentityPoisson{} combinations) the acceptance count is compared with $\sum\pi$ through a Poisson 99\% interval, which fails in \NIdentityFail{} of them (largest deficit: \RecheckConfig, \RecheckMainCount{} acceptances against \RecheckMainExpected{} expected). Re-simulating that configuration with \RecheckSeeds{} independent seeds gives \RecheckCount{} acceptances against \RecheckExpected{} expected ($z=\RecheckZ$), and a direct conditional check with one fixed triple $(R,C,\theta)$ and fresh held-out draws agrees with $\Phi(-(\Delta+zs)/s)$ at every $\alpha$ (largest $|z|$ \CondCheckMaxZ). The harmful-event frequency of the EB operator never exceeds \HarmMaxHalf{} at $\alpha=0.5$, \HarmMaxTen{} at $\alpha=0.1$ and \HarmMaxOne{} at $\alpha=0.01$, against up to \DSixteenAlwaysEHarm{} for always correcting on the split sample; the conditional frequency of using $C$ when it is harmful never exceeds $\alpha$ (at most \AccHarmMaxTen{} for $\alpha=0.1$). The same cap holds for the two bad operators: full pooling has unreverted risk \SSixteenPoolAlways{} at $\snr=16$ against \SSixteenPoolRevTen{} after reversion (the per-configuration tables for all operators, with every bound, are in \path{results/tables.md}, T1, T2 and T4).
+Across all \CnConfigs{} (configuration, operator, $\alpha$) combinations the bounds of Theorem~\ref{thm:safe}(i)--(ii), in the $\kappa$-form and in the closed form, hold with the two-standard-error allowance: \SafeAll; the harmful-event frequency bound holds: \SafeHarmAll; the cap of Corollary~\ref{cor:cap} holds: \SafeUniformAll{} (largest ratio of excess to cap \MaxExcessOverUniform; at $m=\Cm$ and $\alpha=0.1$ the cap is \UniformCapTen, \UniformCapTenOverRe{} times the risk of $R$ and \CapPhiOverCapTen{} times smaller than its closed form \CapPhiTen; the $\kappa$-bound exceeds it by up to \MaxBoundKappaOverUniform{} times on the grid). In this design the worst case over operators at $\alpha=0.1$ lies between \WorstLowerTen{} and \WorstUpperTen{} (Proposition~\ref{prop:sharp}(b)). Where $\Delta>0$ almost surely, the comparison with $\E[\Delta^+\pi]$ is a check of identity~(i) between two Monte Carlo estimates of the same quantity, not of a bound. The largest ratio of the Monte Carlo excess to the $\kappa$-bound is \MaxExcessOverKappa, to its closed form $\varphi(z)\E[s]$ \MaxExcessOverPhi, and to the regret bound of Theorem~\ref{thm:safe}(iv) it is \MaxRegretOverBound. The identity of Theorem~\ref{thm:safe}(i) was checked replicate by replicate: where acceptance is frequent (\NIdentityCLT{} combinations) the paired $z$-statistic has maximum modulus \MaxIdentityZ; where it is rare (\NIdentityPoisson{} combinations) the acceptance count is compared with $\sum\pi$ through a Poisson 99\% interval, which fails in \NIdentityFail{} of them (largest deficit: \RecheckConfig, \RecheckMainCount{} acceptances against \RecheckMainExpected{} expected). Re-simulating that configuration with \RecheckSeeds{} independent seeds gives \RecheckCount{} acceptances against \RecheckExpected{} expected ($z=\RecheckZ$), and a direct conditional check with one fixed triple $(R,C,\theta)$ and fresh held-out draws agrees with $\Phi(-(\Delta+zs)/s)$ at every $\alpha$ (largest $|z|$ \CondCheckMaxZ). The frequency of harmful events (the correction used and harmful) of the EB operator never exceeds \HarmMaxHalf{} at $\alpha=0.5$, \HarmMaxTen{} at $\alpha=0.1$ and \HarmMaxOne{} at $\alpha=0.01$, against up to \DSixteenAlwaysEHarm{} for always correcting on the split sample; the frequency of using $C$ given that it is harmful never exceeds $\alpha$ (at most \AccHarmMaxTen{} for $\alpha=0.1$). Reversion also caps the two bad operators: full pooling has unreverted risk \SSixteenPoolAlways{} at $\snr=16$ against \SSixteenPoolRevTen{} after reversion (the per-configuration tables for all operators, with every bound, are in \path{results/tables.md}, T1, T2 and T4).
 
 \paragraph{Results: usefulness (U).}
 Always correcting with all the data is useful at $\snr\in\{$\UsefulAlways$\}$ and, in the hierarchy, never harmful in the criterion's sense; its relative gain over $\bar X_n$ is \SOneAlwaysGain{} at $\snr=1$. The reverting estimator \emph{with} the guarantee is useful at $\snr\in\{$\UsefulRevHalf$\}$ for $\alpha=0.5$, $\{\UsefulRevTwenty\}$ for $\alpha=0.2$, $\{\UsefulRevTen\}$ for $\alpha=0.1$, and nowhere for $\alpha\le0.05$: at $\snr=1$ its gain over $\bar X_n$ is \SOneRevHalfGain{} ($\alpha=0.5$), \SOneRevTenGain{} ($\alpha=0.1$) and \SOneRevOneGain{} ($\alpha=0.01$), while its gain over the reference on the same estimation sample is \SOneRevHalfGainE, \SOneRevTenGainE{} and \SOneRevOneGainE. The difference is the split cost of Corollary~\ref{cor:split} (\SplitCost{} of the full-data risk, \SplitCostR{} of the risk of $R$), which the guarantee does not cover, plus the gain forfeited by the test (Remark~\ref{rem:power}): at $\snr=1$ and $\alpha=0.1$ the correction is used in \SOneRevTenAcc{} of the replicates although it helps in \SOneAlwaysEHelp{} of them. The held-out-size sweep (\path{results/tables.md}, T3; $\tau^2$ fixed, so that the estimators that do not use the split stay flat in $m$) shows the trade-off: with $m=3$ (a $5\%$ split) the guaranteed estimator gains \MThreeZeroRevGain{} at $\kappa=0$ and loses \MThreeEightRevGain{} at $\kappa=8$ with excess \MThreeEightExcess{} over $R$ (bound \MThreeEightBoundPhi); with $m=24$ it loses \MTwentyFourZeroRevGain{} and \MTwentyFourEightRevGain. The two variants without guarantee are useful over a wider range: refit at $\snr\in\{$\UsefulRefitTen$\}$ ($\alpha=0.1$) and SURE reversion at $\snr\in\{$\UsefulSure$\}$, the latter within a few points of always correcting in the hierarchy. \NBorderline{} of the marks in Table~\ref{tab:structure} are borderline (lower end of the interval within \BorderPts{} points of the threshold): \BorderlineList; in particular ``refit useful up to $\snr=1$'' should not be read as robust (the reduced run, \texttt{--fast} with $4\,000$ replicates, keeps every other mark and drops that one).
@@ -365,14 +370,14 @@ The model is Gaussian location with known variance; the identity and the $\varph
 
 \begin{table}[htbp]
 \centering\small
-\begin{tabular}{rrrrrrr}
+\begin{tabular}{rrrrrrrrr}
 \toprule
-$\alpha$ & $z_{1-\alpha}$ & $\varphi(z_{1-\alpha})$ & $\kappa(\alpha)$ & $u^\ast$ & $\kappa/\varphi$ & $z_{1-\alpha}+\varphi(0)$\\
+$\alpha$ & $z_{1-\alpha}$ & $\varphi(z_{1-\alpha})$ & $\kappa(\alpha)$ & $u^\ast$ & $\kappa/\varphi(z_{1-\alpha})$ & $\kappa_2(\alpha)$ & $\kappa_2/\varphi(1)$ & $z_{1-\alpha}+\varphi(0)$\\
 \midrule
 \input{table_constants.tex}\\
 \bottomrule
 \end{tabular}
-\caption{Constants of Theorem~\ref{thm:safe} and Proposition~\ref{prop:sharp}: $\kappa(\alpha)=\sup_{u\ge0}u\Phi(-(z_{1-\alpha}+u))$, attained at $u^\ast$, computed by bounded scalar maximisation.}
+\caption{Constants of Theorem~\ref{thm:safe}, Corollary~\ref{cor:cap} and Proposition~\ref{prop:sharp}: $\kappa(\alpha)=\sup_{u\ge0}u\Phi(-(z_{1-\alpha}+u))$, attained at $u^\ast$, and $\kappa_2(\alpha)=\sup_{u\ge0}u^2\Phi(-(z_{1-\alpha}+u))$, computed by bounded scalar maximisation; $\varphi(1)=\PhiOne$.}
 \label{tab:constants}
 \end{table}
 

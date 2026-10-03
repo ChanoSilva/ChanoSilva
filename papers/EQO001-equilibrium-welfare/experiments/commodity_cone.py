@@ -19,7 +19,12 @@ E5a Fixed instance a_0 = 1, b_0 = 2, a_1 = 1/4, b_1 = 0, a_s = 1, b_s = 0 (manus
 E5b Random instances (a ~ U(0.05, 1); b = 0 w.p. 1/2, else U(0, 1)): how often the direction
     grid meets Lambda_1, how often Lambda_1 is the whole orthant, and how often a direction in
     Lambda_1 carries a certified witness (W_lambda improves by > 1e-6) that it is not in
-    Lambda.  Descriptive only.
+    Lambda.  Descriptive only.  (v0.3, internal review round 2, m6) Reported by active-face
+    pattern of y* (corner / one interior coordinate / interior), with the dimension of Lambda_1
+    computed by linear programming (not read off the direction grid, which meets a ray only if
+    the ray happens to be a grid direction), and with witnesses split into axis directions
+    (lambda = (1,0) or (0,1), a weighting that ignores one commodity) and directions with both
+    weights positive.
 
 Criteria (stated here and evaluated by check_criteria(), which writes pass/fail flags into
 results/results_commodity.json; no external pre-registration record):
@@ -40,7 +45,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from vi_solver import proj_box, solve_vi, vi_residual  # noqa: E402
-from welfare_cone import QuadGame, active_pattern, cone_constraints, in_Lambda, in_Lambda1  # noqa: E402
+from welfare_cone import QuadGame, active_pattern, cone_constraints, cone_geometry, in_Lambda, in_Lambda1  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -101,7 +106,12 @@ def analyse(net, n_dirs=91):
             max_tol_viol = max(max_tol_viol, v_eq, v_ub)
         if l1 and not ll and gap > WITNESS_GAP and (best is None or gap > best["gap"]):
             best = {"lambda": lam.tolist(), "gap": float(gap), "better_y": xw.tolist()}
+    geo = cone_geometry(G, pat, np.random.default_rng(0))      # separate generator: main stream untouched
+    wdirs = [r for r in rec if r[1] and not r[2] and r[3] > WITNESS_GAP]
     return {"y_star": ys.tolist(), "residual": info["residual"], "iterations": info["iterations"],
+            "L1_dim": int(geo["dim"]),
+            "witness_dirs_axis": sum(r[0] in (0.0, 90.0) for r in wdirs),
+            "witness_dirs_interior": sum(r[0] not in (0.0, 90.0) for r in wdirs),
             "pattern": pat.tolist(), "costs_at_eq": net.costs(ys).tolist(), "G": G.tolist(),
             "n_dirs": n_dirs, "dirs_in_L1": sum(r[1] for r in rec), "dirs_in_L": sum(r[2] for r in rec),
             "dirs_in_L_not_L1": sum(r[2] and not r[1] for r in rec),           # tolerance-level disagreements
@@ -156,6 +166,18 @@ def random_instances(rng, n_instances=200):
                                                           r["max_tolerance_disagreement_violation"])
         agg["max_residual"] = max(agg["max_residual"], r["residual"])
         agg["max_iterations"] = max(agg["max_iterations"], r["iterations"])
+        kind = ("corner", "one_interior", "interior")[int(np.sum(np.array(r["pattern"]) == 0))]
+        bp = agg.setdefault("by_pattern", {}).setdefault(kind, {"instances": 0, "L1_dim0": 0, "L1_dim1": 0, "L1_dim2": 0,
+                                                                 "witness_instances": 0, "witness_interior_dir_instances": 0})
+        bp["instances"] += 1
+        bp[f"L1_dim{r['L1_dim']}"] += 1
+        bp["witness_instances"] += int(r["witness"] is not None)
+        bp["witness_interior_dir_instances"] += int(r["witness_dirs_interior"] > 0)
+        agg["witness_interior_dir_instances"] = agg.get("witness_interior_dir_instances", 0) + int(r["witness_dirs_interior"] > 0)
+        agg["witness_axis_only_instances"] = agg.get("witness_axis_only_instances", 0) + int(
+            r["witness"] is not None and r["witness_dirs_interior"] == 0)
+        agg["L1_dim2"] = agg.get("L1_dim2", 0) + int(r["L1_dim"] == 2)
+        agg["L1_dim1"] = agg.get("L1_dim1", 0) + int(r["L1_dim"] == 1)
         r.pop("records")
         rows.append({"instance": k, "parameters": net.par, **r})
     return agg, rows

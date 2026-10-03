@@ -8,11 +8,18 @@ predefined one --, Student t over folds, Nadeau-Bengio corrected t), wins/ties/l
 flag (an end of the bootstrap or t interval within 0.02 of zero, AURC x 100). In the marked tables a
 cell is bold/italic only when BOTH the bootstrap and the t interval exclude zero; a superscript b (t)
 marks a cell where only the bootstrap (only the t) interval does; a superscript circle marks a
-borderline cell."""
+borderline cell.
+
+v0.3: the main JSON is the v0.3 run (widened field grid, PREREGISTRO_HQF001_rejilla_20261003.md); the
+v0.2 run (predefined grid) is read from results/v02/results.json and exported with the prefix VTwo.
+Ablation counts are given under the three readings and, separately, without the borderline pairs
+(R2-M1); ranges run over the three readings; grid-edge saturation and geometry-only ratios are exported;
+ties in text lists are broken by dataset name so that regeneration is byte-identical (R2-m11)."""
 import glob
 import json
 import math
 import os
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -21,6 +28,12 @@ res = json.load(open(os.path.join(ROOT, "results", "results.json")))
 ide = json.load(open(os.path.join(ROOT, "results", "results_identity.json")))
 V01 = os.path.join(ROOT, "results", "results_v01.json")
 v01 = json.load(open(V01)) if os.path.exists(V01) else None
+V02 = os.path.join(ROOT, "results", "v02", "results.json")
+v02 = json.load(open(V02)) if os.path.exists(V02) else None
+SPEC = os.path.join(ROOT, "results", "results_spectrum.json")
+spec = json.load(open(SPEC)) if os.path.exists(SPEC) else None
+sys.path.insert(0, HERE)
+from selective_benchmark import grid_saturation  # noqa: E402
 
 DS_TAG = {"iris": "Iris", "wine": "Wine", "breast_cancer": "Bc", "digits": "Digits",
           "synth_informative": "Sinfo", "moons_aniso": "Moons", "synth_classcov": "Ccov", "synth_lda": "Slda"}
@@ -98,9 +111,9 @@ def yes(b):
     return "yes" if b else "no"
 
 
-def rng_str(a, b):
-    """'a' if a == b else 'min--max'."""
-    return f"{a}" if a == b else f"{min(a, b)}--{max(a, b)}"
+def rng_str(*vals):
+    """'a' if all values are equal, else 'min--max' (v0.3: over any number of readings)."""
+    return f"{vals[0]}" if min(vals) == max(vals) else f"{min(vals)}--{max(vals)}"
 
 
 def names(lst):
@@ -283,13 +296,22 @@ for k in ABL_KEYS:
     mac(f"Abl{tag}FirstNB", len(fn)); mac(f"Abl{tag}SecondNB", len(sn))
     mac(f"Abl{tag}FirstListNB", names(fn)); mac(f"Abl{tag}SecondListNB", names(sn))
     mac(f"Abl{tag}FirstBoth", len([d for d in fb if d in ft])); mac(f"Abl{tag}SecondBoth", len([d for d in sb if d in st]))
-    mac(f"Abl{tag}FirstRange", rng_str(len(fb), len(ft))); mac(f"Abl{tag}SecondRange", rng_str(len(sb), len(st)))
+    mac(f"Abl{tag}FirstRange", rng_str(len(fb), len(ft), len(fn))); mac(f"Abl{tag}SecondRange", rng_str(len(sb), len(st), len(sn)))
+    # R2-M1: robust count = bootstrap and t both exclude zero and the pair is not borderline
+    fr = [d for d in fb if d in ft and not A[d]["borderline"]]
+    sr = [d for d in sb if d in st and not A[d]["borderline"]]
+    fbd = [d for d in fb if d not in fr]   # counted 'better' by the bootstrap only, or borderline
+    sbd = [d for d in sb if d not in sr]
+    mac(f"Abl{tag}FirstRobust", len(fr)); mac(f"Abl{tag}FirstRobustList", names(fr))
+    mac(f"Abl{tag}SecondRobust", len(sr)); mac(f"Abl{tag}SecondRobustList", names(sr))
+    mac(f"Abl{tag}FirstWeak", len(fbd)); mac(f"Abl{tag}FirstWeakList", names(fbd))
+    mac(f"Abl{tag}SecondWeak", len(sbd)); mac(f"Abl{tag}SecondWeakList", names(sbd))
     for ds in S:
         a = A[ds]
         mac(f"Abl{tag}{DS_TAG[ds]}", f"{spct(a['mean_diff'])} {ci(a, 'boot')}")
         mac(f"Abl{tag}T{DS_TAG[ds]}", ci(a, "t"))
         mac(f"Abl{tag}Wtl{DS_TAG[ds]}", wtl(a))
-    fav = sorted(set(fb) | set(ft), key=lambda d: (-A[d]["wins"], A[d]["losses"]))
+    fav = sorted(set(fb) | set(ft), key=lambda d: (-A[d]["wins"], A[d]["losses"], DS_NAME[d]))
     mac(f"Abl{tag}WinsText", ", ".join(f"{DS_NAME[d]} {wtl(A[d])}" for d in fav) if fav else "none")
     abl_border += [f"{DS_NAME[ds]} ({ABL_NAME[k]})" for ds in S if A[ds]["borderline"]]
 mac("AblBorderList", "; ".join(abl_border) if abl_border else "none")
@@ -333,7 +355,7 @@ for f in FIELDS:
         mac(f"Crit{ft}WorseList{suffix}", names(cc["worse"]))
         mac(f"Crit{ft}InconList{suffix}", names(cc["inconclusive"]))
     mac(f"Crit{ft}Met", "met" if c["criterion_met"] else "not met")
-    mac(f"Crit{ft}WorseRange", rng_str(len(c["worse"]), len(c["t"]["worse"])))
+    mac(f"Crit{ft}WorseRange", rng_str(len(c["worse"]), len(c["t"]["worse"]), len(c["nb"]["worse"])))
     mac(f"Crit{ft}BorderList", names(c["borderline"]))
     mac(f"Crit{ft}BorderN", len(c["borderline"]))
 
@@ -361,10 +383,11 @@ for ds in S:
         alpha_cnt[p["alpha"]] = alpha_cnt.get(p["alpha"], 0) + c
         km_cnt[p["K_m"]] = km_cnt.get(p["K_m"], 0) + c
         tot += c
-for a, w in {0.05: "Low", 0.2: "Mid", 0.5: "High"}.items():
-    mac(f"AlphaFrac{w}", f"{100 * alpha_cnt.get(a, 0) / tot:.0f}")
-for k, w in {20: "Twenty", 40: "Forty", 80: "Eighty"}.items():
-    mac(f"KmFrac{w}", f"{100 * km_cnt.get(k, 0) / tot:.0f}")
+FG = res["grids"]["Field-aniso"]
+mac("AlphaFracText", ", ".join(f"$\\alpha={a:g}$ in {100 * alpha_cnt.get(a, 0) / tot:.0f}\\%" for a in FG["alpha"]))
+mac("KmFracText", ", ".join(f"$K_m={k}$ in {100 * km_cnt.get(k, 0) / tot:.0f}\\%" for k in FG["K_m"]))
+mac("FieldGridAlpha", ", ".join(f"{a:g}" for a in FG["alpha"]))
+mac("FieldGridKm", ", ".join(f"{k}" for k in FG["K_m"]))
 mac("AlphaTotal", tot)
 dropped = [(m, ds, S[ds]["methods"][m].get("inner_configs_dropped", 0)) for ds in S for m in S[ds]["methods"] if S[ds]["methods"][m].get("inner_configs_dropped", 0)]
 mac("DroppedConfigs", sum(d[2] for d in dropped))
@@ -431,8 +454,8 @@ cx = ide["K3_counterexample"]
 mac("CexSA", f"{cx['score_s'][0]:.4g}")
 mac("CexMA", f"{cx['top2_diff'][0]:.3f}"); mac("CexMB", f"{cx['top2_diff'][1]:.3f}")
 mac("CexMspA", f"{cx['max_posterior'][0]:.3f}"); mac("CexMspB", f"{cx['max_posterior'][1]:.3f}")
-mac("CexDtwoA", ", ".join(f"{v:.4g}" for v in cx["d2"][0]))
-mac("CexDtwoB", ", ".join(f"{v:.4g}" for v in cx["d2"][1]))
+mac("CexDtwoA", ", ".join(f"{v:.4f}" for v in cx["d2"][0]))
+mac("CexDtwoB", ", ".join(f"{v:.4f}" for v in cx["d2"][1]))
 if "K3_unequal_priors_general_identity" in ide:
     g = ide["K3_unequal_priors_general_identity"]
     mac("IdGenPriors", ", ".join(f"{p:.1f}" for p in g["priors"]))

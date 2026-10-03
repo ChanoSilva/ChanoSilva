@@ -1,0 +1,108 @@
+{
+ "meta": {
+  "seed": 20260930,
+  "cpu_seconds": 0.3584455249999998,
+  "chosen": "geom_0.25",
+  "note": "post hoc; the four candidates tried in round 1 were not recorded"
+ },
+ "spectra": [
+  {
+   "name": "v0.1",
+   "eigenvalues": [
+    2.0,
+    1.0,
+    0.5,
+    0.25,
+    0.1,
+    0.05
+   ],
+   "lam_min": 0.05,
+   "bayes_error_at_lower_bound": 0.07761969497294308,
+   "interior_solution": false
+  },
+  {
+   "name": "geom_0.05",
+   "eigenvalues": [
+    2.0,
+    0.9563524997900369,
+    0.45730505192732623,
+    0.2186724147886555,
+    0.10456395525912729,
+    0.05
+   ],
+   "lam_min": 0.05,
+   "bayes_error_at_lower_bound": 0.07895575084234419,
+   "interior_solution": false
+  },
+  {
+   "name": "geom_0.1",
+   "eigenvalues": [
+    2.0,
+    1.0985605433061179,
+    0.6034176336545163,
+    0.3314454017339987,
+    0.18205642030260805,
+    0.1
+   ],
+   "lam_min": 0.1,
+   "bayes_error_at_lower_bound": 0.1216587195999174,
+   "interior_solution": true
+  },
+  {
+   "name": "geom_0.15",
+   "eigenvalues": [
+    2.0,
+    1.1913578981670916,
+    0.709666820762555,
+    0.42273358599129984,
+    0.2518134982456163,
+    0.15
+   ],
+   "lam_min": 0.15,
+   "bayes_error_at_lower_bound": 0.15448135294773394,
+   "interior_solution": true
+  },
+  {
+   "name": "geom_0.2",
+   "eigenvalues": [
+    2.0,
+    1.2619146889603865,
+    0.7962143411069944,
+    0.5023772863019159,
+    0.3169786384922227,
+    0.2
+   ],
+   "lam_min": 0.2,
+   "bayes_error_at_lower_bound": 0.1825881255343894,
+   "interior_solution": true
+  },
+  {
+   "name": "geom_0.25",
+   "eigenvalues": [
+    2.0,
+    1.3195079107728942,
+    0.8705505632961241,
+    0.5743491774985174,
+    0.37892914162759955,
+    0.25
+   ],
+   "lam_min": 0.25,
+   "bayes_error_at_lower_bound": 0.20536094894602128,
+   "interior_solution": true
+  },
+  {
+   "name": "geom_0.3",
+   "eigenvalues": [
+    2.0,
+    1.3685108578372633,
+    0.936410984009241,
+    0.6407442995073611,
+    0.43843276548657756,
+    0.3
+   ],
+   "lam_min": 0.3,
+   "bayes_error_at_lower_bound": 0.22601294663096833,
+   "interior_solution": true
+  }
+ ]
+}

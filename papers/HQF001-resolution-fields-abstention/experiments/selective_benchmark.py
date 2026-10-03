@@ -671,6 +671,47 @@ def summarise(per_fold, methods, B=BOOT_B, n_splits=5, curves_from=None):
                        borderline=[ds for ds in cb if cb[ds]["borderline"]])
     return summary, crit
 
+def grid_saturation(grids, summary):
+    """Grid-edge saturation (v0.3): for every dataset, method and hyper-parameter whose grid is a list of at
+    least three numbers, the number of folds whose selected value is the smallest (low) or the largest (high)
+    value of the grid; any_high / any_edge count the folds in which at least one such hyper-parameter is at
+    the upper end / at either end. Selected values outside the grid (alpha = 1 of the isotropic field,
+    alpha = None of the Euclidean one) are not counted."""
+    out = {}
+    for ds, S in summary.items():
+        out[ds] = {}
+        for m, info in S["methods"].items():
+            num = {}
+            for p, vals in grids.get(m, {}).items():
+                if isinstance(vals, list) and len(vals) >= 3 and all(
+                        isinstance(v, (int, float)) and not isinstance(v, bool) for v in vals):
+                    num[p] = (min(vals), max(vals), vals)
+            if not num:
+                continue
+            r = {p: dict(low=0, high=0, n=0, grid_min=lo, grid_max=hi) for p, (lo, hi, _) in num.items()}
+            any_high = any_edge = n_tot = 0
+            for key, c in info["selected_params"].items():
+                params = json.loads(key)
+                hi_flag = edge_flag = False
+                for p, (lo, hi, vals) in num.items():
+                    v = params.get(p)
+                    if v is None or v not in vals:
+                        continue
+                    r[p]["n"] += c
+                    if v == lo:
+                        r[p]["low"] += c
+                        edge_flag = True
+                    if v == hi:
+                        r[p]["high"] += c
+                        hi_flag = edge_flag = True
+                n_tot += c
+                any_high += c * hi_flag
+                any_edge += c * edge_flag
+            r = {p: v for p, v in r.items() if v["n"] > 0}
+            if r:
+                out[ds][m] = dict(params=r, any_high=int(any_high), any_edge=int(any_edge), n=int(n_tot))
+    return out
+
 # ----------------------------------------------------------------------------
 # Markdown report
 # ----------------------------------------------------------------------------
@@ -763,6 +804,24 @@ def write_markdown(res, path):
     for ds, S in res["summary"].items():
         L.append(f"| {ds} | " + " | ".join(cell(S["ablations"][k]) for k in keys) + " |")
     L.append("")
+    sat = res.get("saturation") or grid_saturation(res["grids"], res["summary"])
+    L.append("## Grid-edge saturation: folds whose selected value is at the lower / upper end of its grid "
+             "(numeric grids with at least 3 values; any_high = folds with at least one hyper-parameter at the upper end)")
+    L.append("")
+    sat_methods = [mm for mm in methods if any(mm in sat[ds] for ds in sat)]
+    L.append("| dataset | " + " | ".join(sat_methods) + " |")
+    L.append("|---|" + "---|" * len(sat_methods))
+    for ds in res["summary"]:
+        cells = []
+        for mth in sat_methods:
+            e = sat[ds].get(mth)
+            if e is None:
+                cells.append("")
+                continue
+            ps = "; ".join(f"{p} {v['low']}/{v['high']} (grid {v['grid_min']}..{v['grid_max']})" for p, v in e["params"].items())
+            cells.append(f"{ps}; any_high {e['any_high']}/{e['n']}")
+        L.append(f"| {ds} | " + " | ".join(cells) + " |")
+    L.append("")
     L.append("## Selected hyper-parameters (counts over folds)")
     L.append("")
     for ds, S in res["summary"].items():
@@ -787,6 +846,7 @@ def main():
         per_fold = {ds: [{m: dict(f[m]) for m in f} for f in folds] for ds, folds in old["per_fold"].items()}
         summary, crit = summarise(per_fold, methods, n_splits=old["meta"]["n_splits"], curves_from=old["summary"])
         old["summary"], old["criterion"] = summary, crit
+        old["saturation"] = grid_saturation(old["grids"], summary)
         old["meta"]["bootstrap_B"] = BOOT_B
         old["meta"]["nb_rho"] = 1.0 / (old["meta"]["n_splits"] - 1)
         old["meta"]["resummarised"] = f"summary and criterion recomputed from the stored per-fold results by {SCRIPT_VERSION}"
@@ -838,8 +898,10 @@ def main():
         methods_order=list(methods.keys()),
         method_groups={m: v[3] for m, v in methods.items()},
         grids={m: {k: (v if not isinstance(v, list) else v) for k, v in methods[m][1].items()} for m in methods},
+        field_grid_v02=FIELD_GRID_V02,
         summary=summary,
         criterion=crit,
+        saturation=grid_saturation({m: methods[m][1] for m in methods}, summary),
         per_fold={ds: [{m: {k: v for k, v in f[m].items() if k != "curve"} for m in f} for f in folds]
                   for ds, folds in per_fold.items()},
     )

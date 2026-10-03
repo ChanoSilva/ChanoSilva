@@ -1,0 +1,4 @@
+start 2026-10-03T10:03:18Z script sha256 35aefc57f5343e3f11bbb183882f22712151dd3c46670cb851c139a1d1cf3a80
+[iris] done in 19.9 s; mean AURC x100: kNN=0.68, NCM=2.73, LDA=0.17, QDA=0.23, LogReg=0.25, RForest=0.54, DANN=0.19, Field-aniso=0.37, Field-iso=0.65, Field-euclid=0.76, Field-vol=1.67, Field-anis=8.59, Field-aniso-gproto=1.77
+[wine] done in 21.9 s; mean AURC x100: kNN=0.69, NCM=0.57, LDA=0.10, QDA=0.03, LogReg=0.11, RForest=0.15, DANN=0.70, Field-aniso=0.13, Field-iso=0.28, Field-euclid=0.34, Field-vol=0.94, Field-anis=1.37, Field-aniso-gproto=0.37
+[breast_cancer] done in 60.8 s; mean AURC x100: kNN=0.57, NCM=1.15, LDA=0.61, QDA=0.54, LogReg=0.25, RForest=0.64, DANN=0.86, Field-aniso=0.79, Field-iso=0.45, Field-euclid=0.57, Field-vol=3.73, Field-anis=4.12, Field-aniso-gproto=1.88

@@ -21,7 +21,10 @@ E2c Three-player example whose exact cone is NOT polyhedral (pointed out in the 
     review of v0.1): u1 = x1, u2 = x2, u3 = x3 - x1^2/2 + x1/4 + x1 x2/2 - x2/2 on [0,1]^3,
     x* = (1,1,1).  Hand calculation: on the slice lambda_3 = 1, Lambda = {l1 >= 1/4,
     l2 >= (3/4 - l1)_+^2 / 2} (parabolic boundary) while Lambda_1 = {l1 >= 1/4, l2 >= 0}.
-    A strongly monotone variant (own payoffs minus eps/2 x_i^2) is also bisected.
+    A strongly monotone variant (own payoffs minus eps/2 x_i^2) is also bisected and compared
+    with its closed form (v0.3, internal review round 2, M3): on lambda_3 = 1 and for
+    1/(4(1-eps)) <= l1 <= 3/(4(1-eps)), Lambda = {l2 >= phi(l1)} with
+    phi(l1) = [(l1 + 1/4)^2 / (2 (1 + eps l1)) + 1/4] / (1 - eps/2) - l1 (strictly convex).
 E3  Random jointly concave games (N = 3, 4): every tested lambda in Lambda_1 (vertices and a
     relative-interior point of Lambda_1 on the simplex, plus grid points) must be in Lambda,
     and every grid point outside Lambda_1 outside Lambda.
@@ -36,7 +39,8 @@ and margins into results/results_welfare.json; there is no external pre-registra
       direction in Lambda for the interior Cournot game; linear = exact on all grid
       directions for the boundary Cournot game; Nikaido-Isoda max W' <= 1e-12.
   E2c exact test = closed-form parabola on every slice point; bisected boundary within 1e-7
-      of the parabola; (0.3, 0, 1) in Lambda_1 \ Lambda with gap 0.10125 (to 1e-9).
+      of the parabola; (0.3, 0, 1) in Lambda_1 \ Lambda with gap 0.10125 (to 1e-9); (v0.3) in the
+      strongly monotone variant the bisected boundary is within 1e-7 of phi.
   E3  every tested cone point and every grid point in Lambda_1 is in Lambda; every grid point
       outside Lambda_1 is outside Lambda.  E3-E4: all equilibrium residuals <= 1e-8.
   E4  every grid point outside Lambda_1 is outside Lambda (Theorem 5.1(b)); the number of
@@ -510,6 +514,8 @@ def nonpolyhedral_example(eps_sm=0.2):
                 lo = mid
         bd.append(hi)
     d2 = np.diff(np.array(bd), 2)
+    phi = [((l1 + 0.25) ** 2 / (2 * (1 + eps_sm * l1)) + 0.25) / (1 - eps_sm / 2) - l1 for l1 in l1_grid]
+    max_phi_diff = float(np.max(np.abs(np.array(bd) - np.array(phi))))
     return {"H3": H[2].tolist(), "h": [hi.tolist() for hi in h], "x_star": xs.tolist(),
             "F_at_x_star": g.F(xs).tolist(), "residual_at_x_star": float(residual),
             "fixed_point_from_half": x_fp.tolist(), "best_responses_at_one": br_ok,
@@ -521,6 +527,7 @@ def nonpolyhedral_example(eps_sm=0.2):
             "strongly_monotone_variant": {
                 "eps": eps_sm, "mu": gs.mu, "L": gs.L, "x_star": xs_s.tolist(), "residual": info_s["residual"],
                 "lambda1_grid": l1_grid.tolist(), "boundary_lambda2": [float(b) for b in bd],
+                "phi_closed_form": phi, "max_abs_boundary_minus_phi": max_phi_diff,
                 "second_differences": d2.tolist(), "min_abs_second_difference": float(np.min(np.abs(d2))),
                 "all_second_differences_positive": bool(np.all(d2 > 0)),
                 "A_ub": A_ub_s.tolist(), "A_eq": A_eq_s.tolist()}}
@@ -546,6 +553,8 @@ def check_criteria(out):
                                               npx["max_abs_bisection_minus_parabola"]),
         "E2c_witness_in_L1_not_L_gap_0.10125": (npx["witness_in_Lambda1"] and not npx["witness_in_Lambda"]
                                                 and abs(npx["witness_gap"] - 0.10125) <= 1e-9, npx["witness_gap"]),
+        "E2c_variant_boundary_vs_phi_le_1e-7": (npx["strongly_monotone_variant"]["max_abs_boundary_minus_phi"] <= 1e-7,
+                                                npx["strongly_monotone_variant"]["max_abs_boundary_minus_phi"]),
         "E3_cone_points_in_Lambda": (all(a["tested_in_L1_in_L"] == a["tested_in_L1"] for a in conc),
                                      f"{sum(a['tested_in_L1_in_L'] for a in conc)}/{sum(a['tested_in_L1'] for a in conc)}"),
         "E3_grid_in_L1_in_Lambda": (all(a["grid_in_L1_in_L"] == a["grid_in_L1"] for a in conc),
@@ -686,7 +695,8 @@ def main():
          f"- witness lambda = {out['E2_nonpolyhedral']['witness_lambda']}: in Lambda_1 {out['E2_nonpolyhedral']['witness_in_Lambda1']}, "
          f"in Lambda {out['E2_nonpolyhedral']['witness_in_Lambda']}, gap {out['E2_nonpolyhedral']['witness_gap']:.5f}, "
          f"better x = {out['E2_nonpolyhedral']['witness_better_x']}",
-         f"- strongly monotone variant eps = {out['E2_nonpolyhedral']['strongly_monotone_variant']['eps']}: boundary second "
+         f"- strongly monotone variant eps = {out['E2_nonpolyhedral']['strongly_monotone_variant']['eps']}: max |bisected boundary - phi| = "
+         f"{out['E2_nonpolyhedral']['strongly_monotone_variant']['max_abs_boundary_minus_phi']:.1e}; boundary second "
          f"differences {np.round(out['E2_nonpolyhedral']['strongly_monotone_variant']['second_differences'], 5).tolist()}", "",
          "## E3/E4 random games", "",
          "| N | concave | instances | nontrivial | dims | tested in L1 | of which in L | grid out L1 | out L | grid in L1 | in L | witness inst. | max resid |",
