@@ -19,3 +19,17 @@ r_1 = 0.25: certified  v_min >= 1.67273  kappa_max <= 1.17759  nu <= 0.34394  mu
             r_2 <= f r_1 = 0.0625: eps <= 0.0736, zeta' >= 12.3970, terms 0.0797 + 0.0065 + 0.0029
             => r_2 kappa_max(K_2) <= 0.0891 (m <= 2 a priori);  < 2: True
     check on [0,2pi/3] (1366 boxes), r_1 = 0.5: v_min >= 1.80266, kappa <= 1.42425, nu <= 0.43108, mu <= 4.55740, bound 1.1915
+
+(B) r_1 in (0, 1/2]: 512 r_1-boxes x 2048 s-boxes on [0, 2pi/3] (2.9 s CPU)
+    worst box r_1 in [0.4990234375, 0.5]: v_min >= 1.8003, kappa <= 1.4188, nu <= 0.4297, mu <= 4.5775  ->  r_2 kappa_max(K_2) <= 1.1862 < 2: True
+    r_1 in [0.000000, 0.000977]: bound 0.0005
+    r_1 in [0.124023, 0.125000]: bound 0.0805
+    r_1 in [0.249023, 0.250000]: bound 0.2240
+    r_1 in [0.374023, 0.375000]: bound 0.5329
+    r_1 in [0.499023, 0.500000]: bound 1.1862
+    family r_1 = f, r_2 <= f^2: r_2 kappa_max(K_2) < 1 (i.e. minRad(K_2) > r_2) certified for every f <= 0.484375
+    any r_2 <= r_1/2: minRad(K_2) > r_2 certified for every r_1 <= 0.4716796875
+
+(C) a priori analogue of eq:tol at d = 2 with the certified data: 2.006 (needs <= 0.685) -- still fails; the certificate uses eq:kaprec with the actual data instead.
+
+wall 8.0 s, CPU 7.9 s; wrote certify_d2.json

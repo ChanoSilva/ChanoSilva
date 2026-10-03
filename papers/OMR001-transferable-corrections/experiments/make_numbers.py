@@ -428,34 +428,41 @@ assert all(k == "worse" for (a, m), k in [((a, m), k) for k, v in _cls.items() f
 dz = rf["design"]
 mac("RfDesignN", dz["n"])
 for k, tag in (("b2", "B"), ("b2c", "Bc"), ("cap", "Cap"), ("capc", "Capc")):
-    mac(f"RfDesignHold{tag}", dz["hold"][k]); mac(f"RfDesignMax{tag}", f"{dz['max_ratio'][k]:.2f}")
+    mac(f"RfDesignHold{tag}", dz["hold"][k]); mac(f"RfDesignMax{tag}", up(dz["max_ratio"][k]))
 mac("RfIdNz", dz["identity_n_z"]); mac("RfIdMaxZ", f"{dz['identity_max_z']:.2f}")
 mac("RfIdNPois", dz["identity_n_poisson"]); mac("RfIdFail", dz["identity_fail"])
 mac("RfSimHoldB", dz["simrefit_hold"]["b2"]); mac("RfSimHoldCap", dz["simrefit_hold"]["cap"])
-mac("RfSimMaxB", f"{dz['simrefit_max_ratio']['b2']:.2f}"); mac("RfSimMaxCap", f"{dz['simrefit_max_ratio']['cap']:.2f}")
+mac("RfSimMaxB", up(dz["simrefit_max_ratio"]["b2"])); mac("RfSimMaxCap", up(dz["simrefit_max_ratio"]["cap"]))
 mac("RfReproDiff", f"{max(dz['repro_max_diff'], dz['replica_max_diff']):.0e}")
 cf = rf["crossfit"]
 mac("RfCfN", cf["n"]); mac("RfCfMs", ", ".join(str(x) for x in cf["m_values"]))
 mac("RfCfHoldB", cf["hold"]["b2"]); mac("RfCfHoldCap", cf["hold"]["cap"]); mac("RfCfJensen", cf["jensen_hold"])
-mac("RfCfMaxB", f"{cf['max_ratio']['b2']:.2f}"); mac("RfCfMaxCap", f"{cf['max_ratio']['cap']:.2f}")
+mac("RfCfMaxB", up(cf["max_ratio"]["b2"])); mac("RfCfMaxCap", up(cf["max_ratio"]["cap"]))
 _cf0 = [r for r in cf["eb10"] if r["m"] == m0 and r["dep"] == 0.0]
 _rn = cfg["d"] * cfg["sigma"] ** 2 / cfg["n"]
 mac("RfCfSZeroGain", pct(-_cf0[0]["ex"][0] / _rn)); mac("RfCfSSixteenGain", pct(-[r for r in _cf0 if r["snr"] == 16.0][0]["ex"][0] / _rn))
 _cfd = [r for r in cf["eb10"] if r["m"] == m0 and r["snr"] == cfg["snr_dep"]]
-mac("RfCfDepMax", f"{max(r['ex'][0] for r in _cfd):+.4f}"); mac("RfCfK", cfg["n"] // m0)
+mac("RfCfDepMax", up(max(r["ex"][0] for r in _cfd), 4, signed=True)); mac("RfCfK", cfg["n"] // m0)
 ad = rf["adversarial"]
 mac("RfAdvN", ad["n"])
 for k, tag in (("b2", "B"), ("cap", "Cap"), ("capc", "Capc")):
-    mac(f"RfAdvHold{tag}", ad["hold"][k]); mac(f"RfAdvMax{tag}", f"{ad['max_ratio'][k]:.2f}")
+    mac(f"RfAdvHold{tag}", ad["hold"][k]); mac(f"RfAdvMax{tag}", up(ad["max_ratio"][k]))
 mac("RfAdvIdN", ad["identity_n"]); mac("RfAdvIdMaxZ", f"{ad['identity_max_z']:.2f}"); mac("RfAdvIdAbove", ad["identity_n_above3"])
-mac("RfAdvWorstMin", f"{min(ad['worst_over_cap']):.2f}"); mac("RfAdvWorstMax", f"{max(ad['worst_over_cap']):.2f}")
-mac("RfAdvReflMin", f"{min(ad['reflect_over_lower']):.2f}"); mac("RfAdvReflMax", f"{max(ad['reflect_over_lower']):.2f}")
+mac("RfAdvWorstMin", f"{min(ad['worst_over_cap']):.2f}"); mac("RfAdvWorstMax", up(max(ad["worst_over_cap"])))
+mac("RfAdvReflMin", f"{min(ad['reflect_over_lower']):.2f}"); mac("RfAdvReflMax", up(max(ad["reflect_over_lower"])))
 ac = rf["adversarial_crossfit"]
 mac("RfAcfN", ac["n"]); mac("RfAcfHoldB", ac["hold"]["b2"]); mac("RfAcfHoldCap", ac["hold"]["cap"])
-mac("RfAcfMaxSplit", f"{ac['max_over_split']:.1f}"); mac("RfAcfMaxSplitM", ac["max_over_split_at"]["m"])
+mac("RfAcfMaxSplit", up(ac["max_over_split"], 1)); mac("RfAcfMaxSplitM", ac["max_over_split_at"]["m"])
 mac("RfAcfMaxSplitAlpha", f"{ac['max_over_split_at']['alpha']:g}")
 _w10 = [r["ex"] / r["split"] for r in ac["worst"] if r["alpha"] == 0.1]
-mac("RfAcfTenMin", f"{min(_w10):.2f}"); mac("RfAcfTenMax", f"{max(_w10):.2f}")
+mac("RfAcfTenMin", f"{min(_w10):.2f}"); mac("RfAcfTenMax", up(max(_w10)))
+# round 3, M2: the unfavourable adversarial cross-fit result, reported in the text since v0.5
+import re  # noqa: E402
+_vm = re.match(r"fixed \|v\|=([0-9.]+)sig/sqrt\(m\)", ac["max_over_split_at"]["family"])
+assert _vm, ac["max_over_split_at"]
+mac("RfAcfMaxSplitV", f"{float(_vm.group(1)):g}")
+_acw = [r for r in ac["worst"] if r["m"] == ac["max_over_split_at"]["m"] and r["alpha"] == ac["max_over_split_at"]["alpha"]][0]
+mac("RfAcfMaxOverRn", up(_acw["ex"] / (cfg["d"] * cfg["sigma"] ** 2 / cfg["n"])))
 # transported refit inside the simulation (results.json, same draws as every other estimator)
 for a in A:
     ww = word(a)
@@ -467,9 +474,15 @@ for snr, tag in ((0.0, "Zero"), (1.0, "One"), (4.0, "Four"), (16.0, "Sixteen")):
     for a in ("0.5", "0.1"):
         mac(f"S{tag}Tr{word(a)}Gain", pct(q[a]["gain_transported_vs_Rn"]["gain"]))
 _trd = [(r["ops"]["eb"]["rev"]["0.1"]["risk_transported"][0] / r["risk_Rn"][0], r["dep_over_tau"]) for r in departure]
-mac("DepTrTenMax", f"{max(_trd)[0]:.2f}"); mac("DepTrTenMaxAt", f"{max(_trd)[1]:g}")
+mac("DepTrTenMax", up(max(_trd)[0])); mac("DepTrTenMaxAt", f"{max(_trd)[1]:g}")
 _trh = [(r["ops"]["eb"]["rev"]["0.5"]["risk_transported"][0] / r["risk_Rn"][0], r["dep_over_tau"]) for r in departure]
-mac("DepTrHalfMax", f"{max(_trh)[0]:.2f}"); mac("DepTrHalfMaxAt", f"{max(_trh)[1]:g}")
+mac("DepTrHalfMax", up(max(_trh)[0])); mac("DepTrHalfMaxAt", f"{max(_trh)[1]:g}")
+for r in msweep:
+    q = r["ops"]["eb"]["rev"]["0.1"]
+    tag = {3: "Three", 6: "Six", 12: "Twelve", 24: "TwentyFour"}[r["m"]] + ("Zero" if r["dep_over_tau"] == 0 else "Eight")
+    mac(f"M{tag}TrExcess", f"{q['excess_transported_vs_Rn'][0]:+.4f}")
+    mac(f"M{tag}TrExcessSE", f"{q['excess_transported_vs_Rn'][1]:.4f}")
+    mac(f"M{tag}TrGain", pct(q["gain_transported_vs_Rn"]["gain"]))
 mac("TrHarmMaxTen", pct_up(max(r["ops"]["eb"]["rev"]["0.1"]["harm_freq_transported"] for r in structure + departure)))
 
 with open(os.path.join(out_dir, "numbers.tex"), "w") as fh:
@@ -484,4 +497,4 @@ for fn in os.listdir(out_dir):
         if body.endswith("\\\\"):
             body = body[:-2].rstrip()
         open(fp, "w").write(body + "\n")
-print(f"wrote {len(L)} macros and 9 table bodies to {out_dir}")
+print(f"wrote {len(L)} macros and 10 table bodies to {out_dir}")
