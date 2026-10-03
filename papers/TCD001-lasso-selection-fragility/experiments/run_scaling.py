@@ -3,7 +3,7 @@
 E4: how the fragility number (any change of the signed support) scales with n.
   Part 1: exact minimal witnesses by exhaustive search with the closed-form removal test
           (n up to 30, |R| <= 6), rules C and P.
-  Part 2: greedy upper bounds (one-step exact greedy) and certificate lower bounds (Prop. 3)
+  Part 2: greedy upper bounds (one-step exact greedy) and certificate lower bounds (Prop. 3.4)
           for n up to 400, rule C.
 Writes results/scaling.json and results/scaling.md.
 """

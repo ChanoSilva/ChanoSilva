@@ -34,5 +34,5 @@ C n=10 p=5: cor2 coverage 141/213, P(f=1)=0.87, P(k*>=1|f>=2)=0.0, gap=1.0
 C n=20 p=10: cor2 coverage 254/466, P(f=1)=0.87, P(k*>=1|f>=2)=0.0, gap=1.0
 C n=50 p=20: cor2 coverage 775/1269, P(f=1)=0.77, P(k*>=1|f>=2)=0.2857142857142857, gap=1.2857142857142858
 C n=12 p=24: cor2 coverage 46/166, P(f=1)=1.00, P(k*>=1|f>=2)=None, gap=None
-D throughput: oracle 1.4 us/subset, refit 568.9 us/subset, x395
-done in 11.767208814620972 s
+D throughput: oracle 1.1 us/subset, refit 442.3 us/subset, x399
+done in 7.2323691844940186 s

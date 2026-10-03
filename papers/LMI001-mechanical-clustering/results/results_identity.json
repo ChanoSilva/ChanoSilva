@@ -33,7 +33,7 @@
     "dim": 4
    }
   },
-  "seconds": 150.4664385318756
+  "seconds": 158.68022990226746
  },
  "E1": {
   "rows": [
@@ -83,7 +83,7 @@
     "n": 300,
     "k": 3,
     "partitions": 203,
-    "max_rel_err": 9.447861729373276e-14,
+    "max_rel_err": 8.271346662538381e-14,
     "sigma": 286.5488327871447,
     "lam_min_K": -286.5488327861447
    },
@@ -113,7 +113,7 @@
     "n": 300,
     "k": 2,
     "partitions": 203,
-    "max_rel_err": 6.079963077233051e-14,
+    "max_rel_err": 5.4166611018553424e-14,
     "sigma": 1513.2668095103472,
     "lam_min_K": -1513.2668094853557
    },
@@ -123,7 +123,7 @@
     "n": 300,
     "k": 2,
     "partitions": 203,
-    "max_rel_err": 2.461119209876482e-13,
+    "max_rel_err": 2.2361266866289884e-13,
     "sigma": 448.29815017591494,
     "lam_min_K": -448.29815016763473
    },
@@ -133,7 +133,7 @@
     "n": 300,
     "k": 2,
     "partitions": 203,
-    "max_rel_err": 6.01929524192713e-14,
+    "max_rel_err": 7.242132329083757e-14,
     "sigma": 382.7797983986207,
     "lam_min_K": -382.7797983953865
    },
@@ -143,7 +143,7 @@
     "n": 300,
     "k": 2,
     "partitions": 203,
-    "max_rel_err": 9.611001464142111e-14,
+    "max_rel_err": 9.59900407044271e-14,
     "sigma": 289.56649005597126,
     "lam_min_K": -289.56649005497127
    },
@@ -163,7 +163,7 @@
     "n": 300,
     "k": 2,
     "partitions": 203,
-    "max_rel_err": 5.539690036501745e-14,
+    "max_rel_err": 7.229393231517958e-14,
     "sigma": 394.94349087628194,
     "lam_min_K": -394.94349087150744
    },
@@ -183,7 +183,7 @@
     "n": 300,
     "k": 2,
     "partitions": 203,
-    "max_rel_err": 1.570572582479081e-13,
+    "max_rel_err": 2.127868594260801e-13,
     "sigma": 203.8800379288382,
     "lam_min_K": -203.8800379256374
    },
@@ -193,7 +193,7 @@
     "n": 300,
     "k": 2,
     "partitions": 203,
-    "max_rel_err": 8.682229306218673e-14,
+    "max_rel_err": 9.966301004184093e-14,
     "sigma": 304.1128635555664,
     "lam_min_K": -304.1128635533813
    },
@@ -203,7 +203,7 @@
     "n": 300,
     "k": 2,
     "partitions": 203,
-    "max_rel_err": 4.9317263459586374e-14,
+    "max_rel_err": 4.5996575177633065e-14,
     "sigma": 289.14539197047276,
     "lam_min_K": -289.14539196947277
    },
@@ -213,7 +213,7 @@
     "n": 300,
     "k": 2,
     "partitions": 203,
-    "max_rel_err": 8.866049517772995e-14,
+    "max_rel_err": 1.0699808973859528e-13,
     "sigma": 1176.7138039075962,
     "lam_min_K": -1176.7138039018485
    },
@@ -223,7 +223,7 @@
     "n": 300,
     "k": 10,
     "partitions": 203,
-    "max_rel_err": 1.334004613211552e-13,
+    "max_rel_err": 1.7218768957728932e-13,
     "sigma": 2824.380538537235,
     "lam_min_K": -2824.380538516587
    },
@@ -233,7 +233,7 @@
     "n": 300,
     "k": 10,
     "partitions": 203,
-    "max_rel_err": 1.3150478703490812e-13,
+    "max_rel_err": 1.4560079495510076e-13,
     "sigma": 2837.948458308989,
     "lam_min_K": -2837.9484582882446
    },
@@ -243,7 +243,7 @@
     "n": 300,
     "k": 10,
     "partitions": 203,
-    "max_rel_err": 9.510009675934644e-14,
+    "max_rel_err": 1.3441144357830363e-13,
     "sigma": 224.044352456981,
     "lam_min_K": -224.0443524513052
    },
@@ -253,7 +253,7 @@
     "n": 300,
     "k": 10,
     "partitions": 203,
-    "max_rel_err": 2.1582070337596787e-13,
+    "max_rel_err": 2.1922168636524912e-13,
     "sigma": 904.1106675907371,
     "lam_min_K": -904.110667586193
    },
@@ -263,7 +263,7 @@
     "n": 300,
     "k": 10,
     "partitions": 203,
-    "max_rel_err": 1.9199359975772222e-13,
+    "max_rel_err": 1.2457492652465377e-13,
     "sigma": 216.56951286333384,
     "lam_min_K": -216.56951286233385
    },
@@ -273,7 +273,7 @@
     "n": 300,
     "k": 10,
     "partitions": 203,
-    "max_rel_err": 1.3074773321156088e-13,
+    "max_rel_err": 1.3922187270209439e-13,
     "sigma": 387.7618701203699,
     "lam_min_K": -387.7618701184142
    },
@@ -303,7 +303,7 @@
     "n": 150,
     "k": 3,
     "partitions": 203,
-    "max_rel_err": 1.4121976351306458e-13,
+    "max_rel_err": 1.6099881181816136e-13,
     "sigma": 805.6505577383692,
     "lam_min_K": -805.6505577056068
    },
@@ -313,7 +313,7 @@
     "n": 150,
     "k": 3,
     "partitions": 203,
-    "max_rel_err": 4.121871687837275e-14,
+    "max_rel_err": 4.309082530907261e-14,
     "sigma": 384.80196863543557,
     "lam_min_K": -384.80196862890625
    },
@@ -323,7 +323,7 @@
     "n": 150,
     "k": 3,
     "partitions": 203,
-    "max_rel_err": 7.726605323716545e-14,
+    "max_rel_err": 7.168650017368741e-14,
     "sigma": 136.1965279366978,
     "lam_min_K": -136.19652793569782
    },
@@ -333,7 +333,7 @@
     "n": 150,
     "k": 3,
     "partitions": 203,
-    "max_rel_err": 6.691918305143937e-14,
+    "max_rel_err": 5.565872768126605e-14,
     "sigma": 422.63360894208773,
     "lam_min_K": -422.6336089371524
    }
@@ -341,10 +341,10 @@
   "checks": 19285,
   "failures": 0,
   "max_rel_err": 1.1214897688200114e-11,
-  "hooke_sse_max_rel_err": 3.83477816855597e-16,
-  "equal_size_factor_max_rel_err": 2.2144852432778906e-16,
+  "hooke_sse_max_rel_err": 3.909382229167732e-16,
+  "equal_size_factor_max_rel_err": 2.1993503635044875e-16,
   "total_over_specific_ratio_min": 29.718376726481022,
-  "total_over_specific_ratio_max": 205.34853089128916,
+  "total_over_specific_ratio_max": 197.51251926431493,
   "cnd_eigs": [
    {
     "dataset": "blobs",
@@ -627,11 +627,11 @@
     "init": 0,
     "n": 120,
     "k": 3,
-    "sweeps": 2,
+    "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 5.058881165380494e-16,
-    "seconds_physics": 0.11337447166442871,
-    "seconds_kernel": 0.0030984878540039062
+    "rel_err_energy": 1.617129545204648e-16,
+    "seconds_physics": 0.13057971000671387,
+    "seconds_kernel": 0.003107309341430664
    },
    {
     "dataset": "blobs",
@@ -639,11 +639,11 @@
     "init": 1,
     "n": 120,
     "k": 3,
-    "sweeps": 2,
+    "sweeps": 5,
     "identical_trajectory": true,
-    "rel_err_energy": 4.679465077976957e-15,
-    "seconds_physics": 0.10147380828857422,
-    "seconds_kernel": 0.003780364990234375
+    "rel_err_energy": 1.9562342774089242e-16,
+    "seconds_physics": 0.2651510238647461,
+    "seconds_kernel": 0.004730701446533203
    },
    {
     "dataset": "blobs",
@@ -651,11 +651,11 @@
     "init": 2,
     "n": 120,
     "k": 3,
-    "sweeps": 2,
+    "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 1.2647202913451235e-15,
-    "seconds_physics": 0.10044527053833008,
-    "seconds_kernel": 0.0027937889099121094
+    "rel_err_energy": 6.468518180818591e-16,
+    "seconds_physics": 0.13496828079223633,
+    "seconds_kernel": 0.0032796859741210938
    },
    {
     "dataset": "blobs",
@@ -665,9 +665,9 @@
     "k": 3,
     "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 1.133223768762646e-14,
-    "seconds_physics": 0.16668057441711426,
-    "seconds_kernel": 0.003935098648071289
+    "rel_err_energy": 7.595043524984197e-15,
+    "seconds_physics": 0.1316521167755127,
+    "seconds_kernel": 0.0032885074615478516
    },
    {
     "dataset": "blobs",
@@ -677,9 +677,9 @@
     "k": 3,
     "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 5.105733463655877e-15,
-    "seconds_physics": 0.159759521484375,
-    "seconds_kernel": 0.004045009613037109
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.12315130233764648,
+    "seconds_kernel": 0.003027677536010742
    },
    {
     "dataset": "blobs",
@@ -689,9 +689,9 @@
     "k": 3,
     "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 9.464286420435284e-15,
-    "seconds_physics": 0.19182229042053223,
-    "seconds_kernel": 0.004227399826049805
+    "rel_err_energy": 5.6962826437381474e-15,
+    "seconds_physics": 0.24340343475341797,
+    "seconds_kernel": 0.007426261901855469
    },
    {
     "dataset": "blobs",
@@ -699,11 +699,11 @@
     "init": 0,
     "n": 120,
     "k": 3,
-    "sweeps": 2,
+    "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 2.6784228080378094e-14,
-    "seconds_physics": 0.13297438621520996,
-    "seconds_kernel": 0.0026977062225341797
+    "rel_err_energy": 2.4766008346851273e-15,
+    "seconds_physics": 0.21103954315185547,
+    "seconds_kernel": 0.0030639171600341797
    },
    {
     "dataset": "blobs",
@@ -711,11 +711,11 @@
     "init": 1,
     "n": 120,
     "k": 3,
-    "sweeps": 2,
+    "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 1.2888651106347354e-14,
-    "seconds_physics": 0.11037874221801758,
-    "seconds_kernel": 0.0028183460235595703
+    "rel_err_energy": 1.3839828193828651e-14,
+    "seconds_physics": 0.1461341381072998,
+    "seconds_kernel": 0.003340482711791992
    },
    {
     "dataset": "blobs",
@@ -723,11 +723,11 @@
     "init": 2,
     "n": 120,
     "k": 3,
-    "sweeps": 2,
+    "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 1.3492806626957386e-14,
-    "seconds_physics": 0.12053704261779785,
-    "seconds_kernel": 0.0031630992889404297
+    "rel_err_energy": 9.760720936700206e-15,
+    "seconds_physics": 0.33628177642822266,
+    "seconds_kernel": 0.015115499496459961
    },
    {
     "dataset": "blobs",
@@ -735,11 +735,11 @@
     "init": 0,
     "n": 120,
     "k": 3,
-    "sweeps": 3,
+    "sweeps": 2,
     "identical_trajectory": true,
-    "rel_err_energy": 9.873822533213141e-16,
-    "seconds_physics": 0.13899588584899902,
-    "seconds_kernel": 0.0038938522338867188
+    "rel_err_energy": 6.279324794350596e-16,
+    "seconds_physics": 0.2756221294403076,
+    "seconds_kernel": 0.0021317005157470703
    },
    {
     "dataset": "blobs",
@@ -747,11 +747,11 @@
     "init": 1,
     "n": 120,
     "k": 3,
-    "sweeps": 3,
+    "sweeps": 2,
     "identical_trajectory": true,
-    "rel_err_energy": 1.410546076173306e-16,
-    "seconds_physics": 0.1350555419921875,
-    "seconds_kernel": 0.004239320755004883
+    "rel_err_energy": 1.883797438305179e-15,
+    "seconds_physics": 0.25066447257995605,
+    "seconds_kernel": 0.0021288394927978516
    },
    {
     "dataset": "blobs",
@@ -762,8 +762,8 @@
     "sweeps": 3,
     "identical_trajectory": true,
     "rel_err_energy": 0.0,
-    "seconds_physics": 0.16267132759094238,
-    "seconds_kernel": 0.008239507675170898
+    "seconds_physics": 0.2669370174407959,
+    "seconds_kernel": 0.007025480270385742
    },
    {
     "dataset": "blobs",
@@ -771,11 +771,11 @@
     "init": 0,
     "n": 120,
     "k": 3,
-    "sweeps": 7,
+    "sweeps": 5,
     "identical_trajectory": true,
-    "rel_err_energy": 1.6318238666561439e-16,
-    "seconds_physics": 0.5732002258300781,
-    "seconds_kernel": 0.009153366088867188
+    "rel_err_energy": 5.043833215219551e-16,
+    "seconds_physics": 0.5236802101135254,
+    "seconds_kernel": 0.012623786926269531
    },
    {
     "dataset": "blobs",
@@ -783,11 +783,11 @@
     "init": 1,
     "n": 120,
     "k": 3,
-    "sweeps": 5,
+    "sweeps": 4,
     "identical_trajectory": true,
-    "rel_err_energy": 0.0,
-    "seconds_physics": 0.3909037113189697,
-    "seconds_kernel": 0.011456966400146484
+    "rel_err_energy": 3.362555476813034e-16,
+    "seconds_physics": 0.17416620254516602,
+    "seconds_kernel": 0.003908872604370117
    },
    {
     "dataset": "blobs",
@@ -795,11 +795,11 @@
     "init": 2,
     "n": 120,
     "k": 3,
-    "sweeps": 5,
+    "sweeps": 6,
     "identical_trajectory": true,
-    "rel_err_energy": 6.490062190813703e-16,
-    "seconds_physics": 0.4179551601409912,
-    "seconds_kernel": 0.006461143493652344
+    "rel_err_energy": 1.681277738406517e-16,
+    "seconds_physics": 0.3802921772003174,
+    "seconds_kernel": 0.0054972171783447266
    },
    {
     "dataset": "blobs",
@@ -807,11 +807,11 @@
     "init": 0,
     "n": 120,
     "k": 3,
-    "sweeps": 3,
+    "sweeps": 2,
     "identical_trajectory": true,
-    "rel_err_energy": 1.4999206951644276e-16,
-    "seconds_physics": 0.25903844833374023,
-    "seconds_kernel": 0.007724761962890625
+    "rel_err_energy": 4.844776941796202e-16,
+    "seconds_physics": 0.07626748085021973,
+    "seconds_kernel": 0.0018570423126220703
    },
    {
     "dataset": "blobs",
@@ -819,11 +819,11 @@
     "init": 1,
     "n": 120,
     "k": 3,
-    "sweeps": 3,
+    "sweeps": 2,
     "identical_trajectory": true,
-    "rel_err_energy": 4.499762085493283e-16,
-    "seconds_physics": 0.2983236312866211,
-    "seconds_kernel": 0.007219552993774414
+    "rel_err_energy": 1.1304479530857805e-15,
+    "seconds_physics": 0.07485055923461914,
+    "seconds_kernel": 0.0019311904907226562
    },
    {
     "dataset": "blobs",
@@ -831,11 +831,11 @@
     "init": 2,
     "n": 120,
     "k": 3,
-    "sweeps": 3,
+    "sweeps": 2,
     "identical_trajectory": true,
-    "rel_err_energy": 7.499603475822138e-16,
-    "seconds_physics": 0.29689717292785645,
-    "seconds_kernel": 0.007150888442993164
+    "rel_err_energy": 6.459702589061602e-16,
+    "seconds_physics": 0.0774993896484375,
+    "seconds_kernel": 0.0019638538360595703
    },
    {
     "dataset": "moons",
@@ -843,11 +843,11 @@
     "init": 0,
     "n": 120,
     "k": 2,
-    "sweeps": 2,
+    "sweeps": 5,
     "identical_trajectory": true,
-    "rel_err_energy": 7.607539780578087e-16,
-    "seconds_physics": 0.081451416015625,
-    "seconds_kernel": 0.005074977874755859
+    "rel_err_energy": 1.1562173878675224e-15,
+    "seconds_physics": 0.08992838859558105,
+    "seconds_kernel": 0.004546403884887695
    },
    {
     "dataset": "moons",
@@ -855,203 +855,203 @@
     "init": 1,
     "n": 120,
     "k": 2,
-    "sweeps": 2,
+    "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 1.5215079561156175e-15,
-    "seconds_physics": 0.07936525344848633,
-    "seconds_kernel": 0.005034685134887695
+    "rel_err_energy": 1.446140306026856e-16,
+    "seconds_physics": 0.07451558113098145,
+    "seconds_kernel": 0.0027904510498046875
    },
    {
     "dataset": "moons",
     "potential": "hooke",
-    "init": 2,
-    "n": 120,
-    "k": 2,
-    "sweeps": 2,
-    "identical_trajectory": true,
-    "rel_err_energy": 3.043015912231235e-16,
-    "seconds_physics": 0.07614898681640625,
-    "seconds_kernel": 0.0047647953033447266
-   },
-   {
-    "dataset": "moons",
-    "potential": "hooke_lift",
-    "init": 0,
-    "n": 120,
-    "k": 2,
-    "sweeps": 4,
-    "identical_trajectory": true,
-    "rel_err_energy": 2.9428721675106537e-16,
-    "seconds_physics": 0.13154029846191406,
-    "seconds_kernel": 0.004956722259521484
-   },
-   {
-    "dataset": "moons",
-    "potential": "hooke_lift",
-    "init": 1,
-    "n": 120,
-    "k": 2,
-    "sweeps": 4,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.1771488670042615e-15,
-    "seconds_physics": 0.09975504875183105,
-    "seconds_kernel": 0.005478620529174805
-   },
-   {
-    "dataset": "moons",
-    "potential": "hooke_lift",
-    "init": 2,
-    "n": 120,
-    "k": 2,
-    "sweeps": 4,
-    "identical_trajectory": true,
-    "rel_err_energy": 2.2071541256329903e-15,
-    "seconds_physics": 0.11231231689453125,
-    "seconds_kernel": 0.005184650421142578
-   },
-   {
-    "dataset": "moons",
-    "potential": "rest",
-    "init": 0,
-    "n": 120,
-    "k": 2,
-    "sweeps": 3,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.36727778335359e-15,
-    "seconds_physics": 0.08386373519897461,
-    "seconds_kernel": 0.003584623336791992
-   },
-   {
-    "dataset": "moons",
-    "potential": "rest",
-    "init": 1,
-    "n": 120,
-    "k": 2,
-    "sweeps": 4,
-    "identical_trajectory": true,
-    "rel_err_energy": 3.418194458383975e-16,
-    "seconds_physics": 0.15892267227172852,
-    "seconds_kernel": 0.009133100509643555
-   },
-   {
-    "dataset": "moons",
-    "potential": "rest",
-    "init": 2,
-    "n": 120,
-    "k": 2,
-    "sweeps": 4,
-    "identical_trajectory": true,
-    "rel_err_energy": 0.0,
-    "seconds_physics": 0.15629315376281738,
-    "seconds_kernel": 0.00870370864868164
-   },
-   {
-    "dataset": "moons",
-    "potential": "tension",
-    "init": 0,
-    "n": 120,
-    "k": 2,
-    "sweeps": 5,
-    "identical_trajectory": true,
-    "rel_err_energy": 6.094232576531411e-16,
-    "seconds_physics": 0.185593843460083,
-    "seconds_kernel": 0.010666131973266602
-   },
-   {
-    "dataset": "moons",
-    "potential": "tension",
-    "init": 1,
-    "n": 120,
-    "k": 2,
-    "sweeps": 4,
-    "identical_trajectory": true,
-    "rel_err_energy": 4.570674432398559e-16,
-    "seconds_physics": 0.15153789520263672,
-    "seconds_kernel": 0.008888006210327148
-   },
-   {
-    "dataset": "moons",
-    "potential": "tension",
-    "init": 2,
-    "n": 120,
-    "k": 2,
-    "sweeps": 5,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.5235581441328528e-16,
-    "seconds_physics": 0.1341266632080078,
-    "seconds_kernel": 0.005575656890869141
-   },
-   {
-    "dataset": "moons",
-    "potential": "gauss",
-    "init": 0,
-    "n": 120,
-    "k": 2,
-    "sweeps": 3,
-    "identical_trajectory": true,
-    "rel_err_energy": 2.77715694201608e-16,
-    "seconds_physics": 0.12900996208190918,
-    "seconds_kernel": 0.006400585174560547
-   },
-   {
-    "dataset": "moons",
-    "potential": "gauss",
-    "init": 1,
-    "n": 120,
-    "k": 2,
-    "sweeps": 3,
-    "identical_trajectory": true,
-    "rel_err_energy": 5.588788797675853e-16,
-    "seconds_physics": 0.10746359825134277,
-    "seconds_kernel": 0.006557941436767578
-   },
-   {
-    "dataset": "moons",
-    "potential": "gauss",
-    "init": 2,
-    "n": 120,
-    "k": 2,
-    "sweeps": 3,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.3875347520311472e-16,
-    "seconds_physics": 0.11612248420715332,
-    "seconds_kernel": 0.0037381649017333984
-   },
-   {
-    "dataset": "moons",
-    "potential": "log",
-    "init": 0,
-    "n": 120,
-    "k": 2,
-    "sweeps": 5,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.9560193317502153e-16,
-    "seconds_physics": 0.22609448432922363,
-    "seconds_kernel": 0.010661840438842773
-   },
-   {
-    "dataset": "moons",
-    "potential": "log",
-    "init": 1,
-    "n": 120,
-    "k": 2,
-    "sweeps": 4,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.9560193317502153e-16,
-    "seconds_physics": 0.18132972717285156,
-    "seconds_kernel": 0.008914709091186523
-   },
-   {
-    "dataset": "moons",
-    "potential": "log",
     "init": 2,
     "n": 120,
     "k": 2,
     "sweeps": 7,
     "identical_trajectory": true,
+    "rel_err_energy": 7.23070153013428e-16,
+    "seconds_physics": 0.21373271942138672,
+    "seconds_kernel": 0.013790130615234375
+   },
+   {
+    "dataset": "moons",
+    "potential": "hooke_lift",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 6.095109512322293e-16,
+    "seconds_physics": 0.16165614128112793,
+    "seconds_kernel": 0.0052700042724609375
+   },
+   {
+    "dataset": "moons",
+    "potential": "hooke_lift",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.1332883293128027e-15,
+    "seconds_physics": 0.11028647422790527,
+    "seconds_kernel": 0.005261659622192383
+   },
+   {
+    "dataset": "moons",
+    "potential": "hooke_lift",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 3.0475547561611464e-16,
+    "seconds_physics": 0.11518049240112305,
+    "seconds_kernel": 0.005631685256958008
+   },
+   {
+    "dataset": "moons",
+    "potential": "rest",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 6.406567571683853e-16,
+    "seconds_physics": 0.23578381538391113,
+    "seconds_kernel": 0.013364315032958984
+   },
+   {
+    "dataset": "moons",
+    "potential": "rest",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 6,
+    "identical_trajectory": true,
     "rel_err_energy": 0.0,
-    "seconds_physics": 0.3550708293914795,
-    "seconds_kernel": 0.01371622085571289
+    "seconds_physics": 0.3670845031738281,
+    "seconds_kernel": 0.013120889663696289
+   },
+   {
+    "dataset": "moons",
+    "potential": "rest",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 4.80492567876289e-16,
+    "seconds_physics": 0.17036795616149902,
+    "seconds_kernel": 0.004291057586669922
+   },
+   {
+    "dataset": "moons",
+    "potential": "tension",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.4932824642142384e-16,
+    "seconds_physics": 0.05006003379821777,
+    "seconds_kernel": 0.0027666091918945312
+   },
+   {
+    "dataset": "moons",
+    "potential": "tension",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 8.95969478528543e-16,
+    "seconds_physics": 0.08405017852783203,
+    "seconds_kernel": 0.004486083984375
+   },
+   {
+    "dataset": "moons",
+    "potential": "tension",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.4932824642142384e-16,
+    "seconds_physics": 0.07494187355041504,
+    "seconds_kernel": 0.00761723518371582
+   },
+   {
+    "dataset": "moons",
+    "potential": "gauss",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 6.857560315414423e-16,
+    "seconds_physics": 0.22295641899108887,
+    "seconds_kernel": 0.012766361236572266
+   },
+   {
+    "dataset": "moons",
+    "potential": "gauss",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.743085577023367e-16,
+    "seconds_physics": 0.22625017166137695,
+    "seconds_kernel": 0.014857769012451172
+   },
+   {
+    "dataset": "moons",
+    "potential": "gauss",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.729582800746198e-16,
+    "seconds_physics": 0.3494985103607178,
+    "seconds_kernel": 0.005547523498535156
+   },
+   {
+    "dataset": "moons",
+    "potential": "log",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.14917850494384766,
+    "seconds_kernel": 0.006482839584350586
+   },
+   {
+    "dataset": "moons",
+    "potential": "log",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 5.66249083010416e-16,
+    "seconds_physics": 0.11888527870178223,
+    "seconds_kernel": 0.00848531723022461
+   },
+   {
+    "dataset": "moons",
+    "potential": "log",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 2,
+    "identical_trajectory": true,
+    "rel_err_energy": 7.547377777326596e-16,
+    "seconds_physics": 0.09075355529785156,
+    "seconds_kernel": 0.009848594665527344
    },
    {
     "dataset": "circles",
@@ -1059,11 +1059,11 @@
     "init": 0,
     "n": 120,
     "k": 2,
-    "sweeps": 7,
+    "sweeps": 4,
     "identical_trajectory": true,
-    "rel_err_energy": 6.372035983431218e-16,
-    "seconds_physics": 0.1666247844696045,
-    "seconds_kernel": 0.013599634170532227
+    "rel_err_energy": 3.387360422086512e-16,
+    "seconds_physics": 0.25376224517822266,
+    "seconds_kernel": 0.01563572883605957
    },
    {
     "dataset": "circles",
@@ -1073,9 +1073,9 @@
     "k": 2,
     "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 1.1126214234098288e-15,
-    "seconds_physics": 0.08967328071594238,
-    "seconds_kernel": 0.004027605056762695
+    "rel_err_energy": 1.6426993081233444e-16,
+    "seconds_physics": 0.12865018844604492,
+    "seconds_kernel": 0.0026984214782714844
    },
    {
     "dataset": "circles",
@@ -1083,11 +1083,11 @@
     "init": 2,
     "n": 120,
     "k": 2,
-    "sweeps": 4,
+    "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 0.0,
-    "seconds_physics": 0.1470503807067871,
-    "seconds_kernel": 0.010059595108032227
+    "rel_err_energy": 1.6426993081233444e-16,
+    "seconds_physics": 0.060297250747680664,
+    "seconds_kernel": 0.004549264907836914
    },
    {
     "dataset": "circles",
@@ -1095,11 +1095,11 @@
     "init": 0,
     "n": 120,
     "k": 2,
-    "sweeps": 3,
+    "sweeps": 2,
     "identical_trajectory": true,
-    "rel_err_energy": 0.0,
-    "seconds_physics": 0.1189570426940918,
-    "seconds_kernel": 0.006984233856201172
+    "rel_err_energy": 3.7001072533363165e-16,
+    "seconds_physics": 0.054502010345458984,
+    "seconds_kernel": 0.0027043819427490234
    },
    {
     "dataset": "circles",
@@ -1107,11 +1107,11 @@
     "init": 1,
     "n": 120,
     "k": 2,
-    "sweeps": 7,
+    "sweeps": 2,
     "identical_trajectory": true,
-    "rel_err_energy": 6.098493318308079e-16,
-    "seconds_physics": 0.22780346870422363,
-    "seconds_kernel": 0.0084686279296875
+    "rel_err_energy": 1.4800429013345266e-15,
+    "seconds_physics": 0.03531789779663086,
+    "seconds_kernel": 0.0020399093627929688
    },
    {
     "dataset": "circles",
@@ -1119,11 +1119,11 @@
     "init": 2,
     "n": 120,
     "k": 2,
-    "sweeps": 4,
+    "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 4.0656622122053857e-16,
-    "seconds_physics": 0.12441849708557129,
-    "seconds_kernel": 0.004874229431152344
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.05089569091796875,
+    "seconds_kernel": 0.0027043819427490234
    },
    {
     "dataset": "circles",
@@ -1131,59 +1131,59 @@
     "init": 0,
     "n": 120,
     "k": 2,
-    "sweeps": 3,
+    "sweeps": 11,
     "identical_trajectory": true,
-    "rel_err_energy": 2.1144437593145059e-16,
-    "seconds_physics": 0.0633840560913086,
-    "seconds_kernel": 0.0036296844482421875
+    "rel_err_energy": 8.367878582343649e-16,
+    "seconds_physics": 0.19124078750610352,
+    "seconds_kernel": 0.009806394577026367
    },
    {
     "dataset": "circles",
     "potential": "rest",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 11,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.0919696455859124e-16,
+    "seconds_physics": 0.18896746635437012,
+    "seconds_kernel": 0.009037017822265625
+   },
+   {
+    "dataset": "circles",
+    "potential": "rest",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.0919696455859124e-16,
+    "seconds_physics": 0.1066892147064209,
+    "seconds_kernel": 0.0052852630615234375
+   },
+   {
+    "dataset": "circles",
+    "potential": "tension",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.051162004470825195,
+    "seconds_kernel": 0.002652406692504883
+   },
+   {
+    "dataset": "circles",
+    "potential": "tension",
     "init": 1,
     "n": 120,
     "k": 2,
     "sweeps": 9,
     "identical_trajectory": true,
-    "rel_err_energy": 6.349076858533126e-16,
-    "seconds_physics": 0.24018144607543945,
-    "seconds_kernel": 0.016181230545043945
-   },
-   {
-    "dataset": "circles",
-    "potential": "rest",
-    "init": 2,
-    "n": 120,
-    "k": 2,
-    "sweeps": 2,
-    "identical_trajectory": true,
-    "rel_err_energy": 6.343331277943517e-16,
-    "seconds_physics": 0.06569147109985352,
-    "seconds_kernel": 0.004523515701293945
-   },
-   {
-    "dataset": "circles",
-    "potential": "tension",
-    "init": 0,
-    "n": 120,
-    "k": 2,
-    "sweeps": 4,
-    "identical_trajectory": true,
-    "rel_err_energy": 3.141772030375303e-16,
-    "seconds_physics": 0.09089398384094238,
-    "seconds_kernel": 0.006024599075317383
-   },
-   {
-    "dataset": "circles",
-    "potential": "tension",
-    "init": 1,
-    "n": 120,
-    "k": 2,
-    "sweeps": 5,
-    "identical_trajectory": true,
-    "rel_err_energy": 0.0,
-    "seconds_physics": 0.11278963088989258,
-    "seconds_kernel": 0.0062334537506103516
+    "rel_err_energy": 3.242275971614788e-16,
+    "seconds_physics": 0.14889121055603027,
+    "seconds_kernel": 0.007674455642700195
    },
    {
     "dataset": "circles",
@@ -1191,11 +1191,11 @@
     "init": 2,
     "n": 120,
     "k": 2,
-    "sweeps": 4,
+    "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 3.133005560246921e-16,
-    "seconds_physics": 0.09039115905761719,
-    "seconds_kernel": 0.00478053092956543
+    "rel_err_energy": 1.6016349815818344e-16,
+    "seconds_physics": 0.05047202110290527,
+    "seconds_kernel": 0.0028600692749023438
    },
    {
     "dataset": "circles",
@@ -1203,11 +1203,11 @@
     "init": 0,
     "n": 120,
     "k": 2,
-    "sweeps": 5,
+    "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 0.0,
-    "seconds_physics": 0.17151904106140137,
-    "seconds_kernel": 0.005928516387939453
+    "rel_err_energy": 4.358463461064365e-16,
+    "seconds_physics": 0.05775022506713867,
+    "seconds_kernel": 0.0026617050170898438
    },
    {
     "dataset": "circles",
@@ -1215,71 +1215,71 @@
     "init": 1,
     "n": 120,
     "k": 2,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.90634927278736e-16,
+    "seconds_physics": 0.07978177070617676,
+    "seconds_kernel": 0.003468751907348633
+   },
+   {
+    "dataset": "circles",
+    "potential": "gauss",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 8,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.158797025680542,
+    "seconds_kernel": 0.011286735534667969
+   },
+   {
+    "dataset": "circles",
+    "potential": "log",
+    "init": 0,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 4.722301435518286e-16,
+    "seconds_physics": 0.059832096099853516,
+    "seconds_kernel": 0.002870798110961914
+   },
+   {
+    "dataset": "circles",
+    "potential": "log",
+    "init": 1,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 8.323005131422917e-16,
+    "seconds_physics": 0.11818599700927734,
+    "seconds_kernel": 0.002917051315307617
+   },
+   {
+    "dataset": "circles",
+    "potential": "log",
+    "init": 2,
+    "n": 120,
+    "k": 2,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.36049030725409e-16,
+    "seconds_physics": 0.13552403450012207,
+    "seconds_kernel": 0.00684356689453125
+   },
+   {
+    "dataset": "digits",
+    "potential": "hooke",
+    "init": 0,
+    "n": 120,
+    "k": 10,
     "sweeps": 6,
     "identical_trajectory": true,
     "rel_err_energy": 0.0,
-    "seconds_physics": 0.17149972915649414,
-    "seconds_kernel": 0.007997512817382812
-   },
-   {
-    "dataset": "circles",
-    "potential": "gauss",
-    "init": 2,
-    "n": 120,
-    "k": 2,
-    "sweeps": 5,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.481349429923256e-16,
-    "seconds_physics": 0.15289664268493652,
-    "seconds_kernel": 0.011250495910644531
-   },
-   {
-    "dataset": "circles",
-    "potential": "log",
-    "init": 0,
-    "n": 120,
-    "k": 2,
-    "sweeps": 5,
-    "identical_trajectory": true,
-    "rel_err_energy": 3.7693333836007886e-16,
-    "seconds_physics": 0.14696264266967773,
-    "seconds_kernel": 0.00586247444152832
-   },
-   {
-    "dataset": "circles",
-    "potential": "log",
-    "init": 1,
-    "n": 120,
-    "k": 2,
-    "sweeps": 4,
-    "identical_trajectory": true,
-    "rel_err_energy": 3.7693333836007886e-16,
-    "seconds_physics": 0.11600875854492188,
-    "seconds_kernel": 0.007821083068847656
-   },
-   {
-    "dataset": "circles",
-    "potential": "log",
-    "init": 2,
-    "n": 120,
-    "k": 2,
-    "sweeps": 5,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.2112098293117693e-16,
-    "seconds_physics": 0.19408774375915527,
-    "seconds_kernel": 0.006115436553955078
-   },
-   {
-    "dataset": "digits",
-    "potential": "hooke",
-    "init": 0,
-    "n": 120,
-    "k": 10,
-    "sweeps": 5,
-    "identical_trajectory": true,
-    "rel_err_energy": 0.0,
-    "seconds_physics": 2.7761189937591553,
-    "seconds_kernel": 0.006185770034790039
+    "seconds_physics": 3.3477091789245605,
+    "seconds_kernel": 0.0106353759765625
    },
    {
     "dataset": "digits",
@@ -1289,357 +1289,357 @@
     "k": 10,
     "sweeps": 5,
     "identical_trajectory": true,
-    "rel_err_energy": 0.0,
-    "seconds_physics": 2.6930205821990967,
-    "seconds_kernel": 0.011566638946533203
+    "rel_err_energy": 2.0133710828252101e-16,
+    "seconds_physics": 3.0253424644470215,
+    "seconds_kernel": 0.004670858383178711
    },
    {
     "dataset": "digits",
     "potential": "hooke",
-    "init": 2,
-    "n": 120,
-    "k": 10,
-    "sweeps": 5,
-    "identical_trajectory": true,
-    "rel_err_energy": 0.0,
-    "seconds_physics": 2.579148054122925,
-    "seconds_kernel": 0.006541728973388672
-   },
-   {
-    "dataset": "digits",
-    "potential": "hooke_lift",
-    "init": 0,
-    "n": 120,
-    "k": 10,
-    "sweeps": 7,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.9236907262262424e-16,
-    "seconds_physics": 3.911303997039795,
-    "seconds_kernel": 0.014577150344848633
-   },
-   {
-    "dataset": "digits",
-    "potential": "hooke_lift",
-    "init": 1,
-    "n": 120,
-    "k": 10,
-    "sweeps": 4,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.9084373381478656e-16,
-    "seconds_physics": 2.312293291091919,
-    "seconds_kernel": 0.005798816680908203
-   },
-   {
-    "dataset": "digits",
-    "potential": "hooke_lift",
     "init": 2,
     "n": 120,
     "k": 10,
     "sweeps": 10,
     "identical_trajectory": true,
-    "rel_err_energy": 3.908623805727987e-16,
-    "seconds_physics": 5.311824560165405,
-    "seconds_kernel": 0.0117950439453125
-   },
-   {
-    "dataset": "digits",
-    "potential": "rest",
-    "init": 0,
-    "n": 120,
-    "k": 10,
-    "sweeps": 7,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.1776220671148523e-14,
-    "seconds_physics": 3.9536361694335938,
-    "seconds_kernel": 0.016836166381835938
-   },
-   {
-    "dataset": "digits",
-    "potential": "rest",
-    "init": 1,
-    "n": 120,
-    "k": 10,
-    "sweeps": 6,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.2953257077753512e-14,
-    "seconds_physics": 3.4597489833831787,
-    "seconds_kernel": 0.007444143295288086
-   },
-   {
-    "dataset": "digits",
-    "potential": "rest",
-    "init": 2,
-    "n": 120,
-    "k": 10,
-    "sweeps": 10,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.545825649818169e-14,
-    "seconds_physics": 5.791335821151733,
-    "seconds_kernel": 0.012375831604003906
-   },
-   {
-    "dataset": "digits",
-    "potential": "tension",
-    "init": 0,
-    "n": 120,
-    "k": 10,
-    "sweeps": 10,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.1602797513110282e-16,
-    "seconds_physics": 4.962292909622192,
-    "seconds_kernel": 0.011778593063354492
-   },
-   {
-    "dataset": "digits",
-    "potential": "tension",
-    "init": 1,
-    "n": 120,
-    "k": 10,
-    "sweeps": 7,
-    "identical_trajectory": true,
     "rel_err_energy": 0.0,
-    "seconds_physics": 3.424424171447754,
-    "seconds_kernel": 0.009253740310668945
+    "seconds_physics": 3.946385145187378,
+    "seconds_kernel": 0.00793004035949707
    },
    {
     "dataset": "digits",
-    "potential": "tension",
-    "init": 2,
-    "n": 120,
-    "k": 10,
-    "sweeps": 5,
-    "identical_trajectory": true,
-    "rel_err_energy": 3.407369387065318e-16,
-    "seconds_physics": 2.7242937088012695,
-    "seconds_kernel": 0.006555795669555664
-   },
-   {
-    "dataset": "digits",
-    "potential": "gauss",
-    "init": 0,
-    "n": 120,
-    "k": 10,
-    "sweeps": 8,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.5757087483082878e-16,
-    "seconds_physics": 5.329250812530518,
-    "seconds_kernel": 0.010371685028076172
-   },
-   {
-    "dataset": "digits",
-    "potential": "gauss",
-    "init": 1,
-    "n": 120,
-    "k": 10,
-    "sweeps": 5,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.5807151146052254e-16,
-    "seconds_physics": 3.9544677734375,
-    "seconds_kernel": 0.01277470588684082
-   },
-   {
-    "dataset": "digits",
-    "potential": "gauss",
-    "init": 2,
-    "n": 120,
-    "k": 10,
-    "sweeps": 6,
-    "identical_trajectory": true,
-    "rel_err_energy": 3.1167983848497996e-16,
-    "seconds_physics": 3.8470520973205566,
-    "seconds_kernel": 0.0071563720703125
-   },
-   {
-    "dataset": "digits",
-    "potential": "log",
-    "init": 0,
-    "n": 120,
-    "k": 10,
-    "sweeps": 7,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.7538381781855922e-16,
-    "seconds_physics": 5.223174095153809,
-    "seconds_kernel": 0.01592564582824707
-   },
-   {
-    "dataset": "digits",
-    "potential": "log",
-    "init": 1,
-    "n": 120,
-    "k": 10,
-    "sweeps": 6,
-    "identical_trajectory": true,
-    "rel_err_energy": 0.0,
-    "seconds_physics": 4.379825592041016,
-    "seconds_kernel": 0.009171247482299805
-   },
-   {
-    "dataset": "digits",
-    "potential": "log",
-    "init": 2,
-    "n": 120,
-    "k": 10,
-    "sweeps": 5,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.75249708579453e-16,
-    "seconds_physics": 3.8575592041015625,
-    "seconds_kernel": 0.012603998184204102
-   },
-   {
-    "dataset": "iris",
-    "potential": "hooke",
-    "init": 0,
-    "n": 120,
-    "k": 3,
-    "sweeps": 8,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.7244119328870402e-15,
-    "seconds_physics": 0.578690767288208,
-    "seconds_kernel": 0.017078399658203125
-   },
-   {
-    "dataset": "iris",
-    "potential": "hooke",
-    "init": 1,
-    "n": 120,
-    "k": 3,
-    "sweeps": 7,
-    "identical_trajectory": true,
-    "rel_err_energy": 8.622059664435202e-16,
-    "seconds_physics": 0.4679121971130371,
-    "seconds_kernel": 0.007793903350830078
-   },
-   {
-    "dataset": "iris",
-    "potential": "hooke",
-    "init": 2,
-    "n": 120,
-    "k": 3,
-    "sweeps": 7,
-    "identical_trajectory": true,
-    "rel_err_energy": 2.4634456184100576e-16,
-    "seconds_physics": 0.32355666160583496,
-    "seconds_kernel": 0.008028507232666016
-   },
-   {
-    "dataset": "iris",
     "potential": "hooke_lift",
     "init": 0,
     "n": 120,
-    "k": 3,
-    "sweeps": 5,
-    "identical_trajectory": true,
-    "rel_err_energy": 6.932893717391862e-16,
-    "seconds_physics": 0.23981213569641113,
-    "seconds_kernel": 0.005650043487548828
-   },
-   {
-    "dataset": "iris",
-    "potential": "hooke_lift",
-    "init": 1,
-    "n": 120,
-    "k": 3,
-    "sweeps": 8,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.907632466067501e-16,
-    "seconds_physics": 0.3541104793548584,
-    "seconds_kernel": 0.008620500564575195
-   },
-   {
-    "dataset": "iris",
-    "potential": "hooke_lift",
-    "init": 2,
-    "n": 120,
-    "k": 3,
+    "k": 10,
     "sweeps": 9,
     "identical_trajectory": true,
-    "rel_err_energy": 1.5261059728540007e-15,
-    "seconds_physics": 0.44114255905151367,
-    "seconds_kernel": 0.019413471221923828
+    "rel_err_energy": 4.0553486081757013e-16,
+    "seconds_physics": 3.9196484088897705,
+    "seconds_kernel": 0.015688419342041016
    },
    {
-    "dataset": "iris",
-    "potential": "rest",
-    "init": 0,
-    "n": 120,
-    "k": 3,
-    "sweeps": 7,
-    "identical_trajectory": true,
-    "rel_err_energy": 1.6783372973006137e-15,
-    "seconds_physics": 0.44411611557006836,
-    "seconds_kernel": 0.008896350860595703
-   },
-   {
-    "dataset": "iris",
-    "potential": "rest",
+    "dataset": "digits",
+    "potential": "hooke_lift",
     "init": 1,
     "n": 120,
-    "k": 3,
-    "sweeps": 6,
+    "k": 10,
+    "sweeps": 5,
     "identical_trajectory": true,
-    "rel_err_energy": 3.146882432438651e-15,
-    "seconds_physics": 0.4510347843170166,
-    "seconds_kernel": 0.012761116027832031
+    "rel_err_energy": 4.128044129555009e-16,
+    "seconds_physics": 1.801567792892456,
+    "seconds_kernel": 0.005187511444091797
    },
    {
-    "dataset": "iris",
-    "potential": "rest",
+    "dataset": "digits",
+    "potential": "hooke_lift",
     "init": 2,
     "n": 120,
-    "k": 3,
-    "sweeps": 8,
+    "k": 10,
+    "sweeps": 5,
     "identical_trajectory": true,
-    "rel_err_energy": 4.195843243251534e-16,
-    "seconds_physics": 0.4528932571411133,
-    "seconds_kernel": 0.00924992561340332
+    "rel_err_energy": 0.0,
+    "seconds_physics": 1.611755132675171,
+    "seconds_kernel": 0.004572391510009766
    },
    {
-    "dataset": "iris",
-    "potential": "tension",
+    "dataset": "digits",
+    "potential": "rest",
     "init": 0,
     "n": 120,
-    "k": 3,
-    "sweeps": 4,
+    "k": 10,
+    "sweeps": 9,
     "identical_trajectory": true,
-    "rel_err_energy": 5.795644507172523e-16,
-    "seconds_physics": 0.1810016632080078,
-    "seconds_kernel": 0.004565000534057617
+    "rel_err_energy": 2.7244889082421343e-15,
+    "seconds_physics": 3.1068367958068848,
+    "seconds_kernel": 0.008660078048706055
    },
    {
-    "dataset": "iris",
-    "potential": "tension",
+    "dataset": "digits",
+    "potential": "rest",
     "init": 1,
     "n": 120,
-    "k": 3,
+    "k": 10,
     "sweeps": 10,
     "identical_trajectory": true,
-    "rel_err_energy": 5.134573584961331e-16,
-    "seconds_physics": 0.6123487949371338,
-    "seconds_kernel": 0.011342525482177734
+    "rel_err_energy": 0.0,
+    "seconds_physics": 3.670355796813965,
+    "seconds_kernel": 0.00925302505493164
    },
    {
-    "dataset": "iris",
+    "dataset": "digits",
+    "potential": "rest",
+    "init": 2,
+    "n": 120,
+    "k": 10,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 5.669682586351433e-16,
+    "seconds_physics": 2.5595288276672363,
+    "seconds_kernel": 0.00747370719909668
+   },
+   {
+    "dataset": "digits",
+    "potential": "tension",
+    "init": 0,
+    "n": 120,
+    "k": 10,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.339021276238268e-16,
+    "seconds_physics": 1.3538436889648438,
+    "seconds_kernel": 0.0039691925048828125
+   },
+   {
+    "dataset": "digits",
+    "potential": "tension",
+    "init": 1,
+    "n": 120,
+    "k": 10,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 1.5363621711730957,
+    "seconds_kernel": 0.004815816879272461
+   },
+   {
+    "dataset": "digits",
     "potential": "tension",
     "init": 2,
     "n": 120,
-    "k": 3,
+    "k": 10,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.1839973476156973e-16,
+    "seconds_physics": 1.5499286651611328,
+    "seconds_kernel": 0.004832744598388672
+   },
+   {
+    "dataset": "digits",
+    "potential": "gauss",
+    "init": 0,
+    "n": 120,
+    "k": 10,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.63579939366903e-16,
+    "seconds_physics": 1.4207336902618408,
+    "seconds_kernel": 0.003724813461303711
+   },
+   {
+    "dataset": "digits",
+    "potential": "gauss",
+    "init": 1,
+    "n": 120,
+    "k": 10,
     "sweeps": 4,
     "identical_trajectory": true,
     "rel_err_energy": 0.0,
-    "seconds_physics": 0.26656627655029297,
-    "seconds_kernel": 0.005446910858154297
+    "seconds_physics": 1.638197898864746,
+    "seconds_kernel": 0.004094362258911133
+   },
+   {
+    "dataset": "digits",
+    "potential": "gauss",
+    "init": 2,
+    "n": 120,
+    "k": 10,
+    "sweeps": 5,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 1.9222979545593262,
+    "seconds_kernel": 0.004846096038818359
+   },
+   {
+    "dataset": "digits",
+    "potential": "log",
+    "init": 0,
+    "n": 120,
+    "k": 10,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.868180372226037e-16,
+    "seconds_physics": 1.5083632469177246,
+    "seconds_kernel": 0.005244255065917969
+   },
+   {
+    "dataset": "digits",
+    "potential": "log",
+    "init": 1,
+    "n": 120,
+    "k": 10,
+    "sweeps": 7,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 2.550037384033203,
+    "seconds_kernel": 0.006324291229248047
+   },
+   {
+    "dataset": "digits",
+    "potential": "log",
+    "init": 2,
+    "n": 120,
+    "k": 10,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 3.6741354962190527e-16,
+    "seconds_physics": 2.1511764526367188,
+    "seconds_kernel": 0.0062940120697021484
    },
    {
     "dataset": "iris",
-    "potential": "gauss",
+    "potential": "hooke",
     "init": 0,
     "n": 120,
     "k": 3,
     "sweeps": 5,
     "identical_trajectory": true,
-    "rel_err_energy": 3.3700510836208906e-16,
-    "seconds_physics": 0.3650829792022705,
-    "seconds_kernel": 0.00722503662109375
+    "rel_err_energy": 1.330162501055031e-16,
+    "seconds_physics": 0.19773197174072266,
+    "seconds_kernel": 0.004866838455200195
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 3,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.330162501055031e-16,
+    "seconds_physics": 0.12162303924560547,
+    "seconds_kernel": 0.0031168460845947266
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 8,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.330162501055031e-16,
+    "seconds_physics": 0.3169567584991455,
+    "seconds_kernel": 0.007587432861328125
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke_lift",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 8,
+    "identical_trajectory": true,
+    "rel_err_energy": 8.375719296921438e-16,
+    "seconds_physics": 0.3748445510864258,
+    "seconds_kernel": 0.012618541717529297
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke_lift",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 4.187859648460719e-16,
+    "seconds_physics": 0.250485897064209,
+    "seconds_kernel": 0.005715847015380859
+   },
+   {
+    "dataset": "iris",
+    "potential": "hooke_lift",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.0939298242303596e-16,
+    "seconds_physics": 0.15950512886047363,
+    "seconds_kernel": 0.003893613815307617
+   },
+   {
+    "dataset": "iris",
+    "potential": "rest",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 8,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.2642123695921846e-16,
+    "seconds_physics": 0.3228011131286621,
+    "seconds_kernel": 0.007338762283325195
+   },
+   {
+    "dataset": "iris",
+    "potential": "rest",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 8,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.4717380402349201e-15,
+    "seconds_physics": 0.3541581630706787,
+    "seconds_kernel": 0.007650852203369141
+   },
+   {
+    "dataset": "iris",
+    "potential": "rest",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 8,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.037791132632966e-15,
+    "seconds_physics": 0.27730321884155273,
+    "seconds_kernel": 0.007113218307495117
+   },
+   {
+    "dataset": "iris",
+    "potential": "tension",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 8,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.0090746777198258e-16,
+    "seconds_physics": 0.2606372833251953,
+    "seconds_kernel": 0.006604909896850586
+   },
+   {
+    "dataset": "iris",
+    "potential": "tension",
+    "init": 1,
+    "n": 120,
+    "k": 3,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 2.0090746777198258e-16,
+    "seconds_physics": 0.19898009300231934,
+    "seconds_kernel": 0.008935689926147461
+   },
+   {
+    "dataset": "iris",
+    "potential": "tension",
+    "init": 2,
+    "n": 120,
+    "k": 3,
+    "sweeps": 4,
+    "identical_trajectory": true,
+    "rel_err_energy": 1.0059681287236757e-15,
+    "seconds_physics": 0.19877076148986816,
+    "seconds_kernel": 0.003547191619873047
+   },
+   {
+    "dataset": "iris",
+    "potential": "gauss",
+    "init": 0,
+    "n": 120,
+    "k": 3,
+    "sweeps": 6,
+    "identical_trajectory": true,
+    "rel_err_energy": 0.0,
+    "seconds_physics": 0.24551844596862793,
+    "seconds_kernel": 0.005338907241821289
    },
    {
     "dataset": "iris",
@@ -1647,11 +1647,11 @@
     "init": 1,
     "n": 120,
     "k": 3,
-    "sweeps": 7,
+    "sweeps": 5,
     "identical_trajectory": true,
-    "rel_err_energy": 5.055076625431336e-16,
-    "seconds_physics": 0.48660969734191895,
-    "seconds_kernel": 0.013987541198730469
+    "rel_err_energy": 1.6432699052222237e-16,
+    "seconds_physics": 0.2253890037536621,
+    "seconds_kernel": 0.004972934722900391
    },
    {
     "dataset": "iris",
@@ -1659,11 +1659,11 @@
     "init": 2,
     "n": 120,
     "k": 3,
-    "sweeps": 8,
+    "sweeps": 4,
     "identical_trajectory": true,
-    "rel_err_energy": 6.700781429855986e-16,
-    "seconds_physics": 0.4871706962585449,
-    "seconds_kernel": 0.014249563217163086
+    "rel_err_energy": 4.983877062089449e-16,
+    "seconds_physics": 0.20673871040344238,
+    "seconds_kernel": 0.0038552284240722656
    },
    {
     "dataset": "iris",
@@ -1671,11 +1671,11 @@
     "init": 0,
     "n": 120,
     "k": 3,
-    "sweeps": 2,
+    "sweeps": 7,
     "identical_trajectory": true,
-    "rel_err_energy": 0.0,
-    "seconds_physics": 0.15428781509399414,
-    "seconds_kernel": 0.0029382705688476562
+    "rel_err_energy": 3.2128030916182603e-16,
+    "seconds_physics": 0.3116271495819092,
+    "seconds_kernel": 0.01153707504272461
    },
    {
     "dataset": "iris",
@@ -1685,9 +1685,9 @@
     "k": 3,
     "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 4.828782231149907e-16,
-    "seconds_physics": 0.20991849899291992,
-    "seconds_kernel": 0.006520748138427734
+    "rel_err_energy": 6.43953246266625e-16,
+    "seconds_physics": 0.12405204772949219,
+    "seconds_kernel": 0.0029599666595458984
    },
    {
     "dataset": "iris",
@@ -1695,122 +1695,122 @@
     "init": 2,
     "n": 120,
     "k": 3,
-    "sweeps": 6,
+    "sweeps": 3,
     "identical_trajectory": true,
-    "rel_err_energy": 1.607144441902985e-16,
-    "seconds_physics": 0.4623081684112549,
-    "seconds_kernel": 0.007996559143066406
+    "rel_err_energy": 1.4530283116794705e-16,
+    "seconds_physics": 0.12282013893127441,
+    "seconds_kernel": 0.0027408599853515625
    }
   ],
   "runs": 90,
   "identical": 90,
-  "max_rel_err_energy": 2.6784228080378094e-14,
+  "max_rel_err_energy": 1.3839828193828651e-14,
   "n_sub": 120,
   "anchored": [
    {
     "dataset": "blobs",
     "init": 0,
     "identical_labels": true,
-    "rel_err_inertia": 3.062991161902342e-16,
-    "sklearn_iter": 4
+    "rel_err_inertia": 2.135523397863547e-16,
+    "sklearn_iter": 3
    },
    {
     "dataset": "blobs",
     "init": 1,
     "identical_labels": true,
     "rel_err_inertia": 4.271046795727094e-16,
-    "sklearn_iter": 4
+    "sklearn_iter": 3
    },
    {
     "dataset": "blobs",
     "init": 2,
     "identical_labels": true,
-    "rel_err_inertia": 1.530945473070527e-16,
-    "sklearn_iter": 12
+    "rel_err_inertia": 2.135523397863547e-16,
+    "sklearn_iter": 3
    },
    {
     "dataset": "moons",
     "init": 0,
+    "identical_labels": true,
+    "rel_err_inertia": 0.0,
+    "sklearn_iter": 5
+   },
+   {
+    "dataset": "moons",
+    "init": 1,
+    "identical_labels": true,
+    "rel_err_inertia": 0.0,
+    "sklearn_iter": 7
+   },
+   {
+    "dataset": "moons",
+    "init": 2,
     "identical_labels": true,
     "rel_err_inertia": 1.1566749622704833e-16,
     "sklearn_iter": 6
    },
    {
-    "dataset": "moons",
-    "init": 1,
-    "identical_labels": true,
-    "rel_err_inertia": 0.0,
-    "sklearn_iter": 2
-   },
-   {
-    "dataset": "moons",
-    "init": 2,
-    "identical_labels": true,
-    "rel_err_inertia": 0.0,
-    "sklearn_iter": 5
-   },
-   {
     "dataset": "circles",
     "init": 0,
     "identical_labels": true,
-    "rel_err_inertia": 3.682203683285888e-16,
-    "sklearn_iter": 9
-   },
-   {
-    "dataset": "circles",
-    "init": 1,
-    "identical_labels": true,
-    "rel_err_inertia": 2.4501574793548994e-16,
-    "sklearn_iter": 2
-   },
-   {
-    "dataset": "circles",
-    "init": 2,
-    "identical_labels": true,
-    "rel_err_inertia": 0.0,
+    "rel_err_inertia": 1.234022884223093e-16,
     "sklearn_iter": 4
    },
    {
+    "dataset": "circles",
+    "init": 1,
+    "identical_labels": true,
+    "rel_err_inertia": 1.234022884223093e-16,
+    "sklearn_iter": 4
+   },
+   {
+    "dataset": "circles",
+    "init": 2,
+    "identical_labels": true,
+    "rel_err_inertia": 1.2247531134432104e-16,
+    "sklearn_iter": 2
+   },
+   {
     "dataset": "digits",
     "init": 0,
     "identical_labels": true,
-    "rel_err_inertia": 3.0491741898597137e-16,
-    "sklearn_iter": 7
+    "rel_err_inertia": 1.4655831747685365e-16,
+    "sklearn_iter": 12
    },
    {
     "dataset": "digits",
     "init": 1,
     "identical_labels": true,
-    "rel_err_inertia": 1.5199524082228713e-16,
-    "sklearn_iter": 22
+    "rel_err_inertia": 1.4461711020769926e-16,
+    "sklearn_iter": 10
    },
    {
     "dataset": "digits",
     "init": 2,
     "identical_labels": true,
-    "rel_err_inertia": 0.0,
-    "sklearn_iter": 10
+    "rel_err_inertia": 1.502063316106324e-16,
+    "sklearn_iter": 9
    },
    {
     "dataset": "iris",
     "init": 0,
     "identical_labels": true,
     "rel_err_inertia": 0.0,
-    "sklearn_iter": 5
+    "sklearn_iter": 6
    },
    {
     "dataset": "iris",
     "init": 1,
     "identical_labels": true,
-    "rel_err_inertia": 2.0171327497220668e-16,
-    "sklearn_iter": 10
+    "rel_err_inertia": 0.0,
+    "sklearn_iter": 6
    },
    {
     "dataset": "iris",
     "init": 2,
     "identical_labels": true,
     "rel_err_inertia": 0.0,
-    "sklearn_iter": 10
+    "sklearn_iter": 6
    }
   ],
   "anchored_identical": 15,
@@ -1818,20 +1818,283 @@
   "anchored_max_rel_err_inertia": 4.271046795727094e-16
  },
  "E4": {
+  "seed": 20260932,
   "n": 7,
   "k": 2,
+  "configs": [
+   {
+    "n": 7,
+    "k": 2,
+    "points": [
+     [
+      5,
+      10
+     ],
+     [
+      6,
+      2
+     ],
+     [
+      4,
+      4
+     ],
+     [
+      2,
+      2
+     ],
+     [
+      3,
+      7
+     ],
+     [
+      0,
+      6
+     ],
+     [
+      8,
+      8
+     ]
+    ],
+    "partitions": 63,
+    "unknowns": 22,
+    "results": [
+     {
+      "energy": "hooke_specific",
+      "family_w": "per_particle",
+      "rank": 21,
+      "residual_norm2_exact": "0",
+      "representable": true,
+      "relative_residual": 0.0
+     },
+     {
+      "energy": "hooke_specific",
+      "family_w": "total",
+      "rank": 22,
+      "residual_norm2_exact": "6286393/50400",
+      "representable": false,
+      "relative_residual": 0.017077982052898094
+     },
+     {
+      "energy": "hooke_total",
+      "family_w": "per_particle",
+      "rank": 21,
+      "residual_norm2_exact": "206356372/851",
+      "representable": false,
+      "relative_residual": 0.17945895340190382
+     },
+     {
+      "energy": "hooke_total",
+      "family_w": "total",
+      "rank": 22,
+      "residual_norm2_exact": "0",
+      "representable": true,
+      "relative_residual": 0.0
+     },
+     {
+      "energy": "rest_fixed_specific",
+      "family_w": "per_particle",
+      "rank": 21,
+      "residual_norm2_exact": "0",
+      "representable": true,
+      "relative_residual": 0.0
+     },
+     {
+      "energy": "rest_fixed_specific",
+      "family_w": "total",
+      "rank": 22,
+      "residual_norm2_exact": "148743966617/2469600",
+      "representable": false,
+      "relative_residual": 0.025850129334956708
+     },
+     {
+      "energy": "rest_adaptive_specific",
+      "family_w": "per_particle",
+      "rank": 21,
+      "residual_norm2_exact": "34709990771929939/29468002500",
+      "representable": false,
+      "relative_residual": 0.14270047224256213
+     },
+     {
+      "energy": "rest_adaptive_specific",
+      "family_w": "total",
+      "rank": 22,
+      "residual_norm2_exact": "93857964839147/136080000",
+      "representable": false,
+      "relative_residual": 0.10919730660203632
+     },
+     {
+      "energy": "threebody_specific",
+      "family_w": "per_particle",
+      "rank": 21,
+      "residual_norm2_exact": "3179810971837/574425",
+      "representable": false,
+      "relative_residual": 0.3311959827222813
+     },
+     {
+      "energy": "threebody_specific",
+      "family_w": "total",
+      "rank": 22,
+      "residual_norm2_exact": "15742643/200",
+      "representable": false,
+      "relative_residual": 0.039493434261159775
+     },
+     {
+      "energy": "hooke_per_spring",
+      "family_w": "per_particle",
+      "rank": 21,
+      "residual_norm2_exact": "718099438/80845",
+      "representable": false,
+      "relative_residual": 0.18540171429529584
+     },
+     {
+      "energy": "hooke_per_spring",
+      "family_w": "total",
+      "rank": 22,
+      "residual_norm2_exact": "50837893/12600",
+      "representable": false,
+      "relative_residual": 0.12495583286524035
+     }
+    ]
+   },
+   {
+    "n": 7,
+    "k": 2,
+    "points": [
+     [
+      0,
+      2
+     ],
+     [
+      7,
+      4
+     ],
+     [
+      8,
+      7
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      2,
+      8
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      4,
+      10
+     ]
+    ],
+    "partitions": 63,
+    "unknowns": 22,
+    "results": [
+     {
+      "energy": "hooke_specific",
+      "family_w": "per_particle",
+      "rank": 21,
+      "residual_norm2_exact": "0",
+      "representable": true,
+      "relative_residual": 0.0
+     },
+     {
+      "energy": "hooke_specific",
+      "family_w": "total",
+      "rank": 22,
+      "residual_norm2_exact": "4300213/25200",
+      "representable": false,
+      "relative_residual": 0.015381065476265911
+     },
+     {
+      "energy": "hooke_total",
+      "family_w": "per_particle",
+      "rank": 21,
+      "residual_norm2_exact": "345206616/851",
+      "representable": false,
+      "relative_residual": 0.1790131022100591
+     },
+     {
+      "energy": "hooke_total",
+      "family_w": "total",
+      "rank": 22,
+      "residual_norm2_exact": "0",
+      "representable": true,
+      "relative_residual": 0.0
+     },
+     {
+      "energy": "rest_fixed_specific",
+      "family_w": "per_particle",
+      "rank": 21,
+      "residual_norm2_exact": "0",
+      "representable": true,
+      "relative_residual": 0.0
+     },
+     {
+      "energy": "rest_fixed_specific",
+      "family_w": "total",
+      "rank": 22,
+      "residual_norm2_exact": "224331944419/1234800",
+      "representable": false,
+      "relative_residual": 0.030021380201990442
+     },
+     {
+      "energy": "rest_adaptive_specific",
+      "family_w": "per_particle",
+      "rank": 21,
+      "residual_norm2_exact": "50709925672960907/14734001250",
+      "representable": false,
+      "relative_residual": 0.15672850615472944
+     },
+     {
+      "energy": "rest_adaptive_specific",
+      "family_w": "total",
+      "rank": 22,
+      "residual_norm2_exact": "142856319197833/68040000",
+      "representable": false,
+      "relative_residual": 0.12241353342756084
+     },
+     {
+      "energy": "threebody_specific",
+      "family_w": "per_particle",
+      "rank": 21,
+      "residual_norm2_exact": "228638155879/15318",
+      "representable": false,
+      "relative_residual": 0.32774913821635127
+     },
+     {
+      "energy": "threebody_specific",
+      "family_w": "total",
+      "rank": 22,
+      "residual_norm2_exact": "532124793/2800",
+      "representable": false,
+      "relative_residual": 0.036982474645773714
+     },
+     {
+      "energy": "hooke_per_spring",
+      "family_w": "per_particle",
+      "rank": 21,
+      "residual_norm2_exact": "2710070986/191475",
+      "representable": false,
+      "relative_residual": 0.18020539122125165
+     },
+     {
+      "energy": "hooke_per_spring",
+      "family_w": "total",
+      "rank": 22,
+      "residual_norm2_exact": "40060903/6300",
+      "representable": false,
+      "relative_residual": 0.12078794091865555
+     }
+    ]
+   }
+  ],
   "points": [
    [
-    9,
-    1
-   ],
-   [
-    10,
-    2
-   ],
-   [
     5,
-    3
+    10
    ],
    [
     6,
@@ -1839,15 +2102,23 @@
    ],
    [
     4,
-    0
-   ],
-   [
-    2,
     4
    ],
    [
+    2,
+    2
+   ],
+   [
+    3,
+    7
+   ],
+   [
+    0,
+    6
+   ],
+   [
     8,
-    3
+    8
    ]
   ],
   "partitions": 63,
@@ -1865,17 +2136,17 @@
     "energy": "hooke_specific",
     "family_w": "total",
     "rank": 22,
-    "residual_norm2_exact": "4473113/50400",
+    "residual_norm2_exact": "6286393/50400",
     "representable": false,
-    "relative_residual": 0.02322601774950132
+    "relative_residual": 0.017077982052898094
    },
    {
     "energy": "hooke_total",
     "family_w": "per_particle",
     "rank": 21,
-    "residual_norm2_exact": "724098244/7659",
+    "residual_norm2_exact": "206356372/851",
     "representable": false,
-    "relative_residual": 0.18024785210234115
+    "relative_residual": 0.17945895340190382
    },
    {
     "energy": "hooke_total",
@@ -1897,58 +2168,60 @@
     "energy": "rest_fixed_specific",
     "family_w": "total",
     "rank": 22,
-    "residual_norm2_exact": "1727357035049/22226400",
+    "residual_norm2_exact": "148743966617/2469600",
     "representable": false,
-    "relative_residual": 0.042420499172636295
+    "relative_residual": 0.025850129334956708
    },
    {
     "energy": "rest_adaptive_specific",
     "family_w": "per_particle",
     "rank": 21,
-    "residual_norm2_exact": "25453539371601511/29468002500",
+    "residual_norm2_exact": "34709990771929939/29468002500",
     "representable": false,
-    "relative_residual": 0.18143629593327046
+    "relative_residual": 0.14270047224256213
    },
    {
     "energy": "rest_adaptive_specific",
     "family_w": "total",
     "rank": 22,
-    "residual_norm2_exact": "8666537217871/27216000",
+    "residual_norm2_exact": "93857964839147/136080000",
     "representable": false,
-    "relative_residual": 0.11016308386804237
+    "relative_residual": 0.10919730660203632
    },
    {
     "energy": "threebody_specific",
     "family_w": "per_particle",
     "rank": 21,
-    "residual_norm2_exact": "549755771/1702",
+    "residual_norm2_exact": "3179810971837/574425",
     "representable": false,
-    "relative_residual": 0.32706344854844077
+    "relative_residual": 0.3311959827222813
    },
    {
     "energy": "threebody_specific",
     "family_w": "total",
     "rank": 22,
-    "residual_norm2_exact": "26857303/2800",
+    "residual_norm2_exact": "15742643/200",
     "representable": false,
-    "relative_residual": 0.05636104991825467
+    "relative_residual": 0.039493434261159775
    },
    {
     "energy": "hooke_per_spring",
     "family_w": "per_particle",
     "rank": 21,
-    "residual_norm2_exact": "136708297888/32742225",
+    "residual_norm2_exact": "718099438/80845",
     "representable": false,
-    "relative_residual": 0.20347095165366225
+    "relative_residual": 0.18540171429529584
    },
    {
     "energy": "hooke_per_spring",
     "family_w": "total",
     "rank": 22,
-    "residual_norm2_exact": "83611559/37800",
+    "residual_norm2_exact": "50837893/12600",
     "representable": false,
-    "relative_residual": 0.1480970246153203
+    "relative_residual": 0.12495583286524035
    }
-  ]
+  ],
+  "cells": 12,
+  "cells_same_pattern": 12
  }
 }

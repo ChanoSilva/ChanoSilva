@@ -33,29 +33,10 @@ def save(fig, name):
     plt.close(fig)
 
 
-# ---- Figure 1: paired differences (field - best reference) with 95% CIs
-ds_list = list(S.keys())
-fig, ax = plt.subplots(figsize=(6.4, 3.6))
-series = [("Field-aniso", "Field (anisotropic)", C1), ("Field-iso", "Field (isotropic)", C2), ("Field-euclid", "Field (Euclidean)", C3)]
-off = {0: 0.22, 1: 0.0, 2: -0.22}
-for j, (m, label, col) in enumerate(series):
-    ys, xs, lo, hi = [], [], [], []
-    for i, ds in enumerate(ds_list):
-        c = S[ds]["comparisons"][m]["__best__"]
-        ys.append(i + off[j]); xs.append(100 * c["mean_diff"]); lo.append(100 * c["ci_lo"]); hi.append(100 * c["ci_hi"])
-    xs, lo, hi = map(np.array, (xs, lo, hi))
-    ax.errorbar(xs, ys, xerr=[xs - lo, hi - xs], fmt="o", ms=4, color=col, ecolor=col, elinewidth=1.4, capsize=2, label=label)
-ax.axvline(0, color=TXT2, lw=1, ls="--")
-ax.set_yticks(range(len(ds_list)))
-ax.set_yticklabels([f"{DS_NAME[d]}  (best ref.: {S[d]['best_reference']})" for d in ds_list])
-ax.invert_yaxis()
-ax.set_xscale("symlog", linthresh=1.0)
-ax.set_xlabel("AURC difference vs. best reference, x100 (negative = field better); symlog axis")
-ax.grid(axis="x", color=GRID, lw=0.8)
-ax.legend(frameon=False, loc="lower right", fontsize=8)
-save(fig, "fig_diff_forest")
+# (v0.1 had a forest plot of the paired differences here; it duplicated the table of differences and its
+#  symlog axis compressed exactly the range |delta| < 1 where the anisotropic field lives: removed in v0.2.)
 
-# ---- Figure 2: mean risk-coverage curves on three datasets
+# ---- Figure: mean risk-coverage curves on three datasets
 grid = np.array(res["meta"]["coverage_grid"])
 show = ["digits", "moons_aniso", "synth_classcov"]
 fig, axes = plt.subplots(1, 3, figsize=(9.0, 2.9), sharey=False)
@@ -71,7 +52,7 @@ for ax, ds in zip(axes, show):
 axes[0].set_ylabel("selective risk (%), mean over folds")
 save(fig, "fig_rc_curves")
 
-# ---- Figure 3: illustration of the resolution ellipses on moons-aniso (first two coordinates)
+# ---- Figure: illustration of the resolution ellipses on moons-aniso (first two coordinates)
 from sklearn.datasets import make_moons
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
@@ -109,7 +90,7 @@ ax.legend(frameon=False, fontsize=8, loc="upper left", bbox_to_anchor=(1.01, 1.0
 ax.set_aspect("equal")
 save(fig, "fig_field_moons")
 
-# ---- Figure 4: Proposition 1 illustration (K=2 identity and K=3 non-identity), from the true model
+# ---- Figure: Proposition 3.1 illustration (K=2 identity and K=3 non-identity), from the true model
 d = 5
 rng = np.random.default_rng(seed)
 q, r = np.linalg.qr(rng.standard_normal((d, d)))

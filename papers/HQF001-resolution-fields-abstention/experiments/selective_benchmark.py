@@ -4,7 +4,15 @@
 Every number in the manuscript comes from results/results.json written by this script.
 Seed is fixed. Runs single-threaded (BLAS threads limited) so that CPU time ~ wall time.
 
-Usage: python3 selective_benchmark.py [--fast]
+Usage: python3 selective_benchmark.py [--fast] [--resummarise]
+
+v0.2 (2026-10-03, after internal review round 1): every paired comparison is reported with
+three 95 % intervals (percentile bootstrap over folds, the predefined one; Student t over
+folds; t with the Nadeau-Bengio variance correction), wins/ties/losses and a borderline
+flag; each pair has its own seeded generator and the "best reference" comparison is a copy
+of the direct one; B = 20000; synth-classcov uses a covariance spectrum for which the
+Bayes-error calibration has a solution (v0.1 hit the lower bound: coinciding means);
+inner-CV configurations that fail on some inner fold are discarded.
 """
 import os
 os.environ.setdefault("OMP_NUM_THREADS", "1")
@@ -16,10 +24,12 @@ import json
 import platform
 import time
 import warnings
+import zlib
 
 import numpy as np
 import scipy
 import sklearn
+from scipy.stats import t as t_dist
 from scipy.stats import wilcoxon
 from sklearn import datasets
 from sklearn.decomposition import PCA
@@ -36,6 +46,11 @@ warnings.filterwarnings("ignore")
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SEED = 20260930
+SCRIPT_VERSION = "v0.2 (2026-10-03)"
+CRITERION_TEXT = ("residual gain = AURC of the field lower than that of the best reference (lowest mean AURC "
+                  "among the references on that dataset) on a majority (>= n//2 + 1 of n datasets) of datasets, "
+                  "with the paired 95% percentile-bootstrap interval over folds excluding zero; "
+                  "see CRITERIO_HQF001.md")
 COVERAGE_GRID = np.linspace(0.02, 1.0, 50)
 BIG = 1e12  # finite stand-in for "infinitely confident"
 
@@ -117,8 +132,12 @@ def _gauss_bayes_error(rng, means, covs, priors, n=40000):
 
 
 def _calibrate_shift(rng, dirs, covs, priors, target=0.10):
-    """Scale the class-mean directions so that the Bayes error is `target`."""
-    lo, hi = 0.05, 20.0
+    """Scale the class-mean directions so that the Bayes error is `target`, by bisection on
+    [0.05, 20]. Returns (shift, at_bound): at_bound is True when the bisection converged to an
+    end of the interval, i.e. there is no solution inside it (for the lower bound: the
+    covariances alone already separate the classes better than `target`)."""
+    lo0, hi0 = 0.05, 20.0
+    lo, hi = lo0, hi0
     for _ in range(40):
         mid = 0.5 * (lo + hi)
         e = _gauss_bayes_error(np.random.default_rng(rng.integers(2**31)), dirs * mid, covs, priors)
@@ -126,7 +145,9 @@ def _calibrate_shift(rng, dirs, covs, priors, target=0.10):
             lo = mid
         else:
             hi = mid
-    return 0.5 * (lo + hi)
+    shift = 0.5 * (lo + hi)
+    at_bound = bool(shift - lo0 < 1e-6 or hi0 - shift < 1e-6)
+    return shift, at_bound
 
 
 def make_datasets(seed, fast=False):
@@ -158,24 +179,29 @@ def make_datasets(seed, fast=False):
     D["moons_aniso"] = dict(X=X, y=y, pca=None, kind="synthetic",
                             note="two moons + anisotropic Gaussian noise (sd 0.30 x 0.06, rotated 30 deg) + 3 nuisance N(0,1) dimensions",
                             noise_cov=Cn.tolist())
-    # S3: class-dependent covariance (QDA regime), Bayes error calibrated to 10%
+    # S3: class-dependent covariance (QDA regime): two random rotations of one covariance spectrum,
+    # mean shift calibrated to a 10% Bayes error. v0.1 used the spectrum (2, 1, 0.5, 0.25, 0.1, 0.05),
+    # for which the rotated covariances alone separate the classes with a 7.7% Bayes error, so the
+    # bisection stopped at its lower bound (shift 0.05: coinciding means). v0.2 uses the less disparate
+    # spectrum geomspace(2, 0.25, 6) (about 20% Bayes error with coinciding means), for which the
+    # calibration has a solution. The rotations and every other draw are unchanged (same RNG consumption).
     d = 6
-    eig = np.array([2.0, 1.0, 0.5, 0.25, 0.1, 0.05])
+    eig = np.geomspace(2.0, 0.25, d)
     Q0, Q1 = _rand_rot(rng, d), _rand_rot(rng, d)
     covs = [Q0 @ np.diag(eig) @ Q0.T, Q1 @ np.diag(eig) @ Q1.T]
     u = rng.standard_normal(d)
     u /= np.linalg.norm(u)
     dirs = np.vstack([np.zeros(d), u])
     priors = np.array([0.5, 0.5])
-    scale = _calibrate_shift(rng, dirs, covs, priors)
+    scale, at_bound = _calibrate_shift(rng, dirs, covs, priors)
     means = dirs * scale
     counts = rng.multinomial(n, priors)
     X = np.vstack([rng.multivariate_normal(means[c], covs[c], counts[c]) for c in range(2)])
     y = np.repeat(np.arange(2), counts)
     be = _gauss_bayes_error(rng, means, covs, priors)
     D["synth_classcov"] = dict(X=X, y=y, pca=None, kind="synthetic",
-                               note="two Gaussians in d=6 with different (rotated) covariances, same eigenvalues; mean shift chosen by bisection in [0.05, 20] towards a 10% Bayes error (the bound 0.05 is reached when the covariances alone separate the classes better than that)",
-                               bayes_error=be, shift=scale)
+                               note="two Gaussians in d=6 with different (rotated) covariances sharing the eigenvalues geomspace(2, 0.25, 6); mean shift chosen by bisection in [0.05, 20] towards a 10% Bayes error (v0.1 used eigenvalues 2, 1, 0.5, 0.25, 0.1, 0.05 and the bisection hit the lower bound: coinciding means, Bayes error 7.7%)",
+                               bayes_error=be, shift=scale, shift_at_bound=at_bound)
     # S4: shared covariance, three classes (LDA regime), Bayes error calibrated to 10%
     Q = _rand_rot(rng, d)
     Sig = Q @ np.diag(np.geomspace(2.0, 0.05, d)) @ Q.T
@@ -184,15 +210,15 @@ def make_datasets(seed, fast=False):
     dirs /= np.linalg.norm(dirs, axis=1, keepdims=True)
     priors = np.array([1 / 3, 1 / 3, 1 / 3])
     covs = [Sig, Sig, Sig]
-    scale = _calibrate_shift(rng, dirs, covs, priors)
+    scale, at_bound = _calibrate_shift(rng, dirs, covs, priors)
     means = dirs * scale
     counts = rng.multinomial(n, priors)
     X = np.vstack([rng.multivariate_normal(means[c], covs[c], counts[c]) for c in range(3)])
     y = np.repeat(np.arange(3), counts)
     be = _gauss_bayes_error(rng, means, covs, priors)
     D["synth_lda"] = dict(X=X, y=y, pca=None, kind="synthetic",
-                          note="three Gaussians in d=6 with one shared covariance (eigenvalues 2 to 0.05); mean shift chosen by bisection in [0.05, 20] towards a 10% Bayes error",
-                          bayes_error=be, shift=scale)
+                          note="three Gaussians in d=6 with one shared covariance (eigenvalues geomspace(2, 0.05, 6)); mean shift chosen by bisection in [0.05, 20] towards a 10% Bayes error",
+                          bayes_error=be, shift=scale, shift_at_bound=at_bound)
     if fast:
         for k in D:
             X, y = D[k]["X"], D[k]["y"]
@@ -461,10 +487,16 @@ def evaluate_fold(Xtr, ytr, Xte, yte, methods, inner_seed):
                     key = json.dumps(params, sort_keys=True)
                     inner_scores.setdefault((name, key), []).append(aurc(finite(score), pred == ytr[va]))
         best = {}
+        dropped = {}   # configurations that failed on some inner fold (e.g. QDA LinAlgError): not comparable
         for (name, key), vals in inner_scores.items():
+            if len(vals) < len(splits):
+                dropped[name] = dropped.get(name, 0) + 1
+                continue
             m = float(np.mean(vals))
             if name not in best or m < best[name][1]:
                 best[name] = (key, m)
+        for name, _ in members:
+            assert name in best, f"{name}: no configuration completed all {len(splits)} inner folds"
         # outer fit with the full training fold
         outs = run_grid(fn, grid, Xtr, ytr, Xte)
         for params, pred, score in outs:
@@ -481,6 +513,7 @@ def evaluate_fold(Xtr, ytr, Xte, yte, methods, inner_seed):
                     acc80=selective_accuracy(sc, corr, 0.80),
                     params=json.loads(key),
                     inner_aurc=best[name][1],
+                    inner_configs_dropped=dropped.get(name, 0),
                     curve=curve_on_grid(sc, corr).tolist(),
                 )
     missing = [m for m in methods if m not in results]
@@ -491,18 +524,67 @@ def evaluate_fold(Xtr, ytr, Xte, yte, methods, inner_seed):
 # Statistics
 # ----------------------------------------------------------------------------
 
-def paired_bootstrap(diff, B, rng):
+BOOT_B = 20000       # bootstrap replicates (v0.1: 2000)
+BORDERLINE = 0.0002  # an interval end closer than this to zero (0.02 in AURC x 100) is flagged as borderline
+
+
+def pair_rng(key):
+    """One generator per comparison, seeded by the master seed and a CRC of the pair's name, so that
+    the interval of a pair never depends on which other pairs were evaluated before it. (Python's
+    hash() is salted per process and is not used.)"""
+    return np.random.default_rng([SEED, zlib.crc32(key.encode("utf-8"))])
+
+
+def pair_stats(diff, key, B=BOOT_B, rho=0.25, labels=("first better", "second better")):
+    """Paired per-fold differences `diff` (first minus second; negative favours the first).
+    Returns the mean; three 95 % intervals: percentile bootstrap over folds (the predefined one),
+    Student t over folds (n-1 d.f.) and the t interval with the Nadeau-Bengio corrected variance
+    (1/n + rho) s^2 with rho = n_test/n_train; wins/ties/losses over folds; a two-sided Wilcoxon
+    signed-rank p-value (descriptive); a verdict under each interval; and a borderline flag when an
+    end of the bootstrap or t interval is within BORDERLINE of zero."""
     diff = np.asarray(diff, float)
     n = len(diff)
-    idx = rng.integers(0, n, size=(B, n))
-    means = diff[idx].mean(1)
-    return float(diff.mean()), float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
+    mean = float(diff.mean())
+    idx = pair_rng(key).integers(0, n, size=(B, n))
+    bm = diff[idx].mean(1)
+    lo, hi = float(np.percentile(bm, 2.5)), float(np.percentile(bm, 97.5))
+    sd = float(diff.std(ddof=1))
+    q = float(t_dist.ppf(0.975, n - 1))
+    t_lo, t_hi = mean - q * sd / np.sqrt(n), mean + q * sd / np.sqrt(n)
+    nb_lo, nb_hi = mean - q * sd * np.sqrt(1.0 / n + rho), mean + q * sd * np.sqrt(1.0 / n + rho)
+    try:
+        p = float(wilcoxon(diff, zero_method="wilcox").pvalue) if np.any(diff != 0) else 1.0
+    except ValueError:
+        p = float("nan")
+
+    def verdict(a, b):
+        return labels[0] if b < 0 else labels[1] if a > 0 else "inconclusive"
+
+    return dict(mean_diff=mean, ci_lo=lo, ci_hi=hi, t_lo=float(t_lo), t_hi=float(t_hi),
+                nb_lo=float(nb_lo), nb_hi=float(nb_hi), wilcoxon_p=p,
+                wins=int((diff < 0).sum()), ties=int((diff == 0).sum()), losses=int((diff > 0).sum()),
+                verdict=verdict(lo, hi), verdict_t=verdict(t_lo, t_hi), verdict_nb=verdict(nb_lo, nb_hi),
+                borderline=bool(min(abs(lo), abs(hi), abs(t_lo), abs(t_hi)) < BORDERLINE))
 
 
-def summarise(per_fold, methods, rng, B=2000, curves_from=None):
+def _as_ablation(c):
+    """Re-label a field-vs-reference comparison as an ablation entry (first = field, second = reference)."""
+    out = dict(c)
+    for k in ("verdict", "verdict_t", "verdict_nb"):
+        out[k] = {"field better": "first better", "field worse": "second better"}.get(c[k], c[k])
+    return out
+
+
+ABLATION_PAIRS = [("Field-aniso", "Field-iso"), ("Field-aniso", "Field-euclid"), ("Field-iso", "Field-euclid"),
+                  ("Field-aniso", "Field-vol"), ("Field-aniso", "Field-anis"), ("Field-aniso", "Field-aniso-gproto"),
+                  ("Field-euclid", "NCM")]
+
+
+def summarise(per_fold, methods, B=BOOT_B, n_splits=5, curves_from=None):
     """per_fold: dict dataset -> list of fold dicts (method -> metrics).
     curves_from: an earlier summary whose mean curves are reused when per-fold curves are absent."""
     refs = [m for m, v in methods.items() if v[3] == "reference"]
+    rho = 1.0 / (n_splits - 1)   # n_test / n_train of a K-fold split (Nadeau-Bengio correction)
     summary = {}
     for ds, folds in per_fold.items():
         S = {"n_folds": len(folds), "methods": {}, "best_reference": None, "comparisons": {}}
@@ -525,55 +607,50 @@ def summarise(per_fold, methods, rng, B=2000, curves_from=None):
                 error_rate=float(1 - acc.mean()),
                 curve_mean=curve_mean,
                 selected_params={str(u): int(c) for u, c in zip(uniq, cnt)},
+                inner_configs_dropped=int(sum(f[m].get("inner_configs_dropped", 0) for f in folds)),
             )
             means[m] = float(a.mean())
         best_ref = min(refs, key=lambda m: means[m])
         S["best_reference"] = best_ref
-        # each field variant vs best reference, and vs every reference
+        # each field variant vs every reference; "__best__" is a copy of the direct comparison with the
+        # best reference (v0.1 resampled it separately, giving two intervals for the same pair)
         for m in methods:
             if methods[m][3] != "field":
                 continue
             comp = {}
-            for r in refs + ["__best__"]:
-                rr = best_ref if r == "__best__" else r
-                diff = np.array([f[m]["aurc"] - f[rr]["aurc"] for f in folds])
-                mean, lo, hi = paired_bootstrap(diff, B, rng)
-                try:
-                    p = float(wilcoxon(diff, zero_method="wilcox").pvalue) if np.any(diff != 0) else 1.0
-                except ValueError:
-                    p = float("nan")
-                comp[r] = dict(reference=rr, mean_diff=mean, ci_lo=lo, ci_hi=hi, wilcoxon_p=p,
-                               wins=int((diff < 0).sum()), losses=int((diff > 0).sum()),
-                               verdict=("field better" if hi < 0 else "field worse" if lo > 0 else "inconclusive"))
+            for r in refs:
+                diff = np.array([f[m]["aurc"] - f[r]["aurc"] for f in folds])
+                comp[r] = dict(reference=r, **pair_stats(diff, f"{ds}|{m}|{r}", B, rho, ("field better", "field worse")))
+            comp["__best__"] = dict(comp[best_ref])
             S["comparisons"][m] = comp
-        # ablation: aniso vs iso, aniso vs euclid, iso vs euclid, ... ; a pair whose second member is a
-        # reference reuses the comparison above (same folds, same bootstrap draw) so that no number is
-        # reported twice with different Monte-Carlo noise
+        # ablations; a pair whose second member is a reference copies the comparison above
         abl = {}
-        for a_, b_ in [("Field-aniso", "Field-iso"), ("Field-aniso", "Field-euclid"), ("Field-iso", "Field-euclid"),
-                       ("Field-aniso", "Field-vol"), ("Field-aniso", "Field-anis"), ("Field-aniso", "Field-aniso-gproto"),
-                       ("Field-euclid", "NCM"), ("Field-aniso", "LDA"), ("Field-aniso", "kNN"), ("Field-aniso", "DANN")]:
+        for a_, b_ in ABLATION_PAIRS:
             if b_ in refs:
-                c = S["comparisons"][a_][b_]
-                mean, lo, hi = c["mean_diff"], c["ci_lo"], c["ci_hi"]
+                abl[f"{a_} - {b_}"] = _as_ablation(S["comparisons"][a_][b_])
             else:
                 diff = np.array([f[a_]["aurc"] - f[b_]["aurc"] for f in folds])
-                mean, lo, hi = paired_bootstrap(diff, B, rng)
-            abl[f"{a_} - {b_}"] = dict(mean_diff=mean, ci_lo=lo, ci_hi=hi,
-                                       verdict=("first better" if hi < 0 else "second better" if lo > 0 else "inconclusive"))
+                abl[f"{a_} - {b_}"] = pair_stats(diff, f"{ds}|{a_}|{b_}", B, rho)
         S["ablations"] = abl
         summary[ds] = S
-    # predefined criterion
+    # predefined criterion (bootstrap interval), plus the same count under the t and Nadeau-Bengio intervals
     crit = {}
+    n_ds = len(summary)
+    maj = n_ds // 2 + 1
     for m in methods:
         if methods[m][3] != "field":
             continue
-        better = [ds for ds in summary if summary[ds]["comparisons"][m]["__best__"]["verdict"] == "field better"]
-        worse = [ds for ds in summary if summary[ds]["comparisons"][m]["__best__"]["verdict"] == "field worse"]
-        incon = [ds for ds in summary if summary[ds]["comparisons"][m]["__best__"]["verdict"] == "inconclusive"]
-        crit[m] = dict(better=better, worse=worse, inconclusive=incon,
-                       n_datasets=len(summary), majority_needed=len(summary) // 2 + 1,
-                       criterion_met=len(better) >= len(summary) // 2 + 1)
+        cb = {ds: summary[ds]["comparisons"][m]["__best__"] for ds in summary}
+
+        def count(vkey):
+            return dict(better=[ds for ds in cb if cb[ds][vkey] == "field better"],
+                        worse=[ds for ds in cb if cb[ds][vkey] == "field worse"],
+                        inconclusive=[ds for ds in cb if cb[ds][vkey] == "inconclusive"])
+
+        c0 = count("verdict")
+        crit[m] = dict(**c0, n_datasets=n_ds, majority_needed=maj, criterion_met=len(c0["better"]) >= maj,
+                       t=count("verdict_t"), nb=count("verdict_nb"),
+                       borderline=[ds for ds in cb if cb[ds]["borderline"]])
     return summary, crit
 
 # ----------------------------------------------------------------------------
@@ -591,10 +668,12 @@ def write_markdown(res, path):
     L.append("| dataset | n | d (after preprocessing) | classes | note |")
     L.append("|---|---|---|---|---|")
     for ds, info in res["datasets"].items():
-        L.append(f"| {ds} | {info['n']} | {info['d_used']} | {info['n_classes']} | {info.get('note', '')} |")
+        extra = ("" if info.get("bayes_error") is None else
+                 f" Bayes error {100*info['bayes_error']:.2f}%; shift {info.get('shift')}; calibration at bound: {info.get('shift_at_bound')}.")
+        L.append(f"| {ds} | {info['n']} | {info['d_used']} | {info['n_classes']} | {info.get('note', '')}{extra} |")
     L.append("")
     methods = list(res["methods_order"])
-    L.append("## AURC x 100 (mean +- sd over folds; lower is better). Column `err` = error rate x 100 = AURC of a random ordering")
+    L.append("## AURC x 100 (mean +- sd over folds; lower is better). The error rate x 100 (= AURC of a random ordering) is in the accuracy table below")
     L.append("")
     L.append("| dataset | " + " | ".join(methods) + " | best ref |")
     L.append("|---|" + "---|" * (len(methods) + 1))
@@ -616,32 +695,44 @@ def write_markdown(res, path):
             cells.append(f"{100*v['acc_mean']:.1f} / {100*v['acc90_mean']:.1f} / {100*v['acc80_mean']:.1f}")
         L.append(f"| {ds} | " + " | ".join(cells) + " |")
     L.append("")
-    L.append("## Field variants vs best reference: paired difference of AURC x 100 (field - reference), 95% bootstrap CI, Wilcoxon p, wins/losses over folds")
+    def cell(c):
+        return (f"{100*c['mean_diff']:+.2f} boot[{100*c['ci_lo']:+.2f}, {100*c['ci_hi']:+.2f}] "
+                f"t[{100*c['t_lo']:+.2f}, {100*c['t_hi']:+.2f}] NB[{100*c['nb_lo']:+.2f}, {100*c['nb_hi']:+.2f}] "
+                f"W/T/L {c['wins']}/{c['ties']}/{c['losses']} p_W={c['wilcoxon_p']:.3f} "
+                f"({c['verdict']}; t: {c['verdict_t']}; NB: {c['verdict_nb']}{'; BORDERLINE' if c['borderline'] else ''})")
+
+    L.append("## Field variants vs best reference: paired difference of AURC x 100 (field - reference); 95% intervals: percentile bootstrap over folds (boot, predefined), Student t over folds (t), Nadeau-Bengio corrected t (NB); wins/ties/losses over folds; Wilcoxon p (descriptive)")
     L.append("")
     fields = [mm for mm in methods if mm.startswith("Field")]
     L.append("| dataset | best ref | " + " | ".join(fields) + " |")
     L.append("|---|---|" + "---|" * len(fields))
     for ds, S in res["summary"].items():
-        cells = []
-        for f in fields:
-            c = S["comparisons"][f]["__best__"]
-            cells.append(f"{100*c['mean_diff']:+.2f} [{100*c['ci_lo']:+.2f}, {100*c['ci_hi']:+.2f}] p={c['wilcoxon_p']:.3f} {c['wins']}/{c['losses']} ({c['verdict']})")
-        L.append(f"| {ds} | {S['best_reference']} | " + " | ".join(cells) + " |")
+        L.append(f"| {ds} | {S['best_reference']} | " + " | ".join(cell(S["comparisons"][f]["__best__"]) for f in fields) + " |")
     L.append("")
-    L.append("## Predefined criterion (better AURC than the best reference on a majority of datasets, paired 95% CI excluding 0)")
+    L.append("## Field-aniso vs each reference separately (same format)")
+    L.append("")
+    refs = [mm for mm in methods if not mm.startswith("Field")]
+    L.append("| dataset | " + " | ".join(refs) + " |")
+    L.append("|---|" + "---|" * len(refs))
+    for ds, S in res["summary"].items():
+        L.append(f"| {ds} | " + " | ".join(cell(S["comparisons"]["Field-aniso"][r]) for r in refs) + " |")
+    L.append("")
+    L.append("## Predefined criterion (better AURC than the best reference on a majority of datasets, paired 95% bootstrap CI excluding 0), and the same count under the t and Nadeau-Bengio intervals")
     L.append("")
     for f, c in res["criterion"].items():
         L.append(f"- {f}: better on {len(c['better'])}/{c['n_datasets']} {c['better']}; worse on {len(c['worse'])} {c['worse']}; "
                  f"inconclusive on {len(c['inconclusive'])} {c['inconclusive']}; criterion met: {c['criterion_met']}")
+        L.append(f"  - t interval: better {len(c['t']['better'])} {c['t']['better']}; worse {len(c['t']['worse'])} {c['t']['worse']}; inconclusive {len(c['t']['inconclusive'])} {c['t']['inconclusive']}")
+        L.append(f"  - Nadeau-Bengio: better {len(c['nb']['better'])} {c['nb']['better']}; worse {len(c['nb']['worse'])} {c['nb']['worse']}; inconclusive {len(c['nb']['inconclusive'])} {c['nb']['inconclusive']}")
+        L.append(f"  - borderline (an end of the bootstrap or t interval within 0.02 of zero): {c['borderline']}")
     L.append("")
-    L.append("## Ablations (paired difference of AURC x 100, 95% CI)")
+    L.append("## Ablations (paired difference of AURC x 100, first minus second; same format)")
     L.append("")
     keys = list(next(iter(res["summary"].values()))["ablations"].keys())
     L.append("| dataset | " + " | ".join(keys) + " |")
     L.append("|---|" + "---|" * len(keys))
     for ds, S in res["summary"].items():
-        cells = [f"{100*S['ablations'][k]['mean_diff']:+.2f} [{100*S['ablations'][k]['ci_lo']:+.2f}, {100*S['ablations'][k]['ci_hi']:+.2f}]" for k in keys]
-        L.append(f"| {ds} | " + " | ".join(cells) + " |")
+        L.append(f"| {ds} | " + " | ".join(cell(S["ablations"][k]) for k in keys) + " |")
     L.append("")
     L.append("## Selected hyper-parameters (counts over folds)")
     L.append("")
@@ -665,9 +756,11 @@ def main():
         old = json.load(open(path))
         methods = build_methods(False)
         per_fold = {ds: [{m: dict(f[m]) for m in f} for f in folds] for ds, folds in old["per_fold"].items()}
-        summary, crit = summarise(per_fold, methods, np.random.default_rng(SEED), curves_from=old["summary"])
+        summary, crit = summarise(per_fold, methods, n_splits=old["meta"]["n_splits"], curves_from=old["summary"])
         old["summary"], old["criterion"] = summary, crit
-        old["meta"]["resummarised"] = "summary and criterion recomputed from the stored per-fold results with the same seed"
+        old["meta"]["bootstrap_B"] = BOOT_B
+        old["meta"]["nb_rho"] = 1.0 / (old["meta"]["n_splits"] - 1)
+        old["meta"]["resummarised"] = f"summary and criterion recomputed from the stored per-fold results by {SCRIPT_VERSION}"
         with open(path, "w") as fh:
             json.dump(old, fh, indent=1)
         write_markdown(old, os.path.join(ROOT, "results", "tables.md"))
@@ -698,14 +791,17 @@ def main():
         per_fold[ds] = folds
         ds_info[ds] = dict(n=int(len(y)), d_raw=int(X.shape[1]), d_used=int(d_used), n_classes=int(len(np.unique(y))),
                            kind=info["kind"], note=info.get("note", "PCA to 20 components" if info["pca"] else ""),
-                           bayes_error=info.get("bayes_error"), shift=info.get("shift"), seconds=time.time() - tds)
+                           bayes_error=info.get("bayes_error"), shift=info.get("shift"),
+                           shift_at_bound=info.get("shift_at_bound"), seconds=time.time() - tds)
         print(f"[{ds}] done in {time.time() - tds:.1f} s; mean AURC x100: " +
               ", ".join(f"{m}={100*np.mean([f[m]['aurc'] for f in folds]):.2f}" for m in methods), flush=True)
-    rng = np.random.default_rng(SEED)
-    summary, crit = summarise(per_fold, methods, rng)
+    summary, crit = summarise(per_fold, methods, n_splits=n_splits)
     res = dict(
-        meta=dict(seed=SEED, fast=args.fast, n_repeats=n_repeats, n_splits=n_splits, inner_splits=3,
-                  bootstrap_B=2000, coverage_grid=COVERAGE_GRID.tolist(),
+        meta=dict(seed=SEED, script_version=SCRIPT_VERSION, criterion=CRITERION_TEXT,
+                  fast=args.fast, n_repeats=n_repeats, n_splits=n_splits, inner_splits=3,
+                  bootstrap_B=BOOT_B, nb_rho=1.0 / (n_splits - 1),
+                  intervals="percentile bootstrap over folds (predefined); Student t over folds; Nadeau-Bengio corrected t",
+                  coverage_grid=COVERAGE_GRID.tolist(),
                   python=platform.python_version(), numpy=np.__version__, scipy=scipy.__version__,
                   sklearn=sklearn.__version__, cpu_seconds=time.process_time() - t0c,
                   wall_seconds=time.time() - t0w),

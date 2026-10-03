@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Turn results/results.json into LaTeX macros (manuscript/numbers.tex) and table bodies."""
 import json
+import math
 import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -50,7 +51,23 @@ mac("CnConfigs", summ["n_configs_rev"]); mac("CnOps", len(cfg["operators"]))
 mac("CsnrGrid", snrlist(cfg["snr_grid"])); mac("CdepGrid", snrlist(cfg["dep_grid"]))
 mac("CmGrid", snrlist(cfg["m_grid"])); mac("CalphaGrid", snrlist(cfg["alpha_grid"]))
 mac("CuseThr", pct(cfg["useful_threshold"], signed=False))
-mac("SplitCost", pct(cfg["n"] / (cfg["n"] - cfg["m_default"]) - 1, signed=False))
+mac("SplitCost", pct(cfg["n"] / (cfg["n"] - cfg["m_default"]) - 1, signed=False))      # m/n_e: fraction of the FULL-data risk d sigma^2/n
+mac("SplitCostR", pct(cfg["m_default"] / cfg["n"], signed=False))                        # m/n: fraction of the risk of R = Xbar_e
+mac("PhiOne", f"{math.exp(-0.5) / math.sqrt(2 * math.pi):.4f}")                           # sup_x x phi(x) = phi(1)
+BORDER = 0.02   # 'borderline' useful: lower CI end within two percentage points of the threshold (referee m9)
+
+
+def umark(g, useful):
+    """Superscript for criterion U: U = met with margin, u = met but borderline."""
+    if not useful:
+        return ""
+    return r"$^{\mathrm u}$" if g["lo"] < cfg["useful_threshold"] + BORDER else r"$^{\mathrm U}$"
+
+
+def hmark(g):
+    """Superscript H: harmful with respect to Xbar_n (upper 95% CI end of the gain below zero)."""
+    return r"$^{\mathrm H}$" if g["hi"] < 0 else ""
+
 mac("RefRiskE", f4(cfg["d"] / (cfg["n"] - cfg["m_default"]))); mac("RefRiskN", f4(cfg["d"] / cfg["n"]))
 
 # constants of Theorem B
@@ -68,13 +85,13 @@ with open(os.path.join(out_dir, "table_structure.tex"), "w") as fh:
     for r in structure:
         e = r["ops"]["eb"]
         cells = [f"{r['snr']:g}", f"{r['lam_oracle']:.2f}", f4(r["risk_Rn"][0]),
-                 f4(e["always_full"]["risk"][0]) + (r"$^{\mathrm U}$" if e["always_full"]["useful"] else "")]
+                 f4(e["always_full"]["risk"][0]) + umark(e["always_full"]["gain_vs_Rn"], e["always_full"]["useful"])]
         for a in ("0.5", "0.2", "0.1", "0.01"):
             q = e["rev"][a]
-            cells.append(f4(q["risk"][0]) + (r"$^{\mathrm U}$" if q["useful"] else ""))
+            cells.append(f4(q["risk"][0]) + umark(q["gain_vs_Rn"], q["useful"]))
         q = e["rev"]["0.1"]
-        cells.append(f4(q["risk_refit"][0]) + (r"$^{\mathrm U}$" if q["useful_refit"] else ""))
-        cells.append(f4(e["sure"]["risk"][0]) + (r"$^{\mathrm U}$" if e["sure"]["useful"] else ""))
+        cells.append(f4(q["risk_refit"][0]) + umark(q["gain_refit_vs_Rn"], q["useful_refit"]))
+        cells.append(f4(e["sure"]["risk"][0]) + umark(e["sure"]["gain_vs_Rn"], e["sure"]["useful"]))
         fh.write(" & ".join(cells) + " \\\\\n")
 with open(os.path.join(out_dir, "table_structure_check.tex"), "w") as fh:
     for r in structure:
@@ -87,11 +104,12 @@ with open(os.path.join(out_dir, "table_structure_check.tex"), "w") as fh:
 with open(os.path.join(out_dir, "table_departure.tex"), "w") as fh:
     for r in departure:
         e = r["ops"]["eb"]
-        cells = [f"{r['dep_over_tau']:g}", f4(r["risk_Rn"][0]), f4(e["always_full"]["risk"][0])]
+        cells = [f"{r['dep_over_tau']:g}", f4(r["risk_Rn"][0]),
+                 f4(e["always_full"]["risk"][0]) + hmark(e["always_full"]["gain_vs_Rn"])]
         for a in ("0.5", "0.2", "0.1", "0.01"):
-            cells.append(f4(e["rev"][a]["risk"][0]))
+            cells.append(f4(e["rev"][a]["risk"][0]) + hmark(e["rev"][a]["gain_vs_Rn"]))
         q = e["rev"]["0.1"]
-        cells += [f4(q["risk_refit"][0]), f4(e["sure"]["risk"][0])]
+        cells += [f4(q["risk_refit"][0]) + hmark(q["gain_refit_vs_Rn"]), f4(e["sure"]["risk"][0]) + hmark(e["sure"]["gain_vs_Rn"])]
         fh.write(" & ".join(cells) + " \\\\\n")
 with open(os.path.join(out_dir, "table_departure_check.tex"), "w") as fh:
     for r in departure:
@@ -125,6 +143,33 @@ with open(os.path.join(out_dir, "table_operators.tex"), "w") as fh:
 mac("SafeAll", yesno(summ["safe_phi_all"] and summ["safe_alpha_all"] and summ["safe_tight_all"]))
 mac("SafeHarmAll", yesno(summ["safe_harm_freq_all"]))
 mac("MaxExcessOverPhi", f"{summ['max_excess_over_bound_phi']:.2f}")
+mac("SafeUniformAll", yesno(summ["safe_uniform_all"]))
+mac("MaxExcessOverUniform", f"{summ['max_excess_over_bound_uniform']:.2f}")
+mac("MaxBoundPhiOverUniform", f"{summ['max_bound_phi_over_uniform']:.1f}")
+_q0 = departure[0]["ops"]["eb"]["rev"]
+for a in A:
+    mac(f"UniformCap{word(a)}", f"{_q0[a]['bound_uniform']:.4f}")
+_re, _rn = cfg["d"] / (cfg["n"] - cfg["m_default"]), cfg["d"] / cfg["n"]
+mac("UniformCapTenOverRe", f"{_q0['0.1']['bound_uniform'] / _re:.2f}")
+mac("UniformCapTenRatioRn", f"{(_re + _q0['0.1']['bound_uniform']) / _rn:.1f}")
+mac("UniformCapHalfRatioRn", f"{(_re + _q0['0.5']['bound_uniform']) / _rn:.1f}")
+# m sweep: tau^2 held fixed
+mac("MTauTwo", f"{msweep[0]['tau2']:.4f}")
+mac("MTauTwoFrac", f"1/{round(cfg['sigma'] ** 2 / msweep[0]['tau2'])}")
+mac("MSnrOwnMin", f"{min(r['snr_vs_own_ne'] for r in msweep):.2f}")
+mac("MSnrOwnMax", f"{max(r['snr_vs_own_ne'] for r in msweep):.2f}")
+# borderline list for Table 2 (EB operator): entries whose lower CI end is within BORDER of the threshold
+_bl = []
+for r in structure:
+    e = r["ops"]["eb"]
+    for lab, g, u in ([("always", e["always_full"]["gain_vs_Rn"], e["always_full"]["useful"]),
+                       ("SURE", e["sure"]["gain_vs_Rn"], e["sure"]["useful"]),
+                       (r"refit $0.1$", e["rev"]["0.1"]["gain_refit_vs_Rn"], e["rev"]["0.1"]["useful_refit"])] +
+                      [(rf"$\alpha={a}$", e["rev"][a]["gain_vs_Rn"], e["rev"][a]["useful"]) for a in ("0.5", "0.2", "0.1", "0.01")]):
+        if u and g["lo"] < cfg["useful_threshold"] + BORDER:
+            _bl.append(f"{lab} at $\snr={r['snr']:g}$ (gain {pct(g['gain'])}, lower end {pct(g['lo'])})")
+mac("NBorderline", len(_bl)); mac("BorderlineList", "; ".join(_bl) if _bl else "none")
+mac("BorderPts", f"{100 * BORDER:g}")
 mac("MaxRegretOverBound", f"{summ['max_regret_over_bound']:.2f}")
 mac("MaxIdentityZ", f"{summ['max_identity_abs_z']:.2f}")
 mac("NIdentityCLT", summ["n_identity_clt"]); mac("NIdentityPoisson", summ["n_identity_poisson"])
@@ -172,6 +217,7 @@ for snr, tag in ((0.0, "Zero"), (1.0, "One"), (4.0, "Four"), (16.0, "Sixteen")):
         mac(f"S{tag}Rev{ww}Harm", pct(e["rev"][a]["harm_freq"], signed=False))
         mac(f"S{tag}Rev{ww}Acc", pct(e["rev"][a]["accept_freq"], signed=False))
     mac(f"S{tag}RefitTenGain", pct(e["rev"]["0.1"]["gain_refit_vs_Rn"]["gain"]))
+    mac(f"S{tag}RefitTenGainLo", pct(e["rev"]["0.1"]["gain_refit_vs_Rn"]["lo"]))
     mac(f"S{tag}SureGain", pct(e["sure"]["gain_vs_Rn"]["gain"]))
     mac(f"S{tag}PoolAlways", f4(r["ops"]["pool"]["always"]["risk"][0]))
     mac(f"S{tag}PoolRevTen", f4(r["ops"]["pool"]["rev"]["0.1"]["risk"][0]))
@@ -186,6 +232,7 @@ for dep, tag in ((0.0, "Zero"), (4.0, "Four"), (8.0, "Eight"), (16.0, "Sixteen")
         mac(f"D{tag}Rev{ww}Ratio", f"{q['risk'][0]/r['risk_Rn'][0]:.2f}")
         mac(f"D{tag}Rev{ww}Harm", pct(q["harm_freq"], signed=False))
         mac(f"D{tag}Rev{ww}Excess", f"{q['excess_vs_Re'][0]:+.4f}")
+        mac(f"D{tag}Rev{ww}ExcessSE", f"{q['excess_vs_Re'][1]:.4f}")
         mac(f"D{tag}Rev{ww}BoundPhi", f"{q['bound_phi']:.4f}")
         mac(f"D{tag}Rev{ww}BoundAlpha", f"{q['bound_alpha']:.4f}")
         mac(f"D{tag}Rev{ww}BoundTight", f"{q['bound_tight']:.4f}")

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-E1: numerical validation of the exact removal test (Proposition 1), of the single-removal
-sufficient condition (Corollary 2) and of the k-removal certificate (Proposition 3), against
+E1: numerical validation of the exact removal test (Proposition 3.1), of the single-removal
+sufficient condition (Corollary 3.2) and of the k-removal certificate (Proposition 3.4), against
 refits with the exact homotopy solver (and a coordinate-descent cross-check).
 
 Writes results/validation.json and results/validation.md.
@@ -104,7 +104,7 @@ def main():
                 print(f"B n={n} p={p} rule={rule} k={k}: {agree}/{total} agree, preserved {n_pres}, maxdiff {maxdiff:.1e}")
     out["B_multi"] = B
 
-    # ---------------- C: sufficient conditions (Cor. 2) and certificate (Prop. 3), rule C ------
+    # ---------------- C: sufficient condition (Cor. 3.2) and certificate (Prop. 3.4), rule C ----
     C = []
     for (n, p) in cells:
         stable = certified = 0
@@ -118,12 +118,12 @@ def main():
             stable += int(res["preserved"].sum())
             certified += int(np.sum(res["preserved"] & (ind["iota"] < 1)))
             # sanity: the sufficient condition never certifies an unstable removal
-            assert not np.any((~res["preserved"]) & (ind["iota"] < 1)), "Cor. 2 violated"
+            assert not np.any((~res["preserved"]) & (ind["iota"] < 1)), "Cor. 3.2 violated"
             kmax = min(n - 2, 6)
             fe = fragility_exact(st, "any_signed", "C", kmax=kmax)
             ks = certificate_k(st, kmax)
             f = fe["f"] if fe["f"] is not None else kmax + 1
-            assert ks < f, "Prop. 3 violated"
+            assert ks < f, "Prop. 3.4 violated"
             f_list.append(f)
             kstar_list.append(ks)
             inst += 1
@@ -171,8 +171,8 @@ def main():
           "## B. Multiple removals: oracle vs refit", "", "| n | p | rule | k | tests | agreements | preserved | max coef diff |", "|---|---|---|---|---|---|---|---|"]
     for r in B:
         L.append(f"| {r['n']} | {r['p']} | {r['rule']} | {r['k']} | {r['tests']} | {r['agreements']} | {r['preserved']} | {r['max_coef_diff']:.1e} |")
-    L += ["", "## C. Sufficient condition (Cor. 2) and certificate (Prop. 3), constant rule", "",
-          "| n | p | instances | stable single removals | certified by Cor. 2 | P(f=1) | P(k*>=1 given f>=2) | mean gap f-1-k* given f>=2 |", "|---|---|---|---|---|---|---|---|"]
+    L += ["", "## C. Sufficient condition (Cor. 3.2) and certificate (Prop. 3.4), constant rule", "",
+          "| n | p | instances | stable single removals | certified by Cor. 3.2 | P(f=1) | P(k*>=1 given f>=2) | mean gap f-1-k* given f>=2 |", "|---|---|---|---|---|---|---|---|"]
     for r in C:
         L.append(f"| {r['n']} | {r['p']} | {r['instances']} | {r['stable_single_removals']} | {r['certified_by_cor2']} | {r['frac_f1']:.2f} | {r['frac_kstar_ge1_given_f_ge2']} | {r['mean_gap_given_f_ge2']} |")
     d = out["D_throughput"]

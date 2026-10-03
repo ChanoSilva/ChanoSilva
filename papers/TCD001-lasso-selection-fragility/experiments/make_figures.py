@@ -25,9 +25,8 @@ plt.rcParams.update({"font.size": 9, "axes.edgecolor": MUTED, "axes.labelcolor":
                      "ytick.color": TEXT, "axes.spines.top": False, "axes.spines.right": False,
                      "pdf.fonttype": 42})
 
-# ------------------------------------------------------------------ Figure 1: distribution of f vs n
-fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.9), sharey=True)
-for ax, fam in zip(axes, ["A", "B"]):
+def panel_distribution(ax, fam):
+    """Stacked distribution of the exact signed fragility number (ANY, rule C) against n."""
     cols = []
     for a in fra["aggregates"]:
         if a["family"] != fam:
@@ -54,16 +53,10 @@ for ax, fam in zip(axes, ["A", "B"]):
     ax.set_ylim(0, 1)
     ax.yaxis.grid(True, color=GRID, linewidth=0.8)
     ax.set_axisbelow(True)
-axes[0].set_ylabel("fraction of instances")
-axes[1].legend(frameon=False, fontsize=7.5, loc="upper left", bbox_to_anchor=(1.0, 1.0))
-fig.tight_layout()
-fig.savefig(os.path.join(FIG, "fig_fragility_distribution.pdf"))
-fig.savefig(os.path.join(FIG, "fig_fragility_distribution.png"), dpi=200)
-plt.close(fig)
 
-# ------------------------------------------------------------------ Figure 2: bracket at large n
-fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.9), sharey=True)
-for ax, fam in zip(axes, ["A", "B"]):
+
+def panel_bracket(ax, fam):
+    """Bracket of the fragility number at large n: greedy upper bound, certificate lower bound, exact."""
     ex = [a for a in sca["exact"] if a["family"] == fam]
     n_ex = [a["n"] for a in ex]
     med_ex = [a["f_C_median"] for a in ex]
@@ -94,10 +87,46 @@ for ax, fam in zip(axes, ["A", "B"]):
     ax.set_title(f"family {fam}", loc="left", fontsize=9, color=TEXT)
     ax.yaxis.grid(True, color=GRID, linewidth=0.8)
     ax.set_axisbelow(True)
+
+
+# ------------------------------------------------------------------ Figure 1: distribution of f vs n
+fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.9), sharey=True)
+for ax, fam in zip(axes, ["A", "B"]):
+    panel_distribution(ax, fam)
+axes[0].set_ylabel("fraction of instances")
+axes[1].legend(frameon=False, fontsize=7.5, loc="upper left", bbox_to_anchor=(1.0, 1.0))
+fig.tight_layout()
+fig.savefig(os.path.join(FIG, "fig_fragility_distribution.pdf"))
+fig.savefig(os.path.join(FIG, "fig_fragility_distribution.png"), dpi=200)
+plt.close(fig)
+
+# ------------------------------------------------------------------ Figure 2: bracket at large n
+fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.9), sharey=True)
+for ax, fam in zip(axes, ["A", "B"]):
+    panel_bracket(ax, fam)
 axes[0].set_ylabel("number of removed observations")
 axes[0].legend(frameon=False, fontsize=7.5, loc="upper left")
 fig.tight_layout()
 fig.savefig(os.path.join(FIG, "fig_bracket.pdf"))
 fig.savefig(os.path.join(FIG, "fig_bracket.png"), dpi=200)
+plt.close(fig)
+
+# ------------------------------------------------------------------ Figure 3 (manuscript): both in one 2 x 2 figure
+fig, axes = plt.subplots(2, 2, figsize=(7.2, 5.4))
+for ax, fam in zip(axes[0], ["A", "B"]):
+    panel_distribution(ax, fam)
+axes[0, 1].sharey(axes[0, 0])
+axes[0, 0].set_ylabel("fraction of instances")
+axes[0, 1].legend(frameon=False, fontsize=7, loc="upper left", bbox_to_anchor=(1.0, 1.0))
+for ax, fam in zip(axes[1], ["A", "B"]):
+    panel_bracket(ax, fam)
+axes[1, 1].sharey(axes[1, 0])
+axes[1, 0].set_ylabel("number of removed observations")
+axes[1, 0].legend(frameon=False, fontsize=7, loc="upper left")
+for ax, lab in zip(axes.ravel(), "abcd"):
+    ax.text(-0.12, 1.04, f"({lab})", transform=ax.transAxes, fontsize=9, fontweight="bold", color=TEXT)
+fig.tight_layout()
+fig.savefig(os.path.join(FIG, "fig_combined.pdf"))
+fig.savefig(os.path.join(FIG, "fig_combined.png"), dpi=200)
 plt.close(fig)
 print("figures written")

@@ -7,8 +7,12 @@ non-representability of the ingredients that leave the family (E4).
 Predefined criteria (written before the runs):
   E1  For every tested partition and every potential,
         | E_direct - ( J_K/2 + (n-k)(phi(0)-sigma)/2 ) | <= 1e-9 * max(1, |E_direct|)
-      for K in { -phi(D), -phi(D)+sigma I, and, for CND potentials, the
-      dataset-independent kernel of Theorem 1(f) }. Pass = 100 % of checks.
+      for K in { -phi(D), -phi(D)+sigma I, and the dataset-independent kernel
+      K~ of Theorem 3.2(f) (indefinite for the rest-length potential) }.
+      Pass = 100 % of checks. The partitions tested per configuration are
+      random ones, the output of Lloyd and of the single-move relaxation on
+      the canonical kernel K~ (minimally shifted if indefinite), and the
+      ground-truth labels when they have k classes.
       In addition, for Hooke springs the per-particle energy equals the k-means
       SSE to the same tolerance, and the total (w=1) energy differs from the
       per-particle one by the factor n/k exactly when all clusters have equal
@@ -20,12 +24,15 @@ Predefined criteria (written before the runs):
       relative, in 100 % of runs. For Hooke springs, alternating equilibration
       of hub-anchored springs must reproduce scikit-learn's Lloyd k-means
       (identical labels, inertia equal to the spring energy) in 100 % of runs.
-  E4  With exact rational arithmetic on a 7-point integer configuration and
-      k = 2: an energy is "representable" in the pairwise family with
-      normalisation w if it equals sum_c w(|C_c|) sum_{i<j in C_c} A_ij + const
-      for some symmetric A. Representable iff the exact least-squares residual
-      is zero. Expected: fixed pair potentials representable under their own w;
-      cross-normalisation, adaptive rest length and three-body term not.
+  E4  With exact rational arithmetic on two 7-point integer configurations
+      (drawn from a dedicated generator, default_rng(SEED + 2), so that they do
+      not depend on --fast or on the state left by E1-E2) and k = 2: an energy
+      is "representable" in the pairwise family with normalisation w if it
+      equals sum_c w(|C_c|) sum_{i<j in C_c} A_ij + const for some symmetric A.
+      Representable iff the exact least-squares residual is zero. Expected:
+      fixed pair potentials representable under their own w; cross-
+      normalisation, the cluster-mean rest length, the triangle-area
+      three-body term and the per-spring average not (Theorem 4.1).
 """
 from __future__ import annotations
 
@@ -88,9 +95,14 @@ def run_e1(datasets, rng):
                                  lam_min_K=lam_min, lam_min_cnd_kernel=float(lam_min_c := lam_c[0]),
                                  lam_max_cnd_kernel=float(lam_c[-1]),
                                  cnd_kernel_psd=bool(lam_min_c >= -1e-9 * max(1.0, lam_c[-1]))))
-            # partitions: random ones, plus the output of kernel k-means and the ground truth
+            # partitions: random ones, plus the outputs of Lloyd and of the relaxation on the
+            # canonical kernel K~ (shifted minimally only if indefinite, as in E3), and the ground truth
+            if lam_min_c >= -1e-9 * max(1.0, lam_c[-1]):
+                Kopt = Kc
+            else:
+                Kopt = Kc + (-lam_min_c + 1e-9 * max(1.0, lam_c[-1])) * np.eye(n)
             parts = [M.random_partition(rng, n, k) for _ in range(n_random)]
-            st = M.KKMState(Ks, M.kmeanspp_labels(Ks, k, rng), k)
+            st = M.KKMState(Kopt, M.kmeanspp_labels(Kopt, k, rng), k)
             st.lloyd()
             parts.append(st.labels.copy())
             st.hartigan(rng)
@@ -250,7 +262,24 @@ def frac_lstsq_residual(A, b):
     return resid, len(piv_cols)
 
 
-def run_e4(rng):
+def run_e4(n_configs=2):
+    """Exact representability test on n_configs configurations drawn from a dedicated
+    generator (independent of --fast and of the generator state after E1-E2)."""
+    rng = np.random.default_rng(SEED + 2)
+    out = dict(seed=SEED + 2, n=7, k=2, configs=[])
+    for _ in range(n_configs):
+        out["configs"].append(e4_one_configuration(rng))
+    first = out["configs"][0]
+    out.update(points=first["points"], partitions=first["partitions"], unknowns=first["unknowns"],
+               results=first["results"])
+    # agreement of the yes/no pattern across configurations, cell by cell
+    pattern = [[r["representable"] for r in c["results"]] for c in out["configs"]]
+    out["cells"] = len(pattern[0])
+    out["cells_same_pattern"] = sum(len(set(col)) == 1 for col in zip(*pattern))
+    return out
+
+
+def e4_one_configuration(rng):
     n, k = 7, 2
     pts = [(Fraction(int(a)), Fraction(int(b))) for a, b in rng.integers(0, 11, size=(n, 2))]
     while len(set(pts)) < n:
@@ -360,7 +389,7 @@ def main():
                          datasets={d: dict(n=len(v[0]), k=v[2], dim=v[0].shape[1]) for d, v in datasets.items()}))
     res["E1"] = run_e1(datasets, rng)
     res["E2"] = run_e2(datasets, rng)
-    res["E4"] = run_e4(rng)
+    res["E4"] = run_e4()
     res["meta"]["seconds"] = time.time() - t_start
     with open(os.path.join(RES, "results_identity.json"), "w") as fh:
         json.dump(res, fh, indent=1, default=float)
@@ -373,7 +402,7 @@ def main():
          "| dataset | potential | n | k | partitions | max rel err | sigma | lam_min(K) |", "|---|---|---|---|---|---|---|---|"]
     for r in res["E1"]["rows"]:
         L.append(f"| {r['dataset']} | {r['potential']} | {r['n']} | {r['k']} | {r['partitions']} | {r['max_rel_err']:.1e} | {r['sigma']:.3g} | {r['lam_min_K']:.3g} |")
-    L += ["", "| dataset | potential | CND label | lam_min of Theorem-1(f) kernel | lam_max | PSD |", "|---|---|---|---|---|---|"]
+    L += ["", "| dataset | potential | negative-type label | lam_min of the Theorem-3.2(f) kernel | lam_max | PSD |", "|---|---|---|---|---|---|"]
     for r in res["E1"]["cnd_eigs"]:
         L.append(f"| {r['dataset']} | {r['potential']} | {r['cnd_label']} | {r['lam_min_cnd_kernel']:.3g} | {r['lam_max_cnd_kernel']:.3g} | {r['cnd_kernel_psd']} |")
     L += ["", f"## E2: identical trajectories {res['E2']['identical']}/{res['E2']['runs']}, max rel err of final energy {res['E2']['max_rel_err_energy']:.2e}; "
@@ -381,10 +410,14 @@ def main():
           "| dataset | potential | init | sweeps | identical | rel err E | s (physics) | s (kernel) |", "|---|---|---|---|---|---|---|---|"]
     for r in res["E2"]["rows"]:
         L.append(f"| {r['dataset']} | {r['potential']} | {r['init']} | {r['sweeps']} | {r['identical_trajectory']} | {r['rel_err_energy']:.1e} | {r['seconds_physics']:.2f} | {r['seconds_kernel']:.3f} |")
-    L += ["", f"## E4: exact representability, n={res['E4']['n']}, k={res['E4']['k']}, {res['E4']['partitions']} partitions, {res['E4']['unknowns']} unknowns", "",
-          "| energy | family w | rank | representable | relative residual |", "|---|---|---|---|---|"]
-    for r in res["E4"]["results"]:
-        L.append(f"| {r['energy']} | {r['family_w']} | {r['rank']} | {r['representable']} | {r['relative_residual']:.3g} |")
+    L += ["", f"## E4: exact representability, n={res['E4']['n']}, k={res['E4']['k']}, {res['E4']['partitions']} partitions, "
+          f"{res['E4']['unknowns']} unknowns, {len(res['E4']['configs'])} configurations (seed {res['E4']['seed']}); "
+          f"yes/no pattern identical across configurations in {res['E4']['cells_same_pattern']}/{res['E4']['cells']} cells"]
+    for ci, cfg in enumerate(res["E4"]["configs"], 1):
+        L += ["", f"### Configuration P{ci}: points {cfg['points']}", "",
+              "| energy | family w | rank | representable | relative residual |", "|---|---|---|---|---|"]
+        for r in cfg["results"]:
+            L.append(f"| {r['energy']} | {r['family_w']} | {r['rank']} | {r['representable']} | {r['relative_residual']:.3g} |")
     with open(os.path.join(RES, "tables_identity.md"), "w") as fh:
         fh.write("\n".join(L) + "\n")
     print(f"done in {res['meta']['seconds']:.1f} s")

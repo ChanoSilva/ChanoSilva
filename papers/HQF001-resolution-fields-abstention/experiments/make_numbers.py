@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
-"""Turn results/results.json and results/results_identity.json into LaTeX macros
-(manuscript/numbers.tex) and table bodies (manuscript/table_*.tex). No number in
-main.tex is typed by hand."""
+"""Turn results/results.json, results/results_identity.json and (if present) results/results_v01.json
+into LaTeX macros (manuscript/numbers.tex) and table bodies (manuscript/table_*.tex). No number in
+main.tex is typed by hand.
+
+v0.2: every paired comparison carries three 95% intervals (percentile bootstrap over folds -- the
+predefined one --, Student t over folds, Nadeau-Bengio corrected t), wins/ties/losses and a borderline
+flag (an end of the bootstrap or t interval within 0.02 of zero, AURC x 100). In the marked tables a
+cell is bold/italic only when BOTH the bootstrap and the t interval exclude zero; a superscript b (t)
+marks a cell where only the bootstrap (only the t) interval does; a superscript circle marks a
+borderline cell."""
+import glob
 import json
 import math
 import os
@@ -11,6 +19,8 @@ ROOT = os.path.dirname(HERE)
 OUT = os.path.join(ROOT, "manuscript")
 res = json.load(open(os.path.join(ROOT, "results", "results.json")))
 ide = json.load(open(os.path.join(ROOT, "results", "results_identity.json")))
+V01 = os.path.join(ROOT, "results", "results_v01.json")
+v01 = json.load(open(V01)) if os.path.exists(V01) else None
 
 DS_TAG = {"iris": "Iris", "wine": "Wine", "breast_cancer": "Bc", "digits": "Digits",
           "synth_informative": "Sinfo", "moons_aniso": "Moons", "synth_classcov": "Ccov", "synth_lda": "Slda"}
@@ -26,6 +36,7 @@ M_NAME = {"kNN": "$k$-NN", "NCM": "NCM", "LDA": "LDA", "QDA": "QDA", "LogReg": "
 REFS = [m for m, g in res["method_groups"].items() if g == "reference"]
 FIELDS = [m for m, g in res["method_groups"].items() if g == "field"]
 S = res["summary"]
+CRIT = res["criterion"]
 meta = res["meta"]
 L = []
 
@@ -50,10 +61,54 @@ def pct(x, d=2):
 
 
 def spct(x, d=2):
-    return f"{100 * x:+.{d}f}"
+    s = f"{100 * x:+.{d}f}"
+    if float(s) == 0.0:          # rounds to zero at d decimals: print three decimals instead (m9)
+        s = f"{100 * x:+.3f}"
+    return s
+
+
+def ci(c, kind):
+    lo, hi = {"boot": ("ci_lo", "ci_hi"), "t": ("t_lo", "t_hi"), "nb": ("nb_lo", "nb_hi")}[kind]
+    return f"[{spct(c[lo])}, {spct(c[hi])}]"
+
+
+def wtl(c):
+    return f"{c['wins']}/{c['ties']}/{c['losses']}"
+
+
+def mark(c, first, second, cell):
+    """bold: both intervals favour the first; italic: both favour the second; ^b / ^t: only one of them
+    excludes zero; ^circ: borderline."""
+    vb, vt = c["verdict"], c["verdict_t"]
+    sup = ""
+    if vb == first and vt == first:
+        cell = rf"\textbf{{{cell}}}"
+    elif vb == second and vt == second:
+        cell = rf"\textit{{{cell}}}"
+    elif vb != "inconclusive":
+        sup += "b"
+    elif vt != "inconclusive":
+        sup += "t"
+    if c["borderline"]:
+        sup += r"\circ"
+    return rf"{cell}$^{{{sup}}}$" if sup else cell
+
+
+def yes(b):
+    return "yes" if b else "no"
+
+
+def rng_str(a, b):
+    """'a' if a == b else 'min--max'."""
+    return f"{a}" if a == b else f"{min(a, b)}--{max(a, b)}"
+
+
+def names(lst):
+    return ", ".join(DS_NAME[d] for d in lst) if lst else "none"
 
 
 # ---- meta
+mac("MetaVersion", meta.get("script_version", "v0.1"))
 mac("MetaSeed", meta["seed"])
 mac("MetaPython", meta["python"])
 mac("MetaNumpy", meta["numpy"])
@@ -66,45 +121,38 @@ mac("MetaRepeats", meta["n_repeats"])
 mac("MetaSplits", meta["n_splits"])
 mac("MetaFolds", meta["n_repeats"] * meta["n_splits"])
 mac("MetaInner", meta["inner_splits"])
-mac("MetaBootB", meta["bootstrap_B"])
+mac("MetaBootB", f"{meta['bootstrap_B']:,}".replace(",", r"\,"))
+mac("MetaRho", f"{meta.get('nb_rho', 1.0 / (meta['n_splits'] - 1)):.2f}")
 mac("MetaNDatasets", len(S))
 mac("MetaMajority", len(S) // 2 + 1)
 mac("MetaNRefs", len(REFS))
 mac("MetaNFields", len(FIELDS))
 mac("IdCpuSeconds", f"{ide['meta']['cpu_seconds']:.2f}")
 
-# ---- datasets table
+# ---- datasets table (complete tabular: \input of row files does not work inside a tabular with a p{} column)
 with open(os.path.join(OUT, "table_datasets.tex"), "w") as fh:
-    # complete tabular: \input of row files does not work inside a tabular with a p{} column
     fh.write(r"\begin{tabular}{lrrrrp{0.46\linewidth}}" + "\n" + r"\toprule" + "\n")
     fh.write(r"dataset & $n$ & $d$ & $K$ & Bayes err.\ (\%) & description\\" + "\n" + r"\midrule" + "\n")
     for ds, info in res["datasets"].items():
         be = "--" if info.get("bayes_error") is None else pct(info["bayes_error"], 1)
+        sh = info.get("shift")
         note = {"iris": "Fisher's iris", "wine": "UCI wine", "breast_cancer": "Wisconsin diagnostic",
                 "digits": "UCI optical digits, PCA to 20 comp.",
                 "synth_informative": "\\texttt{make\\_classification}: 5 inf.\\ + 3 red.\\ + 2 noise, 2 clusters/class, 3\\% label noise",
                 "moons_aniso": "two moons + anisotropic noise (sd $0.30\\times0.06$, $30^\\circ$) + 3 nuisance dims",
-                "synth_classcov": "two Gaussians, $d=6$, rotated class-specific covariances",
-                "synth_lda": "three Gaussians, $d=6$, one shared covariance"}[ds]
+                "synth_classcov": f"two Gaussians, $d=6$, rotated class-specific covariances (spectrum $2\\to0.25$), mean shift {sh:.2f}" if sh is not None else "two Gaussians, $d=6$, rotated class-specific covariances",
+                "synth_lda": f"three Gaussians, $d=6$, one shared covariance (spectrum $2\\to0.05$), mean shift {sh:.2f}" if sh is not None else "three Gaussians, $d=6$, one shared covariance"}[ds]
         fh.write(f"{DS_NAME[ds]} & {info['n']} & {info['d_used']} & {info['n_classes']} & {be} & {note} \\\\\n")
     fh.write(r"\bottomrule" + "\n" + r"\end{tabular}" + "\n")
-shifts = {ds: info.get("shift") for ds, info in res["datasets"].items()}
-if any(v is None for ds, v in shifts.items() if res["datasets"][ds].get("bayes_error") is not None):
-    # results.json produced before the shift was exported: replay the deterministic generator
-    import sys
-    sys.path.insert(0, HERE)
-    from selective_benchmark import make_datasets, SEED
-    D = make_datasets(SEED)
-    for ds in shifts:
-        if ds in D and "shift" in D[ds]:
-            shifts[ds] = D[ds]["shift"]
 for ds, info in res["datasets"].items():
     if info.get("bayes_error") is not None:
         mac(f"Bayes{DS_TAG[ds]}", pct(info["bayes_error"], 1))
-        mac(f"Shift{DS_TAG[ds]}", f"{shifts[ds]:.2f}")
+        mac(f"Shift{DS_TAG[ds]}", f"{info['shift']:.2f}" if info.get("shift") is not None else "--")
+        mac(f"ShiftAtBound{DS_TAG[ds]}", yes(info.get("shift_at_bound")))
     mac(f"N{DS_TAG[ds]}", info["n"])
+    mac(f"TestSize{DS_TAG[ds]}", info["n"] // meta["n_splits"])
 
-# ---- per dataset / method macros and tables
+# ---- per dataset / method macros
 for ds in S:
     t = DS_TAG[ds]
     for m in S[ds]["methods"]:
@@ -120,66 +168,134 @@ for ds in S:
     mac(f"BestRefAurc{t}", pct(S[ds]["methods"][br]["aurc_mean"]))
     for f in FIELDS:
         c = S[ds]["comparisons"][f]["__best__"]
-        mac(f"Diff{t}{M_TAG[f]}", spct(c["mean_diff"]))
-        mac(f"DiffLo{t}{M_TAG[f]}", spct(c["ci_lo"]))
-        mac(f"DiffHi{t}{M_TAG[f]}", spct(c["ci_hi"]))
-        mac(f"DiffP{t}{M_TAG[f]}", f"{c['wilcoxon_p']:.3f}")
-        mac(f"DiffWins{t}{M_TAG[f]}", c["wins"])
+        ft = M_TAG[f]
+        mac(f"Diff{t}{ft}", spct(c["mean_diff"]))
+        mac(f"DiffLo{t}{ft}", spct(c["ci_lo"]))
+        mac(f"DiffHi{t}{ft}", spct(c["ci_hi"]))
+        mac(f"DiffBoot{t}{ft}", ci(c, "boot"))
+        mac(f"DiffT{t}{ft}", ci(c, "t"))
+        mac(f"DiffNb{t}{ft}", ci(c, "nb"))
+        mac(f"DiffP{t}{ft}", f"{c['wilcoxon_p']:.3f}")
+        mac(f"DiffWins{t}{ft}", c["wins"])
+        mac(f"DiffTies{t}{ft}", c["ties"])
+        mac(f"DiffLosses{t}{ft}", c["losses"])
+        mac(f"DiffWtl{t}{ft}", wtl(c))
+        mac(f"DiffBorder{t}{ft}", yes(c["borderline"]))
 
-with open(os.path.join(OUT, "table_aurc_refs.tex"), "w") as fh:
+# folds in which the best reference has AURC exactly 0 (ties with the field are then frequent)
+for ds in S:
+    br = S[ds]["best_reference"]
+    z = sum(1 for f in res["per_fold"][ds] if f[br]["aurc"] == 0.0)
+    mac(f"ZeroFolds{DS_TAG[ds]}", z)
+
+# ---- Table: AURC of references and field variants in one table
+with open(os.path.join(OUT, "table_aurc_all.tex"), "w") as fh:
     for ds in S:
         best = S[ds]["best_reference"]
         cells = []
         for m in REFS:
-            v = S[ds]["methods"][m]
-            cell = f"{pct(v['aurc_mean'])}"
+            cell = pct(S[ds]["methods"][m]["aurc_mean"])
             cells.append(rf"\textbf{{{cell}}}" if m == best else cell)
-        err = S[ds]["methods"][best]["error_rate"]
-        fh.write(f"{DS_NAME[ds]} & " + " & ".join(cells) + f" & {pct(err, 1)} \\\\\n")
-
-with open(os.path.join(OUT, "table_aurc_field.tex"), "w") as fh:
-    for ds in S:
-        best = S[ds]["best_reference"]
-        cells = []
+        cells.append(pct(S[ds]["methods"][best]["error_rate"], 1))
         for m in FIELDS:
-            v = S[ds]["methods"][m]
-            cells.append(f"{pct(v['aurc_mean'])}")
-        fh.write(f"{DS_NAME[ds]} & {M_NAME[best]} & {pct(S[ds]['methods'][best]['aurc_mean'])} & " + " & ".join(cells) + " \\\\\n")
+            cells.append(pct(S[ds]["methods"][m]["aurc_mean"]))
+        fh.write(f"{DS_NAME[ds]} & " + " & ".join(cells) + " \\\\\n")
 
+# ---- Table: anisotropic field vs best reference, three intervals, W/T/L, Wilcoxon p
 with open(os.path.join(OUT, "table_diff.tex"), "w") as fh:
     for ds in S:
-        best = S[ds]["best_reference"]
-        cells = []
-        for f in ["Field-aniso", "Field-iso", "Field-euclid"]:
-            c = S[ds]["comparisons"][f]["__best__"]
-            cells.append(f"{spct(c['mean_diff'])} [{spct(c['ci_lo'])}, {spct(c['ci_hi'])}] & {c['wins']}/{S[ds]['n_folds']}")
-        fh.write(f"{DS_NAME[ds]} & {M_NAME[best]} & " + " & ".join(cells) + " \\\\\n")
+        c = S[ds]["comparisons"]["Field-aniso"]["__best__"]
+        delta = spct(c["mean_diff"]) + (r"$^{\circ}$" if c["borderline"] else "")
+        fh.write(f"{DS_NAME[ds]} & {M_NAME[S[ds]['best_reference']]} & {delta} & {ci(c, 'boot')} & {ci(c, 't')} & {ci(c, 'nb')} & {wtl(c)} & {c['wilcoxon_p']:.3f} \\\\\n")
 
-ABL_KEYS = ["Field-aniso - Field-iso", "Field-aniso - Field-euclid", "Field-euclid - NCM",
-            "Field-aniso - Field-vol", "Field-aniso - Field-anis", "Field-aniso - Field-aniso-gproto"]
-with open(os.path.join(OUT, "table_ablation.tex"), "w") as fh:
+# ---- Table (appendix): isotropic and Euclidean ablations vs best reference
+with open(os.path.join(OUT, "table_diff_abl.tex"), "w") as fh:
     for ds in S:
         cells = []
-        for k in ABL_KEYS:
-            a = S[ds]["ablations"][k]
-            cell = f"{spct(a['mean_diff'])}"
-            if a["ci_hi"] < 0:
-                cell = rf"\textbf{{{cell}}}"
-            elif a["ci_lo"] > 0:
-                cell = rf"\textit{{{cell}}}"
-            cells.append(cell)
-        fh.write(f"{DS_NAME[ds]} & " + " & ".join(cells) + " \\\\\n")
-for k, tag in [("Field-aniso - Field-iso", "AnisoIso"), ("Field-aniso - Field-euclid", "AnisoEuclid"),
-               ("Field-euclid - NCM", "EuclidNcm"), ("Field-aniso - Field-vol", "AnisoVol"),
-               ("Field-aniso - Field-aniso-gproto", "AnisoGproto"), ("Field-aniso - kNN", "AnisoKnn"),
-               ("Field-aniso - LDA", "AnisoLda"), ("Field-aniso - DANN", "AnisoDann")]:
-    first = [ds for ds in S if S[ds]["ablations"][k]["ci_hi"] < 0]
-    second = [ds for ds in S if S[ds]["ablations"][k]["ci_lo"] > 0]
-    mac(f"Abl{tag}First", len(first))
-    mac(f"Abl{tag}Second", len(second))
-    mac(f"Abl{tag}FirstList", ", ".join(DS_NAME[d] for d in first) if first else "none")
-    mac(f"Abl{tag}SecondList", ", ".join(DS_NAME[d] for d in second) if second else "none")
+        for f in ["Field-iso", "Field-euclid"]:
+            c = S[ds]["comparisons"][f]["__best__"]
+            delta = spct(c["mean_diff"]) + (r"$^{\circ}$" if c["borderline"] else "")
+            cells.append(f"{delta} & {ci(c, 'boot')} & {ci(c, 't')} & {wtl(c)}")
+        fh.write(f"{DS_NAME[ds]} & {M_NAME[S[ds]['best_reference']]} & " + " & ".join(cells) + " \\\\\n")
 
+# ---- Table: anisotropic field against each reference (marked means)
+with open(os.path.join(OUT, "table_vsrefs.tex"), "w") as fh:
+    for ds in S:
+        cells = [mark(S[ds]["comparisons"]["Field-aniso"][r], "field better", "field worse",
+                      spct(S[ds]["comparisons"]["Field-aniso"][r]["mean_diff"])) for r in REFS]
+        fh.write(f"{DS_NAME[ds]} & " + " & ".join(cells) + " \\\\\n")
+for ds in S:
+    for r in REFS:
+        c = S[ds]["comparisons"]["Field-aniso"][r]
+        mac(f"Vs{DS_TAG[ds]}{M_TAG[r]}", f"{spct(c['mean_diff'])} {ci(c, 'boot')}")
+        mac(f"VsT{DS_TAG[ds]}{M_TAG[r]}", ci(c, "t"))
+        mac(f"VsWtl{DS_TAG[ds]}{M_TAG[r]}", wtl(c))
+for r in REFS:
+    cs = {ds: S[ds]["comparisons"]["Field-aniso"][r] for ds in S}
+    mac(f"VsRef{M_TAG[r]}Better", sum(1 for c in cs.values() if c["verdict"] == "field better"))
+    mac(f"VsRef{M_TAG[r]}Worse", sum(1 for c in cs.values() if c["verdict"] == "field worse"))
+    mac(f"VsRef{M_TAG[r]}BetterT", sum(1 for c in cs.values() if c["verdict_t"] == "field better"))
+    mac(f"VsRef{M_TAG[r]}WorseT", sum(1 for c in cs.values() if c["verdict_t"] == "field worse"))
+    mac(f"VsRef{M_TAG[r]}BetterBoth", sum(1 for c in cs.values() if c["verdict"] == "field better" and c["verdict_t"] == "field better"))
+    mac(f"VsRef{M_TAG[r]}WorseBoth", sum(1 for c in cs.values() if c["verdict"] == "field worse" and c["verdict_t"] == "field worse"))
+    mac(f"VsRef{M_TAG[r]}BetterList", names([ds for ds in S if cs[ds]["verdict"] == "field better"]))
+    mac(f"VsRef{M_TAG[r]}BetterListT", names([ds for ds in S if cs[ds]["verdict_t"] == "field better"]))
+vs_border = [f"{DS_NAME[ds]} vs {M_NAME[r]}" for ds in S for r in REFS if S[ds]["comparisons"]["Field-aniso"][r]["borderline"]]
+mac("VsRefBorderList", "; ".join(vs_border) if vs_border else "none")
+mac("VsRefBorderN", len(vs_border))
+vs_bonly = [f"{DS_NAME[ds]} vs {M_NAME[r]}" for ds in S for r in REFS
+            if S[ds]["comparisons"]["Field-aniso"][r]["verdict"] != "inconclusive" and S[ds]["comparisons"]["Field-aniso"][r]["verdict_t"] == "inconclusive"]
+mac("VsRefBootOnlyList", "; ".join(vs_bonly) if vs_bonly else "none")
+mac("VsRefBootOnlyN", len(vs_bonly))
+mac("NVsRefCells", len(S) * len(REFS))
+
+# ---- Table: ablations
+ABL_KEYS = ["Field-aniso - Field-iso", "Field-aniso - Field-euclid", "Field-euclid - NCM",
+            "Field-aniso - Field-vol", "Field-aniso - Field-anis", "Field-aniso - Field-aniso-gproto"]
+ABL_TAG = {"Field-aniso - Field-iso": "AnisoIso", "Field-aniso - Field-euclid": "AnisoEuclid", "Field-euclid - NCM": "EuclidNcm",
+           "Field-aniso - Field-vol": "AnisoVol", "Field-aniso - Field-anis": "AnisoAnis", "Field-aniso - Field-aniso-gproto": "AnisoGproto"}
+ABL_NAME = {"Field-aniso - Field-iso": "aniso$-$iso", "Field-aniso - Field-euclid": "aniso$-$Eucl.", "Field-euclid - NCM": "Eucl.$-$NCM",
+            "Field-aniso - Field-vol": "aniso$-$vol.", "Field-aniso - Field-anis": "aniso$-$anis.", "Field-aniso - Field-aniso-gproto": "aniso$-$glob.\\ prot."}
+with open(os.path.join(OUT, "table_ablation.tex"), "w") as fh:
+    for ds in S:
+        a = S[ds]["ablations"][ABL_KEYS[0]]
+        delta = spct(a["mean_diff"]) + (r"$^{\circ}$" if a["borderline"] else "")
+        cells = [f"{delta} & {ci(a, 'boot')} & {ci(a, 't')} & {wtl(a)}"]
+        for k in ABL_KEYS[1:]:
+            a = S[ds]["ablations"][k]
+            cells.append(mark(a, "first better", "second better", spct(a["mean_diff"])))
+        fh.write(f"{DS_NAME[ds]} & " + " & ".join(cells) + " \\\\\n")
+mac("NAblCells", len(S) * len(ABL_KEYS))
+abl_border = []
+for k in ABL_KEYS:
+    tag = ABL_TAG[k]
+    A = {ds: S[ds]["ablations"][k] for ds in S}
+    fb = [ds for ds in S if A[ds]["verdict"] == "first better"]
+    sb = [ds for ds in S if A[ds]["verdict"] == "second better"]
+    ft = [ds for ds in S if A[ds]["verdict_t"] == "first better"]
+    st = [ds for ds in S if A[ds]["verdict_t"] == "second better"]
+    fn = [ds for ds in S if A[ds]["verdict_nb"] == "first better"]
+    sn = [ds for ds in S if A[ds]["verdict_nb"] == "second better"]
+    mac(f"Abl{tag}First", len(fb)); mac(f"Abl{tag}Second", len(sb))
+    mac(f"Abl{tag}FirstList", names(fb)); mac(f"Abl{tag}SecondList", names(sb))
+    mac(f"Abl{tag}FirstT", len(ft)); mac(f"Abl{tag}SecondT", len(st))
+    mac(f"Abl{tag}FirstListT", names(ft)); mac(f"Abl{tag}SecondListT", names(st))
+    mac(f"Abl{tag}FirstNB", len(fn)); mac(f"Abl{tag}SecondNB", len(sn))
+    mac(f"Abl{tag}FirstListNB", names(fn)); mac(f"Abl{tag}SecondListNB", names(sn))
+    mac(f"Abl{tag}FirstBoth", len([d for d in fb if d in ft])); mac(f"Abl{tag}SecondBoth", len([d for d in sb if d in st]))
+    mac(f"Abl{tag}FirstRange", rng_str(len(fb), len(ft))); mac(f"Abl{tag}SecondRange", rng_str(len(sb), len(st)))
+    for ds in S:
+        a = A[ds]
+        mac(f"Abl{tag}{DS_TAG[ds]}", f"{spct(a['mean_diff'])} {ci(a, 'boot')}")
+        mac(f"Abl{tag}T{DS_TAG[ds]}", ci(a, "t"))
+        mac(f"Abl{tag}Wtl{DS_TAG[ds]}", wtl(a))
+    fav = sorted(set(fb) | set(ft), key=lambda d: (-A[d]["wins"], A[d]["losses"]))
+    mac(f"Abl{tag}WinsText", ", ".join(f"{DS_NAME[d]} {wtl(A[d])}" for d in fav) if fav else "none")
+    abl_border += [f"{DS_NAME[ds]} ({ABL_NAME[k]})" for ds in S if A[ds]["borderline"]]
+mac("AblBorderList", "; ".join(abl_border) if abl_border else "none")
+mac("AblBorderN", len(abl_border))
+
+# ---- accuracy and geometry tables (appendix)
 with open(os.path.join(OUT, "table_acc.tex"), "w") as fh:
     for ds in S:
         best = S[ds]["best_reference"]
@@ -188,8 +304,6 @@ with open(os.path.join(OUT, "table_acc.tex"), "w") as fh:
             v = S[ds]["methods"][m]
             cells.append(f"{pct(v['acc_mean'], 1)} & {pct(v['acc90_mean'], 1)} & {pct(v['acc80_mean'], 1)}")
         fh.write(f"{DS_NAME[ds]} & {M_NAME[best]} & " + " & ".join(cells) + " \\\\\n")
-
-# geometry-only scores against the error rate of their own predictions
 with open(os.path.join(OUT, "table_geom.tex"), "w") as fh:
     for ds in S:
         cells = []
@@ -201,67 +315,45 @@ with open(os.path.join(OUT, "table_geom.tex"), "w") as fh:
             cells.append(f"{pct(v['error_rate'], 1)} & {cell}")
         fh.write(f"{DS_NAME[ds]} & " + " & ".join(cells) + " \\\\\n")
 for m, tag in [("Field-vol", "Vol"), ("Field-anis", "Anis"), ("Field-aniso", "Margin")]:
-    above = sum(1 for ds in S if S[ds]["methods"][m]["aurc_mean"] >= S[ds]["methods"][m]["error_rate"])
+    above = [ds for ds in S if S[ds]["methods"][m]["aurc_mean"] >= S[ds]["methods"][m]["error_rate"]]
     half = sum(1 for ds in S if S[ds]["methods"][m]["aurc_mean"] >= 0.5 * S[ds]["methods"][m]["error_rate"])
-    mac(f"Geom{tag}AboveRandom", above)
+    mac(f"Geom{tag}AboveRandom", len(above))
     mac(f"Geom{tag}AboveHalf", half)
-    mac(f"Geom{tag}AboveRandomList", ", ".join(DS_NAME[ds] for ds in S if S[ds]["methods"][m]["aurc_mean"] >= S[ds]["methods"][m]["error_rate"]) or "none")
+    mac(f"Geom{tag}AboveRandomList", names(above))
 
-# ---- criterion
+# ---- criterion: predefined (bootstrap) and the same count under the t and Nadeau-Bengio intervals
 for f in FIELDS:
-    c = res["criterion"][f]
-    mac(f"Crit{M_TAG[f]}Better", len(c["better"]))
-    mac(f"Crit{M_TAG[f]}Worse", len(c["worse"]))
-    mac(f"Crit{M_TAG[f]}Incon", len(c["inconclusive"]))
-    mac(f"Crit{M_TAG[f]}BetterList", ", ".join(DS_NAME[d] for d in c["better"]) if c["better"] else "none")
-    mac(f"Crit{M_TAG[f]}WorseList", ", ".join(DS_NAME[d] for d in c["worse"]) if c["worse"] else "none")
-    mac(f"Crit{M_TAG[f]}InconList", ", ".join(DS_NAME[d] for d in c["inconclusive"]) if c["inconclusive"] else "none")
-    mac(f"Crit{M_TAG[f]}Met", "met" if c["criterion_met"] else "not met")
+    c = CRIT[f]
+    ft = M_TAG[f]
+    for suffix, cc in [("", c), ("T", c["t"]), ("NB", c["nb"])]:
+        mac(f"Crit{ft}Better{suffix}", len(cc["better"]))
+        mac(f"Crit{ft}Worse{suffix}", len(cc["worse"]))
+        mac(f"Crit{ft}Incon{suffix}", len(cc["inconclusive"]))
+        mac(f"Crit{ft}BetterList{suffix}", names(cc["better"]))
+        mac(f"Crit{ft}WorseList{suffix}", names(cc["worse"]))
+        mac(f"Crit{ft}InconList{suffix}", names(cc["inconclusive"]))
+    mac(f"Crit{ft}Met", "met" if c["criterion_met"] else "not met")
+    mac(f"Crit{ft}WorseRange", rng_str(len(c["worse"]), len(c["t"]["worse"])))
+    mac(f"Crit{ft}BorderList", names(c["borderline"]))
+    mac(f"Crit{ft}BorderN", len(c["borderline"]))
 
-for ds in S:
-    for r in REFS:
-        c = S[ds]["comparisons"]["Field-aniso"][r]
-        mac(f"Vs{DS_TAG[ds]}{M_TAG[r]}", f"{spct(c['mean_diff'])} [{spct(c['ci_lo'])}, {spct(c['ci_hi'])}]")
-# how often Field-aniso beats each reference individually (CI excluding 0)
-for r in REFS:
-    n_better = sum(1 for ds in S if S[ds]["comparisons"]["Field-aniso"][r]["ci_hi"] < 0)
-    n_worse = sum(1 for ds in S if S[ds]["comparisons"]["Field-aniso"][r]["ci_lo"] > 0)
-    mac(f"VsRef{M_TAG[r]}Better", n_better)
-    mac(f"VsRef{M_TAG[r]}Worse", n_worse)
-with open(os.path.join(OUT, "table_vsrefs.tex"), "w") as fh:
-    for ds in S:
-        cells = []
-        for r in REFS:
-            c = S[ds]["comparisons"]["Field-aniso"][r]
-            cell = spct(c["mean_diff"])
-            if c["ci_hi"] < 0:
-                cell = rf"\textbf{{{cell}}}"
-            elif c["ci_lo"] > 0:
-                cell = rf"\textit{{{cell}}}"
-            cells.append(cell)
-        fh.write(f"{DS_NAME[ds]} & " + " & ".join(cells) + " \\\\\n")
-
+# ---- accuracy gaps, extreme gaps, selected hyper-parameters
 for ds in S:
     best = S[ds]["best_reference"]
     gap = S[ds]["methods"][best]["acc_mean"] - S[ds]["methods"]["Field-aniso"]["acc_mean"]
     mac(f"AccGap{DS_TAG[ds]}", f"{100 * gap:.1f}")
 acc_worse = [ds for ds in S if S[ds]["methods"][S[ds]["best_reference"]]["acc_mean"] - S[ds]["methods"]["Field-aniso"]["acc_mean"] >= 0.01]
-mac("AccGapBigList", ", ".join(DS_NAME[d] for d in acc_worse) if acc_worse else "none")
+mac("AccGapBigList", names(acc_worse))
 mac("AccGapBigN", len(acc_worse))
+mac("AccGapBigText", ", ".join(f"{100 * (S[d]['methods'][S[d]['best_reference']]['acc_mean'] - S[d]['methods']['Field-aniso']['acc_mean']):.1f} ({DS_NAME[d]})" for d in acc_worse) if acc_worse else "none")
 acc_better = [ds for ds in S if S[ds]["methods"]["Field-aniso"]["acc_mean"] > S[ds]["methods"][S[ds]["best_reference"]]["acc_mean"]]
-mac("AccBetterList", ", ".join(DS_NAME[d] for d in acc_better) if acc_better else "none")
+mac("AccBetterList", names(acc_better))
 mac("AccBetterN", len(acc_better))
-
-# largest / smallest gap to the best reference for Field-aniso
 gaps = {ds: S[ds]["comparisons"]["Field-aniso"]["__best__"]["mean_diff"] for ds in S}
 worst = max(gaps, key=gaps.get)
 closest = min(gaps, key=gaps.get)
-mac("GapWorstDs", DS_NAME[worst])
-mac("GapWorst", spct(gaps[worst]))
-mac("GapClosestDs", DS_NAME[closest])
-mac("GapClosest", spct(gaps[closest]))
-
-# selected hyper-parameters of Field-aniso (pooled over datasets and folds)
+mac("GapWorstDs", DS_NAME[worst]); mac("GapWorst", spct(gaps[worst]))
+mac("GapClosestDs", DS_NAME[closest]); mac("GapClosest", spct(gaps[closest]))
 alpha_cnt, km_cnt, tot = {}, {}, 0
 for ds in S:
     for k, c in S[ds]["methods"]["Field-aniso"]["selected_params"].items():
@@ -269,15 +361,45 @@ for ds in S:
         alpha_cnt[p["alpha"]] = alpha_cnt.get(p["alpha"], 0) + c
         km_cnt[p["K_m"]] = km_cnt.get(p["K_m"], 0) + c
         tot += c
-ALPHA_W = {0.05: "Low", 0.2: "Mid", 0.5: "High"}
-KM_W = {20: "Twenty", 40: "Forty", 80: "Eighty"}
-for a in ALPHA_W:
-    mac(f"AlphaFrac{ALPHA_W[a]}", f"{100 * alpha_cnt.get(a, 0) / tot:.0f}")
-for k in KM_W:
-    mac(f"KmFrac{KM_W[k]}", f"{100 * km_cnt.get(k, 0) / tot:.0f}")
+for a, w in {0.05: "Low", 0.2: "Mid", 0.5: "High"}.items():
+    mac(f"AlphaFrac{w}", f"{100 * alpha_cnt.get(a, 0) / tot:.0f}")
+for k, w in {20: "Twenty", 40: "Forty", 80: "Eighty"}.items():
+    mac(f"KmFrac{w}", f"{100 * km_cnt.get(k, 0) / tot:.0f}")
 mac("AlphaTotal", tot)
+dropped = [(m, ds, S[ds]["methods"][m].get("inner_configs_dropped", 0)) for ds in S for m in S[ds]["methods"] if S[ds]["methods"][m].get("inner_configs_dropped", 0)]
+mac("DroppedConfigs", sum(d[2] for d in dropped))
+mac("DroppedConfigsList", "; ".join(f"{M_NAME[m]} on {DS_NAME[ds]}: {n}" for m, ds, n in dropped) if dropped else "none")
 
-# ---- identity (Proposition 1) macros
+# ---- synth-classcov as it was in v0.1 (coinciding means), recomputed from the stored v0.1 folds
+if v01 is not None and "synth_classcov" in v01["per_fold"]:
+    import numpy as np
+    from scipy.stats import t as t_dist
+    pf = v01["per_fold"]["synth_classcov"]
+    s1 = v01["summary"]["synth_classcov"]
+    mac("VOneBayesCcov", pct(v01["datasets"]["synth_classcov"]["bayes_error"], 1))
+    mac("VOneBestRefCcov", M_NAME[s1["best_reference"]])
+    for m in s1["methods"]:
+        mac(f"VOneAurcCcov{M_TAG[m]}", pct(s1["methods"][m]["aurc_mean"]))
+        mac(f"VOneErrCcov{M_TAG[m]}", pct(s1["methods"][m]["error_rate"], 1))
+    def v01_pair(a, b, tag):
+        d = np.array([f[a]["aurc"] - f[b]["aurc"] for f in pf])
+        n = len(d); q = t_dist.ppf(0.975, n - 1); se = d.std(ddof=1) / np.sqrt(n)
+        mac(f"VOne{tag}", spct(d.mean()))
+        mac(f"VOne{tag}T", f"[{spct(d.mean() - q * se)}, {spct(d.mean() + q * se)}]")
+        mac(f"VOne{tag}Wtl", f"{int((d < 0).sum())}/{int((d == 0).sum())}/{int((d > 0).sum())}")
+    v01_pair("Field-aniso", s1["best_reference"], "DiffCcovFaniso")
+    v01_pair("Field-aniso", "Field-iso", "AblAnisoIsoCcov")
+    v01_pair("Field-aniso", "Field-euclid", "AblAnisoEuclidCcov")
+    for r in ["kNN", "DANN", "RForest", "NCM", "LDA", "LogReg"]:
+        v01_pair("Field-aniso", r, f"VsCcov{M_TAG[r]}")
+    c1 = v01["criterion"]["Field-aniso"]
+    mac("VOneCritFanisoBetter", len(c1["better"])); mac("VOneCritFanisoWorse", len(c1["worse"])); mac("VOneCritFanisoIncon", len(c1["inconclusive"]))
+    mac("VOneCpuSeconds", int(round(v01["meta"]["cpu_seconds"])))
+    mac("VOneAvailable", "yes")
+else:
+    mac("VOneAvailable", "no")
+
+# ---- identity (Proposition 3.1 / 3.2) macros
 k2 = ide["K2_equal_priors"]
 mac("IdD", ide["meta"]["d"])
 mac("IdN", ide["meta"]["n"])
@@ -285,17 +407,15 @@ mac("IdKtwoSpearman", f"{k2['spearman_s_m']:.6f}")
 mac("IdKtwoMaxDev", sci(k2["max_abs_m_minus_tanh"]))
 mac("IdKtwoAurcDiff", sci(k2["aurc_abs_diff"]) if k2["aurc_abs_diff"] > 0 else "0")
 mac("IdKtwoErr", pct(k2["error_rate"], 2))
-mac("IdKtwoMonotone", "yes" if k2["monotone"] else "no")
+mac("IdKtwoMonotone", yes(k2["monotone"]))
 ku = ide["K2_unequal_priors"]
 mac("IdUneqPriorA", f"{ku['priors'][0]:.1f}")
 mac("IdUneqPriorB", f"{ku['priors'][1]:.1f}")
 mac("IdUneqSpearman", f"{ku['spearman_s_m']:.4f}")
 mac("IdUneqFrac", pct(ku["frac_predictions_differ"], 2))
-mac("IdUneqMonotone", "yes" if ku["monotone"] else "no")
-mac("IdUneqCorrectedMonotone", "yes" if ku["corrected_monotone"] else "no")
+mac("IdUneqMonotone", yes(ku["monotone"]))
+mac("IdUneqCorrectedMonotone", yes(ku["corrected_monotone"]))
 mac("IdUneqCorrectedDev", sci(ku["corrected_max_abs_m_minus_tanh"]))
-mac("IdUneqAurcS", sci(ku["aurc_s_with_own_predictions"], 2))
-mac("IdUneqAurcM", sci(ku["aurc_m"], 2))
 k3 = ide["K3_sample"]
 mac("IdKthreeMaxDev", sci(k3["max_abs_s_minus_two_log_ratio"]))
 mac("IdKthreeSpearTop", f"{k3['spearman_s_top2']:.4f}")
@@ -304,33 +424,30 @@ mac("IdKthreeAurcS", pct(k3["aurc_s"], 3))
 mac("IdKthreeAurcTop", pct(k3["aurc_top2"], 3))
 mac("IdKthreeAurcMsp", pct(k3["aurc_msp"], 3))
 mac("IdKthreeErr", pct(k3["error_rate"], 1))
-mac("IdKthreeMonoTop", "yes" if k3["monotone_in_top2_diff"] else "no")
-mac("IdKthreeMonoMsp", "yes" if k3["monotone_in_msp"] else "no")
-mac("IdKthreeMonoLr", "yes" if k3["monotone_in_log_ratio"] else "no")
+mac("IdKthreeMonoTop", yes(k3["monotone_in_top2_diff"]))
+mac("IdKthreeMonoMsp", yes(k3["monotone_in_msp"]))
+mac("IdKthreeMonoLr", yes(k3["monotone_in_log_ratio"]))
 cx = ide["K3_counterexample"]
 mac("CexSA", f"{cx['score_s'][0]:.4g}")
-mac("CexSB", f"{cx['score_s'][1]:.4g}")
-mac("CexMA", f"{cx['top2_diff'][0]:.3f}")
-mac("CexMB", f"{cx['top2_diff'][1]:.3f}")
-mac("CexMspA", f"{cx['max_posterior'][0]:.3f}")
-mac("CexMspB", f"{cx['max_posterior'][1]:.3f}")
-mac("CexLrA", f"{cx['two_log_ratio'][0]:.4g}")
-mac("CexLrB", f"{cx['two_log_ratio'][1]:.4g}")
+mac("CexMA", f"{cx['top2_diff'][0]:.3f}"); mac("CexMB", f"{cx['top2_diff'][1]:.3f}")
+mac("CexMspA", f"{cx['max_posterior'][0]:.3f}"); mac("CexMspB", f"{cx['max_posterior'][1]:.3f}")
 mac("CexDtwoA", ", ".join(f"{v:.4g}" for v in cx["d2"][0]))
 mac("CexDtwoB", ", ".join(f"{v:.4g}" for v in cx["d2"][1]))
-iso = ide["iso_rescaling_example"]
-mac("IsoSi", f"{iso['s_i']:.2f}")
-mac("IsoSj", f"{iso['s_j']:.2f}")
-mac("IsoLam", f"{iso['lambda_i']:.2f}")
-mac("IsoRescaledI", f"{iso['rescaled_i']:.2f}")
+if "K3_unequal_priors_general_identity" in ide:
+    g = ide["K3_unequal_priors_general_identity"]
+    mac("IdGenPriors", ", ".join(f"{p:.1f}" for p in g["priors"]))
+    mac("IdGenNaiveDev", f"{g['max_abs_s_minus_two_log_ratio']:.2f}")
+    mac("IdGenDev", sci(g["max_abs_s_minus_prior_corrected_log_ratio"]))
+    mac("IdGenFracCoincide", pct(g["frac_nearest_pair_is_top_posterior_pair"], 1))
+if "local_prototype_decomposition" in ide:
+    g = ide["local_prototype_decomposition"]
+    mac("IdLocalResidual", sci(g["max_abs_residual"]))
+    mac("IdLocalCases", g["n_cases"])
 
-
-# Strip the final row terminator of every row-body table: a "\\\\" at the very end of an
-# \input file breaks the following \bottomrule (main.tex supplies it as \input{...}\\\\).
-import glob
+# Strip the final row terminator of every row-body table (main.tex supplies it as \input{...}\\).
 for t in glob.glob(os.path.join(OUT, "table_*.tex")):
     if t.endswith("table_datasets.tex"):
-        continue  # complete tabular, not a row body
+        continue
     body = open(t).read().rstrip()
     if body.endswith("\\\\"):
         body = body[:-2].rstrip()

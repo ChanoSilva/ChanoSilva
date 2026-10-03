@@ -30,7 +30,14 @@ Protocol: 5x5 repeated stratified k-fold; identical splits for all methods;
 hyper-parameters chosen on each training fold by leave-one-out accuracy over
 fixed grids; test accuracy and selective accuracy at 80% coverage per fold;
 paired comparison against the best reference per dataset with a percentile
-bootstrap over folds and the Nadeau-Bengio corrected t statistic.
+bootstrap over folds and the Nadeau-Bengio corrected t statistic (p-value and
+95% interval with the inflated variance).
+
+Changes after internal review round 1 (03/10/2026), none of which alters a stored
+result: paired_stats also returns nb_lo/nb_hi; the modal hyper-parameter is computed
+deterministically (ties towards the smallest values). results/results.json is still
+the reference run of 30/09/2026; make_numbers.py recomputes nb_lo/nb_hi and the mode
+from the per-fold lists, so the manuscript does not depend on a rerun.
 
 Everything is seeded (SEED = 20260930).  Usage:
     python3 support_geometry.py            # full run
@@ -395,13 +402,16 @@ def paired_stats(a, b, n_test_over_n_train, rng, n_boot=N_BOOT):
     boot = rng.choice(dlt, size=(n_boot, J), replace=True).mean(1)
     lo, hi = np.percentile(boot, [2.5, 97.5])
     var = dlt.var(ddof=1)
+    nb_se = math.sqrt((1.0 / J + n_test_over_n_train) * var)     # Nadeau-Bengio standard error
     if var > 0:
-        tstat = dlt.mean() / math.sqrt((1.0 / J + n_test_over_n_train) * var)
+        tstat = dlt.mean() / nb_se
         p = float(2 * student_t.sf(abs(tstat), J - 1))
     else:
         tstat, p = (float("inf") if dlt.mean() > 0 else (float("-inf") if dlt.mean() < 0 else 0.0)), (0.0 if dlt.mean() != 0 else 1.0)
+    half = float(student_t.ppf(0.975, J - 1) * nb_se)              # 95% interval with the NB variance
     return dict(mean=float(dlt.mean()), ci_low=float(lo), ci_high=float(hi), wins=int((dlt > 0).sum()),
-                losses=int((dlt < 0).sum()), ties=int((dlt == 0).sum()), nb_t=float(tstat), nb_p=p)
+                losses=int((dlt < 0).sum()), ties=int((dlt == 0).sum()), nb_t=float(tstat), nb_p=p,
+                nb_lo=float(dlt.mean() - half), nb_hi=float(dlt.mean() + half))
 
 
 def evaluate_dataset(name, X, y, n_splits, n_repeats, log):
@@ -455,7 +465,12 @@ def compare(res, rng, criterion_datasets):
         entry["params_mode"] = {}
         for m in ALL_METHODS:
             ps = [json.dumps(p, sort_keys=True) for p in r["methods"][m]["params"]]
-            entry["params_mode"][m] = json.loads(max(set(ps), key=ps.count))
+            # deterministic mode: ties broken towards the smallest parameter values
+            # (max(set(ps), key=ps.count) depended on the hash seed when several settings tied)
+            cnt = {s: ps.count(s) for s in set(ps)}
+            top = max(cnt.values())
+            tied = [json.loads(s) for s, v in cnt.items() if v == top]
+            entry["params_mode"][m] = min(tied, key=lambda p: tuple(p[kk] for kk in sorted(p)))
         entry["weights_mean"] = {m: {f: float(np.mean([w[f] for w in r["methods"][m]["weights"]]))
                                      for f in m} for m in LOGIT_MODELS}
         comp[name] = entry

@@ -12,12 +12,13 @@ with s^2 = (1/N+ + 1/N-)/4 and E[R(t)] = Phi(-mu / sqrt(1 + s^2)); if a class is
 missing the rule votes and its risk is 1/2.  R_nc(n) is the binomial average.
 Part B (exact).  Partition-localised version: M cells of equal probability defined
 by a coordinate independent of (X1, Y); cell m fits its own threshold on its N_m ~
-Bin(n, 1/M) points.  Expected risk = E[R_nc(N_m)]  (Proposition 2 of the paper).
+Bin(n, 1/M) points.  Expected risk = E[R_nc(N_m)]  (Proposition 3.2 of the paper).
 Part C (Monte Carlo check of A and B).
 Part D (simulation, illustration only): kNN-localised nearest-centroid and
 kNN-localised linear SVM in d = 2, risk versus k; learning curve of the global
-linear SVM in d = 10 (the monotonicity assumption of Proposition 2, checked
-empirically for the SVM).
+linear SVM in d = 10 (the monotonicity assumption of Proposition 3.2, checked
+empirically for the SVM).  Run with --figure-only to redraw figures/fig_exact.* from
+the saved results/exact_example.json without recomputing anything.
 """
 import json
 import os
@@ -192,6 +193,44 @@ def svm_partition_curve(rng, n, Ms, d, reps, C=1.0):
     return out
 
 
+def make_figure(res):
+    """Figure 1 of the paper, drawn from the results dict (or the saved JSON)."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    bayes = res["meta"]["bayes"]
+    fig, axes = plt.subplots(1, 3, figsize=(12.5, 3.5))
+    ax = axes[0]
+    for M, col in zip(["1", "4", "16"], ["#1b6ca8", "#c0392b", "#7a4fa3"]):
+        xs = sorted(res["B_partition_vs_n"].keys(), key=int)
+        ax.plot([int(n) for n in xs], [res["B_partition_vs_n"][n][M] for n in xs], "o-", color=col, label=f"$M$ = {M} cells")
+    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.set_xlabel("$n$"); ax.set_ylabel("excess risk (exact)"); ax.set_title("partition-localised nearest centroid")
+    ax.legend(fontsize=8)
+    ax = axes[1]
+    r1 = res["D1_knn_centroid"]["rows"]
+    ax.errorbar([int(k) for k in r1], [r1[k]["mean"] - bayes for k in r1], yerr=[r1[k]["se"] for k in r1], fmt="o-", color="#1b6ca8", label="kNN nearest centroid")
+    r2 = res["D2_knn_svm"]["rows"]
+    kk = [k for k in r2 if k != "all"]
+    ax.errorbar([int(k) for k in kk], [r2[k]["mean"] - bayes for k in kk], yerr=[r2[k]["se"] for k in kk], fmt="s-", color="#c0392b", label="kNN linear SVM")
+    ax.axhline(r2["all"]["mean"] - bayes, color="#c0392b", ls="--", lw=1, label="global linear SVM")
+    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.set_xlabel("$k$ (local sample size)"); ax.set_ylabel("excess risk"); ax.set_title("kNN-localised rules, $d$ = 2, $n$ = 320")
+    ax.legend(fontsize=8, loc="lower left")  # keeps the legend off the curves (referee m12)
+    ax = axes[2]
+    r3 = res["D3_svm_learning_curve"]["rows"]
+    ax.errorbar([int(n) for n in r3], [r3[n]["mean"] - bayes for n in r3], yerr=[r3[n]["se"] for n in r3], fmt="s-", color="#c0392b", label="linear SVM, $d$ = 10 (Monte Carlo)")
+    xs = sorted(res["A_learning_curve"].keys(), key=int)
+    ax.plot([int(n) for n in xs], [res["A_learning_curve"][n]["excess"] for n in xs], "o-", color="#1b6ca8", label="nearest centroid (exact)")
+    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.set_xlabel("$n$"); ax.set_ylabel("excess risk"); ax.set_title("learning curves")
+    ax.legend(fontsize=8)
+    fig.tight_layout()
+    os.makedirs(os.path.join(ROOT, "figures"), exist_ok=True)
+    fig.savefig(os.path.join(ROOT, "figures", "fig_exact.png"), dpi=160)
+    fig.savefig(os.path.join(ROOT, "figures", "fig_exact.pdf"))
+
+
 # ---------------------------------------------------------------- main
 
 def main():
@@ -299,42 +338,15 @@ def main():
     with open(os.path.join(ROOT, "results", "exact_example.md"), "w") as fh:
         fh.write("\n".join(L) + "\n")
 
-    # figure
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    fig, axes = plt.subplots(1, 3, figsize=(12.5, 3.5))
-    ax = axes[0]
-    for M, col in zip([1, 4, 16], ["#1b6ca8", "#c0392b", "#7a4fa3"]):
-        xs = sorted(res["B_partition_vs_n"].keys())
-        ax.plot(xs, [res["B_partition_vs_n"][n][M] for n in xs], "o-", color=col, label=f"M = {M} cells")
-    ax.set_xscale("log"); ax.set_yscale("log")
-    ax.set_xlabel("n"); ax.set_ylabel("excess risk (exact)"); ax.set_title("partition-localised nearest centroid")
-    ax.legend(fontsize=8)
-    ax = axes[1]
-    r1 = res["D1_knn_centroid"]["rows"]
-    ax.errorbar(list(r1.keys()), [r1[k]["mean"] - BAYES for k in r1], yerr=[r1[k]["se"] for k in r1], fmt="o-", color="#1b6ca8", label="kNN nearest centroid")
-    r2 = res["D2_knn_svm"]["rows"]
-    kk = [k for k in r2 if k != "all"]
-    ax.errorbar([int(k) for k in kk], [r2[k]["mean"] - BAYES for k in kk], yerr=[r2[k]["se"] for k in kk], fmt="s-", color="#c0392b", label="kNN linear SVM")
-    ax.axhline(r2["all"]["mean"] - BAYES, color="#c0392b", ls="--", lw=1, label="global linear SVM")
-    ax.set_xscale("log"); ax.set_yscale("log")
-    ax.set_xlabel("k (local sample size)"); ax.set_ylabel("excess risk"); ax.set_title("kNN-localised rules, d = 2, n = 320")
-    ax.legend(fontsize=8)
-    ax = axes[2]
-    r3 = res["D3_svm_learning_curve"]["rows"]
-    ax.errorbar(list(r3.keys()), [r3[n]["mean"] - BAYES for n in r3], yerr=[r3[n]["se"] for n in r3], fmt="s-", color="#c0392b", label="linear SVM, d = 10 (MC)")
-    xs = sorted(res["A_learning_curve"].keys())
-    ax.plot(xs, [res["A_learning_curve"][n]["excess"] for n in xs], "o-", color="#1b6ca8", label="nearest centroid (exact)")
-    ax.set_xscale("log"); ax.set_yscale("log")
-    ax.set_xlabel("n"); ax.set_ylabel("excess risk"); ax.set_title("learning curves")
-    ax.legend(fontsize=8)
-    fig.tight_layout()
-    os.makedirs(os.path.join(ROOT, "figures"), exist_ok=True)
-    fig.savefig(os.path.join(ROOT, "figures", "fig_exact.png"), dpi=160)
-    fig.savefig(os.path.join(ROOT, "figures", "fig_exact.pdf"))
+    # figure (also reproducible alone with --figure-only)
+    make_figure(json.load(open(os.path.join(ROOT, "results", "exact_example.json"))))
     print(f"exact example done in {res['meta']['seconds']:.1f}s")
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if "--figure-only" in sys.argv[1:]:
+        make_figure(json.load(open(os.path.join(ROOT, "results", "exact_example.json"))))
+        print("redrew figures/fig_exact.{png,pdf} from results/exact_example.json")
+    else:
+        main()

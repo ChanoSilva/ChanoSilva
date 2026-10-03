@@ -7,6 +7,13 @@ x = [1, 1, 1], y = [2, -2, 2], mu = 3/2, R = {1}, R' = {1,2} (1-based).
 Rule C: D: mu=3/2, support=[0], exact=True; D\R: mu=3/2, support=[], exact=True; D\R': mu=3/2, support=[0], exact=True
 Rule P: D: mu=3/2, support=[0], exact=True; D\R: mu=1, support=[], exact=True; D\R': mu=1/2, support=[0], exact=True
 
+## Example 1b (p = 1, enter target)
+
+x = [1, 1, 1, 1], y = [2, -2, 2, -2], mu = 3/2, R = {2}, R' = {2,3} (1-based).
+
+Rule C: D: mu=3/2, support=[], exact=True; D\R: mu=3/2, support=[0], exact=True; D\R': mu=3/2, support=[], exact=True
+Rule P: D: mu=3/2, support=[], exact=True; D\R: mu=9/8, support=[0], exact=True; D\R': mu=3/4, support=[], exact=True
+
 ## Example 2 (p = 2, integer data, found by seeded search)
 
 X = [[2, -1], [0, 2], [1, 1], [2, -2], [-1, 1]], y = [2, -2, 3, -1, 0], mu = 7/2, R = [3, 4], R' = [2, 3, 4] (1-based).

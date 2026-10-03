@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Turn results/*.json into LaTeX macros (manuscript/numbers.tex) and table bodies
-(manuscript/table_*.tex).  No number in main.tex is typed by hand."""
+(manuscript/table_*.tex).  No number in main.tex is typed by hand.
+
+v0.2 (03/10/2026): merged accuracy+difference tables with two-line cells (no \\resizebox),
+grid-saturation table and macros (referee B1), nested comparison of each family against
+its own fixed global member taken from posthoc_oracle.json (referee M3)."""
+import glob
 import json
 import os
 import re
@@ -22,6 +27,10 @@ PRETTY = {"wine": "wine", "breast_cancer": "breast cancer", "digits_parity": "di
           "moons_2scale": "two-scale moons", "checker_2scale": "two-scale checkerboard"}
 MPRETTY = {"linear": "linear SVM", "rbf": "RBF-SVM", "best_global": "best global (inner CV)", "knn_svm": "kNN-SVM",
            "cell_svm": "cell-SVM", "vb_rbf": "VB-RBF-SVM", "llsvm": "LLSVM"}
+# the fixed global member of each local family (referee M3); kNN-SVM's member is the linear
+# SVM with C = 1 fixed, which posthoc_oracle.json approximates by the tuned linear SVM
+OWN_MEMBER = {"knn_svm": "linear", "cell_svm": "linear", "vb_rbf": "rbf", "llsvm": "linear"}
+REGIMES = res["meta"]["regimes"]
 
 L = []
 _DIG = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
@@ -47,6 +56,30 @@ def cell_diff(d):
     return f"{pp(d['diff_mean'])} [{pp(lo)}, {pp(hi)}]{mark}"
 
 
+SHORT = {"wine": "wine", "breast_cancer": "breast cancer", "digits_parity": "digits", "gauss_linear": "Gaussian",
+         "moons_2scale": "moons", "checker_2scale": "checkerboard"}  # short labels for the wide merged tables
+
+
+def two_line(d):
+    """(line 1, line 2) of a two-line cell: bold mean when the interval excludes zero, then the interval."""
+    lo, hi = d["diff_ci"]
+    m = pp(d["diff_mean"])
+    if d["sig"] != "none":
+        m = rf"\textbf{{{m}}}"
+    return m, f"[{pp(lo)},\,{pp(hi)}]"
+
+
+def write_two_line_table(path, rows):
+    """rows: list of (label, [fixed cells], [two-line dicts]) -> body with two lines per row."""
+    with open(path, "w") as fh:
+        for i, (label, fixed, cells) in enumerate(rows):
+            if i:
+                fh.write("\\addlinespace[1.5pt]\n")
+            tl = [two_line(c) for c in cells]
+            fh.write(f"{label} & " + " & ".join(fixed + [t[0] for t in tl]) + " \\\\\n")
+            fh.write("& " + " & ".join([""] * len(fixed) + [t[1] for t in tl]) + " \\\\\n")
+
+
 m = res["meta"]
 mac("MetaSeed", m["seed"])
 mac("MetaPython", m["python"])
@@ -61,20 +94,31 @@ mac("NMainFolds", m["conditions"]["main"]["repeats"] * m["conditions"]["main"]["
 mac("NMainRepeats", m["conditions"]["main"]["repeats"])
 mac("NRobFolds", m["conditions"]["noise20"]["folds"])
 mac("NoiseRate", int(round(100 * m["conditions"]["noise20"]["noise"])))
+mac("NoiseProb", m["conditions"]["noise20"]["noise"])
 mac("SubFrac", int(round(100 * m["conditions"]["sub25"]["frac"])))
 mac("InnerFolds", m["grid"]["inner_folds"])
 mac("KnnValCap", m["grid"]["knn_val_cap"])
-mac("KnnKs", ", ".join(str(k) for k in m["grid"]["knn_ks"]))
-mac("KnnC", m["grid"]["knn_C"])
+
+
+def glist(vals):
+    return ", ".join(f"{v:g}" if isinstance(v, float) else str(v) for v in vals)
+
+
+mac("KnnKs", glist(m["grid"]["knn_ks"]))
+mac("KnnC", f"{m['grid']['knn_C']:g}")
 mac("VbKbw", m["grid"]["vb_kbw"])
-mac("VbBetas", ", ".join(str(b) for b in m["grid"]["vb_betas"]))
-mac("GammaMults", ", ".join(str(g) for g in m["grid"]["gamma_mults"]))
-mac("CRbf", ", ".join(str(c) for c in m["grid"]["C_rbf"]))
-mac("CLin", ", ".join(str(c) for c in m["grid"]["C_lin"]))
-mac("CellMs", ", ".join(str(c) for c in m["grid"]["cell_Ms"]))
-mac("CellCs", ", ".join(str(c) for c in m["grid"]["cell_Cs"]))
-mac("LlsvmMs", ", ".join(str(c) for c in m["grid"]["llsvm_Ms"]))
-mac("LlsvmCs", ", ".join(str(c) for c in m["grid"]["llsvm_Cs"]))
+mac("VbBetas", glist(m["grid"]["vb_betas"]))
+mac("GammaMults", glist(m["grid"]["gamma_mults"]))
+mac("GammaMultMax", f"{max(m['grid']['gamma_mults']):g}")
+mac("CRbf", glist(m["grid"]["C_rbf"]))
+mac("CRbfMax", f"{max(m['grid']['C_rbf']):g}")
+mac("CLin", glist(m["grid"]["C_lin"]))
+mac("CellMs", glist(m["grid"]["cell_Ms"]))
+mac("CellMMax", max(m["grid"]["cell_Ms"]))
+mac("CellCs", glist(m["grid"]["cell_Cs"]))
+mac("LlsvmMs", glist(m["grid"]["llsvm_Ms"]))
+mac("LlsvmCs", glist(m["grid"]["llsvm_Cs"]))
+mac("KnnKMin", min(m["grid"]["knn_ks"]))
 
 # datasets table
 with open(os.path.join(OUT, "table_datasets.tex"), "w") as fh:
@@ -82,18 +126,20 @@ with open(os.path.join(OUT, "table_datasets.tex"), "w") as fh:
         info = res["datasets"][d]
         fh.write(f"{PRETTY[d]} & {info['regime']} & {info['n']} & {info['d']} & {res['results'][d]['main']['n_train']} & "
                  f"{res['results'][d]['sub25']['n_train']} & {100*info['pos_frac']:.0f}\\% \\\\\n")
-    mac_d = None
 for d in NAMES:
     mac(f"N{DTAG[d]}", res["datasets"][d]["n"])
     mac(f"D{DTAG[d]}", res["datasets"][d]["d"])
+    mac(f"NTrainMain{DTAG[d]}", res["results"][d]["main"]["n_train"])
+    mac(f"NTrainSub{DTAG[d]}", res["results"][d]["sub25"]["n_train"])
 
-# accuracy tables and paired-difference tables per condition
+# per-condition tables: merged (reference accuracies + two-line paired differences), accuracies, local fractions
 for c in m["conditions"]:
-    with open(os.path.join(OUT, f"table_acc_{c}.tex"), "w") as fh:
-        for d in NAMES:
-            s = res["results"][d][c]["summary"]
-            fh.write(f"{PRETTY[d]} & " + " & ".join(f"{100*s[mm]['mean_acc']:.1f}" for mm in METHODS) + " \\\\\n")
-    with open(os.path.join(OUT, f"table_diff_{c}.tex"), "w") as fh:
+    rows = []
+    for d in NAMES:
+        s = res["results"][d][c]["summary"]
+        rows.append((SHORT[d], [f"{100*s[mm]['mean_acc']:.1f}" for mm in ["linear", "rbf", "best_global"]], [s[mm] for mm in LOCAL]))
+    write_two_line_table(os.path.join(OUT, f"table_merged_{c}.tex"), rows)
+    with open(os.path.join(OUT, f"table_diff_{c}.tex"), "w") as fh:  # one-line version (results/tables.md style)
         for d in NAMES:
             s = res["results"][d][c]["summary"]
             fh.write(f"{PRETTY[d]} & " + " & ".join(cell_diff(s[mm]) for mm in LOCAL) + " \\\\\n")
@@ -111,7 +157,6 @@ for c in m["conditions"]:
             mac(f"DiffHi{CTAG[c]}{DTAG[d]}{TAG[mm]}", pp(s[mm]["diff_ci"][1]))
             mac(f"LocalFrac{CTAG[c]}{DTAG[d]}{TAG[mm]}", f"{100*s[mm]['local_frac']:.0f}")
         mac(f"PickRbf{CTAG[c]}{DTAG[d]}", f"{100*s['best_global']['pick_rbf_frac']:.0f}")
-
 # counts of significant results per family and condition
 for c in m["conditions"]:
     for mm in LOCAL:
@@ -119,13 +164,21 @@ for c in m["conditions"]:
         mac(f"NPos{CTAG[c]}{TAG[mm]}", sum(s == "pos" for s in sig))
         mac(f"NNeg{CTAG[c]}{TAG[mm]}", sum(s == "neg" for s in sig))
         mac(f"NNone{CTAG[c]}{TAG[mm]}", sum(s == "none" for s in sig))
-# the single 'pos' cell(s) in the main condition
 pos_cells = [(d, mm) for d in NAMES for mm in LOCAL if res["results"][d]["main"]["summary"][mm]["sig"] == "pos"]
 mac("NPosCellsMain", len(pos_cells))
 mac("PosCellsMain", "; ".join(f"{MPRETTY[mm]} on {PRETTY[d]}" for d, mm in pos_cells) if pos_cells else "none")
 neg_total = sum(res["results"][d]["main"]["summary"][mm]["sig"] == "neg" for d in NAMES for mm in LOCAL)
 mac("NNegCellsMain", neg_total)
 mac("NCellsMain", len(NAMES) * len(LOCAL))
+mac("NCellsAll", len(m["conditions"]) * len(NAMES) * len(LOCAL))
+mac("ExpectedFalseMain", f"{0.05 * len(NAMES) * len(LOCAL):.1f}")
+mac("ExpectedFalseAll", f"{0.05 * len(m['conditions']) * len(NAMES) * len(LOCAL):.1f}")
+# range of the significant negative differences of the three local linear families on the multiscale sets
+neg_vals = [100 * res["results"][d]["main"]["summary"][mm]["diff_mean"] for d in REGIMES["multiscale"] for mm in ["knn_svm", "cell_svm", "llsvm"]
+            if res["results"][d]["main"]["summary"][mm]["sig"] == "neg"]
+mac("NNegLinLocalMulti", len(neg_vals))
+mac("NegLinLocalMultiMin", f"{min(neg_vals):.1f}" if neg_vals else "n/a")
+mac("NegLinLocalMultiMax", f"{max(neg_vals):.1f}" if neg_vals else "n/a")
 
 # criterion
 for mm, v in res["criterion"].items():
@@ -134,6 +187,7 @@ for mm, v in res["criterion"].items():
     mac(f"Crit{TAG[mm]}Majority", "met" if v["majority_criterion"] else "not met")
     mac(f"Crit{TAG[mm]}Regimes", ", ".join(v["named_regimes"]) if v["named_regimes"] else "none")
     mac(f"Crit{TAG[mm]}Verdict", "yes" if v["added_value"] else "no")
+mac("NFamiliesAddedValue", sum(v["added_value"] for v in res["criterion"].values()))
 with open(os.path.join(OUT, "table_criterion.tex"), "w") as fh:
     for mm in LOCAL:
         v = res["criterion"][mm]
@@ -156,25 +210,88 @@ with open(os.path.join(OUT, "table_drop.tex"), "w") as fh:
         accs_main = [res["results"][d]["main"]["summary"][mm]["mean_acc"] for d in NAMES]
         fh.write(f"{row[0]} & {100*sum(accs_main)/len(accs_main):.1f} & " + " & ".join(row[1:]) + " \\\\\n")
 
-# post-hoc oracle table (main) and macros
-with open(os.path.join(OUT, "table_posthoc_main.tex"), "w") as fh:
-    for d in NAMES:
-        r = post["conditions"]["main"][d]
-        fh.write(f"{PRETTY[d]} & {100*r['oracle_mean_acc']:.1f} & " + " & ".join(cell_diff(r[f'{mm}_vs_oracle']) for mm in LOCAL) + " \\\\\n")
+# post-hoc oracle (two-line) and nested comparison against each family's own fixed global member
 for c in m["conditions"]:
+    rows_or, rows_nest = [], []
+    for d in NAMES:
+        r = post["conditions"][c][d]
+        rows_or.append((PRETTY[d], [f"{100*r['oracle_mean_acc']:.1f}"], [r[f"{mm}_vs_oracle"] for mm in LOCAL]))
+        rows_nest.append((PRETTY[d], [], [r[f"{mm}_vs_{OWN_MEMBER[mm]}"] for mm in LOCAL]))
+    write_two_line_table(os.path.join(OUT, f"table_posthoc_{c}.tex"), rows_or)
+    write_two_line_table(os.path.join(OUT, f"table_nested_{c}.tex"), rows_nest)
     for d in NAMES:
         for mm in LOCAL:
             r = post["conditions"][c][d][f"{mm}_vs_oracle"]
             mac(f"Post{CTAG[c]}{DTAG[d]}{TAG[mm]}", pp(r["diff_mean"]))
             mac(f"PostLo{CTAG[c]}{DTAG[d]}{TAG[mm]}", pp(r["diff_ci"][0]))
             mac(f"PostHi{CTAG[c]}{DTAG[d]}{TAG[mm]}", pp(r["diff_ci"][1]))
+            r = post["conditions"][c][d][f"{mm}_vs_{OWN_MEMBER[mm]}"]
+            mac(f"Nest{CTAG[c]}{DTAG[d]}{TAG[mm]}", pp(r["diff_mean"]))
+            mac(f"NestLo{CTAG[c]}{DTAG[d]}{TAG[mm]}", pp(r["diff_ci"][0]))
+            mac(f"NestHi{CTAG[c]}{DTAG[d]}{TAG[mm]}", pp(r["diff_ci"][1]))
     for mm in LOCAL:
         sig = [post["conditions"][c][d][f"{mm}_vs_oracle"]["sig"] for d in NAMES]
         mac(f"PostNPos{CTAG[c]}{TAG[mm]}", sum(s == "pos" for s in sig))
         mac(f"PostNNeg{CTAG[c]}{TAG[mm]}", sum(s == "neg" for s in sig))
-post_pos_total = sum(post["conditions"][c][d][f"{mm}_vs_oracle"]["sig"] == "pos" for c in m["conditions"] for d in NAMES for mm in LOCAL)
-mac("PostNPosAll", post_pos_total)
+        sig = [post["conditions"][c][d][f"{mm}_vs_{OWN_MEMBER[mm]}"]["sig"] for d in NAMES]
+        mac(f"NestNPos{CTAG[c]}{TAG[mm]}", sum(s == "pos" for s in sig))
+        mac(f"NestNNeg{CTAG[c]}{TAG[mm]}", sum(s == "neg" for s in sig))
+mac("PostNPosAll", sum(post["conditions"][c][d][f"{mm}_vs_oracle"]["sig"] == "pos" for c in m["conditions"] for d in NAMES for mm in LOCAL))
+mac("NestNPosAll", sum(post["conditions"][c][d][f"{mm}_vs_{OWN_MEMBER[mm]}"]["sig"] == "pos" for c in m["conditions"] for d in NAMES for mm in LOCAL))
+mac("NestNPosMain", sum(post["conditions"]["main"][d][f"{mm}_vs_{OWN_MEMBER[mm]}"]["sig"] == "pos" for d in NAMES for mm in LOCAL))
+mac("NestNNegMain", sum(post["conditions"]["main"][d][f"{mm}_vs_{OWN_MEMBER[mm]}"]["sig"] == "neg" for d in NAMES for mm in LOCAL))
 mac("PostNCellsAll", len(m["conditions"]) * len(NAMES) * len(LOCAL))
+
+# ---------------------------------------------------------------- grid saturation (referee B1)
+EDGE_ROWS = [("linear", "C", "linear SVM: $C$", "lo", "hi"), ("rbf", "gamma_mult", r"RBF-SVM: $\gamma$", "lo", "hi"), ("rbf", "C", "RBF-SVM: $C$", "lo", "hi"),
+             ("knn_svm", "k", "kNN-SVM: $k$", "lo", None), ("cell_svm", "M", "cell-SVM: $M$", None, "hi"), ("cell_svm", "C", "cell-SVM: $C$", "lo", "hi"),
+             ("vb_rbf", "gamma_mult", r"VB-RBF-SVM: $\gamma$", "lo", "hi"), ("vb_rbf", "C", "VB-RBF-SVM: $C$", "lo", "hi"), ("vb_rbf", "beta", r"VB-RBF-SVM: $\beta$", None, "hi"),
+             ("llsvm", "M", "LLSVM: $M$", None, "hi"), ("llsvm", "C", "LLSVM: $C$", "lo", "hi")]
+PTAG = {"C": "C", "gamma_mult": "Gamma", "k": "K", "M": "M", "beta": "Beta"}
+has_edge = all("edge" in res["results"][d]["main"]["summary"] for d in NAMES)
+mac("HasEdge", "yes" if has_edge else "no")
+for c in m["conditions"]:
+    with open(os.path.join(OUT, f"table_edge_{c}.tex"), "w") as fh:
+        for meth, par, label, lo, hi in EDGE_ROWS:
+            cells, tot_lo, tot_hi, tot_n = [], 0, 0, 0
+            for d in NAMES:
+                e = res["results"][d][c]["summary"].get("edge", {}).get(meth, {}).get(par) if has_edge else None
+                if e is None:
+                    cells.append("n/a")
+                    continue
+                a = "--" if e["lo"] is None else str(e["lo"])
+                b = "--" if e["hi"] is None else str(e["hi"])
+                cells.append(f"{a}/{b}")
+                tot_lo += e["lo"] or 0
+                tot_hi += e["hi"] or 0
+                tot_n += e["n"]
+                mac(f"Edge{CTAG[c]}{DTAG[d]}{TAG[meth]}{PTAG[par]}Lo", "--" if e["lo"] is None else e["lo"])
+                mac(f"Edge{CTAG[c]}{DTAG[d]}{TAG[meth]}{PTAG[par]}Hi", "--" if e["hi"] is None else e["hi"])
+            n_fold = res["results"][NAMES[0]][c]["summary"]["edge"][meth][par]["n"] if has_edge else 0
+            fh.write(f"{label} & " + " & ".join(cells) + f" & {'--' if lo is None else tot_lo}/{'--' if hi is None else tot_hi} \\\\\n")
+            mac(f"Edge{CTAG[c]}All{TAG[meth]}{PTAG[par]}Lo", tot_lo)
+            mac(f"Edge{CTAG[c]}All{TAG[meth]}{PTAG[par]}Hi", tot_hi)
+            mac(f"Edge{CTAG[c]}All{TAG[meth]}{PTAG[par]}N", tot_n)
+            if has_edge:
+                ms = [res["results"][d][c]["summary"]["edge"][meth][par] for d in REGIMES["multiscale"]]
+                mac(f"Edge{CTAG[c]}Multi{TAG[meth]}{PTAG[par]}Lo", sum(e["lo"] or 0 for e in ms))
+                mac(f"Edge{CTAG[c]}Multi{TAG[meth]}{PTAG[par]}Hi", sum(e["hi"] or 0 for e in ms))
+                mac(f"Edge{CTAG[c]}Multi{TAG[meth]}{PTAG[par]}N", sum(e["n"] for e in ms))
+    mac(f"Edge{CTAG[c]}FoldsPerSet", res["results"][NAMES[0]][c]["summary"]["edge"]["rbf"]["C"]["n"] if has_edge else 0)
+if has_edge:
+    # worst remaining saturation in the main condition: the largest per-data-set count at any edge, and where
+    worst = max(((res["results"][d]["main"]["summary"]["edge"][meth][par][side] or 0, d, meth, par, side)
+                 for meth, par, label, lo, hi in EDGE_ROWS for d in NAMES for side in ("lo", "hi")
+                 if res["results"][d]["main"]["summary"]["edge"][meth][par][side] is not None))
+    mac("EdgeMainWorstCount", worst[0])
+    mac("EdgeMainWorstWhere", f"{MPRETTY[worst[2]]}, {dict((r[1], r[2].split(': ')[1]) for r in EDGE_ROWS)[worst[3]]} at the {'lower' if worst[4] == 'lo' else 'upper'} edge on {PRETTY[worst[1]]}")
+    n_sat = sum(1 for meth, par, label, lo, hi in EDGE_ROWS for d in NAMES for side in ("lo", "hi")
+                if res["results"][d]["main"]["summary"]["edge"][meth][par][side] is not None
+                and res["results"][d]["main"]["summary"]["edge"][meth][par][side] >= 0.5 * res["results"][d]["main"]["summary"]["edge"][meth][par]["n"])
+    mac("EdgeMainNHalfOrMore", n_sat)
+    n_cells = sum(1 for meth, par, label, lo, hi in EDGE_ROWS for d in NAMES for side in ("lo", "hi")
+                  if res["results"][d]["main"]["summary"]["edge"][meth][par][side] is not None)
+    mac("EdgeMainNCells", n_cells)
 
 # ---------------------------------------------------------------- exact example
 e = ex
@@ -243,20 +360,18 @@ with open(os.path.join(OUT, "table_exact_svmpart.tex"), "w") as fh:
 for M, r in d4["rows"].items():
     mac(f"ExSvmPart{W(M)}", f"{r['mean']:.4f}")
     mac(f"ExSvmPartSe{W(M)}", f"{r['se']:.4f}")
-
-# table bodies: drop the trailing row terminator (main.tex writes it explicitly before \midrule/\bottomrule)
-import glob
-for tf in glob.glob(os.path.join(OUT, "table_*.tex")):
-    body = open(tf).read()
-    body = re.sub(r" \\\\\n$", "\n", body)
-    open(tf, "w").write(body)
-
 w = e["E_prefactor_witness"]
 mac("ExPrefreeMinEig", f"{w['min_eig_prefactor_free']:.2f}")
 mac("ExFullMinEig", f"{w['min_eig_full_kernel']:.2f}")
 mac("ExPrefreeN", len(w["x"]))
 mac("ExPrefreeAmin", f"{min(w['a']):.3f}")
 mac("ExPrefreeAmax", f"{max(w['a']):.0f}")
+
+# table bodies: drop the trailing row terminator (main.tex writes it explicitly before \midrule/\bottomrule)
+for tf in glob.glob(os.path.join(OUT, "table_*.tex")):
+    body = open(tf).read()
+    body = re.sub(r" \\\\\n$", "\n", body)
+    open(tf, "w").write(body)
 
 with open(os.path.join(OUT, "numbers.tex"), "w") as fh:
     fh.write("% generated by experiments/make_numbers.py -- do not edit\n" + "\n".join(L) + "\n")

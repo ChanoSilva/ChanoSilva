@@ -46,9 +46,9 @@ CD cross-check on 104 refits: 0 support disagreements, max coef diff 1.7e-13.
 | 12 | 24 | P | 3 | 300 | 300 | 34 | 2.2e-15 |
 | 12 | 24 | P | 5 | 300 | 300 | 11 | 1.3e-15 |
 
-## C. Sufficient condition (Cor. 2) and certificate (Prop. 3), constant rule
+## C. Sufficient condition (Cor. 3.2) and certificate (Prop. 3.4), constant rule
 
-| n | p | instances | stable single removals | certified by Cor. 2 | P(f=1) | P(k*>=1 given f>=2) | mean gap f-1-k* given f>=2 |
+| n | p | instances | stable single removals | certified by Cor. 3.2 | P(f=1) | P(k*>=1 given f>=2) | mean gap f-1-k* given f>=2 |
 |---|---|---|---|---|---|---|---|
 | 10 | 5 | 30 | 213 | 141 | 0.87 | 0.0 | 1.0 |
 | 20 | 10 | 30 | 466 | 254 | 0.87 | 0.0 | 1.0 |
@@ -57,6 +57,6 @@ CD cross-check on 104 refits: 0 support disagreements, max coef diff 1.7e-13.
 
 ## D. Throughput
 
-n=14, p=6, all 1001 subsets of size 4: oracle 1.4 us/subset, refit 568.9 us/subset (x395).
+n=14, p=6, all 1001 subsets of size 4: oracle 1.1 us/subset, refit 442.3 us/subset (x399).
 
-Total time 12 s.
+Total time 7 s.

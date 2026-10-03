@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""SGE001 -- Dynamic aggregation of production frontiers.
+"""SGE001 -- Moment-based aggregation of production frontiers
+(research line "dynamic aggregation of production frontiers").
 
 Controlled simulation of first-, second- and third-order moment-based
 aggregation of a common concave frontier over heterogeneous production units,
@@ -11,6 +12,7 @@ Experiments
   E0  self-test of the analytic derivatives against central differences
   E1  dispersion sweep, smooth frontiers (Cobb-Douglas, CES) x input laws (LN, SU)
   E1b idiosyncratic efficiency terms: the covariance floor
+  E1c small-dispersion exponent of the second-order error against N (finite-N effect)
   E2  capacity frontier min(f, c): threshold proximity x dispersion
   E3  two-level hierarchy (units -> firms -> sector): pooled vs bottom-up
   E4  decision experiment: rank reversals between two sectors
@@ -18,8 +20,13 @@ Experiments
   E6  closed-form examples of the manuscript (arithmetic check)
 
 Usage: python3 frontier_aggregation.py [--fast]
+
+Random numbers: one independent generator per experiment, spawned from
+np.random.SeedSequence(SEED) (reference run v0.2; the v0.1 run shared one stream).
 """
 import argparse
+import datetime
+import hashlib
 import json
 import math
 import os
@@ -219,10 +226,31 @@ def moments(X):
     return xb, Sig, mu3, s2, m3
 
 
-def aggregate(front, X, cap=None, bounds=True):
+def boot_median_ci(a, rng, B=1000, level=0.95):
+    """Percentile bootstrap interval (over replications) for the median of a."""
+    a = np.asarray(a, float)
+    n = len(a)
+    idx = rng.integers(0, n, size=(B, n))
+    meds = np.median(a[idx], axis=1)
+    lo, hi = np.quantile(meds, [(1 - level) / 2, 1 - (1 - level) / 2])
+    return [float(lo), float(hi)]
+
+
+def wilson(k, n, z=1.959963984540054):
+    """Wilson 95% interval for a proportion with k successes out of n."""
+    if n == 0:
+        return [0.0, 0.0]
+    c = (k + z * z / 2) / (n + z * z)
+    h = z / (n + z * z) * math.sqrt(k * (n - k) / n + z * z / 4)
+    return [max(0.0, c - h), min(1.0, c + h)]
+
+
+def aggregate(front, X, cap=None, bounds=True, branch_at_equality="below"):
     """Exact aggregate and its order-1/2/3 moment approximations, per population (T of them).
-    cap: capacity c (scalar or (T,)); the one-sided Hessian convention at f(xbar) = c is the
-    'below capacity' branch.  Returns a dict of arrays of length T."""
+    cap: capacity c (scalar or (T,)).  At f(xbar) = c (up to a relative tolerance 1e-12) the
+    one-sided Hessian convention is fixed explicitly by branch_at_equality ("below", the
+    manuscript's convention, or "above"); without the tolerance the branch would be decided by
+    floating-point rounding in the symmetric design.  Returns a dict of arrays of length T."""
     T, N, d = X.shape
     xb, Sig, mu3, s2, m3 = moments(X)
     u = front.f(X)                                   # (T, N) individual smooth outputs
@@ -240,7 +268,13 @@ def aggregate(front, X, cap=None, bounds=True):
     else:
         cap = np.broadcast_to(np.asarray(cap, float), (T,))
         Y = np.minimum(u, cap[:, None]).sum(axis=1)
-        below = fb <= cap
+        tol = 1e-12 * cap
+        if branch_at_equality == "below":
+            below = fb <= cap + tol
+        elif branch_at_equality == "above":
+            below = fb < cap - tol
+        else:
+            raise ValueError(branch_at_equality)
         Y1 = N * np.where(below, fb, cap)
         H = Hf * below[:, None, None]
         D3 = D3f * below[:, None, None, None]
@@ -251,7 +285,7 @@ def aggregate(front, X, cap=None, bounds=True):
     Q2 = 0.5 * N * np.einsum("tij,tij->t", H, Sig)
     Y2 = Y1 + Q2
     Y3 = Y2 + N / 6.0 * np.einsum("tijk,tijk->t", D3, mu3)
-    out.update({"Y": Y, "Y1": Y1, "Y2": Y2, "Y3": Y3, "Q2": Q2, "Tu": Tu,
+    out.update({"Y": Y, "Y1": Y1, "Y2": Y2, "Y3": Y3, "Q2": Q2, "Tu": Tu, "below": below, "fb": fb,
                 "E1": Y - Y1, "E2": Y - Y2, "E3": Y - Y3})
     if bounds and hasattr(front, "box_bounds"):
         # global box bound (crude) and segmentwise bound (sup over each segment [xbar, x_i],
@@ -264,9 +298,9 @@ def aggregate(front, X, cap=None, bounds=True):
         out["M2box"], out["M3box"] = M2, M3
         out["B1box"] = 0.5 * N * M2 * s2
         out["B2box"] = N * M3 * m3 / 6.0
-        out["B1"] = 0.5 * np.sum(M2i * hn2, axis=1)               # |E1(f)| <= B1 (Prop. 1)
-        out["B2"] = np.sum(M3i * hn2 ** 1.5, axis=1) / 6.0        # |E2(f)| <= B2 (Prop. 1)
-        # |E2(f_c) + N T_u| <= |E2(f)| + |E1(f)| + |Q2f| 1{f(xbar) > c}   (Prop. 3)
+        out["B1"] = 0.5 * np.sum(M2i * hn2, axis=1)               # |E1(f)| <= B1 (remainder-bound proposition, (a))
+        out["B2"] = np.sum(M3i * hn2 ** 1.5, axis=1) / 6.0        # |E2(f)| <= B2 (remainder-bound proposition, (c))
+        # |E2(f_c) + N T_u| <= |E2(f)| + |E1(f)| + |Q2f| 1{f(xbar) > c}   (capacity proposition)
         out["B2cap"] = out["B2"] + out["B1"] + np.abs(Q2f) * (~below)
     return out
 
@@ -276,12 +310,13 @@ def q(a, p):
 
 
 # --------------------------------------------------------------------------- E1
-def run_E1(rng, fast):
+def run_E1(rng, fast, brng):
     N, R = (2000, 20) if not fast else (1000, 6)
     xbar = np.array([2.0, 1.0])
     grids = {"LN": np.logspace(-2, 0, 17), "SU": np.logspace(-2, math.log10(0.5), 15)}
     fronts = {"CD": CobbDouglas(), "CES": CES()}
     rows = []
+    store = {}                                   # per-replication errors at sigma <= 0.05, for exponent SEs
     for fname, front in fronts.items():
         for law, sig_grid in grids.items():
             Z = base_noise(rng, R, N, law)
@@ -289,12 +324,14 @@ def run_E1(rng, fast):
                 X = inputs(xbar, s, Z, law)
                 A = aggregate(front, X, bounds=(fname == "CD"))
                 e1, e2, e3 = (np.abs(A["E1"] / A["Y"]), np.abs(A["E2"] / A["Y"]), np.abs(A["E3"] / A["Y"]))
+                if s <= 0.05 + 1e-12:
+                    store.setdefault(f"{fname}-{law}", []).append((float(s), e1, e2, e3))
                 r21 = np.abs(A["E1"]) / np.abs(A["E2"])
                 r32 = np.abs(A["E2"]) / np.abs(A["E3"])
                 row = {"frontier": fname, "law": law, "sigma": float(s), "N": N, "reps": R,
-                       "e1_med": q(e1, .5), "e1_max": float(e1.max()),
-                       "e2_med": q(e2, .5), "e2_max": float(e2.max()),
-                       "e3_med": q(e3, .5), "e3_max": float(e3.max()),
+                       "e1_med": q(e1, .5), "e1_max": float(e1.max()), "e1_ci": boot_median_ci(e1, brng),
+                       "e2_med": q(e2, .5), "e2_max": float(e2.max()), "e2_ci": boot_median_ci(e2, brng),
+                       "e3_med": q(e3, .5), "e3_max": float(e3.max()), "e3_ci": boot_median_ci(e3, brng),
                        "r21_min": float(r21.min()), "r21_med": q(r21, .5),
                        "r32_min": float(r32.min()), "r32_med": q(r32, .5),
                        "cv_K": float(np.median(np.sqrt(np.var(X[:, :, 0], axis=1)) / X[:, :, 0].mean(axis=1)))}
@@ -306,7 +343,11 @@ def run_E1(rng, fast):
                                 "bound2_holds": int(np.all(np.abs(A["E2"]) <= A["B2"])),
                                 "bound1_holds": int(np.all(np.abs(A["E1"]) <= A["B1"])),
                                 "ratio_E2_over_B2_med": q(np.abs(A["E2"]) / A["B2"], .5),
-                                "ratio_E2_over_B2_max": float(np.max(np.abs(A["E2"]) / A["B2"]))})
+                                "ratio_E2_over_B2_max": float(np.max(np.abs(A["E2"]) / A["B2"])),
+                                # observable certificate of improvement: 2 B2 < |Q2| in every replication
+                                # (then |E2| <= B2 < |Q2| - B2 <= |E1|); Q2 and B2 are functions of the moments
+                                "cert_obs_holds_all": int(np.all(2.0 * A["B2"] < np.abs(A["Q2"]))),
+                                "cert_obs_frac": float(np.mean(2.0 * A["B2"] < np.abs(A["Q2"])))})
                 rows.append(row)
     # small-dispersion exponents from the median curves (least squares on sigma <= 0.05)
     summary = {}
@@ -316,18 +357,41 @@ def run_E1(rng, fast):
             lo = [r for r in sel if r["sigma"] <= 0.05 + 1e-12]
             ls = np.log([r["sigma"] for r in lo])
             slopes = {k: float(np.polyfit(ls, np.log([r[k] for r in lo]), 1)[0]) for k in ("e1_med", "e2_med", "e3_med")}
+            # bootstrap standard errors of the exponents: resample replications, recompute the median curve, refit
+            st = store[f"{fname}-{law}"]
+            Rr = len(st[0][1])
+            bs = {1: [], 2: [], 3: []}
+            for _ in range(500):
+                idx = brng.integers(0, Rr, size=Rr)
+                for k in (1, 2, 3):
+                    med = [np.median(t[k][idx]) for t in st]
+                    bs[k].append(np.polyfit(ls, np.log(med), 1)[0])
+            slope_se = {k: float(np.std(bs[k], ddof=1)) for k in (1, 2, 3)}
             # certified-improvement criterion C1: min over reps of |E1|/|E2| >= 5, uniformly in sigma <= sigma*
             ok = [r["sigma"] for r in sel if r["r21_min"] >= 5.0]
             largest_ok = 0.0
+            first_fail = None
             for r in sel:                       # largest sigma such that the criterion holds for all smaller sigma
                 if r["r21_min"] >= 5.0:
                     largest_ok = r["sigma"]
                 else:
+                    first_fail = r["sigma"]
                     break
+            cert_largest = 0.0
+            if fname == "CD":
+                for r in sel:                   # largest sigma such that 2 B2 < |Q2| in all reps for all smaller sigma
+                    if r["cert_obs_holds_all"]:
+                        cert_largest = r["sigma"]
+                    else:
+                        break
             summary[f"{fname}-{law}"] = {"slope_e1": slopes["e1_med"], "slope_e2": slopes["e2_med"],
                                          "slope_e3": slopes["e3_med"],
+                                         "slope_e1_se": slope_se[1], "slope_e2_se": slope_se[2], "slope_e3_se": slope_se[3],
+                                         "ci_halfwidth_rel_max": float(max((r[f"e{k}_ci"][1] - r[f"e{k}_ci"][0]) / (2 * r[f"e{k}_med"])
+                                                                           for r in sel for k in (1, 2, 3))),
                                          "C1_holds_whole_grid": int(len(ok) == len(sel)),
                                          "C1_largest_sigma_uniform": float(largest_ok),
+                                         "C1_first_failing_sigma": first_fail,
                                          "sigma_max_grid": float(sel[-1]["sigma"]),
                                          "r21_min_over_grid": float(min(r["r21_min"] for r in sel)),
                                          "r21_at_sigma_max": float(sel[-1]["r21_min"]),
@@ -338,7 +402,10 @@ def run_E1(rng, fast):
                                          "cells": len(sel),
                                          "bound2_holds_all": (int(all(r["bound2_holds"] for r in sel)) if fname == "CD" else None),
                                          "bound2box_holds_all": (int(all(r["bound2box_holds"] for r in sel)) if fname == "CD" else None),
-                                         "sigma_largest_bound2_le_e1": (float(max([r["sigma"] for r in sel if r["bound2_rel_med"] < r["e1_med"]] or [0.0])) if fname == "CD" else None),
+                                         # v0.1 test (medians, uses the true E1: not observable from moments); kept as a diagnostic only
+                                         "sigma_largest_bound2_le_e1_median_nonobservable": (float(max([r["sigma"] for r in sel if r["bound2_rel_med"] < r["e1_med"]] or [0.0])) if fname == "CD" else None),
+                                         # observable certificate 2 B2 < |Q2| in every replication (B2)
+                                         "sigma_largest_cert_observable": (float(cert_largest) if fname == "CD" else None),
                                          "ratio_E2_over_B2_max": (float(max(r["ratio_E2_over_B2_max"] for r in sel)) if fname == "CD" else None),
                                          "ratio_E2_over_B2_med_min": (float(min(r["ratio_E2_over_B2_med"] for r in sel)) if fname == "CD" else None),
                                          "ratio_B2box_over_B2_max": (float(max(r["bound2box_rel_med"] / r["bound2_rel_med"] for r in sel)) if fname == "CD" else None)}
@@ -375,8 +442,33 @@ def run_E1b(rng, fast):
     return {"rows": rows, "N": N, "reps": R, "theta_law": "U(0.5,1)", "summary": summ}
 
 
+def run_E1c(rng, fast):
+    """Finite-N effect on the second-order exponent (Cobb-Douglas, LN): the sample third central
+    moment of N units has an O(sigma^3 N^{-1/2}) fluctuation, so at fixed N the fitted exponent of
+    |e2| on sigma <= 0.05 lies between 3 (noise) and 4 (population skewness)."""
+    Ns = [200, 2000, 20000] if not fast else [200, 2000]
+    R = 6
+    xbar = np.array([2.0, 1.0])
+    front = CobbDouglas()
+    grid = [float(s) for s in np.logspace(-2, 0, 17) if s <= 0.05 + 1e-12]
+    rows = []
+    for N in Ns:
+        Z = base_noise(rng, R, N, "LN")
+        meds = {1: [], 2: [], 3: []}
+        for s in grid:
+            A = aggregate(front, inputs(xbar, s, Z, "LN"), bounds=False)
+            for k in (1, 2, 3):
+                meds[k].append(q(np.abs(A[f"E{k}"] / A["Y"]), .5))
+        ls = np.log(grid)
+        rows.append({"N": N, "reps": R, "sigma_grid": grid,
+                     "slope_e1": float(np.polyfit(ls, np.log(meds[1]), 1)[0]),
+                     "slope_e2": float(np.polyfit(ls, np.log(meds[2]), 1)[0]),
+                     "slope_e3": float(np.polyfit(ls, np.log(meds[3]), 1)[0])})
+    return {"rows": rows}
+
+
 # --------------------------------------------------------------------------- E2
-def run_E2(rng, fast):
+def run_E2(rng, fast, brng):
     N, R = (2000, 20) if not fast else (1000, 6)
     xbar = np.array([2.0, 1.0])
     front = CobbDouglas()
@@ -398,16 +490,48 @@ def run_E2(rng, fast):
                 NTu = N * Ac["Tu"]
                 two_sided = np.abs(Ac["E2"] + NTu) <= Ac["B2cap"]
                 lower = NTu - Ac["B2cap"]
-                rows.append({"law": law, "delta": delta, "sigma": float(s), "cap": cap,
-                             "e1_med": q(e1, .5), "e2_med": q(e2, .5), "e2_smooth_med": q(e2s, .5),
-                             "r21_min": float(np.min(np.abs(Ac["E1"]) / np.abs(Ac["E2"]))),
-                             "r21_med": q(np.abs(Ac["E1"]) / np.abs(Ac["E2"]), .5),
-                             "NTu_rel_med": q(NTu / Ac["Y"], .5),
-                             "E2_over_minusNTu_med": (float(np.nanmedian(-Ac["E2"] / np.where(NTu > 0, NTu, np.nan))) if np.any(NTu > 0) else None),
-                             "two_sided_bound_holds": int(np.all(two_sided)),
-                             "lower_bound_informative": int(np.all(lower > 0)),
-                             "frac_above_med": q(Ac["frac_above"], .5),
-                             "crossing_all_reps": int(np.all((Ac["frac_above"] > 0) & (Ac["frac_above"] < 1)))})
+                below = Ac["below"]
+                r21 = np.abs(Ac["E1"]) / np.abs(Ac["E2"])
+                # exact identity (capacity proposition, eq. (1)): E2(f_c) = -N Tu + E2(f) + Q2 1{f(xbar) > c} - N[(ubar-c)_+ - (f(xbar)-c)_+]
+                ubar = As["Y"] / N
+                rhs = -NTu + As["E2"] + As["Q2"] * (~below) - N * (np.maximum(ubar - cap, 0) - np.maximum(Ac["fb"] - cap, 0))
+                id_gap = float(np.max(np.abs(Ac["E2"] - rhs) / Ac["Y"]))
+                # crossing-corollary constant: Tu / (sigma tau_z) with z_i = (x_i - xbar)/sigma, g = grad f(xbar);
+                # and the shifted version tau_z(b), b = (f(xbar) - c)/sigma, for designs with f(xbar) != c (LN)
+                xb = Ac["xbar"]
+                g = front.grad(xb)                                            # (T, d)
+                gz = np.einsum("td,tnd->tn", g, (X - xb[:, None, :]) / s)     # (T, N)
+                tau_z = 0.5 * np.mean(np.abs(gz), axis=1)
+                b = (Ac["fb"] - cap) / s
+                tau_zb = np.minimum(np.mean(np.maximum(gz + b[:, None], 0), axis=1), np.mean(np.maximum(-(gz + b[:, None]), 0), axis=1))
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    tau_ratio = Ac["Tu"] / (s * tau_z)
+                    taub_ratio = np.where(tau_zb > 0, Ac["Tu"] / (s * tau_zb), np.nan)
+                row = {"law": law, "delta": delta, "sigma": float(s), "cap": cap,
+                       "e1_med": q(e1, .5), "e2_med": q(e2, .5), "e2_smooth_med": q(e2s, .5),
+                       "e1_ci": boot_median_ci(e1, brng), "e2_ci": boot_median_ci(e2, brng),
+                       "r21_min": float(np.min(r21)),
+                       "r21_med": q(r21, .5),
+                       "r21_min_below_branch": (float(np.min(r21[below])) if np.any(below) else None),
+                       "r21_min_above_branch": (float(np.min(r21[~below])) if np.any(~below) else None),
+                       "frac_reps_mean_above": float(np.mean(~below)),
+                       "fxbar_minus_c_rel_med": q(np.abs(Ac["fb"] - cap) / cap, .5),
+                       "fxbar_minus_c_rel_max": float(np.max(np.abs(Ac["fb"] - cap) / cap)),
+                       "NTu_rel_med": q(NTu / Ac["Y"], .5),
+                       "E2_over_minusNTu_med": (float(np.nanmedian(-Ac["E2"] / np.where(NTu > 0, NTu, np.nan))) if np.any(NTu > 0) else None),
+                       "Tu_over_sigma_tau_med": q(tau_ratio, .5),
+                       "Tu_over_sigma_tau_ci": boot_median_ci(tau_ratio, brng),
+                       "Tu_over_sigma_taub_med": (float(np.nanmedian(taub_ratio)) if np.any(np.isfinite(taub_ratio)) else None),
+                       "identity_rel_gap_max": id_gap,
+                       "two_sided_bound_holds": int(np.all(two_sided)),
+                       "lower_bound_informative": int(np.all(lower > 0)),
+                       "frac_above_med": q(Ac["frac_above"], .5),
+                       "crossing_all_reps": int(np.all((Ac["frac_above"] > 0) & (Ac["frac_above"] < 1)))}
+                if delta == 0.0:                 # alternative convention at f(xbar) = c: "above" branch (Y2 = Y1 there)
+                    Aa = aggregate(front, X, cap=cap, bounds=False, branch_at_equality="above")
+                    row["r21_min_alt_branch_above"] = float(np.min(np.abs(Aa["E1"]) / np.abs(Aa["E2"])))
+                    row["frac_reps_mean_above_alt"] = float(np.mean(~Aa["below"]))
+                rows.append(row)
     # exponents at delta = 0 and delta = -0.3 (LN), sigma <= 0.05
     summ = {}
     for law in ("LN", "SU"):
@@ -431,12 +555,27 @@ def run_E2(rng, fast):
     summ["LN_delta0_e2smooth_smallest_sigma"] = d0[0]["e2_smooth_med"]
     summ["LN_delta0_amplification_smallest_sigma"] = d0[0]["e2_med"] / d0[0]["e2_smooth_med"]
     summ["LN_delta0_r21_smallest_sigma"] = d0[0]["r21_med"]
+    summ["LN_delta0_r21_min_below_smallest_sigma"] = d0[0]["r21_min_below_branch"]
+    summ["LN_delta0_frac_reps_mean_above_range"] = [min(r["frac_reps_mean_above"] for r in d0), max(r["frac_reps_mean_above"] for r in d0)]
+    summ["LN_delta0_fxbar_minus_c_rel_max"] = max(r["fxbar_minus_c_rel_max"] for r in d0)
+    summ["LN_delta0_lower_informative_largest_sigma"] = float(max([r["sigma"] for r in d0 if r["lower_bound_informative"]] or [0.0]))
+    s0 = [r for r in rows if r["law"] == "SU" and r["delta"] == 0.0]
+    summ["SU_delta0_r21_min_below_smallest_sigma"] = s0[0]["r21_min_below_branch"]
+    summ["SU_delta0_frac_reps_mean_above_range"] = [min(r["frac_reps_mean_above"] for r in s0), max(r["frac_reps_mean_above"] for r in s0)]
+    summ["SU_delta0_r21_min_alt_branch_above"] = float(min(r["r21_min_alt_branch_above"] for r in s0))
+    summ["SU_delta0_frac_reps_mean_above_alt_range"] = [min(r["frac_reps_mean_above_alt"] for r in s0), max(r["frac_reps_mean_above_alt"] for r in s0)]
+    summ["SU_delta0_tau_ratio_smallest_sigma"] = s0[0]["Tu_over_sigma_tau_med"]
+    summ["SU_delta0_tau_ratio_smallest_sigma_ci"] = s0[0]["Tu_over_sigma_tau_ci"]
+    summ["LN_delta0_tau_ratio_smallest_sigma"] = d0[0]["Tu_over_sigma_tau_med"]
+    summ["LN_delta0_taub_ratio_smallest_sigma"] = d0[0]["Tu_over_sigma_taub_med"]
+    summ["tau_ratio_delta0"] = {law: [[r["sigma"], r["Tu_over_sigma_tau_med"], r["Tu_over_sigma_taub_med"]] for r in rows if r["law"] == law and r["delta"] == 0.0] for law in ("LN", "SU")}
+    summ["identity_rel_gap_max"] = float(max(r["identity_rel_gap_max"] for r in rows))
     summ["sigma_min"] = float(sig_grid[0])
     return {"rows": rows, "summary": summ, "N": N, "reps": R, "deltas": deltas, "f_xbar": fb}
 
 
 # --------------------------------------------------------------------------- E3
-def run_E3(rng, fast):
+def run_E3(rng, fast, brng):
     G, n, R = (40, 50, 20) if not fast else (20, 50, 6)
     N = G * n
     xbar = np.array([2.0, 1.0])
@@ -475,6 +614,7 @@ def run_E3(rng, fast):
                     lemma_gap = max(lemma_gap, float(np.max(np.abs(topdown - pooled["Y2"]) / Y)))
                 row = {"sigma_B": sB, "sigma_W": sW, "capped": int(capped),
                        "pooled1_med": q(np.abs(pooled["E1"] / Y), .5), "pooled2_med": q(np.abs(pooled["E2"] / Y), .5),
+                       "pooled2_ci": boot_median_ci(np.abs(pooled["E2"] / Y), brng), "hier2_ci": boot_median_ci(np.abs((Y - hier2) / Y), brng),
                        "hier1_med": q(np.abs((Y - hier1) / Y), .5), "hier2_med": q(np.abs((Y - hier2) / Y), .5),
                        "pooled2_max": float(np.max(np.abs(pooled["E2"] / Y))), "hier2_max": float(np.max(np.abs((Y - hier2) / Y))),
                        "gain_hier_over_pooled_med": q(np.abs(pooled["E2"]) / np.abs(Y - hier2), .5)}
@@ -531,10 +671,13 @@ def run_E4(rng, fast):
             A = aggregate(front, XA, cap=cap)
             B = aggregate(front, XB, cap=cap)
             true = np.sign(A["Y"] - B["Y"])
-            row = {"sigma": s, "prox": (p if p is not None else "none"), "trials": trials}
+            row = {"sigma": s, "prox": (p if p is not None else "none"), "trials": trials,
+                   "fracA_mean_below_cap": float(np.mean(A["below"])), "fracB_mean_below_cap": float(np.mean(B["below"]))}
             for k in (1, 2, 3):
                 appr = np.sign(A[f"Y{k}"] - B[f"Y{k}"])
-                row[f"rev{k}"] = float(np.mean(appr != true))
+                nrev = int(np.sum(appr != true))
+                row[f"rev{k}"] = nrev / trials
+                row[f"rev{k}_ci"] = wilson(nrev, trials)            # Wilson 95% interval
             if p is None:
                 margin = np.abs(A["Y2"] - B["Y2"]) > (A["B2"] + B["B2"])
                 row["certified_frac"] = float(margin.mean())
@@ -546,7 +689,27 @@ def run_E4(rng, fast):
     # criterion C2: in every cell with rev1 >= 2%, rev2 <= rev1 / 5
     elig = [r for r in rows if r["rev1"] >= 0.02]
     fail = [r for r in elig if r["rev2"] > r["rev1"] / 5.0]
+    # robustness of the per-cell verdict with Wilson intervals: clear failure if the lower limit of rev2 exceeds the
+    # upper limit of rev1/5; clear pass if the upper limit of rev2 is below the lower limit of rev1/5; else borderline
+    def verdict(r):
+        if r["rev2_ci"][0] > r["rev1_ci"][1] / 5.0:
+            return "fail"
+        if r["rev2_ci"][1] < r["rev1_ci"][0] / 5.0:
+            return "pass"
+        return "borderline"
+    for r in elig:
+        r["C2_verdict"] = verdict(r)
+    cell = lambda r: [r["prox"], r["sigma"]]
     summ = {"C2_eligible_cells": len(elig), "C2_failing_cells": len(fail),
+            "C2_passing_cells": [cell(r) for r in elig if r not in fail],
+            "C2_fail_clear_cells": [cell(r) for r in elig if r["C2_verdict"] == "fail"],
+            "C2_borderline_cells": [cell(r) for r in elig if r["C2_verdict"] == "borderline"],
+            "C2_pass_clear_cells": [cell(r) for r in elig if r["C2_verdict"] == "pass"],
+            "C2_fail_clear_capped": len([r for r in elig if r["C2_verdict"] == "fail" and r["prox"] != "none"]),
+            "C2_borderline_capped": len([r for r in elig if r["C2_verdict"] == "borderline" and r["prox"] != "none"]),
+            "C2_borderline_smooth": len([r for r in elig if r["C2_verdict"] == "borderline" and r["prox"] == "none"]),
+            "C2_pass_clear_capped": len([r for r in elig if r["C2_verdict"] == "pass" and r["prox"] != "none"]),
+            "C2_pass_clear_smooth": len([r for r in elig if r["C2_verdict"] == "pass" and r["prox"] == "none"]),
             "C2_eligible_smooth_cells": len([r for r in elig if r["prox"] == "none"]),
             "C2_eligible_capped_cells": len([r for r in elig if r["prox"] != "none"]),
             "C2_failing_smooth_cells": len([r for r in fail if r["prox"] == "none"]),
@@ -586,7 +749,7 @@ def run_E5(rng, fast):
             for s in sigmas:
                 X = inputs(xbar, s, Z, law)
                 A = aggregate(front, X, cap=cap, bounds=False)
-                recs.append({"regime": reg, "sigma": s, "law": law, "E1": A["E1"], "Q2": A["Q2"], "Y": A["Y"]})
+                recs.append({"regime": reg, "sigma": s, "law": law, "E1": A["E1"], "Q2": A["Q2"], "Y": A["Y"], "below": A["below"]})
         return recs
 
     train = design(train_sig, "LN", R)
@@ -605,12 +768,15 @@ def run_E5(rng, fast):
         test = design([s for s in test_sig if law == "LN" or s <= 0.5], law, R)
         for r in test:
             e1 = np.abs(r["E1"])
+            below = r["below"]
             row = {"law": law, "regime": r["regime"], "sigma": r["sigma"],
-                   "e1_med": q(e1 / r["Y"], .5)}
+                   "e1_med": q(e1 / r["Y"], .5), "frac_reps_mean_above": float(np.mean(~below))}
             for name, lam in (("order2", 1.0), ("global", lam_global), ("regime", lam_reg_eval[r["regime"]])):
                 e = np.abs(r["E1"] - lam * r["Q2"])
                 row[f"{name}_med"] = q(e / r["Y"], .5)
                 row[f"{name}_ratio_min"] = float(np.min(e1 / e))
+                # restricted to replications in the "below" branch (in the "above" branch Q2 = 0 and the ratio is 1 by construction)
+                row[f"{name}_ratio_min_below"] = (float(np.min((e1 / e)[below])) if np.any(below) else None)
             results["rows"].append(row)
     summ = {}
     for name in ("order2", "global", "regime"):
@@ -618,7 +784,13 @@ def run_E5(rng, fast):
             for reg in regimes:
                 sel = [r for r in results["rows"] if r["law"] == law and r["regime"] == reg]
                 summ[f"{name}-{law}-{reg}"] = float(min(r[f"{name}_ratio_min"] for r in sel))
-        summ[f"{name}-C1-holds-all"] = int(all(v >= 5.0 for k, v in summ.items() if k.startswith(name + "-") and not k.endswith("all")))
+            sel = [r for r in results["rows"] if r["law"] == law and r["regime"] == "at"]
+            vals = [r[f"{name}_ratio_min_below"] for r in sel if r[f"{name}_ratio_min_below"] is not None]
+            summ[f"{name}-{law}-at-below"] = (float(min(vals)) if vals else None)
+            summ[f"{name}-{law}-at-frac-above"] = [min(r["frac_reps_mean_above"] for r in sel), max(r["frac_reps_mean_above"] for r in sel)]
+        # "above" is excluded from the C1 verdict: Q2 == 0 there, nothing to recalibrate (and e1 = 0 when no unit crosses)
+        summ[f"{name}-C1-holds-excl-above"] = int(all(summ[f"{name}-{law}-{reg}"] >= 5.0 for law in ("LN", "SU") for reg in ("smooth", "below", "at")))
+        summ[f"{name}-C1-holds-all"] = int(all(summ[f"{name}-{law}-{reg}"] >= 5.0 for law in ("LN", "SU") for reg in regimes))
         summ[f"{name}-C1-holds-smooth"] = int(all(summ[f"{name}-{law}-smooth"] >= 5.0 for law in ("LN", "SU")))
         summ[f"{name}-C1-fails-threshold"] = int(any(summ[f"{name}-{law}-{reg}"] < 5.0 for law in ("LN", "SU") for reg in ("below", "at", "above")))
     results["summary"] = summ
@@ -627,7 +799,7 @@ def run_E5(rng, fast):
 
 # --------------------------------------------------------------------------- E6
 def run_E6():
-    """Closed-form examples used in the manuscript (Prop. 4 and Example)."""
+    """Closed-form examples used in the manuscript (margin-condition section, reversal example)."""
     out = {}
     # kinked frontier min(x, 1): A all at 1 - eps, B half at 1 - s, half at 1 + s (mean 1)
     eps, s = 0.05, 0.2
@@ -646,8 +818,9 @@ def run_E6():
 
 # --------------------------------------------------------------------------- figures
 def fig_E1(E1):
-    fig, axes = plt.subplots(2, 2, figsize=(7.2, 5.6), sharey=True)
-    for ax, key in zip(axes.ravel(), ("CD-LN", "CD-SU", "CES-LN", "CES-SU")):
+    """Cobb-Douglas panels only (the CES curves are visually identical up to the constants; Table 1 has their numbers)."""
+    fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.9), sharey=True)
+    for ax, key in zip(axes.ravel(), ("CD-LN", "CD-SU")):
         fname, law = key.split("-")
         sel = [r for r in E1["rows"] if r["frontier"] == fname and r["law"] == law]
         sg = [r["sigma"] for r in sel]
@@ -655,23 +828,23 @@ def fig_E1(E1):
         ax.loglog(sg, [r["e2_med"] for r in sel], color=C2, marker="s", ms=3, label="order 2 (Hessian $\\cdot$ covariance)")
         ax.loglog(sg, [r["e3_med"] for r in sel], color=C3, marker="^", ms=3, label="order 3")
         if fname == "CD":
-            ax.loglog(sg, [r["bound2_rel_med"] for r in sel], color=CB, ls="--", label="certified bound on order 2 (Prop. 1)")
+            ax.loglog(sg, [r["bound2_rel_med"] for r in sel], color=CB, ls="--", label="certified bound $B_2/Y$ on order 2")
         ax.set_title(f"{'Cobb–Douglas' if fname == 'CD' else 'CES'} frontier, {'log-normal' if law == 'LN' else 'symmetric'} inputs", fontsize=9)
         ax.set_xlabel("dispersion $\\sigma$")
         ax.set_ylim(1e-13, 3)
-    axes[0, 0].set_ylabel("median relative aggregation error")
-    axes[1, 0].set_ylabel("median relative aggregation error")
-    h, l = axes[0, 0].get_legend_handles_labels()
-    fig.legend(h, l, loc="lower center", ncol=2, bbox_to_anchor=(0.5, -0.01))
-    fig.tight_layout(rect=(0, 0.07, 1, 1))
+    axes[0].set_ylabel("median relative aggregation error")
+    h, l = axes[0].get_legend_handles_labels()
+    fig.legend(h, l, loc="lower center", ncol=4, fontsize=7, bbox_to_anchor=(0.5, -0.02))
+    fig.tight_layout(rect=(0, 0.08, 1, 1))
     for ext in ("png", "pdf"):
         fig.savefig(os.path.join(FIG, f"dispersion_sweep.{ext}"), bbox_inches="tight")
     plt.close(fig)
 
 
-def fig_E2(E2):
-    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.1))
-    ax = axes[0]
+def fig_E2E3(E2, E3):
+    """One 2x2 figure: top row E2 (capacity threshold), bottom row E3 (hierarchy)."""
+    fig, axes = plt.subplots(2, 2, figsize=(7.2, 5.4))
+    ax = axes[0, 0]
     cols = {-0.3: "#c6dbef", -0.1: "#6baed6", -0.03: "#2171b5", 0.0: "#08306b"}
     for delta, col in cols.items():
         sel = [r for r in E2["rows"] if r["law"] == "LN" and r["delta"] == delta]
@@ -681,9 +854,9 @@ def fig_E2(E2):
     ax.loglog([r["sigma"] for r in sel], [r["e2_smooth_med"] for r in sel], color=CR, ls="--", label="no capacity (smooth)")
     ax.set_xlabel("dispersion $\\sigma$")
     ax.set_ylabel("median $|E_2|/Y$ (order 2)")
-    ax.set_title("Second-order error at a capacity threshold", fontsize=9)
+    ax.set_title("E2: second-order error at a capacity threshold", fontsize=9)
     ax.legend(fontsize=7)
-    ax = axes[1]
+    ax = axes[0, 1]
     for delta, col in cols.items():
         sel = [r for r in E2["rows"] if r["law"] == "LN" and r["delta"] == delta and r["E2_over_minusNTu_med"] is not None]
         ax.semilogx([r["sigma"] for r in sel], [r["E2_over_minusNTu_med"] for r in sel], color=col, marker="o", ms=3,
@@ -691,20 +864,13 @@ def fig_E2(E2):
     ax.axhline(1.0, color=CR, ls="--", lw=1)
     ax.set_xlabel("dispersion $\\sigma$")
     ax.set_ylabel("$-E_2 / (N\\,T_u)$")
-    ax.set_ylim(0, 2)
-    ax.set_title("Error against the crossing term $N T_u$ (Prop. 3)", fontsize=9)
+    ax.set_ylim(-0.6, 1.6)                 # one point of delta = -0.30 (sigma ~ 0.15) lies below: N Tu is then smaller than E2(f); said in the caption
+    ax.set_title("E2: error against the crossing term $N T_u$", fontsize=9)
     ax.legend(fontsize=7)
-    fig.tight_layout()
-    for ext in ("png", "pdf"):
-        fig.savefig(os.path.join(FIG, f"threshold.{ext}"), bbox_inches="tight")
-    plt.close(fig)
-
-
-def fig_E3(E3):
     grid = sorted({r["sigma_B"] for r in E3["rows"]})
-    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.1), sharey=True)
     shades = ["#c6dbef", "#6baed6", "#2171b5", "#08306b"]
-    for ax, capped in zip(axes, (0, 1)):
+    axes[1, 1].sharey(axes[1, 0])
+    for ax, capped in zip(axes[1], (0, 1)):
         for sB, col in zip(grid, shades):
             sel = [r for r in E3["rows"] if r["capped"] == capped and r["sigma_B"] == sB]
             ax.loglog([r["sigma_W"] for r in sel], [r["pooled2_med"] for r in sel], color=col, marker="o", ms=3, ls="-",
@@ -712,22 +878,23 @@ def fig_E3(E3):
             ax.loglog([r["sigma_W"] for r in sel], [r["hier2_med"] for r in sel], color=col, marker="s", ms=3, ls=":",
                       label=f"bottom-up, $\\sigma_B={sB}$")
         ax.set_xlabel("within-firm dispersion $\\sigma_W$")
-        ax.set_title("smooth frontier" if not capped else "capacity at the sector mean output", fontsize=9)
+        ax.set_title("E3: smooth frontier" if not capped else "E3: capacity at the sector mean output", fontsize=9)
         ax.set_xticks(grid)
         ax.set_xticklabels([str(g) for g in grid])
         ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
-    axes[0].set_ylabel("median $|E_2|/Y$")
-    h, l = axes[1].get_legend_handles_labels()
-    fig.legend(h, l, loc="lower center", ncol=4, fontsize=7, bbox_to_anchor=(0.5, -0.02))
-    fig.tight_layout(rect=(0, 0.1, 1, 1))
+    axes[1, 0].set_ylabel("median $|E_2|/Y$")
+    h, l = axes[1, 1].get_legend_handles_labels()
+    fig.legend(h, l, loc="lower center", ncol=4, fontsize=7, bbox_to_anchor=(0.5, -0.01))
+    fig.tight_layout(rect=(0, 0.06, 1, 1))
     for ext in ("png", "pdf"):
-        fig.savefig(os.path.join(FIG, f"hierarchy.{ext}"), bbox_inches="tight")
+        fig.savefig(os.path.join(FIG, f"threshold_hierarchy.{ext}"), bbox_inches="tight")
     plt.close(fig)
 
 
 def fig_E4(E4):
-    prox = ["none", 0.5, 0.2, 0.1, 0.05, 0.0]
-    fig, axes = plt.subplots(2, 3, figsize=(7.2, 4.6), sharex=True, sharey=True)
+    prox = ["none", 0.1, 0.0]
+    fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.6), sharex=True, sharey=True)
+    axes = np.array([axes])
     for ax, p in zip(axes.ravel(), prox):
         sel = [r for r in E4["rows"] if r["prox"] == p]
         sg = [r["sigma"] for r in sel]
@@ -740,7 +907,7 @@ def fig_E4(E4):
         ax.set_xticks(sg_all)
         ax.set_xticklabels([str(v) for v in sg_all])
         ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
-    for ax in axes[1]:
+    for ax in axes[-1]:
         ax.set_xlabel("dispersion $\\sigma$ (sector A; B has $\\sigma/2$)")
     for ax in axes[:, 0]:
         ax.set_ylabel("rank reversals (%)")
@@ -758,11 +925,11 @@ def write_tables(res):
     L += ["## E0 derivative self-test (max relative deviation from central differences)", ""]
     for k, v in res["E0"].items():
         L.append(f"- {k}: grad {v['grad']:.1e}, hess {v['hess']:.1e}, third {v['third']:.1e}")
-    L += ["", "## E1 dispersion sweep (median relative errors over reps; r21 = |E1|/|E2| min over reps)", "",
-          "| frontier | law | sigma | e1 | e2 | e3 | r21 min | r32 min | bound2 (rel) | E2/B2 max |", "|---|---|---|---|---|---|---|---|---|---|"]
+    L += ["", "## E1 dispersion sweep (median relative errors over reps with bootstrap 95% CI; r21 = |E1|/|E2| min over reps; cert = all reps satisfy 2 B2 < |Q2|)", "",
+          "| frontier | law | sigma | e1 | e2 | e2 CI | e3 | r21 min | r32 min | bound2 (rel) | E2/B2 max | cert |", "|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in res["E1"]["rows"]:
-        L.append(f"| {r['frontier']} | {r['law']} | {r['sigma']:.3g} | {r['e1_med']:.2e} | {r['e2_med']:.2e} | {r['e3_med']:.2e} | "
-                 f"{r['r21_min']:.1f} | {r['r32_min']:.1f} | {r.get('bound2_rel_med', float('nan')):.2e} | {r.get('ratio_E2_over_B2_max', float('nan')):.3f} |")
+        L.append(f"| {r['frontier']} | {r['law']} | {r['sigma']:.3g} | {r['e1_med']:.2e} | {r['e2_med']:.2e} | [{r['e2_ci'][0]:.2e}, {r['e2_ci'][1]:.2e}] | {r['e3_med']:.2e} | "
+                 f"{r['r21_min']:.1f} | {r['r32_min']:.1f} | {r.get('bound2_rel_med', float('nan')):.2e} | {r.get('ratio_E2_over_B2_max', float('nan')):.3f} | {r.get('cert_obs_holds_all', '--')} |")
     L += ["", "### E1 summary", ""]
     for k, v in res["E1"]["summary"].items():
         L.append(f"- {k}: " + ", ".join(f"{a}={b:.3g}" if isinstance(b, float) else f"{a}={b}" for a, b in v.items()))
@@ -770,36 +937,41 @@ def write_tables(res):
     for r in res["E1b"]["rows"]:
         L.append(f"| {r['sigma']:.3g} | {r['e2_med']:.2e} | {r['e2_theta_med']:.2e} | {r['cov_term_med']:.2e} | {r['floor_pred_med']:.2e} |")
     L += ["", "### E1b summary", ""] + [f"- {k}: {v}" for k, v in res["E1b"]["summary"].items()]
-    L += ["", "## E2 capacity threshold (LN law)", "", "| delta | sigma | e1 | e2 capped | e2 smooth | r21 min | N Tu / Y | -E2/(N Tu) | two-sided bound | frac above |",
-          "|---|---|---|---|---|---|---|---|---|---|"]
+    L += ["", "## E1c finite-N effect on the exponents (CD, LN, 6 reps, fit on sigma <= 0.05)", "", "| N | slope e1 | slope e2 | slope e3 |", "|---|---|---|---|"]
+    for r in res["E1c"]["rows"]:
+        L.append(f"| {r['N']} | {r['slope_e1']:.2f} | {r['slope_e2']:.2f} | {r['slope_e3']:.2f} |")
+    L += ["", "## E2 capacity threshold (both laws; 'below branch' = min ratio over reps with f(xbar) <= c; tau = Tu/(sigma tau_z); tau(b) = shifted version)", "",
+          "| law | delta | sigma | e1 | e2 capped | e2 CI | e2 smooth | r21 min | r21 min below | reps mean above | N Tu / Y | -E2/(N Tu) | tau | tau(b) | two-sided bound | lower informative | frac above |",
+          "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    fmt = lambda v, f="%.3f": (f % v) if v is not None else "--"
     for r in res["E2"]["rows"]:
-        if r["law"] != "LN":
-            continue
-        rr = r["E2_over_minusNTu_med"]
-        L.append(f"| {r['delta']:+.2f} | {r['sigma']:.3g} | {r['e1_med']:.2e} | {r['e2_med']:.2e} | {r['e2_smooth_med']:.2e} | {r['r21_min']:.2f} | "
-                 f"{r['NTu_rel_med']:.2e} | {('%.3f' % rr) if rr is not None else '--'} | {r['two_sided_bound_holds']} | {r['frac_above_med']:.3f} |")
+        L.append(f"| {r['law']} | {r['delta']:+.2f} | {r['sigma']:.3g} | {r['e1_med']:.2e} | {r['e2_med']:.2e} | [{r['e2_ci'][0]:.2e}, {r['e2_ci'][1]:.2e}] | {r['e2_smooth_med']:.2e} | {r['r21_min']:.3f} | "
+                 f"{fmt(r['r21_min_below_branch'])} | {r['frac_reps_mean_above']:.2f} | {r['NTu_rel_med']:.2e} | {fmt(r['E2_over_minusNTu_med'])} | {fmt(r['Tu_over_sigma_tau_med'])} | {fmt(r['Tu_over_sigma_taub_med'])} | "
+                 f"{r['two_sided_bound_holds']} | {r['lower_bound_informative']} | {r['frac_above_med']:.3f} |")
     L += ["", "### E2 summary", ""]
     for k, v in res["E2"]["summary"].items():
         L.append(f"- {k}: {v}")
-    L += ["", "## E3 hierarchy (median relative errors)", "", "| capped | sigma_B | sigma_W | pooled1 | pooled2 | bottom-up1 | bottom-up2 | gain (pooled2/bu2) |", "|---|---|---|---|---|---|---|---|"]
+    L += ["", "## E3 hierarchy (median relative errors, bootstrap 95% CI for the second-order medians)", "", "| capped | sigma_B | sigma_W | pooled1 | pooled2 | pooled2 CI | bottom-up1 | bottom-up2 | bottom-up2 CI | gain (pooled2/bu2) | straddling firms |", "|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in res["E3"]["rows"]:
-        L.append(f"| {r['capped']} | {r['sigma_B']} | {r['sigma_W']} | {r['pooled1_med']:.2e} | {r['pooled2_med']:.2e} | {r['hier1_med']:.2e} | {r['hier2_med']:.2e} | {r['gain_hier_over_pooled_med']:.2f} |")
+        L.append(f"| {r['capped']} | {r['sigma_B']} | {r['sigma_W']} | {r['pooled1_med']:.2e} | {r['pooled2_med']:.2e} | [{r['pooled2_ci'][0]:.2e}, {r['pooled2_ci'][1]:.2e}] | {r['hier1_med']:.2e} | {r['hier2_med']:.2e} | "
+                 f"[{r['hier2_ci'][0]:.2e}, {r['hier2_ci'][1]:.2e}] | {r['gain_hier_over_pooled_med']:.2f} | {r.get('frac_firms_straddling_med', float('nan')):.2f} |")
     L += ["", "### E3 summary", ""]
     for k, v in res["E3"]["summary"].items():
         L.append(f"- {k}: {v}")
-    L += ["", "## E4 rank reversals (%)", "", "| prox | sigma | order 1 | order 2 | order 3 | certified frac | certified reversals |", "|---|---|---|---|---|---|---|"]
+    L += ["", "## E4 rank reversals (%, Wilson 95% intervals; C2 verdict for eligible cells: fail / pass / borderline)", "", "| prox | sigma | order 1 | CI | order 2 | CI | order 3 | CI | certified frac | certified reversals | mean A below cap | C2 |", "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    ci = lambda c: f"[{100*c[0]:.1f}, {100*c[1]:.1f}]"
     for r in res["E4"]["rows"]:
-        L.append(f"| {r['prox']} | {r['sigma']} | {100*r['rev1']:.1f} | {100*r['rev2']:.1f} | {100*r['rev3']:.1f} | "
-                 f"{r.get('certified_frac', float('nan')):.2f} | {r.get('certified_reversals', '--')} |")
+        L.append(f"| {r['prox']} | {r['sigma']} | {100*r['rev1']:.1f} | {ci(r['rev1_ci'])} | {100*r['rev2']:.1f} | {ci(r['rev2_ci'])} | {100*r['rev3']:.1f} | {ci(r['rev3_ci'])} | "
+                 f"{r.get('certified_frac', float('nan')):.2f} | {r.get('certified_reversals', '--')} | {r['fracA_mean_below_cap']:.2f} | {r.get('C2_verdict', '--')} |")
     L += ["", "### E4 summary", ""]
     for k, v in res["E4"]["summary"].items():
         L.append(f"- {k}: {v}")
     L += ["", "## E5 calibration", "", f"lambda_global = {res['E5']['lambda_global']:.4f}; lambda_regime = " +
           ", ".join(f"{k}: {v:.4f}" if v is not None else f"{k}: undefined (Q2 = 0)" for k, v in res["E5"]["lambda_regime"].items()), "",
-          "| law | regime | sigma | e1 | order2 | global | regime | min ratio order2 | min ratio global | min ratio regime |", "|---|---|---|---|---|---|---|---|---|---|"]
+          "| law | regime | sigma | e1 | order2 | global | regime | min ratio order2 | min ratio global | min ratio regime | reps mean above | min ratio order2 (below branch) |", "|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in res["E5"]["rows"]:
         L.append(f"| {r['law']} | {r['regime']} | {r['sigma']} | {r['e1_med']:.2e} | {r['order2_med']:.2e} | {r['global_med']:.2e} | {r['regime_med']:.2e} | "
-                 f"{r['order2_ratio_min']:.2f} | {r['global_ratio_min']:.2f} | {r['regime_ratio_min']:.2f} |")
+                 f"{r['order2_ratio_min']:.2f} | {r['global_ratio_min']:.2f} | {r['regime_ratio_min']:.2f} | {r['frac_reps_mean_above']:.2f} | {fmt(r['order2_ratio_min_below'], '%.2f')} |")
     L += ["", "### E5 summary", ""]
     for k, v in res["E5"]["summary"].items():
         L.append(f"- {k}: {v}")
@@ -816,25 +988,35 @@ def main():
     os.makedirs(RES, exist_ok=True)
     os.makedirs(FIG, exist_ok=True)
     t0 = time.time()
-    rng = np.random.default_rng(SEED)
+    c0 = time.process_time()
+    # one independent generator per experiment (and one for the bootstrap), spawned from the master seed
+    names = ["E0", "E1", "E1b", "E1c", "E2", "E3", "E4", "E5", "boot"]
+    gens = dict(zip(names, (np.random.default_rng(s) for s in np.random.SeedSequence(SEED).spawn(len(names)))))
+    brng = gens["boot"]
+    with open(os.path.abspath(__file__), "rb") as fh:
+        script_sha = hashlib.sha256(fh.read()).hexdigest()
     res = {"meta": {"seed": SEED, "fast": args.fast, "python": platform.python_version(),
-                    "numpy": np.__version__, "scipy": scipy.__version__, "matplotlib": matplotlib.__version__}}
-    res["E0"] = {"CD": selftest(CobbDouglas(), rng), "CES": selftest(CES(), rng)}
+                    "numpy": np.__version__, "scipy": scipy.__version__, "matplotlib": matplotlib.__version__,
+                    "rng": "SeedSequence(SEED).spawn, one generator per experiment", "script_sha256": script_sha,
+                    "date_utc": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M")}}
+    res["E0"] = {"CD": selftest(CobbDouglas(), gens["E0"]), "CES": selftest(CES(), gens["E0"])}
     for k, v in res["E0"].items():
         assert v["grad"] < 1e-6 and v["hess"] < 1e-6 and v["third"] < 1e-4, (k, v)
     print("E0 ok", res["E0"], flush=True)
-    res["E1"] = run_E1(rng, args.fast); print("E1 done", time.time() - t0, flush=True)
-    res["E1b"] = run_E1b(rng, args.fast); print("E1b done", time.time() - t0, flush=True)
-    res["E2"] = run_E2(rng, args.fast); print("E2 done", time.time() - t0, flush=True)
-    res["E3"] = run_E3(rng, args.fast); print("E3 done", time.time() - t0, flush=True)
-    res["E4"] = run_E4(rng, args.fast); print("E4 done", time.time() - t0, flush=True)
-    res["E5"] = run_E5(rng, args.fast); print("E5 done", time.time() - t0, flush=True)
+    res["E1"] = run_E1(gens["E1"], args.fast, brng); print("E1 done", time.time() - t0, flush=True)
+    res["E1b"] = run_E1b(gens["E1b"], args.fast); print("E1b done", time.time() - t0, flush=True)
+    res["E1c"] = run_E1c(gens["E1c"], args.fast); print("E1c done", time.time() - t0, flush=True)
+    res["E2"] = run_E2(gens["E2"], args.fast, brng); print("E2 done", time.time() - t0, flush=True)
+    res["E3"] = run_E3(gens["E3"], args.fast, brng); print("E3 done", time.time() - t0, flush=True)
+    res["E4"] = run_E4(gens["E4"], args.fast); print("E4 done", time.time() - t0, flush=True)
+    res["E5"] = run_E5(gens["E5"], args.fast); print("E5 done", time.time() - t0, flush=True)
     res["E6"] = run_E6()
     res["meta"]["seconds"] = time.time() - t0
+    res["meta"]["cpu_seconds"] = time.process_time() - c0
     with open(os.path.join(RES, "results.json"), "w") as fh:
         json.dump(res, fh, indent=1, default=float)
     write_tables(res)
-    fig_E1(res["E1"]); fig_E2(res["E2"]); fig_E3(res["E3"]); fig_E4(res["E4"])
+    fig_E1(res["E1"]); fig_E2E3(res["E2"], res["E3"]); fig_E4(res["E4"])
     print(f"total {time.time() - t0:.1f} s; wrote results/results.json, results/tables.md, figures/")
 
 

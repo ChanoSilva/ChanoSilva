@@ -27,8 +27,18 @@ def pct(x, d=0):
     return "--" if x is None else f"{100*x:.{d}f}"
 
 
+def pctcell(x, d=0):
+    """Percentage for a table cell: appends the % sign only when there is a value."""
+    return "--" if x is None else f"{100*x:.{d}f}\\%"
+
+
 def num(x, d=2):
     return "--" if x is None else f"{x:.{d}f}"
+
+
+def se_pct(p, n, d=1):
+    """Binomial standard error of a proportion, in percentage points."""
+    return "--" if (p is None or not n) else f"{100*np.sqrt(p*(1-p)/n):.{d}f}"
 
 
 def frac_tex(s):
@@ -84,6 +94,11 @@ for key, tag in [("D", "D"), ("D\\R", "DR"), ("D\\R'", "DRp")]:
 # matrix rows for the example
 rows = " \\\\ ".join(" & ".join(str(v) for v in row) + f" & {yv}" for row, yv in zip(e2["X"], e2["y"]))
 mac("ExTwoRows", rows)
+# Example 4.2 (p = 1, leave and enter variants): number of (data set, rule) combinations verified exactly
+ex1_checks = [e["exact_ok"] for key in ("example1", "example1b") if key in exa
+              for rule in ("C", "P") for e in exa[key]["analysis"][rule]]
+mac("ExOneChecks", f"{sum(ex1_checks)}/{len(ex1_checks)}")
+mac("ExOnebPresent", "yes" if "example1b" in exa else "no")
 
 # ------------------------------------------------------------------ E1 validation
 A = val["A_single"]
@@ -117,7 +132,8 @@ with open(os.path.join(OUT, "table_e1.tex"), "w") as fh:
         fh.write(f"{r['n']} & {r['p']} & {r['rule']} & {r['tests']} & {r['agreements']} & {r['preserved']} & {r['max_coef_diff']:.0e} \\\\\n".replace("e-", "e$-$"))
 with open(os.path.join(OUT, "table_e1b.tex"), "w") as fh:
     for r in C:
-        fh.write(f"{r['n']} & {r['p']} & {r['instances']} & {r['stable_single_removals']} & {r['certified_by_cor2']} & {pct(r['cor2_coverage'])}\\% & {pct(r['frac_f1'])}\\% & {pct(r['frac_kstar_ge1_given_f_ge2'])}\\% & {num(r['mean_gap_given_f_ge2'])} \\\\\n")
+        fh.write(f"{r['n']} & {r['p']} & {r['instances']} & {r['stable_single_removals']} & {r['certified_by_cor2']} & {pctcell(r['cor2_coverage'])} & {pctcell(r['frac_f1'])} & {pctcell(r['frac_kstar_ge1_given_f_ge2'])} & {num(r['mean_gap_given_f_ge2'])} \\\\\n")
+mac("EoneCorInstancesPerCell", C[0]["instances"])
 
 # ------------------------------------------------------------------ E2 fragility (n <= 14)
 agg = fra["aggregates"]
@@ -185,15 +201,45 @@ mac("EthreeCritExact", pct(crit["exact"]))
 mac("EthreeCritCost", pct(crit["cost"]))
 ver = fra["verdict"]
 names = {"onestep": "one-step greedy", "amip": "sorted scores (AMIP-style)", "cook": "Cook's distance"}
+# cost ratio with the heuristic's initial fit removed (round-1 finding M5): the exhaustive-search
+# timer starts after the initial fit and the O(n p s0) precomputation, while the heuristic timer
+# includes its initial fit.  We subtract one refit's worth of time, estimated per instance as the
+# heuristic's total time divided by its number of refits (this also removes one scoring step, so
+# the adjustment favours the heuristic).
+adj_ratios = {}
+for fam in fm["families"]:
+    for tgt in ["any", "leave", "enter"]:
+        fkey = {"any": "f_any_C", "leave": "f_leave_C", "enter": "f_enter_C"}[tgt]
+        tkey = {"any": "t_any_C", "leave": "t_leave_C", "enter": "t_enter_C"}[tgt]
+        base = [r for r in fra["records"] if r["family"] == fam and fkey in r and r[fkey] is not None and r[tkey] > 0]
+        for meth in ["onestep", "amip", "cook"]:
+            rr = [(r[f"g_{tgt}_{meth}_t"] * (1 - 1 / r[f"g_{tgt}_{meth}_refits"])) / r[tkey] for r in base
+                  if r.get(f"g_{tgt}_{meth}_refits")]
+            adj_ratios[f"{fam}_{tgt}_{meth}"] = float(np.median(rr)) if rr else None
+mac("EthreeMinCostAdjusted", num(min(v for v in adj_ratios.values() if v is not None)))
+mac("EthreeMinCostRaw", num(min(v["median_cost_ratio"] for v in ver.values() if v["median_cost_ratio"] is not None)))
 with open(os.path.join(OUT, "table_e3.tex"), "w") as fh:
     for fam in fm["families"]:
         for tgt in ["any", "leave", "enter"]:
             for meth in ["onestep", "amip", "cook"]:
                 v = ver[f"{fam}_{tgt}_{meth}"]
-                fh.write(f"{fam} & {tgt} & {names[meth]} & {v['n']} & {pct(v['exact'])}\\% & {v['n_nontrivial']} & {pct(v['exact_nontrivial'])}\\% & {num(v['median_cost_ratio'])} & {'yes' if v['advantage'] else 'no'} \\\\\n")
+                fh.write(f"{fam} & {tgt} & {names[meth]} & {v['n']} & {pct(v['exact'])}\\% $\\pm$ {se_pct(v['exact'], v['n'])} & {v['n_nontrivial']} & {pctcell(v['exact_nontrivial'])} & {num(v['median_cost_ratio'])} & {num(adj_ratios[f'{fam}_{tgt}_{meth}'])} & {'yes' if v['advantage'] else 'no'} \\\\\n")
                 mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}Exact", pct(v["exact"]))
+                mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}ExactSE", se_pct(v["exact"], v["n"]))
                 mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}ExactNT", pct(v["exact_nontrivial"]))
                 mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}Cost", num(v["median_cost_ratio"]))
+                mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}CostAdj", num(adj_ratios[f"{fam}_{tgt}_{meth}"]))
+                mac(f"Ethree{fam}{tgt.capitalize()}{meth.capitalize()}N", v["n"])
+# how far below the 90% threshold is the one-step greedy on ENTER, in standard errors
+for fam in fm["families"]:
+    v = ver[f"{fam}_enter_onestep"]
+    se = np.sqrt(v["exact"] * (1 - v["exact"]) / v["n"])
+    mac(f"Ethree{fam}EnterOnestepShortfallSE", f"{(crit['exact'] - v['exact']) / se:.1f}")
+mac("EthreeNMin", min(v["n"] for v in ver.values()))
+mac("EthreeNMax", max(v["n"] for v in ver.values()))
+ses = [100 * np.sqrt(v["exact"] * (1 - v["exact"]) / v["n"]) for v in ver.values() if v["exact"] not in (None, 0.0, 1.0)]
+mac("EthreeSEMin", f"{min(ses):.1f}")
+mac("EthreeSEMax", f"{max(ses):.1f}")
 mac("EthreeAnyAdvantage", "none" if not any(v["advantage"] for v in ver.values()) else "some")
 mac("EthreeNumAdvantage", sum(v["advantage"] for v in ver.values()))
 mac("EthreeNumVerdicts", len(ver))
@@ -275,6 +321,10 @@ for fam in sm["families"]:
     mac(f"Efour{fam}CostOnestepMedianBig", num(np.median([r["t_onestep_C"] / r["t_C"] for r in big if r["t_C"] > 0]), 3) if big else "--")
     mac(f"Efour{fam}OnestepExactBig", pct(np.mean([r["g_onestep_C"] == r["f_C"] for r in big])) if big else "--")
     mac(f"Efour{fam}NBig", len(big))
+    # same statistics over all instances with n >= 22, including those whose f was not found within the cap
+    big_all = [r for r in recs if r["family"] == fam and r["n"] >= 22]
+    mac(f"Efour{fam}CostOnestepMedianBigAll", num(np.median([r["t_onestep_C"] / r["t_C"] for r in big_all if r["t_C"] > 0]), 2) if big_all else "--")
+    mac(f"Efour{fam}NBigAll", len(big_all))
     mac(f"Efour{fam}NotFoundAll", sum(r["f_C"] is None for r in recs if r["family"] == fam))
     mac(f"Efour{fam}KpredExactAll", pct(np.mean([r["kpred_amip_C"] == r["f_C"] for r in rr])) if rr else "--")
 

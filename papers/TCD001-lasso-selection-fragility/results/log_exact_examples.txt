@@ -1,4 +1,5 @@
 Example 1 verified exactly under both rules.
+Example 1b (enter) verified exactly under both rules.
 Example 2 found after 11 trials: [[2, -1], [0, 2], [1, 1], [2, -2], [-1, 1]] [2, -2, 3, -1, 0] 7/2 [2, 3] [1, 2, 3]
    D support [0] signs [1] exact True beta {0: '3/20'} c {1: '-1/10'} marg {0: '5', 1: '-1'}
    D\R support [1] signs [-1] exact True beta {1: '-5/12'} c {0: '11/4'} marg {0: '4', 1: '-6'}

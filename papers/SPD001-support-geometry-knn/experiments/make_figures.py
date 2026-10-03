@@ -113,17 +113,32 @@ def schematic():
 
 
 # ---------------------------------------------------------------- forest plot
+def nb_interval(a, b, n_splits):
+    """95% interval of the mean fold-level difference a - b with the Nadeau-Bengio variance
+    (same formula as make_numbers.py), in accuracy points."""
+    import math
+    from scipy.stats import t as student_t
+    d = np.asarray(a, float) - np.asarray(b, float)
+    J = len(d)
+    half = student_t.ppf(0.975, J - 1) * math.sqrt((1.0 / J + 1.0 / (n_splits - 1)) * d.var(ddof=1))
+    return 100 * (d.mean() - half), 100 * (d.mean() + half)
+
+
 def forest():
     comp = res["comparison"]
-    names = list(res["datasets"].keys())
+    data = res["datasets"]
+    names = list(data.keys())
     fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.4), sharey=True)
     ypos = np.arange(len(names))[::-1]
     ax = axes[0]
     for yy, nm in zip(ypos, names):
         s = comp[nm]["vs_best"]
         sig = s["ci_low"] > 0 or s["ci_high"] < 0
-        ax.plot([100 * s["ci_low"], 100 * s["ci_high"]], [yy, yy], color=INK if sig else INK2, lw=1.4)
-        ax.plot(100 * s["mean"], yy, "o", color=INK if sig else INK2, ms=5)
+        lo, hi = nb_interval(data[nm]["methods"]["TOD"]["acc"], data[nm]["methods"][comp[nm]["best_reference"]]["acc"],
+                             data[nm]["n_splits"])
+        ax.plot([lo, hi], [yy, yy], color=INK2, lw=0.6, alpha=0.7, zorder=1)      # thin: NB interval
+        ax.plot([100 * s["ci_low"], 100 * s["ci_high"]], [yy, yy], color=INK if sig else INK2, lw=1.8, zorder=2)
+        ax.plot(100 * s["mean"], yy, "o", color=INK if sig else INK2, ms=5, zorder=3)
     ax.axvline(0, color=GRID, lw=1, zorder=0)
     ax.set_yticks(ypos)
     ax.set_yticklabels([f"{LABEL[n]}\n(vs {comp[n]['best_reference']})" for n in names], fontsize=7.5)
@@ -138,9 +153,12 @@ def forest():
     for m in ("TO", "TD", "OD"):
         for yy, nm in zip(ypos, names):
             s = comp[nm]["ablation"][m]
-            ax.plot([100 * s["ci_low"], 100 * s["ci_high"]], [yy + off[m]] * 2, color=cols[m], lw=1.2)
-            ax.plot(100 * s["mean"], yy + off[m], "o", color=cols[m], ms=3.5)
-        ax.plot([], [], "o-", color=cols[m], ms=3.5, lw=1.2, label=lab[m])
+            lo, hi = nb_interval(data[nm]["methods"]["TOD"]["acc"], data[nm]["methods"][m]["acc"], data[nm]["n_splits"])
+            ax.plot([lo, hi], [yy + off[m]] * 2, color=cols[m], lw=0.6, alpha=0.5, zorder=1)   # thin: NB interval
+            ax.plot([100 * s["ci_low"], 100 * s["ci_high"]], [yy + off[m]] * 2, color=cols[m], lw=1.6, zorder=2)
+            ax.plot(100 * s["mean"], yy + off[m], "o", color=cols[m], ms=3.5, zorder=3)
+        ax.plot([], [], "o-", color=cols[m], ms=3.5, lw=1.6, label=lab[m])
+    ax.plot([], [], "-", color=INK2, lw=0.6, label="thin: Nadeau$-$Bengio interval")
     ax.axvline(0, color=GRID, lw=1, zorder=0)
     ax.grid(axis="x")
     ax.set_xlabel("TOD $-$ reduced model, accuracy points")

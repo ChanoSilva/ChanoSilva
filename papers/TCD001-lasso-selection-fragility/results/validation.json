@@ -7,7 +7,7 @@
   "sklearn": "1.9.1",
   "design": "b=2, rho=0.3, s0=2, sigma=1, c=1.0",
   "reps_per_cell": 15,
-  "seconds": 11.767208814620972
+  "seconds": 7.2323691844940186
  },
  "A_single": [
   {
@@ -389,8 +389,8 @@
   "p": 6,
   "k": 4,
   "subsets": 1001,
-  "oracle_seconds_per_subset": 1.4386641358707e-06,
-  "refit_seconds_per_subset": 0.000568942464999509,
-  "speedup": 395.46580109552593
+  "oracle_seconds_per_subset": 1.1073926073792547e-06,
+  "refit_seconds_per_subset": 0.0004423211049999054,
+  "speedup": 399.4257339740587
  }
 }

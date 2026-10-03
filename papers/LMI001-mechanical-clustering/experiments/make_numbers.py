@@ -53,7 +53,6 @@ with open(os.path.join(OUT, "table_datasets.tex"), "w") as fh:
 # ---- E1 ----
 e1 = ident["E1"]
 L.append(rf"\newcommand{{\EoneChecks}}{{{e1['checks']}}}")
-L.append(rf"\newcommand{{\EoneFailures}}{{{e1['failures']}}}")
 L.append(rf"\newcommand{{\EonePassed}}{{{e1['checks'] - e1['failures']}}}")
 L.append(rf"\newcommand{{\EoneMaxRelErr}}{{{sci(e1['max_rel_err'])}}}")
 L.append(rf"\newcommand{{\EoneHookeSSEErr}}{{{sci(e1['hooke_sse_max_rel_err'])}}}")
@@ -71,6 +70,7 @@ L.append(rf"\newcommand{{\EoneCndPsd}}{{{sum(c['cnd_kernel_psd'] for c in cnd_tr
 L.append(rf"\newcommand{{\EoneRestConfigs}}{{{len(cnd_false)}}}")
 L.append(rf"\newcommand{{\EoneRestIndefinite}}{{{sum(not c['cnd_kernel_psd'] for c in cnd_false)}}}")
 L.append(rf"\newcommand{{\EoneCndWorstRatio}}{{{sci(max(-c['lam_min_cnd_kernel'] / c['lam_max_cnd_kernel'] for c in cnd_true) if any(c['lam_min_cnd_kernel'] < 0 for c in cnd_true) else 0.0)}}}")
+L.append(rf"\newcommand{{\EoneMaxSigma}}{{{sci(max(r['sigma'] for r in e1['rows']))}}}")
 with open(os.path.join(OUT, "table_e1.tex"), "w") as fh:
     rows = []
     for p in POTS:
@@ -106,23 +106,38 @@ L.append(rf"\newcommand{{\EfourN}}{{{e4['n']}}}")
 L.append(rf"\newcommand{{\EfourK}}{{{e4['k']}}}")
 L.append(rf"\newcommand{{\EfourPartitions}}{{{e4['partitions']}}}")
 L.append(rf"\newcommand{{\EfourUnknowns}}{{{e4['unknowns']}}}")
-L.append(rf"\newcommand{{\EfourPoints}}{{{', '.join('(' + str(a) + ',' + str(b) + ')' for a, b in e4['points'])}}}")
+pts_tex = lambda pts: ', '.join('(' + str(a) + ',' + str(b) + ')' for a, b in pts)
+e4_cfgs = e4["configs"]
+L.append(rf"\newcommand{{\EfourSeed}}{{{e4['seed']}}}")
+L.append(rf"\newcommand{{\EfourPoints}}{{{pts_tex(e4_cfgs[0]['points'])}}}")
+L.append(rf"\newcommand{{\EfourPointsB}}{{{pts_tex(e4_cfgs[1]['points']) if len(e4_cfgs) > 1 else ''}}}")
+L.append(rf"\newcommand{{\EfourCells}}{{{e4['cells']}}}")
+L.append(rf"\newcommand{{\EfourCellsSame}}{{{e4['cells_same_pattern']}}}")
 ENAME = {"hooke_specific": r"$\sum_c \frac1{n_c}\sum d_{ij}^2$ (Hooke, per particle)",
          "hooke_total": r"$\sum_c \sum d_{ij}^2$ (Hooke, total)",
          "rest_fixed_specific": r"$\sum_c \frac1{n_c}\sum (d_{ij}^2-\rho)^2$, fixed $\rho$",
          "rest_adaptive_specific": r"$\sum_c \frac1{n_c}\sum (d_{ij}^2-\rho_c)^2$, $\rho_c$ = cluster mean",
          "threebody_specific": r"$\sum_c \frac1{n_c}\sum_{i<j<l} 4\,\mathrm{area}(ijl)^2$ (three-body)",
          "hooke_per_spring": r"$\sum_c \binom{n_c}{2}^{-1}\sum d_{ij}^2$ (per spring)"}
+
+
+def e4_cell(en, w):
+    """yes/no plus the relative residuals on every configuration, separated by ';'."""
+    rs = [next(r for r in c["results"] if r["energy"] == en and r["family_w"] == w) for c in e4_cfgs]
+    verdicts = {r["representable"] for r in rs}
+    word = "yes" if verdicts == {True} else ("no" if verdicts == {False} else "mixed")
+    return f"{word} (" + "; ".join("0" if r["representable"] else f"{r['relative_residual']:.3f}" for r in rs) + ")"
+
+
 with open(os.path.join(OUT, "table_e4.tex"), "w") as fh:
     rows = []
     for en in ["hooke_specific", "hooke_total", "rest_fixed_specific", "rest_adaptive_specific",
                "threebody_specific", "hooke_per_spring"]:
-        rr = {r["family_w"]: r for r in e4["results"] if r["energy"] == en}
-        cell = lambda r: "yes (0)" if r["representable"] else f"no ({r['relative_residual']:.3f})"
-        rows.append(f"{ENAME[en]} & {cell(rr['per_particle'])} & {cell(rr['total'])}")
+        rows.append(f"{ENAME[en]} & {e4_cell(en, 'per_particle')} & {e4_cell(en, 'total')}")
     fh.write(" \\\\\n".join(rows) + "\n")
-L.append(rf"\newcommand{{\EfourRankSpecific}}{{{[r for r in e4['results'] if r['family_w'] == 'per_particle'][0]['rank']}}}")
-L.append(rf"\newcommand{{\EfourRankTotal}}{{{[r for r in e4['results'] if r['family_w'] == 'total'][0]['rank']}}}")
+ranks = lambda w: sorted({r["rank"] for c in e4_cfgs for r in c["results"] if r["family_w"] == w})
+L.append(rf"\newcommand{{\EfourRankSpecific}}{{{'/'.join(map(str, ranks('per_particle')))}}}")
+L.append(rf"\newcommand{{\EfourRankTotal}}{{{'/'.join(map(str, ranks('total')))}}}")
 
 # ---- E3 ----
 agg = relax["aggregate"]
@@ -139,16 +154,13 @@ for m, tag in (("relax", "Relax"), ("lloyd+relax", "LloydRelax"), ("lloyd", "Llo
     L.append(rf"\newcommand{{\EthreeHartigan{tag}}}{{{a['n_hartigan_stable']}}}")
     L.append(rf"\newcommand{{\EthreeReach{tag}}}{{{a['configs_reaching_best']}}}")
     L.append(rf"\newcommand{{\EthreeMedianExcess{tag}}}{{{sci(a['median_of_median_rel_excess'])}}}")
-    L.append(rf"\newcommand{{\EthreeMaxBestExcess{tag}}}{{{sci(a['max_best_rel_excess'])}}}")
-    L.append(rf"\newcommand{{\EthreeMeanFracReach{tag}}}{{{pct(a['mean_frac_reaching_best'])}}}")
 L.append(rf"\newcommand{{\EthreeDistinguishable}}{{{agg['distinguishable_configs']}}}")
 L.append(rf"\newcommand{{\EthreeRelaxBetter}}{{{agg['relax_better_configs']}}}")
 L.append(rf"\newcommand{{\EthreeLloydRelaxBetter}}{{{agg['lloydrelax_better_configs']}}}")
 L.append(rf"\newcommand{{\EthreeMaxAbsDiff}}{{{sci(agg['max_abs_relax_minus_lloydrelax_rel'])}}}")
 L.append(rf"\newcommand{{\EthreeAriOne}}{{{agg['ari_relax_vs_lloydrelax_equal_one']}}}")
-L.append(rf"\newcommand{{\EthreeAriMin}}{{{agg['ari_relax_vs_lloydrelax_min']:.2f}}}")
 L.append(rf"\newcommand{{\EthreeDirectCheck}}{{{sci(agg['direct_check_max_rel_err'])}}}")
-n_shift = sum(c["kernel_used"] == "theorem1f+shift" for c in cfgs)
+n_shift = sum(c["kernel_used"].endswith("+shift") for c in cfgs)
 L.append(rf"\newcommand{{\EthreeShiftedConfigs}}{{{n_shift}}}")
 L.append(rf"\newcommand{{\EthreeLloydHartiganPct}}{{{pct(agg['lloyd']['n_hartigan_stable'] / agg['lloyd']['n_runs'])}}}")
 L.append(rf"\newcommand{{\EthreeNaiveHartiganPct}}{{{pct(agg['lloyd_naive']['n_hartigan_stable'] / agg['lloyd_naive']['n_runs'])}}}")
@@ -166,8 +178,9 @@ with open(os.path.join(OUT, "table_e3_agg.tex"), "w") as fh:
         tot = sum(c["summary"]["relax"]["runs"] for c in cc)
         hart = sum(round(c["summary"]["lloyd"]["frac_hartigan_stable"] * c["summary"]["lloyd"]["runs"]) for c in cc)
         ari1 = sum(c["ari_best_relax_vs_lloydrelax"] > 1 - 1e-12 for c in cc)
+        assert vor == tot, f"relaxation fixed points not all Voronoi-stable for {p}: {vor}/{tot}"
         rows.append(f"{POT_TEX[p]} & {f('relax')} & {f('lloyd+relax')} & {f('lloyd')} & {f('lloyd_naive')} & "
-                    f"{g('relax')} & {g('lloyd+relax')} & {g('lloyd')} & {vor}/{tot} & {hart}/{tot} & {ari1}/{len(cc)}")
+                    f"{g('relax')} & {g('lloyd+relax')} & {g('lloyd')} & {hart}/{tot} & {ari1}/{len(cc)}")
     fh.write(" \\\\\n".join(rows) + "\n")
 # per-configuration table
 with open(os.path.join(OUT, "table_e3.tex"), "w") as fh:
@@ -184,6 +197,7 @@ with open(os.path.join(OUT, "table_e3.tex"), "w") as fh:
     fh.write(" \\\\\n".join(rows) + "\n")
 
 with open(os.path.join(OUT, "numbers.tex"), "w") as fh:
-    fh.write("% generated by experiments/make_numbers.py -- do not edit\n")
+    fh.write("% generated by experiments/make_numbers.py -- do not edit\n"
+             "% per-method E3 macros (Runs/Voronoi/Hartigan/Reach/MedianExcess) are generated systematically; main.tex uses a subset\n")
     fh.write("\n".join(L) + "\n")
 print("wrote numbers.tex and table bodies")

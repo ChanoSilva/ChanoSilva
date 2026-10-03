@@ -172,6 +172,180 @@
    ]
   }
  },
+ "example1b": {
+  "X": [
+   [
+    1
+   ],
+   [
+    1
+   ],
+   [
+    1
+   ],
+   [
+    1
+   ]
+  ],
+  "y": [
+   2,
+   -2,
+   2,
+   -2
+  ],
+  "mu": "3/2",
+  "R": [
+   1
+  ],
+  "Rp": [
+   1,
+   2
+  ],
+  "analysis": {
+   "C": [
+    {
+     "name": "D",
+     "removed": [],
+     "kept": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "mu": "3/2",
+     "support": [],
+     "signs": [],
+     "exact_ok": true,
+     "beta": {},
+     "inactive_c": {
+      "0": "0"
+     },
+     "marginal_xy": {
+      "0": "0"
+     }
+    },
+    {
+     "name": "D\\R",
+     "removed": [
+      1
+     ],
+     "kept": [
+      0,
+      2,
+      3
+     ],
+     "mu": "3/2",
+     "support": [
+      0
+     ],
+     "signs": [
+      1
+     ],
+     "exact_ok": true,
+     "beta": {
+      "0": "1/6"
+     },
+     "inactive_c": {},
+     "marginal_xy": {
+      "0": "2"
+     }
+    },
+    {
+     "name": "D\\R'",
+     "removed": [
+      1,
+      2
+     ],
+     "kept": [
+      0,
+      3
+     ],
+     "mu": "3/2",
+     "support": [],
+     "signs": [],
+     "exact_ok": true,
+     "beta": {},
+     "inactive_c": {
+      "0": "0"
+     },
+     "marginal_xy": {
+      "0": "0"
+     }
+    }
+   ],
+   "P": [
+    {
+     "name": "D",
+     "removed": [],
+     "kept": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "mu": "3/2",
+     "support": [],
+     "signs": [],
+     "exact_ok": true,
+     "beta": {},
+     "inactive_c": {
+      "0": "0"
+     },
+     "marginal_xy": {
+      "0": "0"
+     }
+    },
+    {
+     "name": "D\\R",
+     "removed": [
+      1
+     ],
+     "kept": [
+      0,
+      2,
+      3
+     ],
+     "mu": "9/8",
+     "support": [
+      0
+     ],
+     "signs": [
+      1
+     ],
+     "exact_ok": true,
+     "beta": {
+      "0": "7/24"
+     },
+     "inactive_c": {},
+     "marginal_xy": {
+      "0": "2"
+     }
+    },
+    {
+     "name": "D\\R'",
+     "removed": [
+      1,
+      2
+     ],
+     "kept": [
+      0,
+      3
+     ],
+     "mu": "3/4",
+     "support": [],
+     "signs": [],
+     "exact_ok": true,
+     "beta": {},
+     "inactive_c": {
+      "0": "0"
+     },
+     "marginal_xy": {
+      "0": "0"
+     }
+    }
+   ]
+  }
+ },
  "example2": {
   "X": [
    [
@@ -559,5 +733,5 @@
   },
   "f_leave_var0_rule_P": 1
  },
- "seconds": 0.34964656829833984
+ "seconds": 0.3290071487426758
 }

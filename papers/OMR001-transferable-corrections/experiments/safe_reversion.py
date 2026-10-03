@@ -20,7 +20,9 @@ Also evaluated (no guarantee proved in the manuscript, empirical only):
   'refit' : same check, but the final estimate is built from all n observations;
   'sure'  : no held-out sample; use C iff SURE(C) < SURE(R) on the full sample.
 
-Predefined criteria (fixed before the runs, see manuscript Sec. 5):
+Predefined criteria (U and S were fixed before the runs, see manuscript Sec. 5;
+the Poisson comparison used in the identity check for rare acceptance replaced a
+paired z-test after a first run showed that the normal approximation fails there):
   U  useful transfer at a configuration: the lower end of the 95% CI of the
      relative gain in risk with respect to the FULL-data reference Xbar_n is
      >= 0.05 (the split cost is charged to the method);
@@ -68,6 +70,7 @@ CFG = dict(
     operators=["eb", "pool", "fixed"],
 )
 PHI0 = float(norm.pdf(0.0))
+PHI1 = float(norm.pdf(1.0))   # sup_x x phi(x)
 
 
 # ----------------------------------------------------------------------------
@@ -95,12 +98,16 @@ def constants_table():
 # ----------------------------------------------------------------------------
 # One batch of replicates
 # ----------------------------------------------------------------------------
-def simulate(rng, snr, dep_over_tau, m):
+def simulate(rng, snr, dep_over_tau, m, tau2=None):
+    """One batch.  By default tau^2 = snr * sigma^2/n_e with n_e = n - m; the held-out
+    size sweep passes tau2 explicitly so that the task distribution does not move with m
+    (referee round 1, M1)."""
     d, sigma, S, n_s, n, R = (CFG[k] for k in ("d", "sigma", "S", "n_s", "n", "R"))
     n_e = n - m
     se2_e = sigma ** 2 / n_e
     se2_n = sigma ** 2 / n
-    tau2 = snr * se2_e
+    if tau2 is None:
+        tau2 = snr * se2_e
     tau = np.sqrt(tau2)
     mu = np.zeros(d)  # the operators estimate mu; the risks do not depend on it
 
@@ -122,7 +129,7 @@ def simulate(rng, snr, dep_over_tau, m):
     Xn = (n_e * Xe + m * Yb) / n
 
     sq = lambda v: (v ** 2).sum(axis=1)
-    out = dict(L_Re=sq(Xe - theta), L_Rn=sq(Xn - theta), lam_e=lam_e,
+    out = dict(L_Re=sq(Xe - theta), L_Rn=sq(Xn - theta), lam_e=lam_e, tau2=tau2,
                dist_center=np.sqrt(sq(Xe - mu_hat)), ops={})
     lams = {"eb": (lam_e, lam_n),
             "pool": (np.zeros(R), np.zeros(R)),
@@ -204,12 +211,18 @@ def evaluate(sim, m):
             bound_phi = float(norm.pdf(z)) * float(s.mean())
             bound_tight = float((Dplus * p_acc).mean())
             regret_bound = (z + PHI0) * float(s.mean())
+            # uniform cap (Corollary 'uniform cap' of the manuscript): for ANY F-measurable C
+            # and every theta,  E[Delta^+ pi] <= 4 sigma phi(z) E||R-theta|| / sqrt(m) + 4 phi(1) sigma^2 / m,
+            # with E||R-theta|| <= sigma_e sqrt(d).  Closed form below (no Monte Carlo input).
+            n_e = CFG["n"] - m
+            sig = CFG["sigma"]
+            bound_uniform = 4 * sig ** 2 * (float(norm.pdf(z)) * np.sqrt(CFG["d"] / (n_e * m)) + PHI1 / m)
             r = dict(alpha=a, z=z, risk=mse(L_rev), risk_rb=mse(L_rev_rb),
                      gain_vs_Rn=rel_gain(L_Rn, L_rev), gain_vs_Re=rel_gain(L_Re, L_rev),
                      excess_vs_Re=ex_mc, excess_vs_Re_rb=ex_rb,
                      bound_alpha=bound_alpha, bound_phi=bound_phi, bound_tight=bound_tight,
                      regret_vs_oracle=mse(L_rev - np.minimum(L_Re, o["L_b"])),
-                     regret_bound=regret_bound,
+                     regret_bound=regret_bound, bound_uniform=bound_uniform,
                      accept_freq=float(acc.mean()),
                      harm_freq=float((acc & (Delta > 0)).mean()),
                      accept_given_harmful=float(acc[Delta > 0].mean()) if (Delta > 0).any() else 0.0,
@@ -220,6 +233,7 @@ def evaluate(sim, m):
             r["safe_phi"] = bool(ex_mc[0] <= bound_phi + 2 * ex_mc[1])
             r["safe_alpha"] = bool(ex_mc[0] <= bound_alpha + 2 * ex_mc[1])
             r["safe_tight"] = bool(ex_mc[0] <= bound_tight + 2 * ex_mc[1])
+            r["safe_uniform"] = bool(ex_mc[0] <= bound_uniform + 2 * ex_mc[1])
             hf = r["harm_freq"]; hb = a * always["harm_freq"]     # Corollary: P(harmful event) <= alpha P(Delta>0)
             r["harm_freq_bound"] = hb
             r["safe_harm_freq"] = bool(hf <= hb + 2 * np.sqrt(max(hf * (1 - hf), 1e-12) / Delta.size))
@@ -253,7 +267,7 @@ def run_all():
     for snr in CFG["snr_grid"]:
         sim = simulate(rng, snr, 0.0, m0)
         r = evaluate(sim, m0)
-        r.update(snr=snr, m=m0, n_e=n_e0, lam_oracle=snr / (1 + snr),
+        r.update(snr=snr, m=m0, n_e=n_e0, lam_oracle=snr / (1 + snr), tau2=sim["tau2"],
                  tau=float(np.sqrt(snr * CFG["sigma"] ** 2 / n_e0)),
                  bayes_oracle_risk=CFG["d"] * CFG["sigma"] ** 2 / n_e0 * snr / (1 + snr))
         structure.append(r)
@@ -263,18 +277,23 @@ def run_all():
     for dep in CFG["dep_grid"]:
         sim = simulate(rng, CFG["snr_dep"], dep, m0)
         r = evaluate(sim, m0)
-        r.update(snr=CFG["snr_dep"], dep_over_tau=dep, m=m0, n_e=n_e0,
+        r.update(snr=CFG["snr_dep"], dep_over_tau=dep, m=m0, n_e=n_e0, tau2=sim["tau2"],
                  tau=float(np.sqrt(CFG["snr_dep"] * CFG["sigma"] ** 2 / n_e0)))
         departure.append(r)
         print(f"departure dep={dep:5.1f}tau always={r['ops']['eb']['always']['risk'][0]:.4f} "
               f"rev(0.1)={r['ops']['eb']['rev']['0.1']['risk'][0]:.4f} "
               f"excess={r['ops']['eb']['rev']['0.1']['excess_vs_Re'][0]:.5f} "
               f"bound_phi={r['ops']['eb']['rev']['0.1']['bound_phi']:.4f}", flush=True)
+    # held-out size sweep: tau^2 is held at its m = m_default value (sigma^2/48 here) for
+    # every m, so that only the split moves; 'snr' in these rows is relative to n_e0
+    tau2_fixed = CFG["snr_dep"] * CFG["sigma"] ** 2 / n_e0
     for m in CFG["m_grid"]:
         for dep in [0.0, 8.0]:
-            sim = simulate(rng, CFG["snr_dep"], dep, m)
+            sim = simulate(rng, CFG["snr_dep"], dep, m, tau2=tau2_fixed)
             r = evaluate(sim, m)
-            r.update(snr=CFG["snr_dep"], dep_over_tau=dep, m=m, n_e=CFG["n"] - m)
+            r.update(snr=CFG["snr_dep"], dep_over_tau=dep, m=m, n_e=CFG["n"] - m,
+                     tau2=tau2_fixed, tau2_fixed_at_m=m0,
+                     snr_vs_own_ne=tau2_fixed / (CFG["sigma"] ** 2 / (CFG["n"] - m)))
             msweep.append(r)
             print(f"m-sweep m={m:3d} dep={dep:4.1f} rev(0.1)={r['ops']['eb']['rev']['0.1']['risk'][0]:.4f} "
                   f"R_n={r['risk_Rn'][0]:.4f}", flush=True)
@@ -292,6 +311,9 @@ def summarize(structure, departure, msweep, consts):
         safe_alpha_all=all(x[3]["safe_alpha"] for x in allrev),
         safe_tight_all=all(x[3]["safe_tight"] for x in allrev),
         safe_harm_freq_all=all(x[3]["safe_harm_freq"] for x in allrev),
+        safe_uniform_all=all(x[3]["safe_uniform"] for x in allrev),
+        max_excess_over_bound_uniform=max(x[3]["excess_vs_Re"][0] / x[3]["bound_uniform"] for x in allrev),
+        max_bound_phi_over_uniform=max(x[3]["bound_phi"] / x[3]["bound_uniform"] for x in allrev),
         useful_structure_always_full_eb=[r["snr"] for r in structure if r["ops"]["eb"]["always_full"]["useful"]],
         harmful_vs_Rn_always_full_eb_structure=[r["snr"] for r in structure
                                                 if r["ops"]["eb"]["always_full"]["gain_vs_Rn"]["hi"] < 0],
@@ -376,7 +398,8 @@ def write_tables(structure, departure, msweep, consts, summary, path):
                  " | ".join(f"{100*e['rev'][a]['harm_freq']:.1f}" for a in alphas) +
                  f" | {q['excess_vs_Re'][0]:+.5f} +- {q['excess_vs_Re'][1]:.5f} | {q['bound_tight']:.5f} | {q['bound_phi']:.4f} | {q['bound_alpha']:.4f}"
                  f" | {e['sure']['risk'][0]:.4f} | {q['risk_refit'][0]:.4f} |")
-    L.append("\n## T3. Held-out size (EB operator, snr=%.1f, alpha=0.1)\n" % CFG["snr_dep"])
+    L.append("\n## T3. Held-out size (EB operator, tau^2 fixed at snr=%.1f relative to n_e=%d, alpha=0.1)\n"
+             % (CFG["snr_dep"], CFG["n"] - CFG["m_default"]))
     L.append("| m | n_e | dep/tau | R_e | R_n | always_e | always_n | rev | gain rev | excess (MC) | bound phi | refit | SURE |")
     L.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for r in msweep:
@@ -400,7 +423,8 @@ def write_tables(structure, departure, msweep, consts, summary, path):
     for c in consts:
         L.append(f"| {c['alpha']} | {c['z']:.3f} | {c['phi_z']:.4f} | {c['kappa']:.4f} | {c['u_star']:.3f} | {c['ratio_kappa_over_phi']:.3f} | {c['regret_const']:.3f} |")
     L.append("\n## Summary checks\n")
-    for k in ("n_configs_rev", "safe_phi_all", "safe_alpha_all", "safe_tight_all", "safe_harm_freq_all", "max_identity_abs_z",
+    for k in ("n_configs_rev", "safe_phi_all", "safe_alpha_all", "safe_tight_all", "safe_harm_freq_all",
+              "safe_uniform_all", "max_excess_over_bound_uniform", "max_bound_phi_over_uniform", "max_identity_abs_z",
               "n_identity_clt", "n_identity_poisson", "identity_ok_all", "n_identity_fail",
               "max_excess_over_bound_phi", "max_regret_over_bound",
               "useful_structure_eb", "useful_structure_always_eb", "useful_structure_always_full_eb", "useful_structure_sure_eb",
@@ -485,6 +509,39 @@ def make_figures(structure, departure):
                "departure_sweep", "Departure sweep: negative transfer and its cap (EB operator, m = %d)" % CFG["m_default"],
                yscale="log", legend_loc="upper left")
 
+    # Combined figure for the manuscript (one row): guaranteed estimators on both sweeps
+    fig, axes = plt.subplots(1, 2, figsize=(8.4, 3.4))
+    for ax, rows, xx, xlabel, sub, xscale, yscale, loc in (
+            (axes[0], structure, [r["snr"] for r in structure],
+             r"snr $=\tau^2/(\sigma^2/n_e)$ (smaller = tasks more alike)",
+             "(a) structure sweep: target from the hierarchy", "symlog", None, "lower right"),
+            (axes[1], departure, [r["dep_over_tau"] for r in departure],
+             r"departure of the target from the centre, in units of $\tau$ (snr = 1)",
+             "(b) departure sweep: negative transfer and its cap (log)", None, "log", "upper left")):
+        Rn = np.array([r["risk_Rn"][0] for r in rows])
+        ax.axhline(1.0, color=C["text2"], linewidth=1.0)
+        ax.plot(xx, [r["risk_Re"][0] for r in rows] / Rn, color=C["text2"], linewidth=2,
+                linestyle=(0, (4, 3)), label="reference on estimation sample (split cost)")
+        for lab, kind, a, col in left:
+            y = np.array([get(r, kind, a) for r in rows]) / Rn
+            ax.plot(xx, y, color=col, label=lab, **mk)
+        if xscale == "symlog":
+            ax.set_xscale("symlog", linthresh=0.25)
+            ax.set_xticks(xx); ax.set_xticklabels([f"{v:g}" for v in xx])
+        if yscale:
+            ax.set_yscale(yscale)
+        ax.set_title(sub, loc="left", color=C["text"], fontsize=9)
+        ax.set_xlabel(xlabel, fontsize=9, color=C["text"])
+        ax.legend(fontsize=7.5, loc=loc)
+        style(ax)
+    axes[0].set_ylabel("risk / risk of full-data reference")
+    fig.suptitle("Reverting estimators with the guarantee of Theorem B (EB operator, m = %d)" % CFG["m_default"],
+                 x=0.01, ha="left", color=C["text"], fontsize=10)
+    fig.tight_layout()
+    fig.savefig(os.path.join(FIGURES, "sweeps.png"), dpi=200)
+    fig.savefig(os.path.join(FIGURES, "sweeps.pdf"))
+    plt.close(fig)
+
     # Figure 3: excess over the reference versus the bounds of Theorem B (alpha = 0.1)
     fig, ax = plt.subplots(figsize=(6.0, 3.6))
     x = np.array([r["dep_over_tau"] for r in departure])
@@ -542,6 +599,7 @@ def identity_recheck(structure, departure, msweep):
                         if key < wkey:
                             wkey, worst = key, dict(sweep=sw, snr=r["snr"], dep_over_tau=r.get("dep_over_tau", 0.0),
                                                     m=r["m"], operator=name, alpha=float(al),
+                                                    tau2=r.get("tau2"),   # the m sweep fixes tau2; re-simulate with the same value
                                                     count=q["accept_count"], expected=q["accept_expected"], z_main=key)
     rec = dict(conditional=cond, conditional_max_abs_z=max(abs(c["z"]) for c in cond))
     if worst is not None:
@@ -550,7 +608,7 @@ def identity_recheck(structure, departure, msweep):
         z = float(norm.ppf(1 - worst["alpha"]))
         for i in range(nseeds):
             rng_i = np.random.default_rng(SEED + 1000 + i)
-            sim = simulate(rng_i, worst["snr"], worst["dep_over_tau"], worst["m"])
+            sim = simulate(rng_i, worst["snr"], worst["dep_over_tau"], worst["m"], tau2=worst["tau2"])
             o = sim["ops"][worst["operator"]]
             acc = o["Dhat"] <= -z * o["s"]
             p = norm.cdf(-(o["Delta"] + z * o["s"]) / o["s"])
@@ -572,7 +630,7 @@ def main():
     import scipy, matplotlib
     meta = dict(seed=SEED, fast=FAST, seconds=seconds, python=platform.python_version(),
                 numpy=np.__version__, scipy=scipy.__version__, matplotlib=matplotlib.__version__,
-                date="2026-09-30")
+                date="2026-10-03", version="v0.2 (referee round 1 applied)")
     out = dict(meta=meta, config=CFG, criteria=dict(
         useful="lower end of the paired 95% CI of the relative risk gain with respect to the full-data reference Xbar_n is >= useful_threshold",
         safe="Monte Carlo excess risk over the estimation-sample reference <= bound + 2 SE, for every configuration and alpha",
@@ -584,6 +642,7 @@ def main():
     write_tables(structure, departure, msweep, consts, summary, os.path.join(RESULTS, "tables.md"))
     make_figures(structure, departure)
     print(json.dumps({k: summary[k] for k in ("safe_phi_all", "safe_alpha_all", "safe_tight_all", "safe_harm_freq_all",
+                                                "safe_uniform_all", "max_excess_over_bound_uniform",
                                                 "max_identity_abs_z", "identity_ok_all", "n_identity_fail",
                                                 "max_excess_over_bound_phi", "max_regret_over_bound")}, indent=1))
     print(f"done in {seconds:.1f} s")

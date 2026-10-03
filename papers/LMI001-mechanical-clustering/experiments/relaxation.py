@@ -3,16 +3,26 @@
 on the same energy.
 
 Methods (all see the same kernel matrix, i.e. the same spring network):
-  lloyd        batch Lloyd in the feature space of the PSD-shifted kernel
+  lloyd        batch Lloyd in the feature space of the canonical kernel K~ of
+               Theorem 3.2(f), shifted minimally only when it is indefinite
   lloyd+relax  lloyd followed by zero-temperature single-particle relaxation
   relax        zero-temperature single-particle relaxation from the initial labels
                (this is Hartigan's method written in spring energies)
   anneal       Metropolis on the spring energy with geometric cooling, then relax
+  lloyd_naive  batch Lloyd on the naive representative -phi(D) + sigma I
+               (control for Proposition 3.6; same energy, other representation)
 Initialisations shared by all methods: random labels, and kernel k-means++ seeds.
+
+History of the Lloyd baseline (disclosed in the manuscript, Section 5, E3): a
+pilot run used -phi(D) + sigma I as the only Lloyd kernel and found it inert
+(sigma up to 4.4e4; Proposition 3.6 explains why). The canonical kernel K~ then
+replaced it as the baseline and the naive shift was kept as a control. The
+criteria C3a-C3c and their thresholds (1e-6, 1e-9) were written before the pilot
+and were not changed; every number reported comes from the final code.
 
 Predefined criteria (written before the runs):
   C3a  Every fixed point of relax and of anneal is Voronoi-stable in the feature
-       space of the PSD-shifted kernel (Proposition 3 predicts 100 %).
+       space of the kernel used (Proposition 3.5(ii) predicts 100 %).
   C3b  Same energy, so the comparison is between optimisers of one function:
        the mechanical relaxation is called "distinguishable" from the kernel
        k-means family only if its best-of-R energy is below the best-of-R energy
@@ -23,7 +33,10 @@ Predefined criteria (written before the runs):
        fraction of restarts reaching the best energy found, ARI between the best
        partitions of relax and lloyd+relax (expected 1 when energies agree).
   C3c  The fraction of lloyd fixed points that are not single-move stable is
-       reported (the inclusion of Proposition 3 is expected to be strict).
+       reported (the inclusion of Proposition 3.5(ii) is expected to be strict).
+Single-move stability is measured with is_hartigan_stable() for every method
+(for relax, lloyd+relax and anneal it holds by construction of the stopping
+rule, up to the two tolerances 1e-10 and 1e-9; it is checked, not assumed).
 """
 from __future__ import annotations
 
@@ -59,8 +72,9 @@ METHODS = ("lloyd", "lloyd+relax", "relax", "anneal", "lloyd_naive")
 
 
 def run_config(Ks, pot, n, k, sigma, rng, y_true, Kn, sigma_n):
-    """Ks: canonical kernel of Theorem 1(f) (shifted minimally only if indefinite);
-    Kn: the naive kernel -phi(D) + sigma_n I (control: Lloyd is representation-dependent)."""
+    """Ks: canonical kernel of Theorem 3.2(f) (shifted minimally only if indefinite);
+    Kn: the naive kernel -phi(D) + sigma_n I (control for Proposition 3.6: Lloyd is
+    representation-dependent)."""
     const = M.theorem_constant(n, k, pot, sigma)
     const_n = M.theorem_constant(n, k, pot, sigma_n)
     runs = []
@@ -86,20 +100,21 @@ def run_config(Ks, pot, n, k, sigma, rng, y_true, Kn, sigma_n):
                          hartigan=h_stable, labels=st.labels.copy()))
         sw, mv = st.hartigan(rng)
         runs.append(dict(method="lloyd+relax", init=itype, r=idx, E=0.5 * st.objective() + const,
-                         iters=it + sw, voronoi=st.is_voronoi_stable(), hartigan=True,
+                         iters=it + sw, voronoi=st.is_voronoi_stable(), hartigan=st.is_hartigan_stable(),
                          labels=st.labels.copy(), polish_moves=mv))
         # relax from scratch
         st = M.KKMState(Ks, lab0, k)
         sw, mv = st.hartigan(rng)
         runs.append(dict(method="relax", init=itype, r=idx, E=0.5 * st.objective() + const, iters=sw,
-                         voronoi=st.is_voronoi_stable(), hartigan=True, labels=st.labels.copy()))
+                         voronoi=st.is_voronoi_stable(), hartigan=st.is_hartigan_stable(),
+                         labels=st.labels.copy()))
         # anneal (random inits only, first R_ANNEAL)
         if itype == "random" and idx < R_ANNEAL:
             st = M.KKMState(Ks, lab0, k)
             T0, acc, sw = st.anneal(rng, n_sweeps=N_SWEEPS_ANNEAL)
             runs.append(dict(method="anneal", init=itype, r=idx, E=0.5 * st.objective() + const,
-                             iters=N_SWEEPS_ANNEAL + sw, voronoi=st.is_voronoi_stable(), hartigan=True,
-                             labels=st.labels.copy(), T0=T0, accepted=acc))
+                             iters=N_SWEEPS_ANNEAL + sw, voronoi=st.is_voronoi_stable(),
+                             hartigan=st.is_hartigan_stable(), labels=st.labels.copy(), T0=T0, accepted=acc))
     E_best = min(r["E"] for r in runs)
     best_of = {}
     for r in runs:
@@ -145,14 +160,14 @@ def main():
             Xl = M.lifted_coordinates(X, pname, sc["lift_scale"])
             D = squareform(pdist(Xl))
             n = len(Xl)
-            # canonical kernel of Theorem 1(f); PSD without shift when phi is CND
+            # canonical kernel of Theorem 3.2(f); PSD without shift when phi is of negative type
             Kc = M.cnd_kernel(Xl, D, pot)
             lam = np.linalg.eigvalsh(Kc)
             if lam[0] >= -1e-9 * max(1.0, lam[-1]):
-                Ks, sigma, kernel_used = Kc, 0.0, "theorem1f"
+                Ks, sigma, kernel_used = Kc, 0.0, "canonical"
             else:
                 sigma = -float(lam[0]) + 1e-9 * max(1.0, float(lam[-1]))
-                Ks, kernel_used = Kc + sigma * np.eye(n), "theorem1f+shift"
+                Ks, kernel_used = Kc + sigma * np.eye(n), "canonical+shift"
             lam_min = float(lam[0])
             # naive representation: -phi(D) shifted to PSD (control for Lloyd)
             Kn0 = M.kernel_from_potential(D, pot)

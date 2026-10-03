@@ -1,6 +1,6 @@
 # LaTeX build files
 manuscript/*.aux
-manuscript/*.bbl
+# manuscript/main.bbl is kept so that the PDF rebuilds without BibTeX
 manuscript/*.blg
 manuscript/*.log
 manuscript/*.out

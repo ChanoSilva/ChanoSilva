@@ -31,14 +31,29 @@ ZERO_TOL = 1e-10  # |coef| below this is treated as an exact zero (LARS returns 
 # ----------------------------------------------------------------------------------------------
 # Solvers
 # ----------------------------------------------------------------------------------------------
+KKT_TOL = 1e-8    # relative KKT tolerance used to guard the homotopy output (see lasso_lars)
+
+
 def lasso_lars(X: np.ndarray, y: np.ndarray, mu: float) -> np.ndarray:
-    """Exact (homotopy) Lasso solution of (1/2)||y-Xb||^2 + mu||b||_1 via sklearn.lars_path."""
+    """Exact (homotopy) Lasso solution of (1/2)||y-Xb||^2 + mu||b||_1 via sklearn.lars_path.
+
+    Guard (added in v0.2): sklearn's LARS path is wrong when two variables enter at exactly the same
+    penalty (an exact tie of correlations, e.g. X = I_2, y = (3, 3): it returns (5, 2) instead of
+    (2, 2)).  Ties have probability zero for continuous designs but occur in integer data, so the
+    output is checked against the KKT conditions and, if they fail, recomputed by coordinate descent
+    with a tight tolerance.  In the reference runs (Gaussian designs) the fallback is never needed.
+    """
     n = X.shape[0]
     if n == 0:
         return np.zeros(X.shape[1])
     alpha_min = mu / n
     _, _, coefs = lars_path(X, y, method="lasso", alpha_min=alpha_min)
-    return coefs[:, -1].copy()
+    beta = coefs[:, -1].copy()
+    act, inact = kkt_residuals(X, y, beta, mu)
+    tol = KKT_TOL * max(1.0, mu)
+    if act > tol or inact > tol:
+        beta = lasso_cd(X, y, mu, tol=1e-12)
+    return beta
 
 
 def lasso_cd(X: np.ndarray, y: np.ndarray, mu: float, tol: float = 1e-12) -> np.ndarray:
@@ -79,7 +94,7 @@ def reduced_mu(mu: float, n: int, k: int, rule: str) -> float:
 
 
 # ----------------------------------------------------------------------------------------------
-# Fitted state and the exact removal test (Proposition 1 of the manuscript)
+# Fitted state and the exact removal test (Proposition 3.1 of the manuscript)
 # ----------------------------------------------------------------------------------------------
 @dataclass
 class LassoState:
@@ -150,7 +165,7 @@ def fit_state(X: np.ndarray, y: np.ndarray, mu: float, beta: np.ndarray | None =
 
 def removal_test(st: LassoState, R_batch: np.ndarray, rule: str = "C", det_tol: float = 1e-12):
     """
-    Exact test of Proposition 1, vectorised over a batch of removal sets.
+    Exact test of Proposition 3.1, vectorised over a batch of removal sets.
 
     R_batch : int array (m, k) of observation indices.
     Returns dict with
@@ -207,26 +222,31 @@ def removal_test(st: LassoState, R_batch: np.ndarray, rule: str = "C", det_tol: 
                 kkt_ok=kkt_ok, rank_ok=rank_ok, mu_new=mu_new)
 
 
-def single_removal_indices(st: LassoState):
+def single_removal_indices(st: LassoState, h_tol: float = 1e-12):
     """
-    Corollary 2 quantities (constant rule) for every observation i:
+    Corollary 3.2 quantities (constant rule) for every observation i with h_i < 1:
       e_i = r_i/(1-h_i), iota_i = |e_i| * max(||v_i||_inf / m, ||xt_i||_inf / gamma).
+    Convention (Corollary 3.2): when h_i >= 1 - h_tol the matrix X_{S,-i} is rank deficient
+    (Proposition 3.1(a): removing i cannot preserve (S, s)) and e_i = iota_i = +inf.
     max_i iota_i < 1 certifies that no single removal changes the signed support.
+    gamma = +inf when S^c is empty (the second term is then 0).
     """
     n = st.n
-    e = st.r / (1.0 - st.h)
+    ok = st.h < 1.0 - h_tol
+    with np.errstate(divide="ignore", invalid="ignore"):
+        e = np.where(ok, st.r / np.where(ok, 1.0 - st.h, 1.0), np.inf)
     vinf = np.max(np.abs(st.V), axis=1) if len(st.S) else np.zeros(n)
     xinf = np.max(np.abs(st.Xt), axis=1) if len(st.Sc) else np.zeros(n)
     m, g = st.m, st.gamma
     a = vinf / m if np.isfinite(m) else np.zeros(n)
     b = xinf / g if np.isfinite(g) else np.zeros(n)
-    iota = np.abs(e) * np.maximum(a, b)
-    return dict(e=e, iota=iota, vinf=vinf, xinf=xinf)
+    iota = np.where(ok, np.abs(e) * np.maximum(a, b), np.inf)
+    return dict(e=e, iota=iota, vinf=vinf, xinf=xinf, rank_deficient=~ok)
 
 
 def certificate_k(st: LassoState, kmax: int | None = None) -> int:
     """
-    Proposition 3 (constant rule): largest k such that the top-k-sum bounds certify that no removal
+    Proposition 3.4 (constant rule): largest k such that the top-k-sum bounds certify that no removal
     of <= k observations changes the signed support.  Returns 0 if not even k=1 is certified.
 
     With T_k(a) = sum of the k largest entries of a >= 0, and e_R = r_R + H_R e_R:
@@ -298,6 +318,10 @@ def fragility_exact(st: LassoState, target: str, rule: str = "C", j: int | None 
     Minimal |R| (proper subsets, |R| <= kmax) such that S(D \\ R) exhibits `target`.
     Uses the exact removal test to skip refits whenever the signed pattern is preserved;
     refits (LARS) only the flagged sets when the target needs the new support.
+    For target "any_signed" a flagged set is recorded as a witness without refitting: this
+    identifies a witness in the sense of Definition 2.2 provided the minimiser on D \\ R is unique,
+    which holds with probability one for designs with a continuous distribution (general position);
+    for integer data uniqueness must be certified separately (see exact_examples.py).
     Returns dict(f, witnesses (list of tuples, at most max_witnesses), n_oracle, n_refit, seconds,
                  found).  f = None if no witness up to kmax.
     """
@@ -410,13 +434,9 @@ def greedy_witness(X, y, mu, target, rule="C", j=None, method="onestep", budget=
         mu_c = reduced_mu(mu, n, n - nc, rule)
         st = fit_state(Xc, yc, mu_c, betac)
         if method == "onestep":
-            # target undefined for the current pattern (e.g. j already gone) -> fall back to 'any'
-            tgt = target
-            if target == "leave" and j not in set(st.S.tolist()):
-                tgt = "any"
-            if target == "enter" and j in set(st.S.tolist()):
-                tgt = "any"
-            score = _score_candidates(st, tgt, j, "C" if rule == "C" else "P", np.arange(nc))
+            # the target is checked after every removal, so here j is still in S (leave) or
+            # still outside S (enter): the target is always defined for the current pattern
+            score = _score_candidates(st, target, j, rule, np.arange(nc))
             pick = int(np.argmin(score))
         elif method == "cook":
             if len(st.S):
@@ -444,7 +464,7 @@ def greedy_witness(X, y, mu, target, rule="C", j=None, method="onestep", budget=
 def amip_witness(X, y, mu, target, rule="C", j=None, budget=None):
     """
     AMIP-style heuristic (sorted one-shot influence scores, in the spirit of Broderick, Giordano and
-    Meager 2020, with the exact single-removal effect of Proposition 1 in place of the influence
+    Meager 2020, with the exact single-removal effect of Proposition 3.1 in place of the influence
     function).  For every 'direction' in which the target can be reached (an active coefficient
     pushed to zero, or an inactive correlation pushed to +mu or -mu), score every observation once on
     the full data, sort, and predict the number of removals k_pred as the smallest k whose cumulative

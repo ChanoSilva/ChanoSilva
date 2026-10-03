@@ -6,11 +6,14 @@ the ORACLE best global reference, i.e. max(linear, RBF) test accuracy in each ou
 against each fixed global reference.  Reads results/results.json only; no refit."""
 import json
 import os
+import sys
 
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+import run_comparison as R  # noqa: E402  (for sig_of)
 res = json.load(open(os.path.join(ROOT, "results", "results.json")))
 LOCAL = res["meta"]["local"]
 SEED = res["meta"]["seed"]
@@ -38,7 +41,7 @@ for cname in res["meta"]["conditions"]:
                 rng = np.random.default_rng([SEED, 4242, sum(map(ord, cname)), sum(map(ord, d)), sum(map(ord, m)), sum(map(ord, ref))])
                 lo, hi = ci(diffs, rng)
                 row[f"{m}_vs_{ref}"] = {"diff_mean": float(diffs.mean()), "diff_ci": [lo, hi],
-                                       "sig": "pos" if lo > 0 else ("neg" if hi < 0 else "none")}
+                                       "sig": R.sig_of(lo, hi)}  # same exact-zero convention as run_comparison
         row["oracle_mean_acc"] = float(np.mean([max(f["linear"]["acc"], f["rbf"]["acc"]) for f in folds]))
         out["conditions"][cname][d] = row
 

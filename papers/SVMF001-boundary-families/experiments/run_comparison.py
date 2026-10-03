@@ -116,21 +116,28 @@ REGIMES = {"real": ["wine", "breast_cancer", "digits_parity"],
 METHODS = ["linear", "rbf", "best_global", "knn_svm", "cell_svm", "vb_rbf", "llsvm"]
 LOCAL = ["knn_svm", "cell_svm", "vb_rbf", "llsvm"]
 
+# v0.2 (03/10/2026, PREREGISTRO_SVMF001.md): grids widened at the ends where the v0.1 run
+# saturated (referee report B1).  v0.1 grids were C_lin {0.01..10}, C_rbf {0.1, 1, 10},
+# gamma_mults {0.1..10}, knn_ks {20, 50, 100}, cell_Ms = llsvm_Ms {1, 2, 4, 8}.
 GRID = {
-    "C_lin": [0.01, 0.1, 1.0, 10.0],
-    "C_rbf": [0.1, 1.0, 10.0],
-    "gamma_mults": [0.1, 0.3, 1.0, 3.0, 10.0],
-    "knn_ks": [20, 50, 100],
+    "C_lin": [0.001, 0.01, 0.1, 1.0, 10.0],
+    "C_rbf": [0.1, 1.0, 10.0, 100.0, 1000.0],
+    "gamma_mults": [0.1, 0.3, 1.0, 3.0, 10.0, 30.0, 100.0],
+    "knn_ks": [5, 10, 20, 50, 100],
     "knn_C": 1.0,
     "knn_val_cap": 40,
-    "cell_Ms": [1, 2, 4, 8],
+    "cell_Ms": [1, 2, 4, 8, 16, 32],
     "cell_Cs": [0.1, 1.0, 10.0],
     "vb_betas": [0.0, 0.5, 1.0],
     "vb_kbw": 10,
-    "llsvm_Ms": [1, 2, 4, 8],
+    "llsvm_Ms": [1, 2, 4, 8, 16, 32],
     "llsvm_Cs": [0.01, 0.1, 1.0, 10.0],
     "inner_folds": 3,
 }
+PRETTY = {"wine": "wine", "breast_cancer": "breast cancer", "digits_parity": "digits (parity)",
+          "gauss_linear": "Gaussian (linear)", "moons_2scale": "two-scale moons", "checker_2scale": "two-scale checkerboard"}
+MPRETTY = {"knn_svm": "kNN-SVM", "cell_svm": "cell-SVM", "vb_rbf": "VB-RBF-SVM", "llsvm": "LLSVM"}
+CPRETTY = {"main": "main condition", "noise20": "20% label noise", "sub25": "25% of the training fold"}
 
 CONDITIONS = {
     "main": {"repeats": 2, "folds": 5, "noise": 0.0, "frac": 1.0},
@@ -176,15 +183,52 @@ def run_fold(Xtr, ytr, Xte, yte, seed, grid):
     pred = F.knn_svm_predict_multi(Xtr, ytr, Xte, [cfg["k"]], cfg["C"])[cfg["k"]]
     out["knn_svm"] = {"acc": float(np.mean(pred == yte)), "inner": sc, "cfg": cfg}
 
-    cfg, sc, m = F.tune_cell_svm(Xtr, ytr, folds, grid["cell_Ms"], grid["cell_Cs"], seed)
-    out["cell_svm"] = {"acc": float(np.mean(m.predict(Xte) == yte)), "inner": sc, "cfg": cfg}
+    # k-means cannot form more cells than points: drop M above the smallest inner training
+    # fold (binds only in sub25 with 40 training points, for M = 32); M_max is recorded so
+    # that grid saturation can be counted against the grid actually available in the fold
+    n_inner = min(len(tr) for tr, _ in folds)
+    cell_Ms = [M for M in grid["cell_Ms"] if M <= n_inner]
+    cfg, sc, m = F.tune_cell_svm(Xtr, ytr, folds, cell_Ms, grid["cell_Cs"], seed)
+    out["cell_svm"] = {"acc": float(np.mean(m.predict(Xte) == yte)), "inner": sc, "cfg": dict(cfg, M_max=max(cell_Ms))}
 
     cfg, sc, m = F.tune_vbrbf(Xtr, ytr, folds, grid["C_rbf"], grid["gamma_mults"], grid["vb_betas"], grid["vb_kbw"], rbf_scores)
     out["vb_rbf"] = {"acc": float(np.mean(m.predict(Xte) == yte)), "inner": sc, "cfg": cfg}
 
-    cfg, sc, m = F.tune_llsvm(Xtr, ytr, folds, grid["llsvm_Ms"], grid["llsvm_Cs"], seed)
-    out["llsvm"] = {"acc": float(np.mean(m.predict(Xte) == yte)), "inner": sc, "cfg": cfg}
+    llsvm_Ms = [M for M in grid["llsvm_Ms"] if M <= n_inner]
+    cfg, sc, m = F.tune_llsvm(Xtr, ytr, folds, llsvm_Ms, grid["llsvm_Cs"], seed)
+    out["llsvm"] = {"acc": float(np.mean(m.predict(Xte) == yte)), "inner": sc, "cfg": dict(cfg, M_max=max(llsvm_Ms))}
     return out
+
+
+def edge_counts(fold_records, grid):
+    """Grid saturation (referee report B1): for each method and tuned hyper-parameter, the
+    number of outer folds in which the inner CV selected the lowest ('lo') or highest ('hi')
+    value of its grid.  An edge that is the family's global member (k = all, M = 1,
+    beta = 0) is not a saturation and is reported as None; for M the top of the grid
+    actually available in the fold (cfg['M_max']) is used."""
+    n = len(fold_records)
+
+    def sel(meth, key):
+        return [r[meth]["cfg"][key] for r in fold_records]
+
+    def cnt(vals, lo, hi):
+        return {"lo": None if lo is None else int(sum(v == lo for v in vals)),
+                "hi": None if hi is None else int(sum(v == hi for v in vals)), "n": n}
+
+    def cnt_M(meth):
+        return {"lo": None, "hi": int(sum(r[meth]["cfg"]["M"] == r[meth]["cfg"]["M_max"] for r in fold_records)), "n": n}
+
+    return {
+        "linear": {"C": cnt(sel("linear", "C"), min(grid["C_lin"]), max(grid["C_lin"]))},
+        "rbf": {"gamma_mult": cnt(sel("rbf", "gamma_mult"), min(grid["gamma_mults"]), max(grid["gamma_mults"])),
+                "C": cnt(sel("rbf", "C"), min(grid["C_rbf"]), max(grid["C_rbf"]))},
+        "knn_svm": {"k": cnt(sel("knn_svm", "k"), min(grid["knn_ks"]), None)},
+        "cell_svm": {"M": cnt_M("cell_svm"), "C": cnt(sel("cell_svm", "C"), min(grid["cell_Cs"]), max(grid["cell_Cs"]))},
+        "vb_rbf": {"gamma_mult": cnt(sel("vb_rbf", "gamma_mult"), min(grid["gamma_mults"]), max(grid["gamma_mults"])),
+                   "C": cnt(sel("vb_rbf", "C"), min(grid["C_rbf"]), max(grid["C_rbf"])),
+                   "beta": cnt(sel("vb_rbf", "beta"), None, max(grid["vb_betas"]))},
+        "llsvm": {"M": cnt_M("llsvm"), "C": cnt(sel("llsvm", "C"), min(grid["llsvm_Cs"]), max(grid["llsvm_Cs"]))},
+    }
 
 
 def bootstrap_ci(diffs, B, rng):
@@ -193,9 +237,19 @@ def bootstrap_ci(diffs, B, rng):
     return float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
 
 
-def summarise(fold_records, rng, B=2000):
+TOL = 1e-9  # an interval endpoint that is zero up to floating-point error counts as zero
+
+
+def sig_of(lo, hi):
+    """'pos' / 'neg' when the interval lies strictly above / below zero; an endpoint that
+    is exactly zero (up to TOL: differences are multiples of 1/n_test and the bootstrap
+    means can land on 0 with a rounding residue of 1e-17) counts as including zero."""
+    return "pos" if lo > TOL else ("neg" if hi < -TOL else "none")
+
+
+def summarise(fold_records, rng, grid, B=2000):
     """fold_records: list of dicts method -> {acc,...} for one (dataset, condition)."""
-    summ = {}
+    summ = {"edge": edge_counts(fold_records, grid)}
     for meth in METHODS:
         accs = np.array([r[meth]["acc"] for r in fold_records])
         summ[meth] = {"mean_acc": float(accs.mean()), "sd_acc": float(accs.std(ddof=1)) if len(accs) > 1 else 0.0,
@@ -206,7 +260,7 @@ def summarise(fold_records, rng, B=2000):
             summ[meth].update({"diff_mean": float(diffs.mean()), "diff_ci": [lo, hi],
                                "diffs": diffs.tolist(), "wins": int((diffs > 0).sum()),
                                "losses": int((diffs < 0).sum()),
-                               "sig": "pos" if lo > 0 else ("neg" if hi < 0 else "none")})
+                               "sig": sig_of(lo, hi)})
     summ["best_global"]["pick_rbf_frac"] = float(np.mean([r["best_global"]["cfg"]["pick"] == "rbf" for r in fold_records]))
     # how often did inner CV choose a genuinely local configuration?
     summ["knn_svm"]["local_frac"] = float(np.mean([r["knn_svm"]["cfg"]["k"] != "all" for r in fold_records]))
@@ -241,11 +295,51 @@ def evaluate_criterion(results_main):
 
 # ----------------------------------------------------------------------------
 
+def robustness_block(results, conds, names):
+    """Accuracy drop (main -> condition) per method, and the paired differences there."""
+    robustness = {}
+    for cname in conds:
+        if cname == "main":
+            continue
+        robustness[cname] = {}
+        for d in names:
+            s_main, s_c = results[d]["main"]["summary"], results[d][cname]["summary"]
+            robustness[cname][d] = {m: {"acc": s_c[m]["mean_acc"], "drop": s_main[m]["mean_acc"] - s_c[m]["mean_acc"],
+                                        **({"diff_mean": s_c[m]["diff_mean"], "diff_ci": s_c[m]["diff_ci"], "sig": s_c[m]["sig"]} if m in LOCAL else {})}
+                                    for m in METHODS}
+    return robustness
+
+
+def resummarise(path):
+    """Rebuild the summaries, the criterion and the robustness block from the fold records
+    saved in an existing results.json, with the same seeds (hence identical bootstrap
+    intervals); no model is refitted and no accuracy changes.  Used once, on 03/10/2026,
+    to apply the exact-zero tolerance of `sig_of` to the v0.2 run (see PREREGISTRO)."""
+    out = json.load(open(path))
+    grid, names = out["meta"]["grid"], list(out["results"].keys())
+    for d in names:
+        for cname in out["meta"]["conditions"]:
+            srng = np.random.default_rng([SEED, 999, sum(map(ord, cname)), sum(map(ord, d))])
+            out["results"][d][cname]["summary"] = summarise(out["results"][d][cname]["folds"], srng, grid)
+    out["criterion"] = evaluate_criterion({d: out["results"][d]["main"]["summary"] for d in names})
+    out["robustness"] = robustness_block(out["results"], out["meta"]["conditions"], names)
+    out["meta"]["resummarised"] = {"when": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "why": "exact-zero tolerance in sig_of", "tol": TOL}
+    with open(path, "w") as fh:
+        json.dump(out, fh, indent=1)
+    write_markdown(out, os.path.join(os.path.dirname(path), "tables.md"))
+    make_figures(out, None, names)
+    print(f"resummarised {path} (no refit)")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--fast", action="store_true")
     ap.add_argument("--datasets", nargs="*", default=None)
+    ap.add_argument("--resummarise", action="store_true", help="rebuild summaries from results/results.json without refitting")
     args = ap.parse_args()
+    if args.resummarise:
+        resummarise(os.path.join(ROOT, "results", "results.json"))
+        return
     t0 = time.time()
     grid = dict(GRID)
     conds = {k: dict(v) for k, v in CONDITIONS.items()}
@@ -279,7 +373,7 @@ def main():
                     rec["n_train"] = int(len(ytr))
                     fold_recs.append(rec)
             srng = np.random.default_rng([SEED, 999, sum(map(ord, cname)), sum(map(ord, dname))])
-            records[dname]["conditions"][cname] = {"summary": summarise(fold_recs, srng),
+            records[dname]["conditions"][cname] = {"summary": summarise(fold_recs, srng, grid),
                                                    "folds": fold_recs, "n_train": fold_recs[0]["n_train"]}
         timing[dname] = time.time() - td
         print(f"{dname}: {timing[dname]:.1f}s", flush=True)
@@ -288,16 +382,7 @@ def main():
     criterion = evaluate_criterion(main_summ)
 
     # robustness: accuracy drop (main -> condition) per method, and paired diffs there
-    robustness = {}
-    for cname in conds:
-        if cname == "main":
-            continue
-        robustness[cname] = {}
-        for d in names:
-            s_main, s_c = records[d]["conditions"]["main"]["summary"], records[d]["conditions"][cname]["summary"]
-            robustness[cname][d] = {m: {"acc": s_c[m]["mean_acc"], "drop": s_main[m]["mean_acc"] - s_c[m]["mean_acc"],
-                                        **({"diff_mean": s_c[m]["diff_mean"], "diff_ci": s_c[m]["diff_ci"], "sig": s_c[m]["sig"]} if m in LOCAL else {})}
-                                    for m in METHODS}
+    robustness = robustness_block({d: records[d]["conditions"] for d in names}, conds, names)
 
     seconds = time.time() - t0
     out = {"meta": {"seed": SEED, "fast": args.fast, "seconds": seconds, "timing": timing,
@@ -341,6 +426,14 @@ def write_markdown(out, path):
         for d, r in out["results"].items():
             s = r[cname]["summary"]
             L.append(f"| {d} | {s['best_global']['pick_rbf_frac']:.2f} | " + " | ".join(f"{s[m]['local_frac']:.2f}" for m in LOCAL) + " |")
+        L.append(f"\n### Grid saturation (folds with the selected value at the lower/upper edge of the grid), `{cname}`\n")
+        params = [(m, p) for m in METHODS if m != "best_global" for p in out["results"][next(iter(out["results"]))][cname]["summary"]["edge"][m]]
+        L.append("| dataset | " + " | ".join(f"{m}:{p}" for m, p in params) + " |")
+        L.append("|---|" + "---|" * len(params))
+        for d, r in out["results"].items():
+            e = r[cname]["summary"]["edge"]
+            L.append(f"| {d} | " + " | ".join(
+                f"{'-' if e[m][p]['lo'] is None else e[m][p]['lo']}/{'-' if e[m][p]['hi'] is None else e[m][p]['hi']} of {e[m][p]['n']}" for m, p in params) + " |")
     L.append("\n## Predefined criterion (main condition)\n")
     for m, v in out["criterion"].items():
         L.append(f"- **{m}**: CI>0 on {v['n_ci_positive']}/{v['n_datasets']} datasets, CI<0 on {v['n_ci_negative']}; "
@@ -367,12 +460,12 @@ def make_figures(out, records, names):
                 y = j + (i - 1.5) * 0.18
                 lo, hi = s[m]["diff_ci"]
                 ax.plot([100 * lo, 100 * hi], [y, y], color=colors[m], lw=1.4)
-                ax.plot(100 * s[m]["diff_mean"], y, "o", color=colors[m], ms=4, label=m if j == 0 else None)
+                ax.plot(100 * s[m]["diff_mean"], y, "o", color=colors[m], ms=4, label=MPRETTY[m] if j == 0 else None)
         ax.axvline(0, color="k", lw=0.8)
         ax.set_yticks(range(len(names)))
-        ax.set_yticklabels(names)
-        ax.set_title(cname)
-        ax.set_xlabel("accuracy difference vs best global (pp)")
+        ax.set_yticklabels([PRETTY.get(d, d) for d in names])
+        ax.set_title(CPRETTY.get(cname, cname))
+        ax.set_xlabel("accuracy difference vs best global reference (pp)")
         ax.invert_yaxis()
     axes[0].legend(fontsize=8, loc="lower left")
     fig.tight_layout()

@@ -10,7 +10,7 @@ Objects
 * The kernel k-means objective in trace form
       J_K(C) = tr K - sum_c (1/|C_c|) 1_c^T K 1_c,
   and the constants of the identity  E_{1/m}(C) = J_K(C)/2 + (n-k) phi(0)/2
-  for K = -phi(D) (Theorem 1(b) of the manuscript).
+  for K = -phi(D) (Theorem 3.2(b) of the manuscript).
 * Optimisers that only see the kernel matrix: batch Lloyd in feature space,
   single-move descent (Hartigan-type "relaxation"), Metropolis annealing.
 * A brute-force "physics" implementation of the single-move relaxation that
@@ -35,7 +35,8 @@ class Potential:
 
     cnd = True means that (x, y) -> phi(||x - y||) is known to be conditionally
     negative definite on every Euclidean space because phi(d) = psi(d^2) with
-    psi a Bernstein function (Theorem 1(f)); it is a label, not a computation.
+    psi a Bernstein function (Proposition 3.3, Theorem 3.2(f)); it is a label,
+    not a computation.
     """
 
     def __init__(self, name, func, phi0, cnd, tex, description):
@@ -153,7 +154,7 @@ def psd_shift(K, margin=1e-9):
 
 
 def cnd_kernel(Xl, D, pot):
-    """Dataset-independent kernel of Theorem 1(f):
+    """Dataset-independent kernel of Theorem 3.2(f):
     K(x,y) = phi(|x|) + phi(|y|) - phi(|x-y|) - phi(0)."""
     f = pot(np.linalg.norm(Xl, axis=1))
     return f[:, None] + f[None, :] - pot(D) - pot.phi0

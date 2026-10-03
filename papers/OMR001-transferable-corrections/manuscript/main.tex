@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -12,12 +12,14 @@
 \usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
 \usepackage{enumitem}
 \usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{caption}
 \usepackage[section]{placeins}
 \setcounter{topnumber}{3}\setcounter{totalnumber}{4}
 \renewcommand{\topfraction}{0.95}\renewcommand{\bottomfraction}{0.7}
 \renewcommand{\textfraction}{0.05}\renewcommand{\floatpagefraction}{0.7}
-\captionsetup{font=small,labelfont=bf}
+\captionsetup{font=small,labelfont=bf,skip=5pt}
+\setlength{\bibsep}{2pt plus 1pt}
 
 \IfFileExists{numbers.tex}{\input{numbers.tex}}{}
 
@@ -51,14 +53,14 @@
 \author{Luciano Silva Alarco\\
 \small Pontificia Universidad Cat\'olica del Per\'u\\
 \small ORCID 0000-0002-3395-3129}
-\date{\small Working draft v0.1 --- research line OMR001 --- \today}
+\date{\small Working draft v0.2 (one round of internal review applied) --- research line OMR001 --- 3 October 2026}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
 \noindent
-Research line OMR001 proposed \emph{post-estimation correction operators} learned across related estimation tasks, with the option to \emph{revert to a safe reference} when a held-out check fails, and closed with the finding that sufficient differentiation from existing model combinations had not been demonstrated. The original operator definitions are not available; this note reconstructs a self-contained version and proves what such a construction can and cannot guarantee. In the Gaussian location model, (i)~no correction operator, however it is fitted on source tasks whose law does not depend on the target parameter, improves the minimax risk of the task-specific estimator, so any gain must come from structure shared across tasks; in one or two dimensions every rule that ever uses a correction is strictly worse than the reference somewhere. (ii)~If the check is a one-sided test at level $\alpha$ on the held-out loss difference computed from $m$ independent observations, the risk of the reverting estimator exceeds the risk of the reference by at most $\min\{\alpha\,\E[\Delta^+],\ \varphi(z_{1-\alpha})\,(2\sigma/\sqrt m)\,\E\norm{C-R}\}$, where $\Delta$ is the loss increase the correction would cause, $C-R$ the size of the correction and $\varphi$ the standard normal density; the probability of a harmful transfer event is at most $\alpha$; the bound is attained up to an explicit constant $\kappa(\alpha)/\varphi(z_{1-\alpha})\in[\RatioOne,\RatioHalf]$ on the grid used, so the harm cannot be made $o(m^{-1/2})$ uniformly over operators; and the estimator is within $(z_{1-\alpha}+\varphi(0))\,(2\sigma/\sqrt m)\,\E\norm{C-R}$ of the better of the two candidates. (iii)~The reverting estimator \emph{is} penalised hold-out selection between two candidates, nothing in the guarantee uses that one candidate is a correction of the other, and the guarantee is the two-candidate case of standard hold-out bounds; the correction operator enters only through $\E\norm{C-R}$ and $\Delta$. This makes the closing statement of the line precise. A simulation with a fixed seed (\CnConfigs{} configurations, \MetaR{} replicates each, \MetaSeconds{}~s of computation) confirms every bound, finds that with a predefined criterion the guaranteed construction is ``useful'' only when tasks are nearly identical because the held-out split costs \SplitCost{} of the reference risk, and that the practical variants that avoid this cost (refit after the check; SURE-based reversion without a split) are classical constructs with no guarantee proved here. No general accuracy improvement and no transfer guarantee are claimed.
+Research line OMR001 proposed post-estimation \emph{correction operators} with \emph{reversion to a safe reference} when a held-out check fails, and recorded that no sufficient differentiation from existing constructs had been shown. This note reconstructs the construction in the Gaussian location model and proves what it can and cannot guarantee. (i)~No correction fitted on sources whose law is free of the target parameter improves the minimax risk of the task-specific estimator; for $d\le2$ every rule that ever corrects is worse than the reference somewhere. (ii)~With a one-sided level-$\alpha$ check on $m$ held-out observations, the excess risk over the reference is at most $\min\{\alpha\E[\Delta^+],\varphi(z_{1-\alpha})(2\sigma/\sqrt m)\E\norm{C-R}\}$ and at most a cap uniform in the parameter; the probability of a harmful use of the correction is at most $\alpha\Prob(\Delta>0)$; within one-sided checks at a fixed level, the rate $m^{-1/2}$ cannot be improved uniformly over operators. (iii)~The reverting estimator \emph{is} penalised hold-out selection between two candidates: its guarantee is a selection guarantee, indifferent to the operator. A fixed-seed simulation confirms every bound; under a predefined criterion the guaranteed construction is useful only when tasks are nearly identical, because the split costs \SplitCost{} of the full-data reference risk, while the variants that avoid the split are classical constructs without a guarantee proved here. Nothing is claimed about general accuracy or transfer guarantees.
 \end{abstract}
 
 \section{Introduction}\label{sec:intro}
@@ -67,12 +69,7 @@ Suppose an analyst estimates the same kind of quantity, a mean or a regression c
 
 The original definitions of the operators and of the ``safe reference'' are not available. This note therefore reconstructs a self-contained version of the construction (Section~\ref{sec:setting}) and asks the question the line left open: \emph{what, exactly, can a correction with safe reversion guarantee, and what can it not?} The answers are elementary but, we think, worth having in one place with proofs and with their constants.
 
-\begin{enumerate}[leftmargin=2em]
-\item \textbf{What cannot be guaranteed} (Section~\ref{sec:cannot}). No correction, fixed in advance or fitted on source tasks whose law does not depend on the target parameter, improves the minimax risk of the reference over all shifts of the mean; a fixed additive correction is uniformly worse by exactly its mean square; in one or two dimensions every rule that uses a correction with positive probability is strictly worse than the reference at some parameter value. Any gain must come from structure shared across tasks and is a statement about average risk over tasks, not about worst-case risk.
-\item \textbf{What can be guaranteed} (Section~\ref{sec:can}). With a held-out sample of size $m$ and a one-sided test at level $\alpha$, the reverting estimator does no harm beyond an explicit amount of order $\sigma\,\E\norm{C-R}/\sqrt m$, the probability of a harmful transfer event is at most $\alpha$, and the estimator is within the same order of the better of the two candidates. The rate and the dependence on $\norm{C-R}$ cannot be improved uniformly over operators.
-\item \textbf{Why the line's conclusion is right} (Section~\ref{sec:related}). The reverting estimator is hold-out selection between two candidates with a switching penalty. Its safety is a property of selection, not of the operator; its gain is a property of the shared structure, exploited by classical empirical Bayes operators. We list the constructs it coincides with or resembles.
-\item \textbf{A simulation with a predefined criterion} (Section~\ref{sec:sim}) checks the bounds, reports the frequency of harmful transfer and states honestly where ``useful transfer'' occurs.
-\end{enumerate}
+Section~\ref{sec:cannot} proves what \emph{cannot} be guaranteed: no correction fitted on sources whose law is free of the target parameter improves the minimax risk, a fixed additive correction is worse by exactly its mean square, and for $d\le2$ any rule that ever corrects is worse than the reference somewhere; any gain is a statement about average risk over tasks. Section~\ref{sec:can} proves what \emph{can}: a do-no-harm bound of order $\sigma\E\norm{C-R}/\sqrt m$, a cap uniform in the parameter, a bound on harmful transfer events, near-oracle selection, and sharpness of the constant within the class of one-sided checks at a fixed level. Section~\ref{sec:related} shows that the reverting estimator is penalised hold-out selection between two candidates, so that its safety is a property of selection and not of the operator, which explains why no differentiation should have been expected from the safety mechanism itself. Section~\ref{sec:sim} checks the bounds and reports, under a predefined criterion, where ``useful transfer'' occurs.
 
 Every mathematical statement below carries a status tag in Table~\ref{tab:claims}: proved here, classical, from the literature, computationally verified, or empirical only. Every number in the text is generated from the results of one script with a fixed seed (Appendix~\ref{app:repro}).
 
@@ -85,7 +82,7 @@ A task is a parameter $\theta\in\R^d$ together with observations whose law depen
 
 \begin{definition}[Reference, correction, reversion]\label{def:main}
 \begin{enumerate}[leftmargin=2em,label=(\alph*)]
-\item The \emph{reference} estimator is the task-specific mean $R=\bar X_e$; it is unbiased and minimax for $\theta\in\R^d$ (Theorem~\ref{thm:nfl}, part~(a)).
+\item The \emph{reference} estimator is the task-specific mean $R=\bar X_e$; it is unbiased and minimax for $\theta\in\R^d$ (Theorem~\ref{thm:nfl}(a)).
 \item A \emph{correction operator} is an $\mathcal F$-measurable map producing a corrected estimate $C=C(R;D)\in\R^d$. Three instances are used below: the affine shrinkage $C=\hat\mu+\lambda(R-\hat\mu)$ toward a centre $\hat\mu$ estimated from the sources, with $\lambda$ either estimated from the sources (the empirical Bayes rule of \citet{efronmorris1973,efronmorris1975,morris1983}), fixed in advance, or equal to zero (full pooling).
 \item The \emph{held-out check} compares the held-out losses of the two candidates,
 \[
@@ -105,10 +102,10 @@ We write $\Delta=\ell(C)-\ell(R)$ for the loss increase caused by the correction
 \section{What cannot be guaranteed}\label{sec:cannot}
 
 \begin{theorem}[No free lunch for corrections]\label{thm:nfl}
-Let $X\sim N(\theta,\sigma_e^2 I_d)$ with $\theta\in\R^d$ unknown and $\sigma_e^2$ known, and let $D$ be auxiliary data, independent of $X$ given $\theta$, whose law $Q$ does not depend on $\theta$. Let $\delta=\delta(X,D)$ be any estimator.
+Let $X\sim N(\theta,\sigma_e^2 I_d)$ with $\theta\in\R^d$ unknown and $\sigma_e^2$ known, and let $D$ be auxiliary data, independent of $X$ given $\theta$, whose law $Q$ does not depend on $\theta$. Let $\delta=\delta(X,D)$ be any estimator; $D$ may include auxiliary randomisation, so randomised rules are covered, and an estimator with infinite risk satisfies (a) and (c) trivially.
 \begin{enumerate}[leftmargin=2em,label=(\alph*)]
 \item $\sup_{\theta}\risk(\theta,\delta)\ \ge\ d\sigma_e^2=\sup_\theta\risk(\theta,X)$. \status{classical; proof included}
-\item If $\delta=X-b(D)$ for a measurable $b$, then $\risk(\theta,\delta)=d\sigma_e^2+\E\norm{b(D)}^2$ for every $\theta$. \status{proved here}
+\item If $\delta=X-b(D)$ for a measurable $b$ with $\E\norm{b(D)}^2<\infty$, then $\risk(\theta,\delta)=d\sigma_e^2+\E\norm{b(D)}^2$ for every $\theta$. \status{proved here}
 \item If $d\le2$ and $\Prob_\theta(\delta\neq X)>0$ for some (equivalently every) $\theta$, then $\risk(\theta',\delta)>d\sigma_e^2$ for some $\theta'$. \status{literature (admissibility) + proved here}
 \item If $d\ge3$ there exist $\delta$ with $\risk(\theta,\delta)<d\sigma_e^2$ for every $\theta$; by (a) the supremum is still $d\sigma_e^2$. \status{literature}
 \end{enumerate}
@@ -116,18 +113,18 @@ Let $X\sim N(\theta,\sigma_e^2 I_d)$ with $\theta\in\R^d$ unknown and $\sigma_e^
 
 \begin{proof}
 (a) Fix $\tau>0$ and put the prior $\theta\sim N(0,\tau^2 I_d)$, so that $(\theta,X,D)$ has joint law $\pi(\dd\theta)P_\theta(\dd x)Q(\dd D)$. Because $Q$ does not depend on $\theta$ and $D$ is independent of $X$ given $\theta$, the conditional law of $\theta$ given $(X,D)$ equals its conditional law given $X$, namely $N\big(\tfrac{\tau^2}{\tau^2+\sigma_e^2}X,\ \tfrac{\tau^2\sigma_e^2}{\tau^2+\sigma_e^2}I_d\big)$. The Bayes risk of any $\delta(X,D)$ is therefore at least that of the posterior mean, $d\,\tau^2\sigma_e^2/(\tau^2+\sigma_e^2)$. Since the supremum of the risk dominates its average, $\sup_\theta\risk(\theta,\delta)\ge d\tau^2\sigma_e^2/(\tau^2+\sigma_e^2)$ for every $\tau$; let $\tau\to\infty$. Equality for $\delta=X$ is direct.
-(b) $\E_\theta\norm{X-b-\theta}^2=\E\norm{X-\theta}^2+\E\norm{b}^2-2\,\E\ip{X-\theta,b}$, and the cross term vanishes because $X-\theta$ has mean zero and is independent of $D$.
-(c) Let $\tilde\delta(X)=\E[\delta(X,D)\mid X]$, which does not depend on $\theta$ because the conditional law of $D$ given $X$ is $Q$. By the parallelogram identity, $\risk(\theta,\delta)=\risk(\theta,\tilde\delta)+\E_\theta\norm{\delta-\tilde\delta}^2$. If $\Prob(\tilde\delta\ne X)>0$, suppose for contradiction that $\risk(\theta,\tilde\delta)\le d\sigma_e^2$ for all $\theta$; then $\delta'=(\tilde\delta+X)/2$ satisfies $\norm{\delta'-\theta}^2=\tfrac12\norm{\tilde\delta-\theta}^2+\tfrac12\norm{X-\theta}^2-\tfrac14\norm{\tilde\delta-X}^2$, hence $\risk(\theta,\delta')\le d\sigma_e^2-\tfrac14\E_\theta\norm{\tilde\delta-X}^2<d\sigma_e^2$ for every $\theta$ (the Gaussian laws $P_\theta$ are mutually absolutely continuous, so the last expectation is positive for all $\theta$ once it is positive for one). This contradicts the admissibility of $X$ for $d\le2$ \citep{blyth1951,stein1956}; see \citet[Ch.~5]{lehmanncasella1998}. If instead $\tilde\delta=X$ a.s., then $\risk(\theta,\delta)=d\sigma_e^2+\E_\theta\norm{\delta-X}^2>d\sigma_e^2$ for every $\theta$.
+(b) $\E_\theta\norm{X-b-\theta}^2=\E\norm{X-\theta}^2+\E\norm{b}^2-2\,\E\ip{X-\theta,b}$; the cross term is finite by Cauchy--Schwarz and vanishes because $X-\theta$ has mean zero and is independent of $D$.
+(c) Let $\tilde\delta(X)=\E[\delta(X,D)\mid X]$, which does not depend on $\theta$ because the conditional law of $D$ given $X$ is $Q$. Since $\tilde\delta$ is the conditional expectation of $\delta$ given $X$ and $\tilde\delta-\theta$ is $X$-measurable, $\risk(\theta,\delta)=\risk(\theta,\tilde\delta)+\E_\theta\norm{\delta-\tilde\delta}^2$ (Pythagoras; we may assume the left side finite). If $\Prob(\tilde\delta\ne X)>0$, suppose for contradiction that $\risk(\theta,\tilde\delta)\le d\sigma_e^2$ for all $\theta$; then $\delta'=(\tilde\delta+X)/2$ satisfies $\norm{\delta'-\theta}^2=\tfrac12\norm{\tilde\delta-\theta}^2+\tfrac12\norm{X-\theta}^2-\tfrac14\norm{\tilde\delta-X}^2$, hence $\risk(\theta,\delta')\le d\sigma_e^2-\tfrac14\E_\theta\norm{\tilde\delta-X}^2<d\sigma_e^2$ for every $\theta$ (the Gaussian laws $P_\theta$ are mutually absolutely continuous, so the last expectation is positive for all $\theta$ once it is positive for one). This contradicts the admissibility of $X$ for $d\le2$ \citep{blyth1951,stein1956}; see \citet[Ch.~5]{lehmanncasella1998}. If instead $\tilde\delta=X$ a.s., then $\risk(\theta,\delta)=d\sigma_e^2+\E_\theta\norm{\delta-X}^2>d\sigma_e^2$ for every $\theta$.
 (d) is the James--Stein theorem \citep{stein1956,jamesstein1961}; the risk of the James--Stein estimator tends to $d\sigma_e^2$ as $\norm\theta\to\infty$.
 \end{proof}
 
 \begin{remark}[Where transfer can enter]\label{rem:enter}
-The only hypothesis of Theorem~\ref{thm:nfl}(a) that a transfer setting can violate is that the law of the source data does not depend on $\theta$. When $\theta$ and the source parameters are exchangeable draws from $N(\mu,\tau^2 I_d)$, the sources are informative about $\theta$ through $\mu$ and $\tau^2$, and the natural criterion is the Bayes risk over tasks. For the affine correction $C=\mu+\lambda(X-\mu)$ with $\mu$ and $\lambda\in[0,1)$ fixed,
+The only hypothesis of Theorem~\ref{thm:nfl}(a) that a transfer setting can violate is that the law of the source data does not depend on $\theta$. When $\theta$ and the source parameters are exchangeable draws from $N(\mu,\tau^2 I_d)$ with $(\mu,\tau^2)$ fixed, the law of the source data still does not depend on the realised $\theta$, so part~(a) applies to the frequentist risk even in the hierarchical model; the sources are informative about the task distribution, which is what the Bayes risk over tasks rewards, and that is the natural criterion. For the affine correction $C=\mu+\lambda(X-\mu)$ with $\mu$ and $\lambda\in[0,1)$ fixed,
 \begin{equation}\label{eq:affine}
 \risk(\theta,C)=\lambda^2 d\sigma_e^2+(1-\lambda)^2\norm{\theta-\mu}^2,\qquad
 \E_{\theta\sim N(\mu,\tau^2 I)}\risk(\theta,C)=\lambda^2 d\sigma_e^2+(1-\lambda)^2 d\tau^2,
 \end{equation}
-minimised at $\lambda^\ast=\tau^2/(\tau^2+\sigma_e^2)$ with value $d\sigma_e^2\lambda^\ast<d\sigma_e^2$. \status{classical} The available relative gain over the reference is $1-\lambda^\ast=1/(1+\snr)$. The first formula in \eqref{eq:affine} is the negative-transfer risk: at a target far from the centre the correction is worse than the reference by $(1-\lambda)^2\norm{\theta-\mu}^2-(1-\lambda^2)d\sigma_e^2$, unbounded in $\theta$. Reversion is meant to cap this term; Section~\ref{sec:can} says by how much.
+minimised at $\lambda^\ast=\tau^2/(\tau^2+\sigma_e^2)$ with value $d\sigma_e^2\lambda^\ast<d\sigma_e^2$. \status{classical} The available relative gain over the reference is $1-\lambda^\ast=1/(1+\snr)$. The first formula in \eqref{eq:affine} is the negative-transfer risk: at a target far from the centre the correction is worse than the reference by $(1-\lambda)^2\norm{\theta-\mu}^2-(1-\lambda^2)d\sigma_e^2$, unbounded in $\theta$. Reversion is meant to cap this term. Section~\ref{sec:can} gives two bounds: one of order $\E\norm{C-R}/\sqrt m$, which for the shrinkage operator grows linearly with $\norm{\theta-\mu}$ and so trades a quadratic harm for a linear one, and a cap uniform in $\theta$ (Corollary~\ref{cor:cap}).
 \end{remark}
 
 \section{What can be guaranteed}\label{sec:can}
@@ -168,15 +165,32 @@ using that $\varphi$ decreases on $[0,\infty)$. Taking expectations gives $\varp
 
 (iii) Write $\Dh-\Delta=\frac1m\sum_j W_j$ with $W_j=-2\ip{C-R,Y_j-\theta}$, independent given $(\mathcal F,\theta)$, mean zero and $|W_j|\le B:=2\rho\norm{C-R}$. Hoeffding's inequality \citep{hoeffding1963} gives $\Prob(\Dh-\Delta\le-t\mid\mathcal F,\theta)\le\exp(-mt^2/(2B^2))$. On $\{\Delta\ge0\}$, $\pi\le\exp(-m(c+\Delta)^2/(2B^2))\le\exp(-mc^2/(2B^2))=\alpha$ for the stated $c$, which yields the $\alpha$-bound and the bound on the harmful event. Also $\Delta^+\pi\le\Delta^+\exp(-m(\Delta^+)^2/(2B^2))\le\sup_{x\ge0}x e^{-mx^2/(2B^2)}=B/\sqrt{em}$.
 
-(iv) $\ell(\hat\theta_\rev)-\min\{\ell(R),\ell(C)\}=|\Delta|\,\mathbf 1\{\text{wrong choice}\}$, where the choice is wrong on $\{\Delta>0,\Dh\le-c\}$ and on $\{\Delta<0,\Dh>-c\}$. Conditionally on $(\mathcal F,\theta)$, with $u=|\Delta|/s$: on $\{\Delta>0\}$ the conditional expectation is $s\,u\Phi(-(z+u))\le s\varphi(z+u)\le s\varphi(0)$ as in (ii); on $\{\Delta<0\}$ it is $s\,u\,\Phi(z-u)$ by Lemma~\ref{lem:unbiased}, which is at most $s\,z$ when $u\le z$ and, writing $u=z+v$ with $v>0$, at most $s\,(z+v\Phi(-v))\le s\,(z+\varphi(v))\le s\,(z+\varphi(0))$ otherwise. Both cases are bounded by $s(z+\varphi(0))$; take expectations.
+(iv) $\ell(\hat\theta_\rev)-\min\{\ell(R),\ell(C)\}=|\Delta|\,\mathbf 1\{\text{wrong choice}\}$, where the choice is wrong on $\{\Delta>0,\Dh\le-c\}$ and on $\{\Delta<0,\Dh>-c\}$. Conditionally on $(\mathcal F,\theta)$, with $u=|\Delta|/s$: on $\{\Delta>0\}$ the conditional expectation is $s\,u\Phi(-(z+u))\le s\varphi(z+u)\le s\varphi(0)$ as in (ii); on $\{\Delta<0\}$ it is $s\,u\,\Phi(z-u)$ by Lemma~\ref{lem:unbiased}, which is at most $s\,z$ when $u\le z$ and, writing $u=z+v$ with $v>0$, at most $s\,(z+v\Phi(-v))\le s\,(z+\varphi(v))\le s\,(z+\varphi(0))$ otherwise. Both cases are bounded by $s(z+\varphi(0))$; take expectations. (On $\{\Delta<0\}$ the exact conditional value is $s\sup_{u\ge0}u\Phi(z-u)$, smaller than $s(z+\varphi(0))$; we keep the closed form.)
 \end{proof}
+
+\begin{corollary}[A cap uniform in the parameter]\label{cor:cap}
+Under the hypotheses of Theorem~\ref{thm:safe}(ii), with $R=\bar X_e$ and \emph{any} $\mathcal F$-measurable $C$, for every $\theta$,
+\[
+\risk(\hat\theta_\rev)-\risk(R)\ \le\ \frac{4\sigma}{\sqrt m}\,\varphi(z_{1-\alpha})\,\E\norm{R-\theta}+\frac{4\varphi(1)\,\sigma^2}{m}
+\ \le\ 4\sigma^2\Big(\varphi(z_{1-\alpha})\sqrt{\frac{d}{n_e\,m}}+\frac{\varphi(1)}{m}\Big),
+\]
+where $\varphi(1)=\sup_{x\ge0}x\varphi(x)=\PhiOne$. \status{proved here}
+\end{corollary}
+\begin{proof}
+Write $a=\norm{C-R}$ and $e=R-\theta$, so that $\Delta=\norm{(C-R)+e}^2-\norm e^2=a^2+2\ip{C-R,e}\ge a(a-2\norm e)$. On $\{\Delta>0\}$, with $u=\Delta/s$ and $z=z_{1-\alpha}$, the chain in the proof of Theorem~\ref{thm:safe}(ii) gives $\Delta^+\pi\le s\,\varphi(z+u)$. If $a\le2\norm e$, then $\Delta^+\pi\le s\varphi(z)\le(4\sigma\norm e/\sqrt m)\varphi(z)$. If $a>2\norm e$, then $u\ge w:=\sqrt m\,(a-2\norm e)/(2\sigma)>0$ and $s=(2\sigma/\sqrt m)\,a=4\sigma\norm e/\sqrt m+4\sigma^2w/m$, so
+\[
+\Delta^+\pi\ \le\ s\,\varphi(z+w)\ =\ \frac{4\sigma\norm e}{\sqrt m}\varphi(z+w)+\frac{4\sigma^2}{m}\,w\,\varphi(z+w)\ \le\ \frac{4\sigma\norm e}{\sqrt m}\varphi(z)+\frac{4\sigma^2}{m}\varphi(1),
+\]
+because $w\varphi(z+w)\le(z+w)\varphi(z+w)\le\sup_{x\ge0}x\varphi(x)=\varphi(1)$. In both cases $\Delta^+\pi\le(4\sigma\norm e/\sqrt m)\varphi(z)+4\sigma^2\varphi(1)/m$; take expectations in Theorem~\ref{thm:safe}(i) and use $\E\norm e\le(\E\norm e^2)^{1/2}=\sigma\sqrt{d/n_e}$. Nothing is assumed about $C$ beyond measurability, and the right side does not depend on $\theta$.
+\end{proof}
+Theorem~\ref{thm:safe}(ii) is the sharper statement when $\E\norm{C-R}$ is small; the corollary takes over when it is large, where the $\varphi$-bound grows without limit although the harm does not.
 
 \begin{corollary}[Price of the split]\label{cor:split}
 Let $R_n=\bar X_n$ be the reference computed from all $n=n_e+m$ target observations, with risk $d\sigma^2/n$. Then
 \[
 \risk(\hat\theta_\rev)-\risk(R_n)\ =\ d\sigma^2\Big(\frac1{n_e}-\frac1n\Big)+\big(\risk(\hat\theta_\rev)-\risk(R)\big),
 \]
-so the total cost of the safety mechanism relative to ``do nothing with all the data'' is the split cost $d\sigma^2 m/(n n_e)$, a fraction $m/n_e$ of the reference risk, plus the controlled term of Theorem~\ref{thm:safe}. \status{proved here (arithmetic)}
+so the total cost of the safety mechanism relative to ``do nothing with all the data'' is the split cost $d\sigma^2 m/(n n_e)$, a fraction $m/n_e$ of the full-data risk $d\sigma^2/n$ (equivalently $m/n$ of the risk of $R$), plus the controlled term of Theorem~\ref{thm:safe}. \status{proved here (arithmetic)}
 \end{corollary}
 
 \begin{proposition}[Sharpness of the constant]\label{prop:sharp}
@@ -184,18 +198,18 @@ For $\alpha\in(0,\tfrac12]$ let $\kappa(\alpha)=\sup_{u\ge0}u\,\Phi(-(z_{1-\alph
 \[
 \risk(\hat\theta_\rev)-\risk(R)\ \ge\ \big(\kappa(\alpha)-\varepsilon\big)\,\frac{2\sigma}{\sqrt m}\,\E\norm{C-R}.
 \]
-Consequently the second bound in Theorem~\ref{thm:safe}(ii) cannot be improved beyond the factor $\varphi(z_{1-\alpha})/\kappa(\alpha)$, and no held-out check of size $m$ makes the worst-case harm $o(\sigma\E\norm{C-R}/\sqrt m)$ uniformly over correction operators. \status{proved here; constants computationally verified, Table~\ref{tab:constants}}
+Consequently, \emph{for the one-sided check at any fixed level $\alpha\in(0,\tfrac12]$}, the second bound in Theorem~\ref{thm:safe}(ii) cannot be improved beyond the factor $\varphi(z_{1-\alpha})/\kappa(\alpha)$, and no choice of $m$ makes the worst-case harm $o(\sigma\E\norm{C-R}/\sqrt m)$ uniformly over correction operators. The statement is about this class of checks: a check with a larger margin (in the limit, never using $C$) has smaller worst-case harm and pays for it through the regret term of Theorem~\ref{thm:safe}(iv). The worst case within the class is a \emph{small} correction, $u^\ast<1$ in Table~\ref{tab:constants}, not a large one. \status{proved here; constants computationally verified, Table~\ref{tab:constants}}
 \end{proposition}
 \begin{proof}
 The inequality $\kappa\le\varphi(z)$ is the chain displayed in the proof of Theorem~\ref{thm:safe}(ii). For the lower bound take $R=\bar X_e$ and $C=R+v$ with a fixed vector $v\ne0$ (an additive correction fixed in advance, as in Theorem~\ref{thm:nfl}(b)). Then $\norm{C-R}=\norm v$, $s=2\sigma\norm v/\sqrt m$ is deterministic and $\Delta=\norm v^2+2\ip{v,R-\theta}$. By Theorem~\ref{thm:safe}(i) the excess risk equals $\E[g(\Delta)]$ with $g(x)=x\,\Phi(-(x+z s)/s)$, a continuous function with $|g(x)|\le|x|$. As $n_e\to\infty$, $\Delta\to\norm v^2$ in $L^2$, so $\E[g(\Delta)]\to g(\norm v^2)=s\,u\,\Phi(-(z+u))$ with $u=\norm v^2/s=\norm v\sqrt m/(2\sigma)$, which can be given any prescribed value $u\ge0$ by the choice of $\norm v$. Choosing $u$ within $\varepsilon/2$ of the supremum and $n_e$ large gives the claim.
 \end{proof}
 
 \begin{remark}[Detectability, not estimability]\label{rem:power}
-When the correction helps ($\Delta<0$), Lemma~\ref{lem:unbiased} gives the conditional probability of using it, $\Phi(-z_{1-\alpha}+|\Delta|/s)$ with $|\Delta|/s=|\Delta|\sqrt m/(2\sigma\norm{C-R})$. In the shift example of Proposition~\ref{prop:sharp} with a beneficial $v$ this ratio is $\norm v\sqrt m/(2\sigma)$ whatever the dimension: the check is a one-dimensional test along the direction $C-R$ supplied by the sources, so a gain can be \emph{verified} on the target with a held-out sample that would be far too small to \emph{learn} the correction there. Gains too small to be detected at level $\alpha$ are forfeited, up to the regret term of Theorem~\ref{thm:safe}(iv).
+When the correction helps ($\Delta<0$), Lemma~\ref{lem:unbiased} gives the conditional probability of using it, $\Phi(-z_{1-\alpha}+|\Delta|/s)$ with $|\Delta|/s=|\Delta|\sqrt m/(2\sigma\norm{C-R})$. In the shift example of Proposition~\ref{prop:sharp} with a beneficial $v$ that cancels the error of $R$ exactly ($R-\theta=-v$, so $\Delta=-\norm v^2$) this ratio is $\norm v\sqrt m/(2\sigma)$ whatever the dimension: the check is a one-dimensional test along the direction $C-R$ supplied by the sources, so a gain can be \emph{verified} on the target with a held-out sample that would be far too small to \emph{learn} the correction there. Gains too small to be detected at level $\alpha$ are forfeited, up to the regret term of Theorem~\ref{thm:safe}(iv).
 \end{remark}
 
 \begin{remark}[Variants of the check]
-(a) If $\sigma$ is unknown, the check can be the one-sided $t$-test at level $\alpha$ on the $m$ scalar projections $\ip{C-R,Y_j}$; under Gaussian held-out observations it is exact at the boundary $\Delta=0$ and its power is monotone in the non-centrality \citep{lehmannromano2005}, so the $\alpha$-form of Theorem~\ref{thm:safe}(ii) and the bound on the harmful event hold verbatim. (b) With only second moments ($\Var(\ip{C-R,Y_j-\theta})\le\sigma^2\norm{C-R}^2$) and $c=z s$ with $z>0$, Chebyshev's inequality and $(c+\Delta)^2\ge4c\Delta$ give $\risk(\hat\theta_\rev)-\risk(R)\le\E[s]/(4z)$, the same order in $m$ with a worse constant. (c) None of the statements uses that $C$ is a function of $R$: they hold for any two $\mathcal F$-measurable candidates.
+(a) If $\sigma$ is unknown, the check can be the one-sided $t$-test at level $\alpha$ on the $m$ projections $\ip{C-R,Y_j}$; under Gaussian held-out observations it is exact at $\Delta=0$ with power monotone in the non-centrality \citep{lehmannromano2005}, so the $\alpha$-form of Theorem~\ref{thm:safe}(ii) and the harmful-event bound hold verbatim. (b) With only second moments ($\Var\ip{C-R,Y_j-\theta}\le\sigma^2\norm{C-R}^2$) and $c=zs$, $z>0$, Chebyshev's inequality and $(c+\Delta)^2\ge4c\Delta$ give $\risk(\hat\theta_\rev)-\risk(R)\le\E[s]/(4z)$: the same order in $m$, a worse constant. (c) Nothing uses that $C$ is a function of $R$: all statements hold for any two $\mathcal F$-measurable candidates.
 \end{remark}
 
 \section{Relation to known constructs, and the line's conclusion}\label{sec:related}
@@ -205,42 +219,41 @@ Let $\hat L_m(\delta)=\frac1m\sum_{j=1}^m\norm{\delta-Y_j}^2$ be the held-out em
 \[
 \hat\theta_\rev\ =\ \arg\min_{\delta\in\{R,\,C\}}\ \big\{\hat L_m(\delta)+c\,\mathbf 1\{\delta=C\}\big\}
 \]
-(ties resolved toward $R$). With $c=0$ it is plain hold-out selection between two candidates. \status{proved here (one line)}
+(ties, a null event, resolved toward $C$ as in Definition~\ref{def:main}(c)). With $c=0$ it is plain hold-out selection between two candidates. \status{proved here (one line)}
 \end{proposition}
 \begin{proof}
 $\hat L_m(\delta)=\norm{\delta-\Ybar}^2+\frac1m\sum_j\norm{Y_j-\Ybar}^2$, and the second term does not depend on $\delta$.
 \end{proof}
 
-Three consequences follow. First, the guarantee of Theorem~\ref{thm:safe} is the two-candidate case of the standard analysis of hold-out selection among finitely many candidates fixed before the held-out sample is seen \citep[Ch.~8]{devroye1996}, see also \citet{arlotcelisse2010}; with $K$ candidates the same argument costs an extra $\sqrt{\log K}$, and Theorem~\ref{thm:safe} only sharpens the constants in the Gaussian two-candidate case and makes the one-sided, ``do no harm'' reading explicit. Second, the correction operator enters the guarantee only through $\E\norm{C-R}$, the size of the proposed change, and through $\Delta$, its actual effect; the guarantee is indifferent to how the operator was obtained. Third, whether the reverting estimator \emph{gains} anything is entirely a question about the shared structure (Remark~\ref{rem:enter}) and about whether that gain is detectable with $m$ held-out points (Remark~\ref{rem:power}). Table~\ref{tab:constructs} places the construction next to the classical ones it resembles.
+Three consequences follow. First, the guarantee of Theorem~\ref{thm:safe} is the two-candidate case of the standard analysis of hold-out selection among finitely many candidates fixed before the held-out sample is seen \citep[\S 8.4; see also Ch.~22]{devroye1996}, see also \citet{arlotcelisse2010}; with $K$ candidates the same argument costs an extra $\sqrt{\log K}$, and Theorem~\ref{thm:safe} only sharpens the constants in the Gaussian two-candidate case and makes the one-sided, ``do no harm'' reading explicit. Second, the correction operator enters the guarantee only through $\E\norm{C-R}$, the size of the proposed change, and through $\Delta$, its actual effect; the guarantee is indifferent to how the operator was obtained. Third, whether the reverting estimator \emph{gains} anything is a question about the shared structure (Remark~\ref{rem:enter}) and about whether that gain is detectable with $m$ held-out points (Remark~\ref{rem:power}). Table~\ref{tab:constructs} places the construction next to the classical ones it resembles.
 
 \begin{table}[t]
 \centering\small
-\begin{tabular}{p{0.25\linewidth}p{0.18\linewidth}p{0.18\linewidth}p{0.24\linewidth}}
+\begin{tabular}{L{0.24\linewidth}L{0.15\linewidth}L{0.2\linewidth}L{0.3\linewidth}}
 \toprule
 construct & reverts to & trigger & guarantee\\
 \midrule
 Positive-part James--Stein \citep{baranchik1970} & the shrinkage target & $\norm{X-\mu}^2<(d-2)\sigma_e^2$ & dominates James--Stein; minimax, $d\ge3$\\
 Limited-translation rules \citep{efronmorris1972} & the reference, coordinate-wise & component moved further than a cap & bounds the risk increase of each component\\
-SURE selection \citep{stein1981} & either candidate & sign of an unbiased risk-difference estimate; no split & unbiased estimate, no finite-sample selection bound in general\\
-Hold-out / cross-validated selection \citep{devroye1996,arlotcelisse2010} & either candidate & held-out loss difference & regret $O(\text{range}/\sqrt m)$\\
+SURE selection \citep{stein1981} & either candidate & sign of an unbiased risk-difference estimate; no split & unbiased estimate; no finite-sample selection bound used here\\
 Source detection in transfer learning \citep{licaili2022} & target-only estimator & data-splitting aggregation on the target & rates under informative sources; protection against non-informative ones\\
-\textbf{Reverting estimator (this note)} & the reference $R$ & one-sided test at level $\alpha$ on $\Dh$ & Theorem~\ref{thm:safe}: harm $\le\alpha\E\Delta^+$ and $\le\varphi(z)\,2\sigma\E\norm{C-R}/\sqrt m$; harmful event $\le\alpha$\\
+\textbf{Reverting estimator (this note)} & the reference $R$ & one-sided test at level $\alpha$ on $\Dh$ & Theorem~\ref{thm:safe}, Corollary~\ref{cor:cap}: harm $\le\alpha\E\Delta^+$, $\le\varphi(z)\,2\sigma\E\norm{C-R}/\sqrt m$ and $\le$ a cap uniform in $\theta$; harmful event $\le\alpha\Prob(\Delta>0)$\\
 \bottomrule
 \end{tabular}
-\caption{The reverting estimator next to constructs it coincides with or resembles. The first two revert in a different direction or by a different mechanism; the third and fourth are the same construct with a different check; ``negative transfer'' is the name given to $\Delta>0$ in the transfer-learning literature \citep{panyang2010}.}
+\caption{The reverting estimator next to constructs it coincides with or resembles. The first two revert in a different direction or by a different mechanism; the third is the same construct with a different check, and plain hold-out selection \citep{devroye1996,arlotcelisse2010} is the case $c=0$ (Proposition~\ref{prop:select}); ``negative transfer'' is the name given to $\Delta>0$ in the transfer-learning literature \citep{panyang2010}.}
 \label{tab:constructs}
 \end{table}
 
-\paragraph{Why the line's conclusion is correct.}
-The public finding of OMR001 was that sufficient differentiation from existing model combinations and operator-based corrections had not been demonstrated. Proposition~\ref{prop:select} and Theorem~\ref{thm:safe} say why no such differentiation should be expected from the safety mechanism: safe reversion \emph{is} held-out selection between two candidates, its only guarantee is a selection guarantee, and that guarantee is available for any pair of candidates. Differentiation could only come from the operator family itself, and the natural operators (shrinkage toward a pooled centre, additive bias adjustments) are the empirical Bayes rules of \citet{efronmorris1973}. We therefore regard the closing statement of the line as established rather than merely prudent. What remains of value is the explicit form of the guarantee, its sharpness in $m$ and $\norm{C-R}$, and the negative finding of the next section about the price of the split.
+\paragraph{What this says about the line's conclusion.}
+The public finding of OMR001 was that sufficient differentiation from existing model combinations and operator-based corrections had not been demonstrated. Proposition~\ref{prop:select} and Theorem~\ref{thm:safe} explain why no differentiation should be expected \emph{from the safety mechanism itself}: safe reversion \emph{is} held-out selection between two candidates, its only guarantee is a selection guarantee, and that guarantee is available for any pair of candidates. Differentiation, if any, must come from the operator family, which this note does not explore beyond three affine instances, all empirical Bayes rules in the sense of \citet{efronmorris1973}; whether the line should be closed or continued along the open problems of Section~\ref{sec:claims} is a decision this note does not take. What it adds is the explicit form of the guarantee, its sharpness within the class of fixed-level checks, the uniform cap, and the finding of the next section about the price of the split.
 
 \section{Simulation}\label{sec:sim}
 
 \paragraph{Protocol.}
-$d=\Cd$, $\sigma=1$, $S=\CS$ source tasks with $n_s=\Cns$ observations each, a target task with $n=\Cn$ observations split into $n_e=\Cne$ for estimation and $m=\Cm$ for the check (a \SplitCost{} split cost, Corollary~\ref{cor:split}); $m\in\{$\CmGrid$\}$ is also swept. Sources and target are exchangeable draws from $N(\mu,\tau^2 I_d)$ with $\snr=\tau^2/\sigma_e^2\in\{$\CsnrGrid$\}$ (structure sweep), and, at $\snr=\CsnrDep$, the target centre is shifted by $\kappa\tau$ along one coordinate with $\kappa\in\{$\CdepGrid$\}$ (departure sweep). The operators are the empirical Bayes shrinkage $C=\hat\mu+\hat\lambda(R-\hat\mu)$ with $\hat\mu$ the mean of the source means and $\hat\lambda=\hat\tau^2/(\hat\tau^2+\sigma_e^2)$, $\hat\tau^2=(\hat v-\sigma^2/n_s)^+$, $\hat v$ the pooled variance of the source means; full pooling ($\lambda=0$); and a fixed $\lambda=\tfrac12$. The check uses $\alpha\in\{$\CalphaGrid$\}$. Each configuration uses \MetaR{} replicates with common random numbers across $\alpha$ and operators, seed \MetaSeed. Two variants \emph{without} a guarantee proved here are also run: \emph{refit}, which applies the same check but then builds the final estimate from all $n$ observations, and \emph{SURE reversion}, which uses no split and applies $C$ to $\bar X_n$ iff Stein's unbiased estimate \citep{stein1981} of $\risk(C)-\risk(\bar X_n)$, equal to $(1-\hat\lambda_n)\big[(1-\hat\lambda_n)\norm{\bar X_n-\hat\mu}^2-2d\sigma^2/n\big]$ for the affine operator, is negative.
+$d=\Cd$, $\sigma=1$, $S=\CS$ source tasks with $n_s=\Cns$ observations each, a target task with $n=\Cn$ observations split into $n_e=\Cne$ for estimation and $m=\Cm$ for the check (a \SplitCost{} split cost, Corollary~\ref{cor:split}); $m\in\{$\CmGrid$\}$ is also swept, with $\tau^2$ held at its $m=\Cm$ value ($\tau^2=\MTauTwo=\sigma^2/\Cne$) so that only the split moves. Sources and target are exchangeable draws from $N(\mu,\tau^2 I_d)$ with $\snr=\tau^2/\sigma_e^2\in\{$\CsnrGrid$\}$ (structure sweep), and, at $\snr=\CsnrDep$, the target centre is shifted by $\kappa\tau$ along one coordinate with $\kappa\in\{$\CdepGrid$\}$ (departure sweep). The operators are the empirical Bayes shrinkage $C=\hat\mu+\hat\lambda(R-\hat\mu)$ with $\hat\mu$ the mean of the source means and $\hat\lambda=\hat\tau^2/(\hat\tau^2+\sigma_e^2)$, $\hat\tau^2=(\hat v-\sigma^2/n_s)^+$, $\hat v$ the pooled variance of the source means; full pooling ($\lambda=0$); and a fixed $\lambda=\tfrac12$. The check uses $\alpha\in\{$\CalphaGrid$\}$. Each configuration uses \MetaR{} replicates with common random numbers across $\alpha$ and operators, seed \MetaSeed. Two variants \emph{without} a guarantee proved here are also run: \emph{refit}, which applies the same check but then builds the final estimate from all $n$ observations, so that the independence hypothesis of Theorem~\ref{thm:safe} fails, and \emph{SURE reversion}, which uses no split and applies $C$ to $\bar X_n$ iff Stein's unbiased estimate \citep{stein1981} of $\risk(C)-\risk(\bar X_n)$, equal to $(1-\hat\lambda_n)\big[(1-\hat\lambda_n)\norm{\bar X_n-\hat\mu}^2-2d\sigma^2/n\big]$ for the affine operator, is negative.
 
 \paragraph{Predefined criteria.}
-(U)~\emph{Useful transfer} at a configuration: the lower end of the paired 95\% confidence interval of the relative risk gain with respect to the \emph{full-data} reference $\bar X_n$ is at least \CuseThr; the split is charged to the method. (S)~\emph{Safety}: the Monte Carlo excess risk of the reverting estimator over $R$ never exceeds any of the three bounds of Theorem~\ref{thm:safe}(i)--(ii) by more than two Monte Carlo standard errors, and the harmful-event frequency never exceeds $\alpha\,\hat\Prob(\Delta>0)$ by more than two binomial standard errors. (H)~The frequency of harmful transfer events, $\hat\theta_\rev=C$ and $\Delta>0$, is reported for every configuration.
+(U)~\emph{Useful transfer} at a configuration: the lower end of the paired 95\% confidence interval of the relative risk gain with respect to the \emph{full-data} reference $\bar X_n$ is at least \CuseThr; the split is charged to the method. (S)~\emph{Safety}: the Monte Carlo excess risk of the reverting estimator over $R$ never exceeds any of the three bounds of Theorem~\ref{thm:safe}(i)--(ii) by more than two Monte Carlo standard errors, and the harmful-event frequency never exceeds $\alpha\,\hat\Prob(\Delta>0)$ by more than two binomial standard errors. (H)~The frequency of harmful transfer events, $\hat\theta_\rev=C$ and $\Delta>0$ (the correction is used and its realised loss exceeds that of the reference), is reported for every configuration. Criteria U and S were fixed before the runs; see Appendix~\ref{app:repro} for the one change made to the identity check.
 
 \begin{table}[t]
 \centering\small\setlength{\tabcolsep}{4pt}
@@ -257,18 +270,7 @@ $\snr$ & $\lambda^\ast$ & $\bar X_n$ & all data & $\alpha{=}0.5$ & $\alpha{=}0.2
 \label{tab:structure}
 \end{table}
 
-\begin{table}[t]
-\centering\small\setlength{\tabcolsep}{4pt}
-\begin{tabular}{rrrrrrrrrr}
-\toprule
-$\snr$ & $R$ & $C$ (split) & $\hat\Prob(\Delta{>}0)$ \% & rev $0.1$ & harm \% & excess & bound (i) & bound $\varphi$ & bound $\alpha$\\
-\midrule
-\input{table_structure_check.tex}\\
-\bottomrule
-\end{tabular}
-\caption{Theorem~\ref{thm:safe} on the structure sweep, $\alpha=0.1$: risks of the reference $R=\bar X_e$ and of the corrected estimate on the same sample, frequency of $\Delta>0$, risk and harmful-event frequency of the reverting estimator, its Monte Carlo excess over $R$, and the three bounds $\E[\Delta^+\pi]$, $\varphi(z)\E[s]$, $\alpha\E[\Delta^+]$.}
-\label{tab:structurecheck}
-\end{table}
+
 
 \begin{table}[t]
 \centering\small
@@ -285,84 +287,37 @@ $\kappa$ & $\bar X_n$ & all data & $\alpha{=}0.5$ & $\alpha{=}0.2$ & $\alpha{=}0
 \label{tab:departure}
 \end{table}
 
-\begin{table}[t]
-\centering\footnotesize\setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{rrrrrrlrrr}
-\toprule
-$\kappa$ & $R$ & $C$ (split) & $\hat\Prob(\Delta{>}0)$ \% & harm \% & use $C\mid\Delta{>}0$ \% & excess $\pm$ SE & bound (i) & bound $\varphi$ & bound $\alpha$\\
-\midrule
-\input{table_departure_check.tex}\\
-\bottomrule
-\end{tabular}
-\caption{Theorem~\ref{thm:safe} on the departure sweep, $\alpha=0.1$. The conditional frequency of using $C$ when it is harmful never exceeds $\alpha$ (Theorem~\ref{thm:safe}(ii)).}
-\label{tab:departurecheck}
-\end{table}
 
-\begin{table}[t]
-\centering\small\setlength{\tabcolsep}{4pt}
-\begin{tabular}{rrrrrrrrrrrr}
-\toprule
-$m$ & $n_e$ & $\kappa$ & $R$ & $\bar X_n$ & always & rev $0.1$ & gain & excess & bound $\varphi$ & refit & SURE\\
-\midrule
-\input{table_m.tex}\\
-\bottomrule
-\end{tabular}
-\caption{Held-out size, EB operator, $\snr=\CsnrDep$, $\alpha=0.1$, $n=\Cn$ fixed. ``gain'' is relative to $\bar X_n$; Monte Carlo standard errors are below \MaxSEm.}
-\label{tab:m}
-\end{table}
 
-\begin{table}[t]
-\centering\small
-\begin{tabular}{rlrrrrrrr}
-\toprule
-$\snr$ & operator & $C$ (split) & $\hat\Prob(\Delta{>}0)$ \% & rev $0.1$ & harm \% & excess & bound $\varphi$ & bound $\alpha$\\
-\midrule
-\input{table_operators.tex}\\
-\bottomrule
-\end{tabular}
-\caption{Three operators under the same check ($\alpha=0.1$, $m=\Cm$, target from the hierarchy). Reversion caps the harm of the bad operators (full pooling, fixed $\lambda$) at the same level as that of the good one.}
-\label{tab:operators}
-\end{table}
 
-\begin{table}[t]
-\centering\small
-\begin{tabular}{rrrrrrr}
-\toprule
-$\alpha$ & $z_{1-\alpha}$ & $\varphi(z_{1-\alpha})$ & $\kappa(\alpha)$ & $u^\ast$ & $\kappa/\varphi$ & $z_{1-\alpha}+\varphi(0)$\\
-\midrule
-\input{table_constants.tex}\\
-\bottomrule
-\end{tabular}
-\caption{Constants of Theorem~\ref{thm:safe} and Proposition~\ref{prop:sharp}: $\kappa(\alpha)=\sup_{u\ge0}u\Phi(-(z_{1-\alpha}+u))$, attained at $u^\ast$, computed by bounded scalar maximisation.}
-\label{tab:constants}
-\end{table}
+
+
+
+
+
+
+
+
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{../figures/structure_sweep.pdf}
-\caption{Structure sweep (Table~\ref{tab:structure}), risks relative to the full-data reference. (a)~The reverting estimators start from the split cost (dashed) and recover part of the available gain; (b)~the variants without guarantee.}
-\label{fig:structure}
+\includegraphics[width=0.8\linewidth]{../figures/sweeps.pdf}
+\caption{Reverting estimators with the guarantee, EB operator, risks relative to the full-data reference. (a)~Structure sweep (Table~\ref{tab:structure}): the reverting estimators start from the split cost (dashed) and recover part of the available gain. (b)~Departure sweep (Table~\ref{tab:departure}), log scale: always correcting is harmful from $\kappa=4$ on; the reverting estimators stay close to the reference. The bound of Theorem~\ref{thm:safe}(ii) grows with $\E\norm{C-R}$, linearly in $\kappa$ for the shrinkage operator, so it does not by itself give a bounded factor; what is proved for every $\kappa$ is the cap of Corollary~\ref{cor:cap}, which allows up to \UniformCapTenRatioRn{} times the full-data reference at $\alpha=0.1$ and \UniformCapHalfRatioRn{} at $\alpha=0.5$, far above what is observed. The variants without guarantee are in the last two columns of the tables.}
+\label{fig:sweeps}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{../figures/departure_sweep.pdf}
-\caption{Departure sweep (Table~\ref{tab:departure}), log scale. Always correcting is harmful from $\kappa=4$ on; every reverting estimator stays within a bounded factor of the reference.}
-\label{fig:departure}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.8\linewidth]{../figures/excess_vs_bounds.pdf}
+\includegraphics[width=0.55\linewidth]{../figures/excess_vs_bounds.pdf}
 \caption{Excess risk of the reverting estimator over $R$ on the departure sweep ($\alpha=0.1$) against the three bounds of Theorem~\ref{thm:safe}. The identity bound $\E[\Delta^+\pi]$ is nearly attained where the excess is positive; the closed-form bounds are conservative by one to two orders of magnitude here.}
 \label{fig:excess}
 \end{figure}
 
 \paragraph{Results: safety (S).}
-Across all \CnConfigs{} (configuration, operator, $\alpha$) combinations the three bounds hold with the two-standard-error allowance: \SafeAll; the harmful-event frequency bound holds: \SafeHarmAll. The largest ratio of the Monte Carlo excess to the closed-form bound $\varphi(z)\E[s]$ is \MaxExcessOverPhi, and to the regret bound of Theorem~\ref{thm:safe}(iv) it is \MaxRegretOverBound. The identity of Theorem~\ref{thm:safe}(i) was checked replicate by replicate: where acceptance is frequent (\NIdentityCLT{} combinations) the paired $z$-statistic has maximum modulus \MaxIdentityZ; where it is rare (\NIdentityPoisson{} combinations) the acceptance count is compared with $\sum\pi$ through a Poisson 99\% interval, and \NIdentityFail{} combinations fall outside it, both from the same random batch (the larger deficit: \RecheckConfig, \RecheckMainCount{} acceptances against \RecheckMainExpected{} expected). Re-simulating that configuration with \RecheckSeeds{} independent seeds gives \RecheckCount{} acceptances against \RecheckExpected{} expected ($z=\RecheckZ$), and a direct conditional check with one fixed triple $(R,C,\theta)$ and fresh held-out draws agrees with $\Phi(-(\Delta+zs)/s)$ at every $\alpha$ (largest $|z|$ \CondCheckMaxZ). The harmful-event frequency of the EB operator never exceeds \HarmMaxHalf{} at $\alpha=0.5$, \HarmMaxTen{} at $\alpha=0.1$ and \HarmMaxOne{} at $\alpha=0.01$, against up to \DSixteenAlwaysEHarm{} for always correcting on the split sample (Tables~\ref{tab:structurecheck}--\ref{tab:departurecheck}). Table~\ref{tab:operators} shows the same cap for full pooling, whose unreverted risk reaches \SSixteenPoolAlways{} at $\snr=16$ against \SSixteenPoolRevTen{} after reversion.
+Across all \CnConfigs{} (configuration, operator, $\alpha$) combinations the three bounds hold with the two-standard-error allowance: \SafeAll; the harmful-event frequency bound holds: \SafeHarmAll; the cap of Corollary~\ref{cor:cap} holds: \SafeUniformAll{} (largest ratio of excess to cap \MaxExcessOverUniform; at $m=\Cm$ and $\alpha=0.1$ the cap is \UniformCapTen, \UniformCapTenOverRe{} times the risk of $R$, and the $\varphi$-bound exceeds it by up to \MaxBoundPhiOverUniform{} times on the grid). Where $\Delta>0$ almost surely, the comparison with $\E[\Delta^+\pi]$ is a check of identity~(i) between two Monte Carlo estimates of the same quantity, not of a bound. The largest ratio of the Monte Carlo excess to the closed-form bound $\varphi(z)\E[s]$ is \MaxExcessOverPhi, and to the regret bound of Theorem~\ref{thm:safe}(iv) it is \MaxRegretOverBound. The identity of Theorem~\ref{thm:safe}(i) was checked replicate by replicate: where acceptance is frequent (\NIdentityCLT{} combinations) the paired $z$-statistic has maximum modulus \MaxIdentityZ; where it is rare (\NIdentityPoisson{} combinations) the acceptance count is compared with $\sum\pi$ through a Poisson 99\% interval, which fails in \NIdentityFail{} of them (largest deficit: \RecheckConfig, \RecheckMainCount{} acceptances against \RecheckMainExpected{} expected). Re-simulating that configuration with \RecheckSeeds{} independent seeds gives \RecheckCount{} acceptances against \RecheckExpected{} expected ($z=\RecheckZ$), and a direct conditional check with one fixed triple $(R,C,\theta)$ and fresh held-out draws agrees with $\Phi(-(\Delta+zs)/s)$ at every $\alpha$ (largest $|z|$ \CondCheckMaxZ). The harmful-event frequency of the EB operator never exceeds \HarmMaxHalf{} at $\alpha=0.5$, \HarmMaxTen{} at $\alpha=0.1$ and \HarmMaxOne{} at $\alpha=0.01$, against up to \DSixteenAlwaysEHarm{} for always correcting on the split sample; the conditional frequency of using $C$ when it is harmful never exceeds $\alpha$ (at most \AccHarmMaxTen{} for $\alpha=0.1$). The same cap holds for the two bad operators: full pooling has unreverted risk \SSixteenPoolAlways{} at $\snr=16$ against \SSixteenPoolRevTen{} after reversion (the per-configuration tables for all operators, with every bound, are in \path{results/tables.md}, T1, T2 and T4).
 
 \paragraph{Results: usefulness (U).}
-Always correcting with all the data is useful at $\snr\in\{$\UsefulAlways$\}$ and, in the hierarchy, never harmful in the criterion's sense; its relative gain over $\bar X_n$ is \SOneAlwaysGain{} at $\snr=1$. The reverting estimator \emph{with} the guarantee is useful at $\snr\in\{$\UsefulRevHalf$\}$ for $\alpha=0.5$, $\{\UsefulRevTwenty\}$ for $\alpha=0.2$, $\{\UsefulRevTen\}$ for $\alpha=0.1$, and nowhere for $\alpha\le0.05$: at $\snr=1$ its gain over $\bar X_n$ is \SOneRevHalfGain{} ($\alpha=0.5$), \SOneRevTenGain{} ($\alpha=0.1$) and \SOneRevOneGain{} ($\alpha=0.01$), while its gain over the reference on the same estimation sample is \SOneRevHalfGainE, \SOneRevTenGainE{} and \SOneRevOneGainE. The difference is the \SplitCost{} split cost of Corollary~\ref{cor:split}, which the guarantee does not cover, plus the gain forfeited by the test (Remark~\ref{rem:power}): at $\snr=1$ and $\alpha=0.1$ the correction is used in \SOneRevTenAcc{} of the replicates although it helps in \SOneAlwaysEHelp{} of them. Table~\ref{tab:m} shows the trade-off in $m$: with $m=3$ (a $5\%$ split) the guaranteed estimator gains \MThreeZeroRevGain{} at $\kappa=0$ and loses \MThreeEightRevGain{} at $\kappa=8$ with excess \MThreeEightExcess{} over $R$ (bound \MThreeEightBoundPhi); with $m=24$ it loses \MTwentyFourZeroRevGain{} and \MTwentyFourEightRevGain. The two variants without guarantee are useful over a wider range: refit at $\snr\in\{$\UsefulRefitTen$\}$ ($\alpha=0.1$) and SURE reversion at $\snr\in\{$\UsefulSure$\}$, the latter within a few points of always correcting in the hierarchy.
+Always correcting with all the data is useful at $\snr\in\{$\UsefulAlways$\}$ and, in the hierarchy, never harmful in the criterion's sense; its relative gain over $\bar X_n$ is \SOneAlwaysGain{} at $\snr=1$. The reverting estimator \emph{with} the guarantee is useful at $\snr\in\{$\UsefulRevHalf$\}$ for $\alpha=0.5$, $\{\UsefulRevTwenty\}$ for $\alpha=0.2$, $\{\UsefulRevTen\}$ for $\alpha=0.1$, and nowhere for $\alpha\le0.05$: at $\snr=1$ its gain over $\bar X_n$ is \SOneRevHalfGain{} ($\alpha=0.5$), \SOneRevTenGain{} ($\alpha=0.1$) and \SOneRevOneGain{} ($\alpha=0.01$), while its gain over the reference on the same estimation sample is \SOneRevHalfGainE, \SOneRevTenGainE{} and \SOneRevOneGainE. The difference is the split cost of Corollary~\ref{cor:split} (\SplitCost{} of the full-data risk, \SplitCostR{} of the risk of $R$), which the guarantee does not cover, plus the gain forfeited by the test (Remark~\ref{rem:power}): at $\snr=1$ and $\alpha=0.1$ the correction is used in \SOneRevTenAcc{} of the replicates although it helps in \SOneAlwaysEHelp{} of them. The held-out-size sweep (\path{results/tables.md}, T3; $\tau^2$ fixed, so that the estimators that do not use the split stay flat in $m$) shows the trade-off: with $m=3$ (a $5\%$ split) the guaranteed estimator gains \MThreeZeroRevGain{} at $\kappa=0$ and loses \MThreeEightRevGain{} at $\kappa=8$ with excess \MThreeEightExcess{} over $R$ (bound \MThreeEightBoundPhi); with $m=24$ it loses \MTwentyFourZeroRevGain{} and \MTwentyFourEightRevGain. The two variants without guarantee are useful over a wider range: refit at $\snr\in\{$\UsefulRefitTen$\}$ ($\alpha=0.1$) and SURE reversion at $\snr\in\{$\UsefulSure$\}$, the latter within a few points of always correcting in the hierarchy. \NBorderline{} of the marks in Table~\ref{tab:structure} are borderline (lower end of the interval within \BorderPts{} points of the threshold): \BorderlineList; in particular ``refit useful up to $\snr=1$'' should not be read as robust.
 
 \paragraph{Results: negative transfer.}
 On the departure sweep always correcting with all the data becomes harmful (upper end of the 95\% interval of the gain below zero) at $\kappa\in\{$\HarmfulAlwaysDep$\}$ and reaches \WorstRatioAlways{} times the reference risk at $\kappa=\WorstDep$. The guaranteed reverting estimator at $\alpha=0.1$ stays between \DZeroRevTenRatio{} and \DEightRevTenRatio{} times the full-data reference over the whole sweep; its excess over $R$ is \DEightRevTenExcess{} at $\kappa=8$ against the bounds \DEightRevTenBoundTight{} (identity), \DEightRevTenBoundPhi{} ($\varphi$) and \DEightRevTenBoundAlpha{} ($\alpha$), and \WorstExcessTen{} at $\kappa=\WorstDep$ against \WorstBoundPhiTen{} and \WorstBoundAlphaTen. The unguaranteed variants are also capped in this design (SURE reversion is harmful only at $\kappa\in\{$\HarmfulSureDep$\}$, by at most \DFourSureRatio{} times the reference), but nothing proved here says they must be.
@@ -373,33 +328,26 @@ Safety holds everywhere, as the theorem says it must. Useful transfer with the g
 \section{Claims and their status}\label{sec:claims}
 
 \begin{table}[htbp]
-\centering\small
-\begin{tabular}{p{0.68\linewidth}p{0.24\linewidth}}
+\centering\footnotesize
+\begin{tabular}{L{0.68\linewidth}L{0.24\linewidth}}
 \toprule
 claim & status\\
 \midrule
-No estimator using source data whose law is free of $\theta$ beats the minimax risk $d\sigma_e^2$ (Thm.~\ref{thm:nfl}(a)) & classical, proof included\\
-A fixed additive correction is worse by exactly $\E\norm{b}^2$ at every $\theta$ (Thm.~\ref{thm:nfl}(b)) & proved here\\
-For $d\le2$, any rule that ever uses a correction is worse than $R$ somewhere (Thm.~\ref{thm:nfl}(c)) & literature + proved here\\
-For $d\ge3$ pointwise improvement exists but not in the worst case (Thm.~\ref{thm:nfl}(d)) & literature\\
+No estimator using source data whose law is free of $\theta$ beats the minimax risk $d\sigma_e^2$ (a); a fixed additive correction is worse by exactly $\E\norm b^2$ at every $\theta$ (b); for $d\le2$ any rule that ever corrects is worse than $R$ somewhere (c); for $d\ge3$ pointwise but not worst-case improvement exists (d) (Thm.~\ref{thm:nfl}) & (a) classical, proof included; (b) proved here; (c) literature + proved here; (d) literature\\
 Bayes and frequentist risk of affine shrinkage; available gain $1/(1+\snr)$ (Rem.~\ref{rem:enter}) & classical\\
-Held-out loss difference is conditionally unbiased and Gaussian with sd $2\sigma\norm{C-R}/\sqrt m$ (Lem.~\ref{lem:unbiased}) & proved here\\
-Excess risk identity $\E[\Delta\pi]$ (Thm.~\ref{thm:safe}(i)) & proved here\\
-\quad checked replicate by replicate in \CnConfigs{} combinations & verified\\
-Harm $\le\min\{\alpha\E\Delta^+,\varphi(z)2\sigma\E\norm{C-R}/\sqrt m\}$; harmful event $\le\alpha$ (Thm.~\ref{thm:safe}(ii)) & proved here\\
-\quad all bounds hold in every configuration (S) & verified\\
-Bounded-observation version via Hoeffding (Thm.~\ref{thm:safe}(iii)) & proved here\\
-Near-oracle selection within $(z+\varphi(0))\,2\sigma\E\norm{C-R}/\sqrt m$ (Thm.~\ref{thm:safe}(iv)) & proved here / verified\\
-Total cost relative to full-data reference = split cost + controlled term (Cor.~\ref{cor:split}) & proved here\\
-Constant sharp up to $\varphi(z)/\kappa(\alpha)$; harm not $o(m^{-1/2})$ uniformly (Prop.~\ref{prop:sharp}) & proved here; constants verified\\
-Reverting estimator = penalised hold-out selection between two candidates (Prop.~\ref{prop:select}) & proved here\\
-The line's closing statement (no differentiation from existing constructs) & supported by Sec.~\ref{sec:related}\\
-Useful transfer (criterion U) only at $\snr\in\{$\UsefulRevHalf$\}$ ($\alpha=0.5$), $\{$\UsefulRevTwenty$\}$ ($0.2$), $\{$\UsefulRevTen$\}$ ($0.1$), never for $\alpha\le0.05$, in this design & verified, design-specific\\
-Refit and SURE reversion are useful over a wider range and capped in this design & empirical only; no guarantee here\\
+Held-out loss difference conditionally unbiased, Gaussian with sd $2\sigma\norm{C-R}/\sqrt m$ (Lem.~\ref{lem:unbiased}); excess-risk identity $\E[\Delta\pi]$ (Thm.~\ref{thm:safe}(i)) & proved here; identity checked replicate by replicate in \CnConfigs{} combinations\\
+Harm $\le\min\{\alpha\E\Delta^+,\varphi(z)2\sigma\E\norm{C-R}/\sqrt m\}$; harmful event $\le\alpha\Prob(\Delta>0)$; Hoeffding version; near-oracle selection within $(z+\varphi(0))2\sigma\E\norm{C-R}/\sqrt m$ (Thm.~\ref{thm:safe}(ii)--(iv)) & proved here; every bound holds in every configuration (S)\\
+Cap uniform in $\theta$, for any measurable $C$ (Cor.~\ref{cor:cap}) & proved here; holds in every configuration\\
+Total cost relative to the full-data reference $=$ split cost ($m/n_e$ of its risk) $+$ controlled term (Cor.~\ref{cor:split}) & proved here\\
+Within one-sided checks at a fixed level $\alpha$: constant sharp up to $\varphi(z)/\kappa(\alpha)$, harm not $o(m^{-1/2})$ uniformly over operators (Prop.~\ref{prop:sharp}) & proved here; constants computed numerically\\
+Reverting estimator $=$ penalised hold-out selection between two candidates; hence no differentiation is to be expected from the safety mechanism itself (Prop.~\ref{prop:select}, Sec.~\ref{sec:related}) & proved here\\
+Differentiation through the operator family & not explored beyond three affine instances\\
+Useful transfer (criterion U) only at $\snr\in\{$\UsefulRevHalf$\}$ ($\alpha=0.5$), $\{$\UsefulRevTwenty$\}$ ($0.2$), $\{$\UsefulRevTen$\}$ ($0.1$), never for $\alpha\le0.05$, in this design & verified, design-specific; \NBorderline{} marks borderline\\
+Refit and SURE reversion useful over a wider range and capped in this design & empirical only; no guarantee here\\
 General accuracy improvement, transfer guarantee, statements about real populations & not claimed\\
 \bottomrule
 \end{tabular}
-\caption{Claims and their status. ``Verified'' means reproduced by the script of Appendix~\ref{app:repro} with the fixed seed; it is not a proof.}
+\caption{Claims and their status. ``Verified'' and ``holds'' mean reproduced by the script of Appendix~\ref{app:repro} with the fixed seed; neither is a proof.}
 \label{tab:claims}
 \end{table}
 
@@ -413,9 +361,21 @@ The model is Gaussian location with known variance; the identity and the $\varph
 \section{Reproducibility}\label{app:repro}
 {\sloppy The folder contains \path{experiments/safe_reversion.py} (all sweeps, constants, identity re-checks, tables and figures; \texttt{--fast} runs a reduced version) and \path{experiments/make_numbers.py}, which converts \path{results/results.json} into the macros and table bodies of this document, so that every number in the text is generated and none is typed. The full run used seed \MetaSeed{} (re-checks: \MetaSeed{}${}+1$ and \MetaSeed{}${}+1000+i$), Python \MetaPython, NumPy \MetaNumpy~\citep{harris2020}, SciPy \MetaScipy~\citep{virtanen2020} and Matplotlib \MetaMpl, and took \MetaSeconds{} seconds on a shared four-core machine.\par}
 
-\paragraph{Draws.} Per replicate: source parameters $\theta_s\sim N(0,\tau^2 I_d)$ and source means $\bar X_s\sim N(\theta_s,\sigma^2 I_d/n_s)$; target parameter $\theta\sim N(\kappa\tau e_1,\tau^2 I_d)$; $\bar X_e\sim N(\theta,\sigma^2 I_d/n_e)$ and $\Ybar\sim N(\theta,\sigma^2 I_d/m)$ independent; $\bar X_n=(n_e\bar X_e+m\Ybar)/n$. The centre $\mu=0$ without loss of generality, since the operators estimate it. Common random numbers are used across $\alpha$ and operators within a configuration and across $m$ nothing is shared.
-\paragraph{Statistics.} Risks are Monte Carlo means with standard errors from the replicate standard deviation; relative gains use paired differences and treat the denominator as fixed (its relative standard error is below $1\%$). The Rao--Blackwellised excess $\E[\Delta\pi]$ uses $\pi=\Phi(-(\Delta+zs)/s)$ with the true $\theta$ of the replicate. $\kappa(\alpha)$ is computed by \path{scipy.optimize.minimize_scalar} on $[0,20]$ with tolerance $10^{-10}$.
+\paragraph{Procedure.} Criteria U and S were fixed before the runs. The Poisson comparison used for the identity check where acceptance is rare replaced a paired $z$-test after a first run showed that the normal approximation fails there (huge $|z|$ for counts of a few units); nothing else was changed after seeing results. Risks are Monte Carlo means with standard errors from the replicate standard deviation; relative gains use paired differences and treat the denominator as fixed (its relative standard error is below $1\%$); $\kappa(\alpha)$ is computed by \path{scipy.optimize.minimize_scalar} on $[0,20]$, an interval that contains the maximiser ($u^\ast<1$, Table~\ref{tab:constants}), with tolerance $10^{-10}$. The exact draws per replicate are listed in the README. Table~\ref{tab:constants} lists the constants.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{rrrrrrr}
+\toprule
+$\alpha$ & $z_{1-\alpha}$ & $\varphi(z_{1-\alpha})$ & $\kappa(\alpha)$ & $u^\ast$ & $\kappa/\varphi$ & $z_{1-\alpha}+\varphi(0)$\\
+\midrule
+\input{table_constants.tex}\\
+\bottomrule
+\end{tabular}
+\caption{Constants of Theorem~\ref{thm:safe} and Proposition~\ref{prop:sharp}: $\kappa(\alpha)=\sup_{u\ge0}u\Phi(-(z_{1-\alpha}+u))$, attained at $u^\ast$, computed by bounded scalar maximisation.}
+\label{tab:constants}
+\end{table}
 
 \bibliographystyle{plainnat}
-\bibliography{refs}
+{\small\bibliography{refs}}
 \end{document}

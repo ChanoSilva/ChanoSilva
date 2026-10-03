@@ -63,3 +63,39 @@ No existe manuscrito previo ni código de la línea en el repositorio; todo lo q
 3. Caracterizar los pesos de tamaño w para los que Σ_c w(n_c) Σ A_ij es un kernel k-means ponderado en el sentido de Dhillon–Guan–Kulis (2007).
 4. Verificar los datos bibliográficos listados arriba.
 5. Actualizar la ficha LMI001 del CV web con el texto de `FICHA_LMI001_propuesta.md` (de "no sobrevivió ningún componente mecánico" a "ningún componente mecánico de tipo de pares puede sobrevivir; quedan abiertos los ingredientes de muchos cuerpos y la dinámica de posiciones").
+
+## Ronda 1 de revisión interna (30/09/2026; respuesta aplicada el 03/10/2026)
+
+Informe: `REFEREE_LMI001_ronda1_20260930.md`. Respuesta punto por punto: `RESPUESTA_LMI001_ronda1_20260930.md`. Resultado: manuscrito **v0.2** (13 páginas, 0 errores, 0 referencias indefinidas, 0 cajas desbordadas), corrida de referencia repetida con el código revisado. Las secciones anteriores de esta nota describen la v0.1 y se conservan como historia; donde difieren, manda esta sección.
+
+**Renumeración v0.1 → v0.2:** Cor. 3.4 + Prop. 3.5 → Remark 3.4(a)/(b); Prop. 3.7 → Prop. 3.5; Prop. 3.8 → Prop. 3.6; Tablas 2/3/4 → 1/2/3; Tabla 1 (datasets), Tabla 5 y Figura 2 eliminadas del manuscrito.
+
+| Hallazgo | Acción |
+|---|---|
+| B1 reconstrucción no declarada | Declarada en resumen, Introducción, lectura de E1–E3, Limitations y Next steps; conclusión condicionada ("if the screened formulations were pairwise"); título acotado a resortes/pares. |
+| B2 ficha cierra la línea | Ficha: "Activa — borrador v0.2 en revisión interna; mantener 'En pausa' hasta confirmar el supuesto"; hallazgos y alcance acotados; README igual. |
+| M1 etiquetas de 3.2(b), (e) | (b) literature (ratio association ↔ kernel k-means, Dhillon et al. 2004, 2007), (e) classical; párrafo *Status* y Tabla 3. |
+| M2 aritmética 3.7(iii) | 1.72 → 1.52; 0.16+0.16 → 0.16+0.36; comprobación por la fórmula (6) añadida. |
+| M3 Prop. 3.5 | Fundida en Remark 3.4(b); "we make no claim" sobre representabilidad de los objetivos anclados. |
+| M4 factor ½ | Φ̃ = Φ/√2 en 3.2(f); resumen corregido ("and a factor ½"; "feature map rescaled by 1/√2"); README y ficha sin "literalmente". |
+| M5 sobregeneralización 4.1 | "the three-body (triangle-area) term, the cluster-mean rest length and the per-spring average tested" en todas partes; E4 con dos configuraciones (generador propio, seed 20260932), patrón 12/12; observación de que una suma de tres cuerpos con peso (n_c−2) colapsa a pares. |
+| M6 línea base de E3 | *Disclosure* en E3; σ máximo como macro (4.4×10⁴); docstring de `relaxation.py`; E1 genera sus particiones de Lloyd/relajación sobre K̃. |
+| M7 Prop. 3.8 vs Dhillon | Etiqueta "proved here; explicit form of an effect noted by Dhillon et al. (TR 2004, 2007)"; entrada dhillon2004tr añadida; verificación textual pendiente (abajo). |
+| M8 extensión | Recortes 1–6 y 8 aplicados; 15 → 13 páginas a 11 pt; ≤ 10 exigiría 10 pt o suprimir pruebas (no hecho). |
+| m1–m16 | Todos aplicados (m6 con números de BCR/SSV sin cotejar); detalle en la respuesta. |
+
+**Cambios de código (v0.2):** `relaxation.py` mide `is_hartigan_stable()` en todos los métodos y renombra `kernel_used` a `canonical(+shift)`; `identity_check.py` usa K̃ (desplazado mínimamente si es indefinido) para las particiones de Lloyd/relajación de E1 y un generador propio `default_rng(SEED+2)` para E4 con dos configuraciones; `make_numbers.py` añade `\EoneMaxSigma`, `\EfourSeed`, `\EfourPointsB`, `\EfourCells`, `\EfourCellsSame`, elimina la columna "Voronoi-stable relax" de la tabla E3 (afirma 100/100 por potencial) y poda macros sin uso; `make_figures.py` dibuja la Figura 1 en 2×3 paneles; docstrings con la numeración de v0.2.
+
+**Resultados de referencia v0.2 (semillas 20260930 / 20260931 / 20260932; 159 s + 128 s en paralelo):**
+- E1: 19 285/19 285, máximo 1.1e−11; Hooke vs SSE 3.9e−16; cociente total/por partícula [29.7, 197.5]; K̃ PSD 25/25, indefinido 5/5; σ máximo 4.4e4.
+- E2: 90/90 trayectorias idénticas (4.9 barridos de media, máximo 11; energía final a 1.4e−14; 56 s frente a 0.6 s); anclados 15/15 (4.3e−16).
+- E3: sin cambios respecto de v0.1 (600/600 y 150/150 Voronoi; E* en 28/25/14/20/6; distinguibles 6/30, 5/1, máx. 7.4e−3; ARI = 1 en 24/30; Lloyd estable a un movimiento 204/600, ingenuo 38/600); estabilidad de un movimiento medida en relax/lloyd+relax/anneal: 600/600, 600/600, 150/150.
+- E4: P₁ = (5,10),(6,2),(4,4),(2,2),(3,7),(0,6),(8,8); P₂ = (0,2),(7,4),(8,7),(5,0),(2,8),(2,3),(4,10); rangos 21/22; residuos (P₁; P₂): Hooke-sp 0;0 / 0.017;0.015 — Hooke-tot 0.179;0.179 / 0;0 — reposo fijo 0;0 / 0.026;0.030 — adaptativo 0.143;0.157 / 0.109;0.122 — tres cuerpos 0.331;0.328 / 0.039;0.037 — por resorte 0.185;0.180 / 0.125;0.121.
+
+**Bibliografía (estado tras la ronda):** verificadas por el árbitro: sahni1976, wright1977, telgarsky2010, zha2001, bcr1984. Eliminadas: aloise2009, shimalik2000, vonluxburg2007. Añadida: dhillon2004tr (UTCS TR-04-25, 2004; existencia confirmada por buscador, año/número no cotejados). No verificables en esta sesión (datos coherentes con lo que sabemos): dhillon2004, dhillon2007, schoenberg1935, schoenberg1938, ssv2012 (Thm. 3.2 = Lévy–Khintchine, de memoria), hartigan1975, hartiganwong1979, lloyd1982, macqueen1967, arthur2007, girolami2002, scholkopf1998, selim1984, rose1990, rose1998, blatt1996, horn2002, durbin1987, yuille1990, fukunaga1975, cheng1995, comaniciu2002, kirkpatrick1983, pedregosa2011, virtanen2020. Números de BCR citados (Cap. 3 §2, Lema 2.1 y Teorema 2.2): de memoria, coincidentes con el árbitro, sin cotejar con el libro.
+
+**Queda abierto tras la ronda 1:**
+1. Confirmar con el autor el supuesto de reconstrucción (B1); hasta entonces la ficha pública sigue "En pausa".
+2. Cotejar con el texto de Dhillon–Guan–Kulis (TR-04-25; TPAMI 2007, sección sobre positividad) la observación sobre el desplazamiento diagonal citada en la Prop. 3.6, y los números de teorema de BCR y SSV.
+3. Extensión (13 páginas); decidir si se pasa a 10 pt o se recorta contenido.
+4. Problema abierto 4.2 / Conjetura 4.3 y la caracterización de los pesos de tamaño (Next steps (b), (c)): sin cambios.

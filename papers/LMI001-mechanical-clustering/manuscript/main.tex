@@ -15,6 +15,12 @@
 \usepackage{caption}
 \usepackage{float}
 \captionsetup{font=small,labelfont=bf}
+\providecommand{\bibfont}{}
+\renewcommand{\bibfont}{\footnotesize}
+\setlength{\bibsep}{1.5pt plus 1pt}
+\renewcommand{\floatpagefraction}{0.75}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\textfraction}{0.07}
 
 \IfFileExists{numbers.tex}{\input{numbers.tex}}{}
 
@@ -22,11 +28,9 @@
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{conjecture}[theorem]{Conjecture}
 \theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
-\newtheorem{example}[theorem]{Example}
 \newtheorem{problem}[theorem]{Open problem}
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
@@ -41,65 +45,51 @@
 \newcommand{\one}{\mathbf 1}
 \newcommand{\status}[1]{\textsf{\small [#1]}}
 
-\title{\textbf{Mechanical Analogies for Data Clustering Are Kernel Clustering:}\\[2pt]
+\title{\textbf{Spring-Energy Clustering Is Kernel Clustering:}\\[2pt]
 \large An Equivalence Theorem Behind a Null Screening}
 \author{Luciano Silva Alarco\\
 \small Pontificia Universidad Cat\'olica del Per\'u\\
 \small ORCID 0000-0002-3395-3129}
-\date{\small Working draft v0.1 --- research line LMI001 --- \today}
+\date{\small Working draft v0.2 (one round of internal review applied) --- research line LMI001 --- 3 October 2026}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
 \noindent
-A research line on ``mechanical analogies for data clustering'' screened clustering objectives built from springs, tension and lifting against matched kernel controls and found no mechanical component that survived the comparison. This note shows that the null result is a theorem, not an accident. We define the family of mechanical objectives precisely: points joined by springs with an arbitrary pair potential $\phi(d)$, optionally after a lift $L\colon\R^d\to\R^D$, with the within-cluster energy normalised per particle or summed. We prove that (i) Hooke springs with zero rest length give exactly the $k$-means objective; (ii) for every pair potential the per-particle energy is, up to an additive constant, the kernel $k$-means objective of the matrix $-\phi(D)$, which a diagonal shift makes positive semidefinite without changing the minimisers; (iii) when $\phi(d)=\psi(d^2)$ with $\psi$ a Bernstein function, Schoenberg's theory supplies a dataset-independent positive definite kernel, so the spring energy is literally the Hooke energy of a lifted configuration; (iv) lifting changes only the kernel; (v) the total (unnormalised) energy and its ``tension'' dual are the min-sum $k$-clustering and max-$k$-cut objectives with weights $\phi(d_{ij})$; and (vi) the zero-temperature relaxation of the spring system is Hartigan's single-move method, whose fixed points are always Lloyd fixed points of the kernel problem. Exact rational arithmetic on an explicit configuration shows which ingredients leave the family: many-body terms, assignment-dependent rest lengths and per-spring normalisation are not pairwise objectives. Computationally, on five datasets and six potentials the spring energies and the kernel objectives coincide to $\EoneMaxRelErr$ on \EonePartitionsTotal{} partitions, a brute-force spring implementation and a kernel implementation of the same relaxation follow identical trajectories in \EtwoIdentical/\EtwoRuns{} runs, and all \EthreeRunsRelax{} relaxation fixed points are kernel $k$-means fixed points. The only direction not closed by the theorem is dynamics on positions rather than assignments; we state it as an open problem. No claim is made about real clustering performance.
+A research line on ``mechanical analogies for data clustering'' screened clustering objectives built from springs, tension and lifting against matched kernel controls and found no mechanical component that survived the comparison. No manuscript or code of that screening was available to us; Section~\ref{sec:family} reconstructs the family from the line's public summary as \emph{pairwise} spring energies (points joined by springs with an arbitrary pair potential $\phi(d)$, optionally after a lift, with the within-cluster energy normalised per particle or summed), and this note shows that, for that pairwise family, the null result is a theorem. We prove that (i) Hooke springs with zero rest length give exactly the $k$-means objective; (ii) for every pair potential the per-particle energy is, up to an additive constant and a factor $\tfrac12$, the kernel $k$-means objective of $-\phi(D)$, which a diagonal shift makes positive semidefinite without changing the minimisers (the ratio-association form of kernel $k$-means of Dhillon, Guan and Kulis, written for spring matrices); (iii) when $\phi(d)=\psi(d^2)$ with $\psi$ a Bernstein function, Schoenberg's theory supplies a positive definite kernel that does not depend on the dataset once the scales are fixed, so the spring energy is, up to an additive constant, the Hooke energy of a lifted configuration (feature map rescaled by $1/\sqrt2$); (iv) lifting changes only the kernel; (v) the total energy and its ``tension'' dual are min-sum $k$-clustering and max-$k$-cut with weights $\phi(d_{ij})$; and (vi) the zero-temperature relaxation of the spring system is Hartigan's single-move method, whose fixed points are always Lloyd fixed points of the kernel problem. Exact rational arithmetic on two explicit configurations shows that the three-body (triangle-area) term, the cluster-mean rest length and the per-spring average tested here are not pairwise objectives. Computationally, on five datasets and six potentials the spring energies and the kernel objectives coincide to $\EoneMaxRelErr$ on \EonePartitionsTotal{} partitions, a brute-force spring implementation and a kernel implementation of the same relaxation follow identical trajectories in \EtwoIdentical/\EtwoRuns{} runs, and all \EthreeRunsRelax{} relaxation fixed points are kernel $k$-means fixed points. Dynamics on positions rather than assignments is the one direction the theorem does not close; we state it as an open problem. No claim is made about clustering performance.
 \end{abstract}
 
 \section{Introduction}\label{sec:intro}
 
-Physical metaphors recur in clustering. Points are particles; similar points attract; a cluster is a bound state. Concrete algorithms have been built on gravity~\citep{wright1977}, on spin models at finite temperature~\citep{blatt1996}, on deterministic annealing of a free energy~\citep{rose1990,rose1998}, on quantum potentials~\citep{horn2002}, and on elastic nets~\citep{durbin1987,yuille1990}. The research line to which this note belongs (LMI001, ``Mechanical analogies for data clustering'') studied formulations of a more elementary kind: points connected by springs, with tension and lifting terms, clustered by minimising an elastic energy. Its stated objective was to determine whether the mechanical component produces an effect distinguishable from matched kernel controls, and its screening found none.
+Physical metaphors recur in clustering: algorithms have been built on gravity~\citep{wright1977}, on spin models at finite temperature~\citep{blatt1996}, on deterministic annealing of a free energy~\citep{rose1990,rose1998}, on quantum potentials~\citep{horn2002}, and on elastic nets~\citep{durbin1987,yuille1990}. The research line to which this note belongs (LMI001, ``Mechanical analogies for data clustering'') studied formulations of a more elementary kind: points connected by springs, with tension and lifting terms, clustered by minimising an elastic energy. Its stated objective was to determine whether the mechanical component produces an effect distinguishable from matched kernel controls, and its screening found none. \emph{The definitions of Section~\ref{sec:family} are a reconstruction from the line's public summary; no manuscript or code of the original screening was available to us, and the conclusions below apply to objectives of that pairwise form.} The purpose of the note is to explain the null result rather than to repeat it. The explanation is short: every objective in the pairwise family is a kernel objective, and the natural way to minimise it mechanically is a known kernel $k$-means optimiser. A control that matches the kernel therefore matches the objective exactly, and no experiment on objective values can separate them (experiments on optimisers can, Section~\ref{sec:experiments}). We proceed in three steps: we define the family (Section~\ref{sec:family}); we prove the equivalences (Section~\ref{sec:results}), whose core is elementary linear algebra around the trace form of kernel $k$-means and its ratio-association reading~\citep{zha2001,girolami2002,dhillon2004,dhillon2007}, the only non-trivial input being Schoenberg's characterisation of metric transforms of Hilbertian type~\citep{schoenberg1935,schoenberg1938,bcr1984}, and we certify by exact arithmetic that the ingredients the theorem does not cover are genuinely outside the family (Section~\ref{sec:escape}); and we confirm the identities computationally with predefined criteria (Section~\ref{sec:experiments}).
 
-The purpose of this note is to explain the null result rather than to repeat it. The explanation is short: every objective in the mechanical family is a kernel objective, and the natural way to minimise it mechanically is a known kernel $k$-means optimiser. A control that matches the kernel therefore matches the objective exactly, and no experiment can separate them. We make this precise in three steps.
+\paragraph{Scope.} The note is about objectives and their minimisers, not about clustering quality. We do not claim that any potential clusters real data well, and the adjusted Rand indices reported are context, not results. The datasets are standard synthetic ones and two small scikit-learn datasets~\citep{pedregosa2011}. Every number in the text is generated by the scripts described in Appendix~\ref{app:repro}, with fixed seeds. Section~\ref{sec:claims} lists all claims with their status.
 
-\begin{enumerate}[leftmargin=2em]
-\item We define the mechanical family (Section~\ref{sec:family}): a pair potential, a lift, and a normalisation, together with the tension and anchored variants.
-\item We prove the equivalence results (Section~\ref{sec:results}). The core is elementary linear algebra around the trace form of kernel $k$-means~\citep{zha2001,girolami2002,dhillon2004}; the only non-trivial input is Schoenberg's characterisation of metric transforms of Hilbertian type~\citep{schoenberg1935,schoenberg1938,bcr1984}, which turns a large class of springs into Hooke springs on a lifted configuration. We also record what the theorem does not cover, and certify by exact arithmetic that those ingredients are genuinely outside the family (Section~\ref{sec:escape}).
-\item We confirm the identities computationally with predefined criteria (Section~\ref{sec:experiments}): identical objective values, identical trajectories of a brute-force spring implementation and a kernel implementation, and the inclusion of relaxation fixed points among kernel $k$-means fixed points.
-\end{enumerate}
+\section{The pairwise spring family}\label{sec:family}
 
-\paragraph{Scope.} The note is about objectives and their minimisers, not about clustering quality. We do not claim that any potential clusters real data well, and the adjusted Rand indices reported are context, not results. The datasets are the standard synthetic ones and two small scikit-learn datasets~\citep{pedregosa2011}. Every number in the text is generated by the scripts described in Appendix~\ref{app:repro}, with fixed seeds. Section~\ref{sec:claims} lists all claims with their status.
+Throughout, $X=(x_1,\dots,x_n)$ is a configuration in $\R^d$, $k\ge2$ is fixed, and a \emph{partition} $C=(C_1,\dots,C_k)$ is a partition of $[n]$ into $k$ non-empty clusters, with sizes $n_c=|C_c|$ and indicator vectors $\one_c\in\{0,1\}^n$. We write $D_{ij}=\lVert x_i-x_j\rVert$. ``PSD'' always refers to a matrix (positive semidefinite); a \emph{kernel} on a set is called \emph{positive definite} (PD) when all its Gram matrices are PSD, the convention of \citet{bcr1984}.
 
-\section{The mechanical family}\label{sec:family}
-
-Throughout, $X=(x_1,\dots,x_n)$ is a configuration in $\R^d$, $k\ge2$ is fixed, and a \emph{partition} $C=(C_1,\dots,C_k)$ is a partition of $[n]$ into $k$ non-empty clusters, with sizes $n_c=|C_c|$ and indicator vectors $\one_c\in\{0,1\}^n$. We write $D_{ij}=\lVert x_i-x_j\rVert$.
-
-\begin{definition}[Spring network, elastic energy]\label{def:family}
+\begin{definition}[Spring network, elastic energy, variants]\label{def:family}
 A \emph{spring network} is a triple $(\phi,L,w)$ of a \emph{pair potential} $\phi\colon[0,\infty)\to\R$, a \emph{lift} $L\colon\R^d\to\R^D$ (the identity by default), and a \emph{normalisation} $w\in\{w_\spec,w_\tot\}$ with $w_\spec(m)=1/m$ (energy per particle of the cluster) and $w_\tot(m)=1$ (total energy). Its \emph{within-cluster elastic energy} is
 \begin{equation}\label{eq:E}
 E_{\phi,L,w}(C)\;=\;\sum_{c=1}^k w(n_c)\sum_{\substack{i<j\\ i,j\in C_c}}\phi\bigl(\lVert L x_i-L x_j\rVert\bigr).
 \end{equation}
-We write $A_{ij}=\phi(\lVert Lx_i-Lx_j\rVert)$ for the \emph{spring matrix}, $E_\spec$ and $E_\tot$ for the two normalisations, and $\SSE(C)=\sum_c\sum_{i\in C_c}\lVert x_i-\mu_c\rVert^2$, $\mu_c$ the centroid, for the $k$-means objective~\citep{macqueen1967,lloyd1982}.
+We write $A_{ij}=\phi(\lVert Lx_i-Lx_j\rVert)$ for the \emph{spring matrix}, $E_\spec$ and $E_\tot$ for the two normalisations, and $\SSE(C)=\sum_c\sum_{i\in C_c}\lVert x_i-\mu_c\rVert^2$, $\mu_c$ the centroid, for the $k$-means objective~\citep{macqueen1967,lloyd1982}. The \emph{released tension} of $C$ is the energy of the springs that cross clusters, $T(C)=\sum_{c<c'}\sum_{i\in C_c,\,j\in C_{c'}}A_{ij}$; a tension formulation maximises $T$. An \emph{anchored} network attaches every particle to a hub $y_c\in\R^D$ of its cluster, with energy $E^{\mathrm{anch}}(C,y)=\sum_c\sum_{i\in C_c}\phi(\lVert Lx_i-y_c\rVert)$, minimised over the hubs as well as over $C$.
 \end{definition}
 
-\begin{definition}[Tension and anchored variants]\label{def:variants}
-The \emph{released tension} of $C$ is the energy of the springs that cross clusters, $T(C)=\sum_{c<c'}\sum_{i\in C_c,\,j\in C_{c'}}A_{ij}$; a tension formulation maximises $T$. An \emph{anchored} network attaches every particle to a hub $y_c\in\R^D$ of its cluster, with energy $E^{\mathrm{anch}}(C,y)=\sum_c\sum_{i\in C_c}\phi(\lVert Lx_i-y_c\rVert)$, minimised over the hubs as well as over $C$.
-\end{definition}
-
-\begin{example}[Potentials used below]\label{ex:pots}
-Hooke spring with zero rest length, $\phi(d)=d^2$ (the spring constant is absorbed); Hooke spring with rest length $r>0$, $\phi(d)=(d-r)^2$; string under constant tension, $\phi(d)=d$; saturating (breakable) spring, $\phi(d)=1-e^{-d^2/2\ell^2}$; soft spring, $\phi(d)=\log(1+d^2/\ell^2)$; and the Hooke spring on the paraboloid lift $L(x)=(x,\lVert x\rVert^2/s)$.
-\end{example}
+The potentials used below are: the Hooke spring with zero rest length, $\phi(d)=d^2$ (the spring constant is absorbed); the Hooke spring with rest length $r>0$, $\phi(d)=(d-r)^2$; the string under constant tension, $\phi(d)=d$; the saturating (breakable) spring, $\phi(d)=1-e^{-d^2/2\ell^2}$; the soft spring, $\phi(d)=\log(1+d^2/\ell^2)$; and the Hooke spring on the paraboloid lift $L(x)=(x,\lVert x\rVert^2/s)$.
 
 \begin{definition}[Kernel $k$-means objective, trace form]\label{def:kkm}
 For a symmetric matrix $K\in\R^{n\times n}$ and a partition $C$,
 \begin{equation}\label{eq:J}
 J_K(C)\;=\;\tr K-\sum_{c=1}^k\frac{\one_c^{\!\top}K\one_c}{n_c}.
 \end{equation}
-When $K$ is positive semidefinite (PSD) with a Gram factorisation $K_{ij}=\langle\Phi_i,\Phi_j\rangle$, $J_K(C)=\sum_c\sum_{i\in C_c}\lVert\Phi_i-m_c\rVert^2$ with $m_c$ the centroid of the $\Phi_i$, $i\in C_c$: the $k$-means objective in feature space~\citep{scholkopf1998,girolami2002,zha2001,dhillon2004}. For general symmetric $K$ we take~\eqref{eq:J} as the definition.
+When $K$ is PSD with a Gram factorisation $K_{ij}=\langle\Phi_i,\Phi_j\rangle$, $J_K(C)=\sum_c\sum_{i\in C_c}\lVert\Phi_i-m_c\rVert^2$ with $m_c$ the centroid of the $\Phi_i$, $i\in C_c$: the $k$-means objective in feature space~\citep{scholkopf1998,girolami2002,zha2001,dhillon2004}. For general symmetric $K$ we take~\eqref{eq:J} as the definition.
 \end{definition}
 
 \begin{definition}[Negative type, Bernstein functions]\label{def:cnd}
-A symmetric kernel $\psi$ on a set $S$ is \emph{conditionally negative definite} (CND) if $\sum_{i,j}c_ic_j\psi(s_i,s_j)\le0$ for all finite families $s_i\in S$ and reals $c_i$ with $\sum_ic_i=0$. A function $\phi\colon[0,\infty)\to\R$ is \emph{of negative type} if $(x,y)\mapsto\phi(\lVert x-y\rVert)$ is CND on $\R^d$ for every $d$. A function $\psi\colon[0,\infty)\to[0,\infty)$ is a \emph{Bernstein function} if it is continuous, $C^\infty$ on $(0,\infty)$, and $(-1)^{m-1}\psi^{(m)}\ge0$ for all $m\ge1$~\citep{ssv2012}; equivalently $\psi(s)=a+bs+\int_{(0,\infty)}(1-e^{-ts})\,\mu(\dd t)$ with $a,b\ge0$ and $\int\min(1,t)\,\mu(\dd t)<\infty$.
+A symmetric kernel $\psi$ on a set $S$ is \emph{conditionally negative definite} (CND) if $\sum_{i,j}c_ic_j\psi(s_i,s_j)\le0$ for all finite families $s_i\in S$ and reals $c_i$ with $\sum_ic_i=0$. A function $\phi\colon[0,\infty)\to\R$ is \emph{of negative type} if $(x,y)\mapsto\phi(\lVert x-y\rVert)$ is CND on $\R^d$ for every $d$. A function $\psi\colon[0,\infty)\to[0,\infty)$ is a \emph{Bernstein function} if it is continuous, $C^\infty$ on $(0,\infty)$, and $(-1)^{m-1}\psi^{(m)}\ge0$ for all $m\ge1$; equivalently (L\'evy--Khintchine representation, \citealp[Thm.~3.2]{ssv2012}) $\psi(s)=a+bs+\int_{(0,\infty)}(1-e^{-ts})\,\mu(\dd t)$ with $a,b\ge0$ and $\int\min(1,t)\,\mu(\dd t)<\infty$.
 \end{definition}
 
 \section{Results}\label{sec:results}
@@ -120,7 +110,7 @@ In particular the minimisers of $J_K$ over partitions into $k$ clusters are unch
 
 \subsection{Springs are kernels}
 
-\begin{theorem}[Mechanical clustering is kernel clustering]\label{thm:main}
+\begin{theorem}[Spring-energy clustering is kernel clustering]\label{thm:main}
 Let $(\phi,L,w)$ be a spring network with spring matrix $A$ and let $K=-A$ (diagonal included, $K_{ii}=-\phi(0)$). For every partition $C$ into $k$ non-empty clusters:
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
 \item $E_{\phi,L,w}(C)$ depends on the data only through $A$.
@@ -132,18 +122,24 @@ Let $(\phi,L,w)$ be a spring network with spring matrix $A$ and let $K=-A$ (diag
 \[
 \widetilde K(x,y)=\phi(\lVert x\rVert)+\phi(\lVert y\rVert)-\phi(\lVert x-y\rVert)-\phi(0)
 \]
-is a positive definite kernel on $\R^D$, independent of the dataset, and $E_\spec(C)=\tfrac12J_{\widetilde K}(C)+\tfrac12(n-k)\phi(0)$ where $\widetilde K$ is evaluated on the lifted points. Its feature map $\Phi$ satisfies $\lVert\Phi(x)-\Phi(y)\rVert^2=2\bigl(\phi(\lVert x-y\rVert)-\phi(0)\bigr)$, so the spring energy is, up to the constant, the per-particle Hooke energy of $(\Phi(Lx_i))_i$.
+is a PD kernel on $\R^D$ that does not depend on the dataset (given the scales $\ell,r,s$ that enter $\phi$ and $L$), and $E_\spec(C)=\tfrac12J_{\widetilde K}(C)+\tfrac12(n-k)\phi(0)$ where $\widetilde K$ is evaluated on the lifted points. If $\Phi$ is a feature map of $\widetilde K$ and $\widetilde\Phi=\Phi/\sqrt2$, then $\lVert\widetilde\Phi(x)-\widetilde\Phi(y)\rVert^2=\phi(\lVert x-y\rVert)-\phi(0)$ and
+\[
+E_\spec(C)=E_{d^2,\widetilde\Phi\circ L,\spec}(C)+\tfrac12(n-k)\phi(0):
+\]
+up to the constant, the spring energy is the per-particle Hooke energy of the lifted configuration $(\widetilde\Phi(Lx_i))_i$. (Without the rescaling, $E_\spec$ is \emph{half} the Hooke energy of $(\Phi(Lx_i))_i$ plus the constant.)
 \end{enumerate}
 \end{theorem}
+
+\noindent\emph{Status.} (a), (d) elementary; (c) classical. (b) is the ratio-association form of kernel $k$-means: $\sum_c\one_c^{\!\top}A\one_c/n_c$ is the ratio association of the affinity $A$, whose equivalence with kernel $k$-means for $K=\sigma I\mp A$ is due to \citet{dhillon2004,dhillon2007}; specific to springs is only $E_\spec=\tfrac12(\text{ratio association})-\tfrac12k\phi(0)$ with the explicit constant \status{literature}. (e) is the feature-space reading of $k$-means~\citep{zha2001,girolami2002} \status{classical}. (f) \status{proved here from the CND--PD lemma of \citealp{bcr1984}}.
 
 \begin{proof}
 (a) is the definition. (b) Since $\sum_{i<j\in C_c}A_{ij}=\tfrac12(\one_c^{\!\top}A\one_c-n_c\phi(0))$,
 \[
 E_\spec(C)=\tfrac12\sum_c\frac{\one_c^{\!\top}A\one_c}{n_c}-\tfrac12 k\phi(0),
-\qquad
-\sum_c\frac{\one_c^{\!\top}A\one_c}{n_c}=-\sum_c\frac{\one_c^{\!\top}K\one_c}{n_c}=J_K(C)-\tr K=J_K(C)+n\phi(0),
+\qquad\text{and}\qquad
+\sum_c\frac{\one_c^{\!\top}A\one_c}{n_c}=-\sum_c\frac{\one_c^{\!\top}K\one_c}{n_c}=J_K(C)-\tr K,
 \]
-so $E_\spec(C)=\tfrac12J_K(C)+\tfrac12(n-k)\phi(0)$. The shifted form follows from Lemma~\ref{lem:inv}, and $K+\sigma I\succeq0$ for $\sigma\ge-\lambda_{\min}(K)$. (c) For any finite set $P$ with centroid $\mu$, $\sum_{i,j\in P}\lVert x_i-x_j\rVert^2=2|P|\sum_{i\in P}\lVert x_i-\mu\rVert^2$ (expand $\lVert(x_i-\mu)-(x_j-\mu)\rVert^2$; the cross terms vanish). Halving and dividing by $|P|$ gives $\frac1{n_c}\sum_{i<j\in C_c}d_{ij}^2=\sum_{i\in C_c}\lVert x_i-\mu_c\rVert^2$; sum over $c$. (d) Every pair $\{i,j\}$ is either within a cluster or across, so $E_\tot+T$ is the total spring energy; the equal-size statement is $w_\tot=(n/k)w_\spec$. (e) By (b) with $\phi(0)=0$ applied to the configuration $\Phi$: $E_{d^2,\Phi,\spec}(C)=\tfrac12J_{-D_\Phi^{(2)}}(C)$, where $(D_\Phi^{(2)})_{ij}=K_{ii}+K_{jj}-2K_{ij}$, so $-D_\Phi^{(2)}=2K-f\one^{\!\top}-\one f^{\!\top}$ with $f_i=K_{ii}$, and Lemma~\ref{lem:inv} gives $\tfrac12J_{2K}(C)=J_K(C)$. (f) Positive definiteness of $\widetilde K$ is the classical lemma relating CND and PD kernels~\citep[Ch.~3]{bcr1984}, whose proof we include: given points $x_1,\dots,x_m$, reals $c_1,\dots,c_m$, set $x_0=0$ and $c_0=-\sum_{i\ge1}c_i$; the CND inequality for the family $(x_i,c_i)_{i\ge0}$ reads $\sum_{i,j\ge1}c_ic_j\,\phi(\lVert x_i-x_j\rVert)+2c_0\sum_{i\ge1}c_i\phi(\lVert x_i\rVert)+c_0^2\phi(0)\le0$, and substituting $c_0$ this is $\sum_{i,j\ge1}c_ic_j\bigl[\phi(\lVert x_i-x_j\rVert)-\phi(\lVert x_i\rVert)-\phi(\lVert x_j\rVert)+\phi(0)\bigr]\le0$, i.e.\ $\sum_{i,j}c_ic_j\widetilde K(x_i,x_j)\ge0$. On the dataset, $\widetilde K=K+f\one^{\!\top}+\one f^{\!\top}-\phi(0)\one\one^{\!\top}$ with $f_i=\phi(\lVert Lx_i\rVert)$, so $J_{\widetilde K}=J_K$ by Lemma~\ref{lem:inv} and the identity follows from (b). Finally $\lVert\Phi(x)-\Phi(y)\rVert^2=\widetilde K(x,x)+\widetilde K(y,y)-2\widetilde K(x,y)=2\phi(\lVert x-y\rVert)-2\phi(0)$, and the last sentence is (e) applied to $\widetilde K$.
+with $\tr K=-n\phi(0)$, so $E_\spec(C)=\tfrac12J_K(C)+\tfrac12(n-k)\phi(0)$. The shifted form follows from Lemma~\ref{lem:inv}, and $K+\sigma I\succeq0$ for $\sigma\ge-\lambda_{\min}(K)$. (c) For any finite set $P$ with centroid $\mu$, $\sum_{i,j\in P}\lVert x_i-x_j\rVert^2=2|P|\sum_{i\in P}\lVert x_i-\mu\rVert^2$ (expand $\lVert(x_i-\mu)-(x_j-\mu)\rVert^2$; the cross terms vanish). Halving and dividing by $|P|$ gives $\frac1{n_c}\sum_{i<j\in C_c}d_{ij}^2=\sum_{i\in C_c}\lVert x_i-\mu_c\rVert^2$; sum over $c$. (d) Every pair $\{i,j\}$ is either within a cluster or across, so $E_\tot+T$ is the total spring energy; the equal-size statement is $w_\tot=(n/k)w_\spec$. (e) By (b) with $\phi(0)=0$ applied to the configuration $\Phi$: $E_{d^2,\Phi,\spec}(C)=\tfrac12J_{-D_\Phi^{(2)}}(C)$, where $(D_\Phi^{(2)})_{ij}=K_{ii}+K_{jj}-2K_{ij}$, so $-D_\Phi^{(2)}=2K-f\one^{\!\top}-\one f^{\!\top}$ with $f_i=K_{ii}$, and Lemma~\ref{lem:inv} gives $\tfrac12J_{2K}(C)=J_K(C)$. (f) Positive definiteness of $\widetilde K$ is the lemma relating CND and PD kernels~\citep[Ch.~3, \S2, Lemma~2.1]{bcr1984}, whose proof we include: given points $x_1,\dots,x_m$, reals $c_1,\dots,c_m$, set $x_0=0$ and $c_0=-\sum_{i\ge1}c_i$; the CND inequality for the family $(x_i,c_i)_{i\ge0}$ reads $\sum_{i,j\ge1}c_ic_j\,\phi(\lVert x_i-x_j\rVert)+2c_0\sum_{i\ge1}c_i\phi(\lVert x_i\rVert)+c_0^2\phi(0)\le0$, and substituting $c_0$ this is $\sum_{i,j\ge1}c_ic_j\bigl[\phi(\lVert x_i-x_j\rVert)-\phi(\lVert x_i\rVert)-\phi(\lVert x_j\rVert)+\phi(0)\bigr]\le0$, i.e.\ $\sum_{i,j}c_ic_j\widetilde K(x_i,x_j)\ge0$. On the dataset, $\widetilde K=K+f\one^{\!\top}+\one f^{\!\top}-\phi(0)\one\one^{\!\top}$ with $f_i=\phi(\lVert Lx_i\rVert)$, so $J_{\widetilde K}=J_K$ by Lemma~\ref{lem:inv} and the identity follows from (b). Next, $\lVert\Phi(x)-\Phi(y)\rVert^2=\widetilde K(x,x)+\widetilde K(y,y)-2\widetilde K(x,y)=2\phi(\lVert x-y\rVert)-2\phi(0)$, so $\lVert\widetilde\Phi(x)-\widetilde\Phi(y)\rVert^2=\phi(\lVert x-y\rVert)-\phi(0)$. Finally (e) applied to $\widetilde K$ gives $J_{\widetilde K}(C)=E_{d^2,\Phi\circ L,\spec}(C)$, and scaling a configuration by $1/\sqrt2$ halves every squared distance, so $\tfrac12J_{\widetilde K}(C)=E_{d^2,\widetilde\Phi\circ L,\spec}(C)$. For Hooke springs $\widetilde K(x,y)=2\langle x,y\rangle$, $\Phi(x)=\sqrt2\,x$ and $\widetilde\Phi(x)=x$.
 \end{proof}
 
 \begin{proposition}[Which springs are of negative type]\label{prop:bernstein}
@@ -154,23 +150,13 @@ so $E_\spec(C)=\tfrac12J_K(C)+\tfrac12(n-k)\phi(0)$. The shifted form follows fr
 \end{enumerate}
 \end{proposition}
 \begin{proof}[Proof sketch]
-(i) Expand $\lVert x_i-x_j\rVert^2=\lVert x_i\rVert^2+\lVert x_j\rVert^2-2\langle x_i,x_j\rangle$; the first two terms vanish against $\sum c_i=0$. (ii) is proved in \citet[Chapter~3]{bcr1984}, see also \citet{ssv2012}; we do not vouch for the exact theorem number. The argument is: by Schoenberg's theorem~\citep{schoenberg1938} $N$ is CND iff $e^{-tN}$ is PD for all $t>0$, so $1-e^{-tN}$ is CND (a constant kernel is CND-neutral and the negative of a PD kernel is CND); write $\psi(N)=a+bN+\int(1-e^{-tN})\mu(\dd t)$ and note that non-negative combinations and pointwise limits of CND kernels are CND. (iii) The listed $\psi$ are Bernstein: $s^\alpha$ ($0<\alpha\le1$), $\log(1+s/\ell^2)$, $1-e^{-s/2\ell^2}$, $s/(1+s/\ell^2)$ all have completely monotone derivatives.
+(i) Expand $\lVert x_i-x_j\rVert^2=\lVert x_i\rVert^2+\lVert x_j\rVert^2-2\langle x_i,x_j\rangle$; the first two terms vanish against $\sum c_i=0$. (ii) is proved in \citet[Ch.~3, \S2]{bcr1984} (Schoenberg's theorem is Theorem~2.2 there; the composition with Bernstein functions follows from it and the representation in Definition~\ref{def:cnd}), see also \citet{ssv2012}; we do not vouch for the exact numbering of the composition result. The argument is: by Schoenberg's theorem~\citep{schoenberg1938} $N$ is CND iff $e^{-tN}$ is PD for all $t>0$, so $1-e^{-tN}$ is CND (a constant kernel is CND-neutral and the negative of a PD kernel is CND); write $\psi(N)=a+bN+\int(1-e^{-tN})\mu(\dd t)$ and note that non-negative combinations and pointwise limits of CND kernels are CND. (iii) The listed $\psi$ are Bernstein: $s^\alpha$ ($0<\alpha\le1$), $\log(1+s/\ell^2)$, $1-e^{-s/2\ell^2}$, $s/(1+s/\ell^2)$ all have completely monotone derivatives.
+\emph{Rest length.} Theorem~\ref{thm:main}(b) still applies to $(d-r)^2$: its spring energy is the kernel $k$-means objective of $-(D-r)^{(2)}$ after a diagonal shift, and its minimisers are feature-space $k$-means minimisers for that dataset. What (iii) withholds is a feature map defined on all of $\R^d$; E1 below finds the kernel $\widetilde K$ indefinite for this potential on every dataset (Table~\ref{tab:e1}), consistent with the expectation, although we do not prove that no dataset-independent PSD representative exists.
 \end{proof}
 
-\begin{remark}[Rest length]
-Theorem~\ref{thm:main}(b) still applies to $(d-r)^2$: the spring energy is the kernel $k$-means objective of $-(D-r)^{(2)}$ after a diagonal shift, and its minimisers are feature-space $k$-means minimisers for that dataset. What Proposition~\ref{prop:bernstein} withholds is a feature map defined on all of $\R^d$; E1 below finds the kernel $\widetilde K$ indefinite for this potential on every dataset (Table~\ref{tab:e1}), consistent with the expectation, although we do not prove that no dataset-independent PSD representative exists.
+\begin{remark}[Lifting and anchoring]\label{rem:lift}
+(a) $E_{\phi,L,w}(X)=E_{\phi,\mathrm{id},w}(LX)$, so a lift replaces $A$ by $\phi(\lVert Lx_i-Lx_j\rVert)$ and nothing else; for Hooke springs a lift is exactly the choice of the kernel $\langle Lx,Ly\rangle$, and by Theorem~\ref{thm:main}(e) every PSD kernel arises this way \status{trivial}. (b) For Hooke springs, $\min_y E^{\mathrm{anch}}(C,y)=E_\spec(C)=\SSE(C)$, attained at the centroids (Theorem~\ref{thm:main}(c) and the fact that the centroid minimises the sum of squared distances), and the alternating equilibration ``hubs move to the equilibrium of their springs; particles re-attach to the hub of least energy'' is Lloyd's algorithm~\citep{lloyd1982} by definition. For a general $\phi$, $\min_y\sum_{i\in C_c}\phi(\lVert x_i-y\rVert)$ is a Weber-type location problem; with $\phi(d)=d$ the anchored objective is the $k$-median objective (geometric medians as hubs) \status{classical}. We make no claim about whether these anchored objectives are of the form~\eqref{eq:E}.
 \end{remark}
-
-\begin{corollary}[Lifting changes nothing but the kernel]\label{cor:lift}
-$E_{\phi,L,w}(X)=E_{\phi,\mathrm{id},w}(LX)$, so a lift replaces $A$ by $\phi(\lVert Lx_i-Lx_j\rVert)$ and nothing else; for Hooke springs a lift is exactly the choice of the kernel $\langle Lx,Ly\rangle$, and by Theorem~\ref{thm:main}(e) every PSD kernel arises this way. \status{proved here (trivial)}
-\end{corollary}
-
-\begin{proposition}[Anchored springs]\label{prop:anchored}
-For Hooke springs, $\min_y E^{\mathrm{anch}}(C,y)=E_\spec(C)=\SSE(C)$, attained at the centroids, and the alternating equilibration ``hubs move to the equilibrium of their springs; particles re-attach to the hub of least energy'' is Lloyd's algorithm~\citep{lloyd1982}. For a general $\phi$, $\min_y\sum_{i\in C_c}\phi(\lVert x_i-y\rVert)$ is a Weber-type location problem and the resulting objective is not of the form~\eqref{eq:E}; with $\phi(d)=d$ it is the $k$-median objective. \status{classical}
-\end{proposition}
-\begin{proof}
-The first claim is (c) together with the fact that the centroid minimises the sum of squared distances; the second is the definition of Lloyd's iteration. The last sentence is the definition of the $k$-median problem (with geometric medians as hubs); we do not prove a non-representability statement for anchored objectives, since our point is only that they are classical.
-\end{proof}
 
 \subsection{Relaxation of the spring system}
 
@@ -184,44 +170,50 @@ Let $K'$ be any PSD matrix with $J_{K'}=J_K+\mathrm{const}$ on partitions (for i
 and the right-hand side does not depend on the representative $K'$. Consequently:
 \begin{enumerate}[label=(\roman*),leftmargin=2em]
 \item the greedy single-particle relaxation of the spring energy is Hartigan's method~\citep{hartigan1975,hartiganwong1979} applied to the kernel $k$-means objective;
-\item every partition that is stable under single-particle moves is Voronoi-stable in the feature space of every PSD representative $K'$, i.e.\ each $\Phi_i$ is assigned to a nearest centroid, so it is a fixed point of Lloyd's algorithm for $K'$;
-\item the converse fails: $X=\{0,2,3.4,3.6\}\subset\R$, $k=2$, $C=\{\{0,2\},\{3.4,3.6\}\}$ is Voronoi-stable with $\SSE=2.02$, while moving the point $2$ gives $\SSE=1.72$.
+\item every partition that is stable under single-particle moves is Voronoi-stable in the feature space of every PSD representative $K'$, i.e.\ each $\Phi_i$ is assigned to a nearest centroid, so it is a fixed point of Lloyd's algorithm for $K'$ with ties broken in favour of the current cluster (on the relation between such fixed points and local optimality see \citealp{selim1984});
+\item the converse fails: $X=\{0,2,3.4,3.6\}\subset\R$, $k=2$, $C=\{\{0,2\},\{3.4,3.6\}\}$ is Voronoi-stable with $\SSE=2.02$, while moving the point $2$ gives $\SSE=1.52$.
 \end{enumerate}
 \end{proposition}
 \begin{proof}
-Write $S_{ic}=(K'\one_c)_i$ and $Q_c=\one_c^{\!\top}K'\one_c$. Removing $i$ from $a$ changes $Q_a/n_a$ to $(Q_a-2S_{ia}+K'_{ii})/(n_a-1)$, adding it to $c$ changes $Q_c/n_c$ to $(Q_c+2S_{ic}+K'_{ii})/(n_c+1)$, and $\Delta J=-\Delta\sum_cQ_c/n_c$. Expanding both differences and comparing with $\delta_{K'}$ gives $\Delta J=\frac{n_c}{n_c+1}\delta_{K'}(i,c)-\frac{n_a}{n_a-1}\delta_{K'}(i,a)$, an algebraic identity valid for any symmetric $K'$; $\Delta E=\tfrac12\Delta J$ by Theorem~\ref{thm:main}(b). Under $K'\mapsto K'+\sigma I$, $\delta(i,c)$ increases by $\sigma(1+1/n_c)$ for $i\notin C_c$ and by $\sigma(1-1/n_a)$ for $i\in C_a$, and both terms of~\eqref{eq:delta} increase by $\sigma$, so $\Delta E$ is unchanged; under the other two invariances of Lemma~\ref{lem:inv}, $\delta$ itself is unchanged. (i) is the definition of Hartigan's move. (ii) If no move decreases $E$ then $\frac{n_c}{n_c+1}\delta(i,c)\ge\frac{n_a}{n_a-1}\delta(i,a)$ for all $c\ne a$, and since $\frac{n_c}{n_c+1}<1<\frac{n_a}{n_a-1}$ this forces $\delta(i,c)\ge\delta(i,a)$. (iii) Centroids $1$ and $3.5$; the point $2$ is at distance $1$ from the first and $1.5$ from the second; after the move the clusters $\{0\}$ and $\{2,3.4,3.6\}$ (centroid $3$) have $\SSE=0+1+0.16+0.16=1.72$.
+Write $S_{ic}=(K'\one_c)_i$ and $Q_c=\one_c^{\!\top}K'\one_c$. Removing $i$ from $a$ changes $Q_a/n_a$ to $(Q_a-2S_{ia}+K'_{ii})/(n_a-1)$, adding it to $c$ changes $Q_c/n_c$ to $(Q_c+2S_{ic}+K'_{ii})/(n_c+1)$, and $\Delta J=-\Delta\sum_cQ_c/n_c$. Expanding both differences and comparing with $\delta_{K'}$ gives $\Delta J=\frac{n_c}{n_c+1}\delta_{K'}(i,c)-\frac{n_a}{n_a-1}\delta_{K'}(i,a)$, an algebraic identity valid for any symmetric $K'$; $\Delta E=\tfrac12\Delta J$ by Theorem~\ref{thm:main}(b). Independence of the representative: if $J_{K'}=J_K+\mathrm{const}$ on partitions then $\Delta J_{K'}=\Delta J_K$ for every move, and the identity holds for both matrices, so the right-hand side of~\eqref{eq:delta} is the same for every such $K'$. Explicitly, under $K'\mapsto K'+\sigma I$, $\delta(i,c)$ increases by $\sigma(1+1/n_c)$ for $i\notin C_c$ and by $\sigma(1-1/n_a)$ for $i\in C_a$, and both terms of~\eqref{eq:delta} increase by $\sigma$; under the other two invariances of Lemma~\ref{lem:inv}, $\delta$ itself is unchanged. (i) is the definition of Hartigan's move. (ii) If no move decreases $E$ then $\frac{n_c}{n_c+1}\delta(i,c)\ge\frac{n_a}{n_a-1}\delta(i,a)$ for all $c\ne a$, and since $\frac{n_c}{n_c+1}<1<\frac{n_a}{n_a-1}$ this forces $\delta(i,c)\ge\delta(i,a)$ (not necessarily strictly, whence the tie rule). (iii) Centroids $1$ and $3.5$; the point $2$ is at distance $1$ from the first and $1.5$ from the second; after the move the clusters $\{0\}$ and $\{2,3.4,3.6\}$ (centroid $3$) have $\SSE=0+1+0.16+0.36=1.52$; by~\eqref{eq:delta} with $K'=\langle x,y\rangle$, $\Delta\SSE=\tfrac23\cdot1.5^2-2\cdot1^2=-0.5$.
 \end{proof}
 \noindent Item (ii) generalises the observation of \citet{telgarsky2010} for Euclidean $k$-means; item (iii) is the standard type of example. The consequence for the research line is that ``spring relaxation'' cannot converge to anything outside the set of kernel $k$-means fixed points.
 
 \begin{proposition}[Lloyd's rule is representation-dependent]\label{prop:shift}
-For $K'=K+\sigma I$, $\delta_{K'}(i,c)=\delta_K(i,c)+\sigma\bigl(1+\tfrac{1-2\cdot[i\in C_c]}{n_c}\bigr)$: the shift adds $\sigma(1+1/n_c)$ to the squared distance from $i$ to every other cluster $c$ and only $\sigma(1-1/n_a)$ to the distance to its own cluster $a$. Hence the Voronoi rule ``assign $i$ to $\arg\min_c\delta_{K'}(i,c)$'' favours staying, and as $\sigma\to\infty$ every partition becomes Voronoi-stable, while $E_\spec$ and the single-move dynamics are unchanged. \status{proved here}
+For $K'=K+\sigma I$, $\delta_{K'}(i,c)=\delta_K(i,c)+\sigma\bigl(1+\tfrac{1-2\cdot[i\in C_c]}{n_c}\bigr)$: the shift adds $\sigma(1+1/n_c)$ to the squared distance from $i$ to every other cluster $c$ and only $\sigma(1-1/n_a)$ to the distance to its own cluster $a$. Hence the Voronoi rule ``assign $i$ to $\arg\min_c\delta_{K'}(i,c)$'' favours staying, and as $\sigma\to\infty$ every partition becomes Voronoi-stable, while $E_\spec$ and the single-move dynamics are unchanged. \status{proved here; explicit form of an effect noted by \citealp{dhillon2004tr,dhillon2007}}
 \end{proposition}
 \begin{proof}
 $(\sigma I\one_c)_i=\sigma[i\in C_c]$ and $\one_c^{\!\top}\sigma I\one_c=\sigma n_c$; substitute in $\delta$.
 \end{proof}
-\noindent So ``kernel $k$-means with Lloyd's iteration'' is not one algorithm for a spring energy but one per PSD representative; the single-move relaxation is the representative-free one. For springs of negative type the natural representative is $\widetilde K$ of Theorem~\ref{thm:main}(f), which for Hooke springs is $2\langle x,y\rangle$ and reproduces ordinary Lloyd $k$-means; the experiments use it, and use the naively shifted $-A+\sigma I$ only as a control (E3).
+\noindent \citet{dhillon2004tr,dhillon2007} already observe that a too large diagonal shift degrades the clusters that kernel $k$-means finds; the proposition is the explicit mechanism and E3 quantifies it. So ``kernel $k$-means with Lloyd's iteration'' is not one algorithm for a spring energy but one per PSD representative; the single-move relaxation is the representative-free one. For springs of negative type the natural representative is $\widetilde K$ of Theorem~\ref{thm:main}(f), which for Hooke springs is $2\langle x,y\rangle$ and reproduces ordinary Lloyd $k$-means; the experiments use it, and use the naively shifted $-A+\sigma I$ only as a control (E3).
 
 \section{What leaves the family}\label{sec:escape}
 
-Theorem~\ref{thm:main} covers every objective that is a sum over within-cluster \emph{pairs} of a fixed function of the data, weighted by a function of the cluster size in $\{1,1/n_c\}$. An ingredient can escape only by breaking one of these three features: the sum over pairs (many-body terms), the fixedness of the pair function (parameters that depend on the assignment), or the normalisation. A fourth route replaces the minimisation over partitions by a dynamics on positions. The first three can be certified exactly.
+Theorem~\ref{thm:main} covers every objective that is a sum over within-cluster \emph{pairs} of a fixed function of the data, weighted by a function of the cluster size in $\{1,1/n_c\}$. An ingredient can escape only by breaking one of these three features: the sum over pairs (many-body terms), the fixedness of the pair function (parameters that depend on the assignment), or the normalisation. A fourth route replaces the minimisation over partitions by a dynamics on positions. For the first three, specific instances can be certified exactly.
 
-\begin{theorem}[Exact separation on an explicit configuration; computer-assisted]\label{thm:e4}
-Let $P$ be the configuration of $\EfourN$ points $\EfourPoints$ in $\Q^2$ and $k=\EfourK$, so that there are $\EfourPartitions$ partitions. Call a partition function $F$ \emph{$w$-pairwise} if $F(C)=\sum_cw(n_c)\sum_{i<j\in C_c}A_{ij}+a$ for some symmetric $A$ and constant $a$ ($\EfourUnknowns$ unknowns). Then, with squared distances $s_{ij}=\lVert x_i-x_j\rVert^2$:
-\begin{center}\small
+\begin{theorem}[Exact separation on explicit configurations; computer-assisted]\label{thm:e4}
+Let $P_1$ and $P_2$ be the configurations of $\EfourN$ points in $\Q^2$
+\begin{gather*}
+P_1=\{\EfourPoints\},\\
+P_2=\{\EfourPointsB\},
+\end{gather*}
+drawn once from a dedicated generator (seed \EfourSeed), and let $k=\EfourK$, so that each has $\EfourPartitions$ partitions. Call a partition function $F$ \emph{$w$-pairwise} if $F(C)=\sum_cw(n_c)\sum_{i<j\in C_c}A_{ij}+a$ for some symmetric $A$ and constant $a$ ($\EfourUnknowns$ unknowns). Then, with squared distances $s_{ij}=\lVert x_i-x_j\rVert^2$, the following holds on both configurations (relative residuals on $P_1$; $P_2$):
+\begin{center}\footnotesize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lcc}
 \toprule
-partition function on $P$ & $w_\spec$-pairwise? (rel.\ residual) & $w_\tot$-pairwise? (rel.\ residual)\\
+partition function & $w_\spec$-pairwise? & $w_\tot$-pairwise?\\
 \midrule
 \input{table_e4.tex}\\
 \bottomrule
 \end{tabular}
 \end{center}
-where $\rho$ is the mean of all $s_{ij}$, $\rho_c$ the mean of $s_{ij}$ over the pairs of cluster $c$, and $\mathrm{area}(ijl)$ the area of the triangle $x_ix_jx_l$.
+where $\rho$ is the mean of all $s_{ij}$, $\rho_c$ the mean of $s_{ij}$ over the pairs of cluster $c$, and $\mathrm{area}(ijl)$ the area of the triangle $x_ix_jx_l$. The yes/no pattern agrees on the two configurations in \EfourCellsSame{} of the \EfourCells{} cells.
 \end{theorem}
 \begin{proof}
-For fixed $w$ the $w$-pairwise functions form a linear subspace of $\R^{\EfourPartitions}$ spanned by the columns of an explicit rational design matrix (rank $\EfourRankSpecific$ for $w_\spec$, $\EfourRankTotal$ for $w_\tot$). Membership is decided by exact least squares in rational arithmetic (\texttt{fractions.Fraction}): a zero residual exhibits $A$ and $a$; a non-zero residual is a certificate that $F$ is not in the span. The script \path{experiments/identity_check.py} (E4) performs the computation; the relative residuals are reported in the table.
+For fixed $w$ the $w$-pairwise functions form a linear subspace of $\R^{\EfourPartitions}$ spanned by the columns of an explicit rational design matrix (rank $\EfourRankSpecific$ for $w_\spec$, $\EfourRankTotal$ for $w_\tot$, on both configurations). Membership is decided by exact least squares in rational arithmetic (\texttt{fractions.Fraction}): a zero residual exhibits $A$ and $a$; a non-zero residual is a certificate that $F$ is not in the span. The script \path{experiments/identity_check.py} (E4) performs the computation; the relative residuals are reported in the table.
 \end{proof}
-\noindent The two positive controls (Hooke and fixed rest length under their own normalisation, total Hooke under $w_\tot$) confirm that the test is not blind. The rest of the table says: the two normalisations are genuinely different objectives (each fails to be pairwise under the other's weight), the per-spring average is neither, and an assignment-dependent rest length or a three-body term is outside the family in either normalisation. A single instance suffices, since the claims are that these ingredients are \emph{not in general} pairwise.
+\noindent The two positive controls (Hooke and fixed rest length under their own normalisation, total Hooke under $w_\tot$) confirm that the test is not blind. The rest of the table says: the two normalisations are genuinely different objectives (each fails to be pairwise under the other's weight), the per-spring average is neither, and the cluster-mean rest length and the triangle-area three-body term are outside the family in either normalisation. One instance suffices for each of these ``not in general'' statements, and the theorem makes exactly those: it certifies the three functionals tested, not the classes ``many-body terms'' or ``assignment-dependent rest lengths''. The class statements would be false: for clusters of size $n_c\ge3$, $\sum_{i<j<l\in C_c}(s_{ij}+s_{jl}+s_{il})=(n_c-2)\sum_{i<j\in C_c}s_{ij}$, so a three-body sum with a suitable size weight collapses to a pairwise energy.
 
 \paragraph{The dynamic route.} Several physics-inspired algorithms do not minimise an energy over partitions but move the \emph{positions}: gravitational clustering~\citep{wright1977}, mean shift~\citep{fukunaga1975,cheng1995,comaniciu2002} (a gradient ascent on a kernel density estimate, hence a dynamics under a pairwise potential), quantum clustering~\citep{horn2002}, and the finite-temperature correlations of a Potts model~\citep{blatt1996}. Their output is a function of the trajectory, and Theorem~\ref{thm:main} says nothing about it.
 
@@ -236,138 +228,92 @@ For the Gaussian attraction $V(d)=-e^{-d^2/2h^2}$ and generic $(T,\varepsilon)$ 
 
 \section{Computational confirmation}\label{sec:experiments}
 
-\paragraph{Data and potentials.} Five datasets (Table~\ref{tab:data}): blobs, two moons and two circles from scikit-learn's generators, a random subset of $\Ndigits$ digits (64 features scaled to $[0,1]$) and the standardised iris data. The six potentials of Example~\ref{ex:pots}, with scales set from the data before any run: $\ell$ is the median distance to the seventh nearest neighbour, $r$ the tenth percentile of all pairwise distances, $s$ the median of $\lVert x\rVert^2$. In all, $\NumDatasets\times\NumPotentials=\EoneConfigs$ configurations. Seeds: \MetaSeed{} (E1, E2, E4) and \MetaSeedRelax{} (E3).
+\paragraph{Data and potentials.} Five datasets: blobs, two moons and two circles from scikit-learn's generators (\Nsynth{} points each in $\R^2$; \texttt{make\_blobs} with three centres and std $0.9$, $k=3$; \texttt{make\_moons} with noise $0.06$ and \texttt{make\_circles} with factor $0.45$ and noise $0.05$, $k=2$), a random subset of $\Ndigits$ digits from \texttt{load\_digits} (64 features scaled to $[0,1]$, $k=10$) and the standardised iris data (\Niris{} points, 4 features, $k=3$). The six potentials of Section~\ref{sec:family}, with scales set from the data before any run: $\ell$ is the median distance to the seventh nearest neighbour, $r$ the tenth percentile of all pairwise distances, $s$ the median of $\lVert x\rVert^2$. In all, $\NumDatasets\times\NumPotentials=\EoneConfigs$ configurations. Seeds: \MetaSeed{} (E1, E2), \MetaSeedRelax{} (E3) and \EfourSeed{} (E4).
 
-\begin{table}[t]
-\centering\small
-\begin{tabular}{lrrr}
-\toprule
-dataset & $n$ & dimension & $k$\\
-\midrule
-\input{table_datasets.tex}\\
-\bottomrule
-\end{tabular}
-\caption{Datasets. Synthetic sets from \texttt{make\_blobs} (three centres, std $0.9$), \texttt{make\_moons} (noise $0.06$) and \texttt{make\_circles} (factor $0.45$, noise $0.05$); digits is a random subset of \texttt{load\_digits}; iris is standardised.}
-\label{tab:data}
-\end{table}
-
-\paragraph{E1: identical objective values.} \emph{Criterion (predefined):} for every tested partition and every potential, $|E_\spec-(\tfrac12J_{K'}+\mathrm{const})|\le10^{-9}\max(1,|E_\spec|)$ with the constant of Theorem~\ref{thm:main}, for the three representatives $K'\in\{-A,\;-A+\sigma I,\;\widetilde K\}$; pass means $100\%$. The partitions are \EoneRandomPartitions{} uniformly random ones per configuration, the outputs of kernel $k$-means and of the relaxation, and the ground-truth labels. \emph{Result:} \EonePassed/\EoneChecks{} checks passed, worst relative error $\EoneMaxRelErr$ (the largest errors occur with the shifted representative, where $\sigma$ is up to $10^4$ and the identity involves cancellation); the Hooke energy equals the $k$-means SSE to $\EoneHookeSSEErr$. On equal-size partitions $E_\tot=(n/k)E_\spec$ to $\EoneEqualSizeErr$, while on random partitions the ratio $E_\tot/E_\spec$ ranges over $[\EoneRatioMin,\EoneRatioMax]$: the normalisation is a genuine choice. Table~\ref{tab:e1} also reports the spectrum of $\widetilde K$: for the \EoneCndConfigs{} configurations with a potential of negative type it is PSD in \EoneCndPsd{} (numerically, $\lambda_{\min}/\lambda_{\max}\ge-\EoneCndWorstRatio$), and for the rest-length potential it is indefinite in \EoneRestIndefinite/\EoneRestConfigs.
+\paragraph{E1: identical objective values.} \emph{Criterion (predefined):} for every tested partition and every potential, $|E_\spec-(\tfrac12J_{K'}+\mathrm{const})|\le10^{-9}\max(1,|E_\spec|)$ with the constant of Theorem~\ref{thm:main}, for the three representatives $K'\in\{-A,\;-A+\sigma I,\;\widetilde K\}$; pass means $100\%$. The partitions are \EoneRandomPartitions{} uniformly random ones per configuration, the outputs of Lloyd and of the single-move relaxation on $\widetilde K$ (minimally shifted when indefinite), and the ground-truth labels. \emph{Result:} \EonePassed/\EoneChecks{} checks passed, worst relative error $\EoneMaxRelErr$ (the largest errors occur with the shifted representative, where $\sigma$ is up to $\EoneMaxSigma$ and the identity involves cancellation); the Hooke energy equals the $k$-means SSE to $\EoneHookeSSEErr$. On equal-size partitions $E_\tot=(n/k)E_\spec$ to $\EoneEqualSizeErr$, while on random partitions the ratio $E_\tot/E_\spec$ ranges over $[\EoneRatioMin,\EoneRatioMax]$: the normalisation is a genuine choice. Table~\ref{tab:e1} also reports the spectrum of $\widetilde K$: for the \EoneCndConfigs{} configurations with a potential of negative type it is PSD in \EoneCndPsd{} (numerically, $\lambda_{\min}/\lambda_{\max}\ge-\EoneCndWorstRatio$), and for the rest-length potential it is indefinite in \EoneRestIndefinite/\EoneRestConfigs.
 
 \begin{table}[t]
 \centering\footnotesize
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{lcrrcc}
 \toprule
-potential & negative type & partitions & max rel.\ error & $\min\lambda_{\min}(\widetilde K)/\lambda_{\max}(\widetilde K)$ & $\widetilde K$ PSD\\
+potential & neg.\ type (Prop.~\ref{prop:bernstein}) & partitions & max rel.\ error & $\min\lambda_{\min}(\widetilde K)/\lambda_{\max}(\widetilde K)$ & PSD\\
 \midrule
 \input{table_e1.tex}\\
 \bottomrule
 \end{tabular}
-\caption{E1. Per potential, over the five datasets: whether Proposition~\ref{prop:bernstein} labels the potential of negative type; number of partitions tested; worst relative discrepancy between the spring energy and the kernel objectives; most negative normalised eigenvalue of the universal kernel $\widetilde K$ across datasets; number of datasets on which $\widetilde K$ is numerically PSD.}
+\caption{E1. Per potential, over the five datasets: whether Proposition~\ref{prop:bernstein} labels the potential of negative type (a label, not a computation); number of partitions tested; worst relative discrepancy between the spring energy and the kernel objectives; most negative normalised eigenvalue of the universal kernel $\widetilde K$ across datasets; number of datasets on which $\widetilde K$ is numerically PSD.}
 \label{tab:e1}
 \end{table}
 
-\paragraph{E2: same optimiser, same initialisation, same trajectory.} \emph{Criterion:} a brute-force spring relaxation that recomputes the total energy from scratch for every candidate move (it sees only springs) and the kernel implementation of Hartigan's method via~\eqref{eq:delta} (it sees only $K$), started from the same random labels with the same sweep order, must produce identical label vectors after every sweep and final energies equal to $10^{-9}$ relative, in all runs. Subsets of $\EtwoNsub$ points, three initialisations per configuration. \emph{Result:} \EtwoIdentical/\EtwoRuns{} identical trajectories (mean \EtwoMeanSweeps{} sweeps, at most \EtwoMaxSweeps), worst final-energy discrepancy $\EtwoMaxRelErr$; the brute-force runs took \EtwoSecondsPhysics{} s in total against \EtwoSecondsKernel{} s for the kernel runs. In addition, hub-anchored Hooke springs equilibrated alternately (Proposition~\ref{prop:anchored}) reproduced scikit-learn's Lloyd $k$-means from the same initial centroids in \EtwoAnchoredIdentical/\EtwoAnchoredRuns{} runs, with inertia equal to the spring energy to $\EtwoAnchoredMaxErr$.
+\paragraph{E2: same optimiser, same initialisation, same trajectory.} \emph{Criterion:} a brute-force spring relaxation that recomputes the total energy from scratch for every candidate move (it sees only springs) and the kernel implementation of Hartigan's method via~\eqref{eq:delta} (it sees only $K$), started from the same random labels with the same sweep order, must produce identical label vectors after every sweep and final energies equal to $10^{-9}$ relative, in all runs. Subsets of $\EtwoNsub$ points, three initialisations per configuration. \emph{Result:} \EtwoIdentical/\EtwoRuns{} identical trajectories (mean \EtwoMeanSweeps{} sweeps, at most \EtwoMaxSweeps), worst final-energy discrepancy $\EtwoMaxRelErr$; the brute-force runs took \EtwoSecondsPhysics{} s in total against \EtwoSecondsKernel{} s for the kernel runs. In addition, hub-anchored Hooke springs equilibrated alternately (Remark~\ref{rem:lift}(b)) reproduced scikit-learn's Lloyd $k$-means from the same initial centroids in \EtwoAnchoredIdentical/\EtwoAnchoredRuns{} runs, with inertia equal to the spring energy to $\EtwoAnchoredMaxErr$.
 
-\paragraph{E3: relaxation versus kernel $k$-means on the same energy.} Four optimisers see the same kernel: \emph{lloyd} (batch Lloyd on $\widetilde K$, minimally shifted only when indefinite, which happened in \EthreeShiftedConfigs{} configurations), \emph{lloyd+relax} (Lloyd followed by single-move polish), \emph{relax} (single-particle relaxation from the initial labels) and \emph{anneal} (Metropolis on the spring energy, \EthreeAnnealSweeps{} sweeps of geometric cooling from the median $|\Delta E|$ of random moves down by $10^{-3}$, then relaxation~\citep{kirkpatrick1983}); a fifth, \emph{lloyd (naive)}, runs Lloyd on $-A+\sigma I$ as the control for Proposition~\ref{prop:shift}. Initialisations are shared: $\EthreeR$ random labelings and $\EthreeR$ kernel $k$-means++ seedings~\citep{arthur2007} per configuration; annealing uses the first $\EthreeRanneal$ random ones. Let $E^*$ be the best energy found by any method in a configuration. \emph{Criteria (predefined):} (C3a) every relaxation and annealing fixed point is Voronoi-stable for the kernel used (Proposition~\ref{prop:hartigan} predicts $100\%$); (C3b) the relaxation is called distinguishable from the kernel family only if its best-of-restarts energy differs from that of lloyd+relax by more than $10^{-6}$ relative; either sign is reported, since it would be a statement about optimisers of one function; (C3c) the fraction of Lloyd fixed points that are not single-move stable is reported. \emph{Results} (Table~\ref{tab:e3}, Figure~\ref{fig:energies}, full table in Appendix~\ref{app:table}): all \EthreeVoronoiRelax/\EthreeRunsRelax{} relaxation and \EthreeVoronoiAnneal/\EthreeRunsAnneal{} annealing fixed points are Voronoi-stable (C3a). Under C3b, \EthreeDistinguishable{} of \EthreeConfigs{} configurations are distinguishable: in \EthreeRelaxBetter{} the relaxation found a lower best energy than lloyd+relax and in \EthreeLloydRelaxBetter{} the reverse, with largest relative difference $\EthreeMaxAbsDiff$; whenever the two best energies agree the best partitions coincide (ARI $=1$; \EthreeAgreeButDifferent{} exceptions), and overall ARI $=1$ in \EthreeAriOne/\EthreeConfigs. The relaxation reaches $E^*$ in \EthreeReachRelax{} configurations, lloyd+relax in \EthreeReachLloydRelax, Lloyd alone in \EthreeReachLloyd, and Lloyd on the naive shift in \EthreeReachNaive; the median relative excess over restarts (median across configurations) is $\EthreeMedianExcessRelax$, $\EthreeMedianExcessLloydRelax$, $\EthreeMedianExcessLloyd$ and $\EthreeMedianExcessNaive$ respectively. Only \EthreeLloydHartiganPct\% of Lloyd fixed points on the canonical kernel are single-move stable, and \EthreeNaiveHartiganPct\% on the naive shift (C3c). The best energies were recomputed spring by spring with a worst discrepancy of $\EthreeDirectCheck$.
+\paragraph{E3: relaxation versus kernel $k$-means on the same energy.} Five optimisers see the same kernel: \emph{lloyd} (batch Lloyd on $\widetilde K$, minimally shifted only when indefinite, \EthreeShiftedConfigs{} configurations), \emph{lloyd+relax} (Lloyd, then single-move polish), \emph{relax} (single-particle relaxation from the initial labels), \emph{anneal} (Metropolis on the spring energy, \EthreeAnnealSweeps{} sweeps of geometric cooling from the median $|\Delta E|$ of random moves down by $10^{-3}$, then relaxation~\citep{kirkpatrick1983}) and the control \emph{lloyd (naive)} (Lloyd on $-A+\sigma I$, Proposition~\ref{prop:shift}). Initialisations are shared: $\EthreeR$ random labelings and $\EthreeR$ kernel $k$-means++ seedings~\citep{arthur2007} per configuration; annealing uses the first $\EthreeRanneal$ random ones. $E^*$ is the best energy found by any method in a configuration. \emph{Criteria (predefined):} (C3a) every relaxation and annealing fixed point is Voronoi-stable for the kernel used (Proposition~\ref{prop:hartigan} predicts $100\%$); (C3b) the relaxation is called distinguishable from the kernel family only if its best-of-restarts energy differs from that of lloyd+relax by more than $10^{-6}$ relative, either sign being reported since it would be a statement about optimisers of one function; (C3c) the fraction of Lloyd fixed points that are not single-move stable is reported. \emph{Disclosure:} a pilot run used $-A+\sigma I$ as the only Lloyd kernel and found it inert (Proposition~\ref{prop:shift}); $\widetilde K$ then replaced it as the baseline, which favours the kernel side of the comparison, and the naive shift was kept as a control. C3a--C3c and their thresholds were written before the pilot and were not changed; every number reported comes from the final code. \emph{Results} (Table~\ref{tab:e3}, Figure~\ref{fig:energies}; per configuration in \path{results/tables_relaxation.md}): all \EthreeVoronoiRelax/\EthreeRunsRelax{} relaxation and \EthreeVoronoiAnneal/\EthreeRunsAnneal{} annealing fixed points are Voronoi-stable (C3a). Under C3b, \EthreeDistinguishable{} of \EthreeConfigs{} configurations are distinguishable (\EthreeRelaxBetter{} in favour of the relaxation, \EthreeLloydRelaxBetter{} against; largest relative difference $\EthreeMaxAbsDiff$; the split is optimiser noise: the \texttt{--fast} run gives 3--3 with the same 6/30); whenever the two best energies agree the best partitions coincide (ARI $=1$; \EthreeAgreeButDifferent{} exceptions), and overall ARI $=1$ in \EthreeAriOne/\EthreeConfigs. The relaxation reaches $E^*$ in \EthreeReachRelax{} configurations, lloyd+relax in \EthreeReachLloydRelax, Lloyd alone in \EthreeReachLloyd{} and the naive shift in \EthreeReachNaive{} (annealing, with \EthreeRanneal{} restarts only, is not comparable on this count: \EthreeReachAnneal); the median relative excess over restarts (median across configurations) is $\EthreeMedianExcessRelax$, $\EthreeMedianExcessLloydRelax$, $\EthreeMedianExcessLloyd$ and $\EthreeMedianExcessNaive$. Only \EthreeLloydHartiganPct\% of Lloyd fixed points on the canonical kernel are single-move stable, \EthreeNaiveHartiganPct\% on the naive shift (C3c); the single-move methods are single-move stable in \EthreeHartiganRelax/\EthreeRunsRelax, \EthreeHartiganLloydRelax/\EthreeRunsLloydRelax{} and \EthreeHartiganAnneal/\EthreeRunsAnneal{} runs (measured; expected by construction). The best energies were recomputed spring by spring, worst discrepancy $\EthreeDirectCheck$. E3 is descriptive (counts over \EthreeConfigs{} configurations, modest restart budgets); no inferential claim is made.
 
 \begin{table}[t]
 \centering\scriptsize
-\setlength{\tabcolsep}{2.4pt}
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{lcccccccccc}
 \toprule
- & \multicolumn{4}{c}{configurations reaching $E^*$ (of 5)} & \multicolumn{3}{c}{restarts reaching $E^*$ (\%)} & Voronoi- & Lloyd f.p. & best\\
+ & \multicolumn{4}{c}{configurations reaching $E^*$ (of 5)} & \multicolumn{3}{c}{restarts reaching $E^*$ (\%)} & Lloyd f.p. & best\\
 \cmidrule(lr){2-5}\cmidrule(lr){6-8}
-potential & relax & lloyd+relax & lloyd & naive & relax & lloyd+relax & lloyd & stable relax & 1-move stable & ARI$=1$\\
+potential & relax & lloyd+relax & lloyd & naive & relax & lloyd+relax & lloyd & 1-move stable & ARI$=1$\\
 \midrule
 \input{table_e3_agg.tex}\\
 \bottomrule
 \end{tabular}
-\caption{E3 by potential (five datasets each). ``Reaching $E^*$'' means within $10^{-6}$ relative of the best energy found by any method. ``Voronoi-stable relax'': relaxation fixed points that are Lloyd fixed points (Proposition~\ref{prop:hartigan}(ii)). ``Lloyd f.p.\ 1-move stable'': Lloyd fixed points that no single move improves. ``best ARI$=1$'': configurations in which the best partitions of relax and lloyd+relax coincide.}
+\caption{E3 by potential (five datasets each). ``Reaching $E^*$'' means within $10^{-6}$ relative of the best energy found by any method. ``Lloyd f.p.\ 1-move stable'': Lloyd fixed points that no single move improves (all relaxation fixed points are Lloyd fixed points, Proposition~\ref{prop:hartigan}(ii); 100/100 per potential). ``best ARI$=1$'': configurations in which the best partitions of relax and lloyd+relax coincide.}
 \label{tab:e3}
 \end{table}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{../figures/energies.pdf}
+\includegraphics[width=0.8\linewidth]{../figures/energies.pdf}
 \caption{E3. Relative excess energy over $E^*$ for the four optimisers of the same spring energy, per dataset and potential (filled: median over restarts; hollow: best of restarts; values below $10^{-12}$ are drawn at the floor). The optimisers differ in how often they reach the best local optimum, not in what they optimise; the naively shifted Lloyd is the control of Proposition~\ref{prop:shift}.}
 \label{fig:energies}
 \end{figure}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.9\linewidth]{../figures/partitions.pdf}
-\caption{Best partitions found by spring relaxation on the synthetic sets for Hooke and saturating springs. Each is, by Theorem~\ref{thm:main}, a kernel $k$-means fixed point of the linear and Gaussian kernels respectively, with the same value; the figure illustrates the family, it does not evaluate it. On blobs the saturating spring isolates a dense core of one blob: with the data-derived scale $\ell$ (seventh-neighbour distance) that is what the Gaussian-kernel objective rewards, and it is a property of the objective at that scale, not of the mechanical formulation or of the optimiser.}
-\label{fig:partitions}
-\end{figure}
+\paragraph{Reading of E1--E3 for the research line.} If the screened formulations were of the pairwise kind of Definition~\ref{def:family}, the screening could not have found a mechanical effect: the spring energies \emph{are} the kernel objectives (E1), the mechanical implementation of the relaxation \emph{is} a kernel implementation (E2), and every relaxed state \emph{is} a kernel $k$-means fixed point (E3). Differences between optimisers of the same function are visible (Lloyd alone reaches $E^*$ less often than the single-move methods; the naive shift is worse still), and they are the only differences there are.
 
-\paragraph{Reading of E1--E3 for the research line.} The screening could not have found a mechanical effect: the spring energies \emph{are} the kernel objectives (E1), the mechanical implementation of the relaxation \emph{is} a kernel implementation (E2), and every relaxed state \emph{is} a kernel $k$-means fixed point (E3). Differences between optimisers of the same function are visible (Lloyd alone reaches $E^*$ less often than the single-move methods; the naive shift is worse still), and they are the only differences there are.
-
-\clearpage
 \section{What can be claimed}\label{sec:claims}
 
-Table~\ref{tab:claims} collects the claims of the note with their status; it is the deliverable the research line asked for, since it separates what closes the screening by proof from what was only measured.
+Table~\ref{tab:claims} collects the mathematical claims with their status; it separates what closes the screening by proof from what was only measured. The measured items are those of Section~\ref{sec:experiments} (E1: \EonePassed/\EoneChecks{} identities, $\widetilde K$ PSD in \EoneCndPsd/\EoneCndConfigs{} negative-type and indefinite in \EoneRestIndefinite/\EoneRestConfigs{} rest-length configurations; E2: \EtwoIdentical/\EtwoRuns{} identical trajectories, \EtwoAnchoredIdentical/\EtwoAnchoredRuns{} anchored runs equal to Lloyd; E3: \EthreeVoronoiRelax/\EthreeRunsRelax{} and \EthreeVoronoiAnneal/\EthreeRunsAnneal{} Voronoi-stable fixed points, \EthreeDistinguishable/\EthreeConfigs{} configurations with different best energies, naive-shift Lloyd at $E^*$ in \EthreeReachNaive/\EthreeConfigs{} against \EthreeReachLloyd); ``verified'' means reproduced by the scripts of Appendix~\ref{app:repro} with the fixed seeds, not proved.
 
-\begin{table}[H]
-\centering\small
-\begin{tabular}{p{0.66\linewidth}p{0.29\linewidth}}
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.64\linewidth}>{\raggedright\arraybackslash}p{0.32\linewidth}}
 \toprule
 claim & status\\
 \midrule
 $J$ is invariant under diagonal shift (up to $\sigma(n-k)$), constant and separable terms (Lemma~\ref{lem:inv}) & proved here (elementary)\\
-Per-particle spring energy $=\tfrac12J_{-A}+$ const, with a PSD representative after a shift (Thm.~\ref{thm:main}(b)) & proved here\\
+Per-particle spring energy $=\tfrac12\,$ratio association $-\tfrac12k\phi(0)=\tfrac12J_{-A}+$ const, with a PSD representative after a shift (Thm.~\ref{thm:main}(b)) & literature (ratio association $\leftrightarrow$ kernel $k$-means, \citealp{dhillon2004,dhillon2007}), stated here for spring matrices with the explicit constant\\
 Zero-rest-length Hooke energy $=$ $k$-means SSE (Thm.~\ref{thm:main}(c)) & classical\\
 Total energy / released tension $=$ min-sum $k$-clustering / max-$k$-cut with weights $A$ (Thm.~\ref{thm:main}(d)) & proved here (elementary)\\
-Every kernel $k$-means objective is a Hooke energy of a lifted configuration (Thm.~\ref{thm:main}(e)) & proved here\\
-Negative-type springs have a dataset-independent PD kernel and are Hooke springs after a lift (Thm.~\ref{thm:main}(f)) & proved here from \citet{bcr1984}\\
+Every kernel $k$-means objective is a Hooke energy of a lifted configuration (Thm.~\ref{thm:main}(e)) & classical (feature-space $k$-means)\\
+Negative-type springs have a dataset-independent PD kernel and are Hooke springs after a lift and a $1/\sqrt2$ rescaling (Thm.~\ref{thm:main}(f)) & proved here from \citet{bcr1984}\\
 $d^2$ is of negative type; Bernstein transforms preserve negative type (Prop.~\ref{prop:bernstein}) & classical / literature\\
-Rest-length springs: covered dataset-wise, no universal kernel exhibited; $\widetilde K$ indefinite on all \EoneRestConfigs{} datasets & proved / verified\\
-Lifting only changes the kernel (Cor.~\ref{cor:lift}); anchored Hooke springs are Lloyd $k$-means (Prop.~\ref{prop:anchored}) & trivial / classical\\
-Single-particle relaxation is Hartigan's method; its fixed points are Lloyd fixed points for every PSD representative (Prop.~\ref{prop:hartigan}) & proved here\\
-\quad \EthreeVoronoiRelax/\EthreeRunsRelax{} relaxation and \EthreeVoronoiAnneal/\EthreeRunsAnneal{} annealing fixed points Voronoi-stable (E3) & verified\\
-Lloyd's rule depends on the PSD representative; large shifts freeze it (Prop.~\ref{prop:shift}) & proved here\\
-\quad naive-shift Lloyd reaches $E^*$ in \EthreeReachNaive/\EthreeConfigs{} configurations vs \EthreeReachLloyd{} for the canonical kernel (E3) & verified\\
-Adaptive rest length, three-body term, per-spring normalisation and cross-normalisation are not pairwise objectives (Thm.~\ref{thm:e4}) & proved here (exact arithmetic, one instance)\\
-Spring energies equal kernel objectives on \EonePartitionsTotal{} partitions to $\EoneMaxRelErr$ (E1) & verified\\
-Brute-force spring relaxation and kernel Hartigan follow identical trajectories, \EtwoIdentical/\EtwoRuns{} (E2) & verified\\
-Relaxation vs lloyd+relax: \EthreeDistinguishable/\EthreeConfigs{} configurations differ in best energy (optimiser effect only) (E3) & verified\\
+Rest-length springs: covered dataset-wise; no universal kernel exhibited ($\widetilde K$ indefinite on all \EoneRestConfigs{} datasets) & proved / open (verified numerically)\\
+Lifting only changes the kernel; anchored Hooke springs are Lloyd $k$-means (Remark~\ref{rem:lift}) & trivial / classical\\
+Single-particle relaxation is Hartigan's method; its fixed points are Lloyd fixed points for every PSD representative (Prop.~\ref{prop:hartigan}) & proved here (generalises \citealp{telgarsky2010})\\
+Lloyd's rule depends on the PSD representative; large shifts freeze it (Prop.~\ref{prop:shift}) & proved here; explicit form of an effect noted by \citet{dhillon2004tr,dhillon2007}\\
+The cluster-mean rest length, the triangle-area three-body term, the per-spring average and the cross-normalisation tested are not pairwise objectives (Thm.~\ref{thm:e4}) & proved here (exact arithmetic, two explicit configurations)\\
 Dynamic (position-relaxation) mechanical clustering is not a pairwise objective (Conj.~\ref{conj:dyn}) & conjectural\\
 Any statement about clustering quality on real data & not addressed\\
 \bottomrule
 \end{tabular}
-\caption{Claims and their status. ``Verified'' means reproduced by the scripts of Appendix~\ref{app:repro} with the fixed seeds; it is not a proof.}
+\caption{Mathematical claims and their status.}
 \label{tab:claims}
 \end{table}
 
-\paragraph{Limitations.} The theorem is about objectives; it does not say that all optimisers of a spring energy behave alike, and E3 shows that they do not. The normalisation family is $\{1,1/n_c\}$; other size weights (for instance $1/n_c^2$, the per-spring average) leave the exact identity and we only certify that they are not pairwise under the two standard weights. Theorem~\ref{thm:e4} is a single-instance certificate, which is what a ``not in general'' statement needs, but it says nothing about how far from pairwise those energies are on typical data. The Bernstein composition result is cited, not re-proved in full. E3 uses one implementation of each optimiser with modest restart budgets; its numbers describe optimiser luck on these five datasets and should not be read as a benchmark. Nothing is claimed about the dynamic route beyond its formulation.
+\paragraph{Limitations.} The family of Section~\ref{sec:family} is a reconstruction from the line's public summary; if the original screening used many-body terms, assignment-dependent parameters or a dynamics on positions, Section~\ref{sec:escape} applies and the theorem does not. The theorem is about objectives; it does not say that all optimisers of a spring energy behave alike, and E3 shows that they do not. The normalisation family is $\{1,1/n_c\}$; other size weights (for instance the per-spring average) leave the exact identity and we only certify that they are not pairwise under the two standard weights. Theorem~\ref{thm:e4} certifies three specific functionals on two configurations, which is what ``not in general'' statements need, but says nothing about classes of terms or about how far from pairwise those energies are on typical data. The Bernstein composition result is cited, not re-proved in full. E3 uses one implementation of each optimiser with modest restart budgets; its numbers describe optimiser luck on five datasets, not a benchmark. Nothing is claimed about the dynamic route beyond its formulation.
 
-\paragraph{Next steps for the research line.} (a) Settle Open problem~\ref{prob:dyn} at least for the Gaussian flow, either by an explicit configuration where $P_{T,\varepsilon}$ is not a pairwise minimiser (the exact-arithmetic method of Theorem~\ref{thm:e4} applies once $P_{T,\varepsilon}$ is computed), or by a representation. (b) Characterise the size weights $w$ for which $\sum_cw(n_c)\sum_{i<j\in C_c}A_{ij}$ is a weighted kernel $k$-means objective in the sense of \citet{dhillon2007}; the answer decides whether the normalisation is a mechanical degree of freedom or a graph-cut one. (c) If the line continues, the ficha should be updated from ``no mechanical component survived'' to ``no mechanical component of the pairwise kind can survive'', with the two open ingredients named.
+\paragraph{Next steps for the research line.} (a) Confirm with the author of the line that the screened formulations were of the pairwise form of Definition~\ref{def:family}; if not, the emphasis moves to Section~\ref{sec:escape}. (b) Settle Open problem~\ref{prob:dyn} at least for the Gaussian flow, either by an explicit configuration where $P_{T,\varepsilon}$ is not a pairwise minimiser (the exact-arithmetic method of Theorem~\ref{thm:e4} applies once $P_{T,\varepsilon}$ is computed), or by a representation. (c) Characterise the size weights $w$ for which $\sum_cw(n_c)\sum_{i<j\in C_c}A_{ij}$ is a weighted kernel $k$-means objective in the sense of \citet{dhillon2007}; the answer decides whether the normalisation is a mechanical degree of freedom or a graph-cut one. (d) If (a) is confirmed, the line's summary can be updated from ``no mechanical component survived'' to ``no mechanical component of the pairwise kind can survive'', with the open ingredients named.
 
 \appendix
 \section{Reproducibility}\label{app:repro}
-{\sloppy The directory contains \path{experiments/mechanical.py} (potentials, energies, kernel forms, optimisers), \path{experiments/identity_check.py} (E1, E2, E4), \path{experiments/relaxation.py} (E3), \path{experiments/make_figures.py} and \path{experiments/make_numbers.py}, which converts \path{results/*.json} into the macros and table bodies used here, so that every number in the text is generated. Both experiment scripts take \texttt{--fast}. The reference runs used seeds \MetaSeed{} and \MetaSeedRelax, Python \MetaPython, NumPy \MetaNumpy, SciPy \MetaScipy~\citep{virtanen2020} and scikit-learn \MetaSklearn~\citep{pedregosa2011}; E1, E2 and E4 took \IdentitySeconds{} s and E3 \RelaxSeconds{} s on shared cores.\par}
+{\sloppy The directory contains \path{experiments/mechanical.py} (potentials, energies, kernel forms, optimisers), \path{experiments/identity_check.py} (E1, E2, E4), \path{experiments/relaxation.py} (E3), \path{experiments/make_figures.py} and \path{experiments/make_numbers.py}, which converts \path{results/*.json} into the macros and table bodies used here, so that every number in the text is generated; \path{results/tables_identity.md} and \path{results/tables_relaxation.md} hold the full tables (E4 on both configurations; E3 per configuration). Both experiment scripts take \texttt{--fast}. The reference runs used seeds \MetaSeed{} (E1, E2; E4 uses its own generator with seed \EfourSeed, so its configurations do not depend on \texttt{--fast}) and \MetaSeedRelax{} (E3), Python \MetaPython, NumPy \MetaNumpy, SciPy \MetaScipy~\citep{virtanen2020} and scikit-learn \MetaSklearn~\citep{pedregosa2011}; E1, E2 and E4 took \IdentitySeconds{} s and E3 \RelaxSeconds{} s on shared cores. \emph{Energies and tests.} $E_\spec$ and $E_\tot$ are computed from the definition~\eqref{eq:E} by summing $\phi$ over the within-cluster pairs of the distance matrix; $J_K$ from~\eqref{eq:J}. Partitions always have $k$ non-empty clusters; a Lloyd step that would empty a cluster refills it with the worst-fitted point. Relaxation sweeps in a fresh random order; a particle moves to the argmin cluster only if the energy decreases by more than $10^{-10}$ times the initial energy scale, identically in both implementations of E2; a particle alone in its cluster does not move. Annealing proposes a uniformly random other cluster and accepts with probability $\min(1,e^{-\Delta E/T})$. Voronoi stability: own $\delta$ within $10^{-9}$ (relative to the largest $|\delta|$) of the minimum over clusters; single-move stability: no $\Delta E<-10^{-9}$ times the energy scale. \emph{E4.} Integer coordinates drawn uniformly in $\{0,\dots,10\}^2$ (repeated until distinct) from \texttt{default\_rng(\EfourSeed)}; the design matrix has one column per pair and one for the constant; the normal equations are solved by exact Gaussian elimination over $\Q$.\par}
 
-\paragraph{Energies.} $E_\spec$ and $E_\tot$ are computed from the definition~\eqref{eq:E} by summing $\phi$ over the within-cluster pairs of the distance matrix (\texttt{energy\_direct}); $J_K$ from~\eqref{eq:J}. Partitions always have $k$ non-empty clusters; a Lloyd step that would empty a cluster refills it with the worst-fitted point.
-\paragraph{Relaxation.} Sweeps in a fresh random order; a particle moves to the argmin cluster only if the energy decreases by more than $10^{-10}$ times the initial energy scale, identical in both implementations of E2; a particle that is alone in its cluster does not move. Annealing proposes a uniformly random other cluster and accepts with probability $\min(1,e^{-\Delta E/T})$.
-\paragraph{Stability tests.} Voronoi stability: own $\delta$ within $10^{-9}$ (relative to the largest $|\delta|$) of the minimum over clusters; single-move stability: no $\Delta E<-10^{-9}$ times the energy scale.
-\paragraph{E4.} Integer coordinates drawn uniformly in $\{0,\dots,10\}^2$ with the master seed (repeated until distinct); the design matrix has one column per pair and one for the constant; the normal equations are solved by exact Gaussian elimination over $\Q$.
-
-\section{E3 per configuration}\label{app:table}
-\begin{table}[H]
-\centering\scriptsize
-\setlength{\tabcolsep}{1.8pt}
-\begin{tabular}{llrrrrrrrrrrr}
-\toprule
- & & & \multicolumn{4}{c}{best relative excess over $E^*$} & \multicolumn{3}{c}{fraction reaching $E^*$} & Vor. & 1-move & ARI\\
-\cmidrule(lr){4-7}\cmidrule(lr){8-10}
-dataset & potential & $E^*$ & relax & lloyd+relax & lloyd & naive & relax & lloyd+relax & lloyd & relax & lloyd & best\\
-\midrule
-\input{table_e3.tex}\\
-\bottomrule
-\end{tabular}
-\caption{E3, all \EthreeConfigs{} configurations. Columns as in Table~\ref{tab:e3}; ``Vor.\ relax'' is the fraction of relaxation fixed points that are Voronoi-stable, ``1-move lloyd'' the fraction of Lloyd fixed points that are single-move stable, ``ARI best'' the adjusted Rand index between the best partitions of relax and lloyd+relax.}
-\end{table}
-
-\bibliographystyle{plainnat}
+\bibliographystyle{abbrvnat}
 \bibliography{refs}
 \end{document}

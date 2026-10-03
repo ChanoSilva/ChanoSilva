@@ -44,7 +44,9 @@ def fig_energies():
     for c in cfgs:
         if c["dataset"] not in datasets:
             datasets.append(c["dataset"])
-    fig, axes = plt.subplots(1, len(datasets), figsize=(11, 3.2), sharey=True)
+    # 2 x 3 panels (five datasets + the legend) so that tick labels stay >= 8 pt at print size
+    fig, axes2 = plt.subplots(2, 3, figsize=(7.2, 5.0), sharey=True)
+    axes = axes2.ravel()
     methods = ["relax", "lloyd+relax", "lloyd", "lloyd_naive"]
     off = np.linspace(-0.27, 0.27, len(methods))
     for ax, d in zip(axes, datasets):
@@ -66,13 +68,20 @@ def fig_energies():
         ax.set_yscale("log")
         ax.set_ylim(FLOOR * 0.5, 5)
         ax.set_xticks(range(len(POTS)))
-        ax.set_xticklabels([POT_TEX[p] for p in POTS], rotation=45, ha="right")
+        ax.set_xticklabels([POT_TEX[p] for p in POTS], rotation=40, ha="right", fontsize=8)
+        ax.tick_params(axis="y", labelsize=8)
         ax.set_title(d, loc="left", fontsize=9)
-    axes[0].set_ylabel("relative excess energy over $E^*$\n(median: filled; best of restarts: hollow)")
-    axes[0].set_yticks([1e-12, 1e-9, 1e-6, 1e-3, 1])
-    axes[0].set_yticklabels([r"$\leq 10^{-12}$", r"$10^{-9}$", r"$10^{-6}$", r"$10^{-3}$", "1"])
-    fig.legend(loc="upper center", ncol=2, bbox_to_anchor=(0.5, 1.02), fontsize=7.5)
-    fig.tight_layout(rect=(0, 0, 1, 0.9))
+    for ax in (axes[0], axes[3]):
+        ax.set_ylabel("relative excess energy over $E^*$", fontsize=8)
+        ax.set_yticks([1e-12, 1e-9, 1e-6, 1e-3, 1])
+        ax.set_yticklabels([r"$\leq 10^{-12}$", r"$10^{-9}$", r"$10^{-6}$", r"$10^{-3}$", "1"])
+    # legend in the sixth panel
+    lax = axes[len(datasets)]
+    lax.axis("off")
+    handles, labels = axes[0].get_legend_handles_labels()
+    lax.legend(handles, labels, loc="center left", fontsize=8, title="filled: median over restarts\nhollow: best of restarts",
+               title_fontsize=8, alignment="left")
+    fig.tight_layout()
     for ext in ("png", "pdf"):
         fig.savefig(os.path.join(FIG, f"energies.{ext}"), dpi=200)
     plt.close(fig)
