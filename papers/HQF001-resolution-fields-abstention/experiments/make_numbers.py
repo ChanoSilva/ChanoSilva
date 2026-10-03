@@ -477,7 +477,8 @@ if v02 is not None:
     mac("CritChangedNNB", len(chgn))
     A3 = {ds: S[ds]["ablations"]["Field-aniso - Field-iso"] for ds in S}
     achg = [ds for ds in S if A3[ds]["verdict"] != A2[ds]["verdict"]]
-    mac("AblChangedList", "; ".join(f"{DS_NAME[d]} ({A2[d]['verdict'].replace(' better', '')} $\\to$ {A3[d]['verdict'].replace(' better', '')})" for d in achg) if achg else "none")
+    vname = {"first better": "anisotropic better", "second better": "isotropic better", "inconclusive": "inconclusive"}
+    mac("AblChangedList", "; ".join(f"{DS_NAME[d]} ({vname[A2[d]['verdict']]} $\\to$ {vname[A3[d]['verdict']]})" for d in achg) if achg else "none")
     mac("AblChangedN", len(achg))
     mac("VTwoCpuSeconds", int(round(v02["meta"]["cpu_seconds"])))
     g2 = {ds: S2[ds]["comparisons"]["Field-aniso"]["__best__"]["mean_diff"] for ds in S2}

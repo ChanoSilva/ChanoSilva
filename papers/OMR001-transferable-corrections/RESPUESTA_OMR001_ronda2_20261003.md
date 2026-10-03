@@ -3,7 +3,11 @@
 Informe atendido: `REFEREE_OMR001_ronda2_20261003.md` (veredicto "cambios menores"; 0 bloqueantes, 3 mayores, 13 menores; verificación de la ronda 1: 18 bien, 2 a medias, 3 con error nuevo).
 Versión resultante: manuscrito v0.3 (3 October 2026).
 
-> Archivo escrito de forma incremental durante la revisión. Estado: EN CURSO.
+> Archivo escrito de forma incremental durante la revisión. Estado: COMPLETO.
+
+## Resumen
+
+Recuento: **13 aceptados, 3 aceptados con matiz (m2, m5, m6), 0 rebatidos** (16 hallazgos nuevos: 3 mayores y 13 menores). Los 5 puntos de la ronda 1 señalados como "a medias" o "con error nuevo" (B2, M3, M4, M5, m7) se corrigen a través de M1, m1, M3, m2 y m3 respectivamente. Ninguna cantidad simulada cambió (corrida v0.3 idéntica bit a bit a v0.2 en todo lo simulado); cambian las cotas derivadas (cota uniforme 13 veces menor en el diseño con α = 0.1) y el redondeo de los máximos. Manuscrito v0.3: 10 páginas (antes 10; llegó a 11 tras añadir la Prop. 4.5(b) y se recortó), 0 errores, 0 avisos, 0 referencias o citas indefinidas, `pdftotext | grep -c "??"` = 0.
 
 ## Registro de trabajo
 
@@ -13,3 +17,75 @@ Versión resultante: manuscrito v0.3 (3 October 2026).
 - `safe_reversion.py`: κ₂, cota κ, cota uniforme con (κ, κ₂) (y la forma cerrada antigua como `bound_uniform_phi`), tabla analítica del peor caso (Prop. 4.5(b)), nuevas comprobaciones `safe_kappa`/`safe_uniform`/`safe_uniform_phi`, títulos de figuras sin "Theorem B", Fig. 2 con la cota κ y la cota uniforme, Fig. 1 con leyenda común (antes tapaba una curva), tiempo de pared y de CPU separados. Corrida completa: 13.6 s de pared, 13.3 s de CPU. **Todas las cantidades simuladas son idénticas bit a bit a las de v0.2**: solo cambian los 345 valores `bound_uniform` (ahora la cota afinada), `max_excess_over_bound_uniform` y el resumen renombrado `max_bound_phi_over_uniform` → `max_bound_phi_over_uniform_phi`.
 - `make_numbers.py`: macros nuevas (κ₂, cota uniforme afinada y su forma cerrada, peor caso [cota inferior, superior], rangos del barrido de desviación, máximos redondeados hacia arriba a dos decimales, tiempo de CPU); Tabla 5 con columnas κ₂ y κ₂/φ(1). Verificación independiente de 37 macros nuevas o cambiadas recalculándolas desde el JSON y las fórmulas cerradas (sin pasar por `make_numbers.py`): 37/37. El `check_macros.py` del árbitro da 40/44; las 4 diferencias son las intencionadas (macro retirada, cota afinada, redondeo hacia arriba de 3.4 % → 3.36 % y 8.4 % → 8.42 %).
 - Manuscrito compilado tras cada grupo de cambios; tras añadir la Prop. 4.5(b) llegó a 11 páginas y se volvió a 10 (ver "Extensión").
+- Compilación final con `manuscript/build.sh` y con latexmk sin `.bbl` previo: 10 páginas, 0 avisos en la pasada final, 0 "Overfull", 0 "??". Revisión visual de las 10 páginas (hoja de contactos) y, a mayor resolución, de las pp. 4–5 (Teorema 4.2, Cor. 4.3, Prop. 4.5) y de las dos figuras regeneradas.
+- CPU total de la ronda: ≈1.5 min (tres corridas completas de ≈16 s de CPU, `check_uniform_cap.py` ≈10 s, comprobaciones de macros y compilaciones).
+
+## Hallazgos mayores
+
+### M1 — Tasa absoluta $m^{-1/2}$ no probada por la Prop. 4.5 → **aceptado (opción (b) del árbitro, verificada)**
+
+El árbitro tiene razón: la Prop. 4.5 de v0.2 prueba que el *factor* que multiplica $(2\sigma/\sqrt m)\E\norm{C-R}$ no puede bajarse de $\kappa(\alpha)$; su construcción ($n_e\to\infty$, $\norm v=2\sigma u^\ast/\sqrt m$) tiene daño absoluto $4\sigma^2u^\ast\kappa/m=O(1/m)$, y en ese régimen el Cor. 4.3 da $O(1/m)$ para todo operador. El resumen y la tabla de afirmaciones sobreafirmaban.
+
+Verificación a mano de la construcción con $n_e$ fijo: con $e=R-\theta_0$ y $C=\theta_0-(1+t)e$, $t=2\sigma u/(\sqrt m\norm e)$, en $\theta=\theta_0$ se tiene $C-R=-(2+t)e$, $C-\theta_0=-(1+t)e$, luego $\Delta=((1+t)^2-1)\norm e^2=t(2+t)\norm e^2>0$, $s=2\sigma(2+t)\norm e/\sqrt m$ y $\Delta/s=t\norm e\sqrt m/(2\sigma)=u$, **determinista**; por tanto $\pi=\Phi(-(z+u))$ y el exceso es $\E[s]\,u\Phi(-(z+u))$ con $\E[s]=4\sigma\E\norm e/\sqrt m+4\sigma^2u/m$. Con $u=u^\ast$: $\kappa\,(4\sigma\E\norm e/\sqrt m+4\sigma^2u^\ast/m)$. $C$ es una función medible de $R$ (con $\theta_0$ fijo), luego es un operador admisible para el enunciado "para todo $C$ $\mathcal F$-medible". Con $R=\bar X_e$, $\E\norm e=\sigma c_d/\sqrt{n_e}$ exactamente ($c_d=\E\norm Z=\sqrt2\,\Gamma(\frac{d+1}2)/\Gamma(\frac d2)$), y el Cor. 4.3 (con $\E\norm e$ exacto) da la cota superior con el mismo primer término. Verificación numérica propia (ver "Registro"): 27 casos, Monte Carlo = valor exacto dentro de ≈2 EE.
+
+Cambios: Prop. 4.5 pasa a tener dos partes. (a) "Best constant", enunciada como afirmación sobre la constante relativa a $\E\norm{C-R}/\sqrt m$. (b) "Rate for a fixed estimation sample": el supremo sobre $\theta$ y $C$ del exceso está entre $4\sigma^2(\kappa c_d/\sqrt{n_e m}+u^\ast\kappa/m)$ y $4\sigma^2(\kappa c_d/\sqrt{n_e m}+\kappa_2/m)$, de orden exacto $m^{-1/2}$ con $n_e$ fijo, se alcanza el primer término del Cor. 4.3 y, con $n_e\to\infty$, es $O(1/m)$. Prueba de (b) en el texto (5 líneas). En el diseño, con $\alpha=0.1$, el peor caso está entre `\WorstLowerTen` = 0.0096 y `\WorstUpperTen` = 0.0106 (macros generadas desde `summary.worst_case`, nueva tabla T6 de `results/tables.md`). El resumen dice ahora "a cap uniform in the parameter, attained in order $m^{-1/2}$ for a fixed estimation sample". La introducción y la fila de la tabla de afirmaciones dicen "$\kappa(\alpha)$ is the best constant; for a fixed estimation sample the worst-case harm over operators is of exact order $m^{-1/2}$". La nota de continuidad se corrigió igual. Crédito: el apéndice A dice "Proposition 4.5(b) and the constants $\kappa,\kappa_2$ in Theorem 4.2(ii) and Corollary 4.3 are due to the second internal review" (primero fue una nota al pie en la Prop. 4.5; se movió al apéndice para mantener 10 páginas).
+
+### M2 — Constantes evitables → **aceptado**
+
+Demostración propia, antes de adoptarlo:
+1. Teorema 4.2(ii): en $\{\Delta>0\}$, $\Delta^+\pi=s\,u\,\Phi(-(z+u))\le s\,\kappa(\alpha)$ por la definición de $\kappa$; integrando, $\le\kappa(\alpha)\E[s]$. La cadena de Mills $u\Phi(-(z+u))\le\frac{u}{z+u}\varphi(z+u)\le\varphi(z)$ da $\kappa\le\varphi(z)$, de modo que el enunciado v0.2 es un corolario. Con la Prop. 4.5(a), $\kappa(\alpha)$ es **exactamente** la mejor constante: el factor $\varphi(z)/\kappa(\alpha)$ (2.3 a 20) es el precio de la forma cerrada, no una brecha entre cota y peor caso.
+2. Cor. 4.3: caso $a\le2\norm e$: $\Delta^+\pi\le s\kappa\le(4\sigma\norm e/\sqrt m)\kappa$. Caso $a>2\norm e$: con $w=\sqrt m(a-2\norm e)/(2\sigma)$ se tiene $s=4\sigma\norm e/\sqrt m+4\sigma^2w/m$ y $u\ge w$ (porque $\Delta\ge a(a-2\norm e)$), así que $\Delta^+\pi=\frac{4\sigma\norm e}{\sqrt m}u\Phi+\frac{4\sigma^2}{m}w\,u\Phi\le\frac{4\sigma\norm e}{\sqrt m}\kappa+\frac{4\sigma^2}{m}\kappa_2$. Además $u^2\Phi(-(z+u))\le u\,\varphi(z+u)\le(z+u)\varphi(z+u)\le\varphi(1)$ (Mills y $z\ge0$), luego $\kappa_2\le\varphi(1)$ y la versión v0.2 es la forma cerrada.
+3. Comprobación numérica propia (rejilla, `check_uniform_cap.py`): cociente máximo 1.0000, alcanzado en $e=0$ (donde la desigualdad es igualdad en el supremo); es decir, la desigualdad puntual es óptima. En la simulación: 0 violaciones de la cota κ en las 345 combinaciones (máx. exceso/cota 0.94, `pool`, $m=3$, $\alpha=0.5$, $\kappa=8$, el mismo caso que encontró el árbitro) y 0 de la cota uniforme afinada (máx. 0.67).
+
+Cambios: Teorema 4.2(ii) con $\kappa(\alpha)$ definido en el enunciado y la forma cerrada en la prueba; (iii) Hoeffding dice "with $\kappa(\alpha)2\sigma/\sqrt m$ replaced by …"; Cor. 4.3 con $(\kappa,\kappa_2)$ y la forma cerrada $(\varphi(z),\varphi(1))$ en una frase; prueba reescrita; Tabla 5 con columnas $\kappa_2$ y $\kappa_2/\varphi(1)$; Prop. 4.5(a) "best constant" y "the closed form loses the factor $\varphi/\kappa$, from 2.3 to 20"; fila de la Tabla 1 y tabla de afirmaciones; leyenda de la Fig. 1 (cota uniforme: 1.38× con α = 0.1 y 2.67× con α = 0.5, en lugar de 3.0× y 4.0×; observado ≤ 1.30× y ≤ 1.93×); Fig. 2 con la cota κ y la cota uniforme (línea discontinua); párrafo de seguridad (cota 0.0110, 13.3 veces menor que su forma cerrada 0.1461; la cota κ la supera hasta 2.6 veces en la rejilla; peor caso en [0.0096, 0.0106]); limitaciones ("κ-bound"). Script: `bound_kappa`, `bound_uniform` (afinada), `bound_uniform_phi` (v0.2), `safe_kappa`, `safe_uniform_phi`, constantes `kappa2`, `u2_star`, tabla `worst_case`. Ficha, README y CONTINUIDAD: "la constante es óptima". Punto abierto (e) cerrado. Obs. 4.7(b) (Chebyshev) suprimida para compensar extensión, como sugería el árbitro.
+
+Nota de procedimiento: el criterio S predefinido se refería a la identidad, a la cota α y a la forma cerrada φ. Se mantiene tal cual (su redacción en la Sec. 6 nombra ahora exactamente esas tres) y las comprobaciones con la cota κ y la cota uniforme afinada se declaran en el apéndice como añadidas tras la ronda 2.
+
+### M3 — Ficha: cota del evento dañino con lectura condicional → **aceptado**
+
+Correcto: lo demostrado es $\Prob(\hat\theta_\rev=C,\Delta>0)=\E[\mathbf 1\{\Delta>0\}\pi]\le\alpha\Prob(\Delta>0)$, equivalente a $\Prob(\hat\theta_\rev=C\mid\Delta>0)\le\alpha$ cuando $\Prob(\Delta>0)>0$. "Cuando es dañina … ≤ α·P(Δ>0)" mezclaba la lectura condicional con la cota conjunta (contraejemplo en los datos, recalculado: snr = 1, α = 0.1: P(Δ>0) = 17.7 %, conjunta 1.26 % ≤ 1.77 %, condicional 7.1 % > 1.77 %). Cambios: ficha ES ("la probabilidad de que se use la corrección y resulte dañina (pérdida realizada mayor que la de la referencia) es ≤ α·P(Δ>0); condicionada a que sea dañina, la probabilidad de usarla es ≤ α") y EN (texto del árbitro); README (punto 2 de "Idea en tres líneas" y "Transferencia dañina"); CONTINUIDAD. Manuscrito: Teorema 4.2(ii) enuncia la conjunta y añade "equivalently, given $\Delta>0$, $C$ is used with probability at most $\alpha$"; resumen "the probability that the correction is used and is harmful is at most $\alpha\Prob(\Delta>0)$"; en Resultados, "the frequency of harmful events (the correction used and harmful)" y "the frequency of using $C$ given that it is harmful never exceeds $\alpha$" (antes "when it is harmful"); tabla de afirmaciones "$\Prob(C\text{ used},\Delta>0)\le\alpha\Prob(\Delta>0)$".
+
+## Hallazgos menores
+
+- **m1 — aceptado.** Protocolo: "(a split cost of 25.0% of the full-data risk, 20.0% of the risk of $R$; Corollary 4.4)" (macros `\SplitCost`, `\SplitCostR`).
+- **m2 — aceptado con matiz.** Se usa el texto sustituto del árbitro en el apéndice ("Procedure") y se ajusta la Sec. 6 ("Criterion U was fixed in writing before the runs; Appendix A states what was chosen or changed later"). Matiz: se añaden los cambios de la ronda 2 (comprobaciones κ y cota afinada, redondeo hacia arriba; "no simulated number changed"), y la última frase se acota a "No other change to the protocol or the criteria was made after seeing results", que es lo que puedo afirmar con el historial disponible. Docstring del script coherente.
+- **m3 — aceptado.** "On $\{\Delta<0\}$ the conditional value $s\,u\Phi(z-u)$ is at most $s\sup_{u\ge0}u\Phi(z-u)$, which is smaller than $s(z+\varphi(0))$; we keep the closed form."
+- **m4 — aceptado.** Todas las apariciones de "Theorem B"/"B(i)" en `safe_reversion.py` (docstring, comentarios, títulos de figuras, título de T5) → "Theorem 4.2"/"4.2(i)"; "manuscript Sec. 5" → "Sec. 6 and Appendix A". Figuras regeneradas y revisadas. Además (propio): la Fig. 1 usa una leyenda común bajo los paneles, porque la del panel (a) tapaba la curva naranja; la Fig. 2 amplía el eje vertical para que la leyenda no tape los puntos de κ = 0.
+- **m5 — aceptado con matiz.** Veredicto: "only when the tasks are close ($\snr\le2$ with plain hold-out, only $\snr=0$ at $\alpha=0.1$, never at $\alpha\le0.05$)". Ficha: "muy parecidas (varianza entre tareas a lo sumo el doble de la varianza de estimación sin margen; solo tareas idénticas con α = 0.1)". Matiz: en el resumen, por el límite de palabras, solo "close (between-task variance at most 2 times the estimation variance with plain hold-out)". Las cifras son macros (`\UsefulRevMaxHalf`, `\UsefulRevMaxTen`).
+- **m6 — aceptado con matiz.** Leyenda de la Fig. 1(b): "at $\alpha\le0.1$ the reverting estimators stay within 1.07–1.30 times the full-data reference, and plain hold-out ($\alpha=0.5$) reaches 1.93 at $\kappa=12$". Matiz: el informe (y el encargo) proponían "\DEightRevHalfRatio" = 1.83 en κ = 8, pero el máximo del barrido con α = 0.5 es 1.93 en κ = 12 (1.83 es el valor en κ = 8). Se usan macros nuevas calculadas como mínimo y máximo sobre la rejilla (`\DepRevLowMin`, `\DepRevLowMax` sobre α ∈ {0.1, 0.05, 0.01}; `\DepRevHalfMax`, `\DepRevHalfMaxAt`).
+- **m7 — aceptado.** `pct_up` en `make_numbers.py` redondea hacia arriba a dos decimales los máximos citados como "never exceeds": 25.30 %, 3.36 %, 0.25 % (antes 0.2 %, por debajo del máximo real 0.25 %), y 8.42 % para la frecuencia condicional.
+- **m8 — aceptado.** "the gain of the guaranteed estimator over $\bar X_n$ is +3.1% at $\kappa=0$ and −17.9% at $\kappa=8$ …; with $m=24$ it is −25.0% and −68.8%". La cota citada allí pasa a ser la κ (0.0123).
+- **m9 — aceptado.** "Reversion also caps the two bad operators: …".
+- **m10 — aceptado.** "reaches \DSixteenAlwaysRatio{} (13.79) times the full-data reference risk at $\kappa=16$"; en el mismo párrafo el exceso en κ = 16 se compara con la cota κ (0.0129) y la cota uniforme (0.0110).
+- **m11 — aceptado.** README y CONTINUIDAD: 274/71; "2.4 veces mayor" (y anotado que el punto ya es obsoleto con la cota afinada); tiempos: `seconds` del JSON es de pared, y desde v0.3 se guarda `seconds_cpu` (macro `\MetaCPUSeconds`; el apéndice dice "14 s of wall-clock time (13 s of CPU)"); 0.25 % coherente entre manuscrito y README.
+- **m12 — aceptado.** Nadie trabaja ahora en (a)–(b), así que la ficha dice "En pausa. Nota técnica v0.3 (dos rondas de revisión interna, sin revisión externa); se reanudaría por (a) … o (b) …; la diferenciación por la familia de operadores requeriría las definiciones originales" (ES y EN). En el manuscrito, el paso (c) añade "such a family is the only remaining source of differentiation".
+- **m13 — aceptado.** Matplotlib citado: Hunter (2007), *Comput. Sci. Eng.* 9(3):90–95 (`hunter2007`). Los DOI opcionales de `virtanen2020` y `harris2020` no se añaden porque ninguna otra entrada lleva DOI y la extensión está al límite.
+
+## Verificación de la ronda 1 (puntos a medias o con error nuevo)
+
+| Punto ronda 1 | Estado en el informe | Corrección en v0.3 |
+|---|---|---|
+| B2 | error nuevo (paráfrasis como tasa absoluta) | M1: Prop. 4.5(b) demuestra la tasa con $n_e$ fijo; la parte (a) se enuncia como constante relativa |
+| M3 | a medias (l.253 sin referente) | m1 |
+| M4 | error nuevo ("cuando" condicional) | M3 |
+| M5 | a medias (procedimiento incoherente con la nota) | m2 |
+| m7 | error nuevo ("exact conditional value") | m3 |
+
+## Bibliografía
+
+Se aplican las verificaciones del árbitro: el capítulo 22 "Splitting the Data" de Devroye–Györfi–Lugosi deja de figurar como "de memoria" en la nota de continuidad. `lehmanncasella1998`, `lehmannromano2005`, `virtanen2020` y `harris2020` constan como verificadas por el árbitro de la ronda 2 (búsqueda web), no de forma independiente por el autor. Se añade `hunter2007`. `refs.bib`: 19 entradas.
+
+## Extensión
+
+v0.2: 10 páginas. Tras M1(b) y M2, 11 páginas. Recortes, sin perder contenido verificable:
+- se suprimió la Obs. 4.7(b) (Chebyshev, sugerencia del árbitro) y la frase tras el Cor. 4.3 se fundió con su enunciado;
+- las tablas 1–3 y 5 y la bibliografía pasan a `\footnotesize`, con menos separación entre entradas de bibliografía y entre flotantes;
+- la Fig. 2 lleva la leyenda al lado y la Fig. 1 tiene ancho 0.68;
+- se condensaron la frase de la re-verificación de la identidad (los detalles están en `results/tables.md`, resumen `identity_recheck`) y el párrafo de la hoja de ruta de la introducción, que repetía el resumen;
+- se abreviaron el veredicto, el cierre de la Prop. 4.5 y dos frases del apéndice, y se compactó la columna de estado de la tabla de afirmaciones.
+
+Resultado: **10 páginas**, sin margen libre (cualquier añadido futuro necesitará otro recorte).
+
+## Qué queda abierto
+
+(a) Cota en muestra finita para la variante con reajuste / cross-fitting. (b) Cota de selección para la reversión por SURE. (c) Definiciones originales de los operadores. (d) Decisión de cierre de la línea (no tomada). (f) Las verificaciones bibliográficas de la ronda 2 son del árbitro, no independientes del autor. (g) Umbrales de las comprobaciones no prefijados por escrito (declarado). (h) Nuevo: el término de orden $1/m$ del peor caso de la Prop. 4.5(b) no está cerrado; en el diseño la brecha es [0.0096, 0.0106]. (i) Cota κ y cota uniforme para el test $t$ (solo la forma α está cubierta). El punto (e) (constante de la cota uniforme) quedó cerrado.

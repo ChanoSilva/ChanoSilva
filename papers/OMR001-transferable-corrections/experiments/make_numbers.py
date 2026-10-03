@@ -267,6 +267,7 @@ _rat = [(e["rev"][a]["risk"][0] / r["risk_Rn"][0], a, r["dep_over_tau"])
 mac("DepRevLowMin", f"{min(_rat)[0]:.2f}"); mac("DepRevLowMax", f"{max(_rat)[0]:.2f}")
 _h = max((r["ops"]["eb"]["rev"]["0.5"]["risk"][0] / r["risk_Rn"][0], r["dep_over_tau"]) for r in departure)
 mac("DepRevHalfMax", f"{_h[0]:.2f}"); mac("DepRevHalfMaxAt", f"{_h[1]:g}")
+mac("MThreeSplit", f"{100 * min(cfg['m_grid']) / cfg['n']:g}" + r"\%")    # split fraction m/n at the smallest m
 # m sweep named points (alpha = 0.1)
 for r in msweep:
     q = r["ops"]["eb"]["rev"]["0.1"]

@@ -95,3 +95,37 @@ Lo que queda abierto tras la ronda 1:
 6. Extensión: 12 páginas frente al objetivo ≤ 10; decidir si se aceptan o qué contenido verificable se sacrifica.
 7. (Cerrado en la ronda 2: las 18 entradas citadas están verificadas.)
 8. Actualizar la ficha SGE001 del CV web con el texto de `FICHA_SGE001_propuesta.md` (estado "En desarrollo — borrador v0.3").
+
+## Ronda 2 de revisión interna (03/10/2026)
+Informe: `REFEREE_SGE001_ronda2_20261003.md` (árbitro nuevo; 0 bloqueantes, 4 mayores, 13 menores; ronda 1: 21/25 bien aplicados, 2 a medias, 2 con error nuevo; reproducción bit a bit). Respuesta: `RESPUESTA_SGE001_ronda2_20261003.md`. Decisión del autor: 13 aceptados, 4 aceptados con matiz (M3, m9, m11 y la extensión), 0 rebatidos. Manuscrito v0.3 (3 October 2026), 11 páginas.
+
+| Hallazgo | Acción aplicada |
+|---|---|
+| M1 certificado "desde los momentos" con cota por segmento; comparación con el umbral de C1 | Prop. 3.1(e) con forma graduada $(k+1)B_2<|Q_2|\Rightarrow|E_1|/|E_2|>k$ y dos certificados nombrados: *moment-and-range* (σ ≤ 0.042 LN / 0.053 SU) y *micro-data* (0.056 / 0.071); certificado de C1 ($k=5$): 0.018 / 0.023; razón observada > 1 hasta σ = 0.75 (LN); E4 certificado 70.9 % (microdatos) frente a 6.5 % (momentos + rango) en σ = 0.2; resumen, l. 198, E1, E4, conclusión, tabla de afirmaciones, ficha, README y comentario del código corregidos |
+| M2 C1 y C2 fundidos | Resumen, ficha ES/EN y tabla de afirmaciones separan C1 (error) y C2 (reversiones); "14 de las 20 elegibles con capacidad, de 30; una con capacidad y una sin capacidad limítrofes" |
+| M3 E1c pequeño | 60 réplicas para N = 200, 2000, 20000, 200000 con s.e.: 3.16 (0.09), 3.50 (0.10), 4.05 (0.10), 3.96 (0.02); término de tercer momento 8.0 → 2.3–2.6 ×10⁻⁹; resumen sin 3.12–3.18 como "predichos" |
+| M4 "1.000" de la razón desplazada | Distribución por réplica: [0.997, 1.003], desviación mediana 0.0028 (SU 0.0027), $P_u<Q_u$ en 50 %; Tabla 2 con med|razón − 1|; nota de corrección en la respuesta de la ronda 1 |
+| m1 jerarquía | Scope, resumen y ficha: agregación en dos niveles bajo frontera común (Lema 3.3, E3); ficha "En desarrollo — borrador v0.3" |
+| m2 "to a relative 0" | 2×10⁻¹⁵ (E2) y 2×10⁻¹⁶ (E3) impresos con su valor |
+| m3, m4 | $B_1$ coherente en Prop. 3.1(a); (e) "under the hypothesis of (c)" y forma graduada |
+| m5 | "al menos como 1/σ; como σ⁻² con insumos simétricos" (resumen, Obs. 3.2, conclusión, README, ficha) |
+| m6 | s.e. bootstrap de los exponentes de E2 (1.01 (0.003), 3.52 (0.21), 8.8 (0.11)) |
+| m7 | E5: el factor por régimen cumple C1 en el régimen suave salvo en σ = 0.6; 1/(λ−1) por construcción bajo capacidad sin cruces; fallo sustantivo en la capacidad |
+| m8 | E3 "depende esencialmente sólo de σ_W" por Lema 3.3(ii) + homogeneidad de Cobb–Douglas; l. 144 "f y su Hessiano" |
+| m9 | E1b fuera del cuerpo (recorte 1); s.e. de la mediana de |Z| (0.18) en el JSON y `tables.md` |
+| m10 | "as the condition guarantees" |
+| m11 | 56 y 1064 por macro; "σ ≈ 0.1" sustituido por tasas; "every measured number" |
+| m12 | Tiempos de cálculo y totales en `meta`, PDF, README y nota; 356 macros |
+| m13 | Un generador de bootstrap por experimento (`spawn(12)`; sorteos de E0–E5 sin cambio) |
+| Extensión | Seis recortes del árbitro + filas CES de la Tabla 1 a `tables.md`, Tabla 5 compacta, márgenes 0.85 in: 12 → 11 páginas (10 de cuerpo y apéndice) |
+| Bibliografía | 18/18 citadas verificadas; DOI de farrell1957 y jensen1906 añadidos |
+
+Corrida de referencia v0.3: SHA-256 `5b309162009c…`, 03/10/2026 10:04 UTC, 52 s de cálculo / 56 s total (pared), 53 / 57 s de CPU; los valores puntuales de E0–E6 son idénticos a los de v0.2 (8782 valores comparados), salvo E1c (rediseñado) y los intervalos bootstrap de E2/E3.
+
+Lo que queda abierto tras la ronda 2:
+1. Extensión: 11 páginas (objetivo ≤ 10); bajar más exige quitar demostraciones, la tabla de afirmaciones o tablas verificables.
+2. Las dos celdas limítrofes de C2 (sin capacidad σ = 0.4; +50 % σ = 0.4) necesitan ≥ 10⁴ ensayos por celda.
+3. Certificado más fino que explote la cancelación (tercer momento tensorial + resto de cuarto orden) para ampliar la región certificada desde momentos y rango más allá de σ ≈ 0.04; cota numérica para CES.
+4. Confirmar con el autor las lecturas de "dinámica", "jerárquica" y "calibración posterior", y si existe material previo.
+5. Estimar $T_u$ dentro de una familia paramétrica y probarlo fuera de familia; eficiencias correlacionadas con los insumos.
+6. Actualizar la ficha del CV web con `FICHA_SGE001_propuesta.md`.
