@@ -201,13 +201,18 @@ mac("NegLinLocalMultiHiAbs", f"{abs(min(neg_vals)):.1f}" if neg_vals else "n/a")
 rob = [c for c in m["conditions"] if c != "main"]
 rob_cells = [(c, d, mm) for c in rob for d in NAMES for mm in LOCAL]
 mac("NRobustCells", len(rob_cells))
-mac("ExpectedFalseRobust", f"{0.05 * len(rob_cells):.1f}")
 rob_pos = [(c, d, mm) for c, d, mm in rob_cells if res["results"][d][c]["summary"][mm]["sig"] == "pos"]
 mac("NPosRobustCells", len(rob_pos))
 mac("NNegRobustCells", sum(res["results"][d][c]["summary"][mm]["sig"] == "neg" for c, d, mm in rob_cells))
 CNAME = {"noise20": "noise", "sub25": "sub"}
 mac("PosCellsRobust", "; ".join(f"{MPRETTY[mm]} on {PRETTY[d]} under {CNAME[c]}" for c, d, mm in rob_pos) if rob_pos else "none")
 mac("NPosRobustMoons", sum(d == "moons_2scale" for c, d, mm in rob_pos))
+# referee 2, m4: which robustness positives persist against the post-hoc oracle AND the fixed RBF-SVM
+persist = [(c, d, mm) for c, d, mm in rob_pos
+           if post["conditions"][c][d][f"{mm}_vs_oracle"]["sig"] == "pos" and post["conditions"][c][d][f"{mm}_vs_rbf"]["sig"] == "pos"]
+mac("NPosRobustPersist", len(persist))
+mac("NPosRobustPersistMoons", sum(d == "moons_2scale" for c, d, mm in persist))
+mac("PosRobustNotPersist", "; ".join(f"{MPRETTY[mm]} on {PRETTY[d]} under {CNAME[c]}" for c, d, mm in rob_pos if (c, d, mm) not in persist) or "none")
 # v0.1 results (kept in results/v01/) for the before/after statements about the grids; macros only, nothing typed
 v01_path = os.path.join(ROOT, "results", "v01", "results.json")
 if os.path.exists(v01_path):
@@ -231,6 +236,9 @@ if os.path.exists(v01_path):
     mac("VOneEdgeLlsvmMHi", sum(f["llsvm"]["cfg"]["M"] == max(g1["llsvm_Ms"]) for f in folds_ms))
     mac("VOneEdgeKnnKLo", sum(f["knn_svm"]["cfg"]["k"] == min(g1["knn_ks"]) for f in folds_ms))
     mac("VOneSecondsMain", int(round(v1["meta"]["seconds"])))
+    # referee 2, M2: the C grids of cell-SVM and LLSVM were not widened although v0.1 already saturated them
+    mac("VOneEdgeCellCHi", sum(f["cell_svm"]["cfg"]["C"] == max(g1["cell_Cs"]) for f in folds_ms))
+    mac("VOneEdgeLlsvmCHi", sum(f["llsvm"]["cfg"]["C"] == max(g1["llsvm_Cs"]) for f in folds_ms))
     mac("VOneNPosRobustCells", sum(v1["results"][d][c]["summary"][mm]["sig"] == "pos" for c in rob for d in NAMES for mm in LOCAL))
 
 # criterion

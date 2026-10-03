@@ -688,14 +688,15 @@ def identity_recheck(structure, departure, msweep):
 
 # ----------------------------------------------------------------------------
 def main():
-    t0 = time.time()
+    t0, c0 = time.time(), time.process_time()
     consts = constants_table()
     structure, departure, msweep = run_all()
     summary = summarize(structure, departure, msweep, consts)
     summary["identity_recheck"] = identity_recheck(structure, departure, msweep)
-    seconds = time.time() - t0
+    seconds = time.time() - t0             # wall-clock time
+    seconds_cpu = time.process_time() - c0  # CPU time of this process
     import scipy, matplotlib
-    meta = dict(seed=SEED, fast=FAST, seconds=seconds, python=platform.python_version(),
+    meta = dict(seed=SEED, fast=FAST, seconds=seconds, seconds_cpu=seconds_cpu, python=platform.python_version(),
                 numpy=np.__version__, scipy=scipy.__version__, matplotlib=matplotlib.__version__,
                 date="2026-10-03", version="v0.3 (referee rounds 1 and 2 applied)")
     out = dict(meta=meta, config=CFG, criteria=dict(
@@ -713,7 +714,7 @@ def main():
                                                 "max_excess_over_bound_kappa", "max_excess_over_bound_uniform",
                                                 "max_identity_abs_z", "identity_ok_all", "n_identity_fail",
                                                 "max_excess_over_bound_phi", "max_regret_over_bound")}, indent=1))
-    print(f"done in {seconds:.1f} s")
+    print(f"done in {seconds:.1f} s wall, {seconds_cpu:.1f} s CPU")
 
 
 if __name__ == "__main__":
