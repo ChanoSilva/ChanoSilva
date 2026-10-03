@@ -50,4 +50,3 @@ TOTAL reduction: 312 (instance, rule) pairs, n <= 12, 137328 subsets solved exac
 === DP over (|K|, X_K^T X_K, X_K^T y_K) vs exhaustive search, random integer data ===
   145/145 (instance, target) pairs agree; mean reachable states 156.2 vs mean 2^n = 170.4
 
-elapsed 37.7 s

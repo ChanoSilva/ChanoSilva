@@ -4,8 +4,20 @@
   "seed": 20261003,
   "python": "3.11.15",
   "numpy": "2.4.6",
-  "seconds": 37.7,
-  "log_sha256": "2049f31ebeec189b22336a33dd32dd03c9c54aa4870691aed72d1d100c171951"
+  "seconds": 38.1,
+  "log_sha256": "8652338a0a6d7921b1494e334d1d232db3bea79697df822e98fd524ef8c367d8",
+  "log_has_timing": false,
+  "kkt_guard": {
+   "calls": 33484,
+   "fallbacks": 0,
+   "fallbacks_tie_at_entry": 0,
+   "fallbacks_full_rank": 0,
+   "max_active_rel": 1.6240976817373718e-14,
+   "max_inactive_rel": 0.0,
+   "max_active_rel_rejected": 0.0,
+   "max_active_rel_fallback": 0.0,
+   "max_inactive_rel_fallback": 0.0
+  }
  },
  "reduction": {
   "n_source": 156,

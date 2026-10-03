@@ -18,7 +18,9 @@ the script asserts that its draws reproduce sr.simulate and the 'refit' risks of
 plus a cross-fitted run of the same design; (b) an adversarial grid of (theta, C) with >= 20 000
 replicates per point.  Thresholds fixed before the first run: a bound holds if MC <= bound + 2 SE;
 identity: paired |z| <= 3 where the acceptance frequency is >= 1%, Poisson 99% interval otherwise.
-Output: theory/check_refit_output.txt (this script's printout).
+Output: theory/check_refit_output.txt (this script's printout) and, since v0.4, results/refit_check.json
+(read by experiments/make_numbers.py after checking its SHA-256 against results/refit_check.json.sha256).
+Notation: rho in this script is eta = m/n in the manuscript (rho there is the Hoeffding radius).
 """
 import json
 import os
@@ -485,7 +487,89 @@ for m in [mm for mm in MGRID if N % mm == 0]:
         parts.append(f"a={al}: {best['ex'][0]:.4f} ({best['ex'][0] / best['split']:.2f} split; {best['fam']})")
     out(f"    m={m:2d} worst family: " + "; ".join(parts))
 out("")
+
+
+# ----------------------------------------------------------------------------------------------
+# (c) v0.4 addition: the route "use C if the check passes, otherwise Xbar_n" (Remark rem:refitcost(c)).
+# Exact limit of its excess over Xbar_n for C = R - t (R - theta_0), t -> 0, by quadrature over
+# xi = sqrt(m/n_e) chi_d (no Monte Carlo):  (sigma^2/m) E[ Phi(xi-z)((2 eta - eta^2) xi^2 - eta^2 d)
+#   + 2 eta (1-eta) xi phi(z-xi) - eta^2 (z-xi) phi(z-xi) ].
+# ----------------------------------------------------------------------------------------------
+from scipy.integrate import quad  # noqa: E402
+
+out("== (c) Route 'C if the check passes, else Xbar_n': exact limit of the excess for a vanishing correction ==")
+V1 = {}
+for (al, m), c in CONST.items():
+    q, eta, z = np.sqrt(m / c.n_e), c.rho, c.z
+    integrand = lambda r: (ndtr(q * r - z) * ((2 * eta - eta ** 2) * (q * r) ** 2 - eta ** 2 * D)
+                           + 2 * eta * (1 - eta) * q * r * phi(z - q * r)
+                           - eta ** 2 * (z - q * r) * phi(z - q * r)) * chi.pdf(r, D)
+    lim = SIG ** 2 / m * quad(integrand, 0.0, 60.0, limit=200)[0]
+    V1[(al, m)] = lim
+out("  limit / split cost:  " + "; ".join(f"a={al}, m={m}: {V1[(al, m)] / CONST[(al, m)].split:.3f}"
+                                         for (al, m) in CONST))
+out("")
 out(f"done in {time.time() - T0:.1f} s wall, {time.process_time() - C0:.1f} s CPU")
 
 with open(os.path.join(HERE, "check_refit_output.txt"), "w") as fh:
     fh.write("\n".join(LINES) + "\n")
+
+
+# ----------------------------------------------------------------------------------------------
+# v0.4: machine-readable summary for experiments/make_numbers.py (frozen in results/, SHA-256 recorded)
+# ----------------------------------------------------------------------------------------------
+def _hold(rs, key, val="ex"):
+    return int(sum(r[val][0] <= r[key] + 2 * r[val][1] for r in rs))
+
+
+def _maxr(rs, key, val="ex"):
+    return float(max(r[val][0] / r[key] for r in rs if r[key] > 0))
+
+
+summary = dict(
+    meta=dict(seed=int(sr.SEED), replicates=int(REPS), d=int(D), n=int(N), sigma=float(SIG),
+              seconds=float(time.time() - T0), seconds_cpu=float(time.process_time() - C0),
+              note="eta = m/n is called rho in this script"),
+    constants=[dict(alpha=float(al), m=int(m), eta=float(c.rho), z=float(c.z), kappa=float(c.k), kappa2=float(c.k2),
+                    kappa_phi=float(c.lam1), kbar=float(c.kbar), psi0=float(c.psi0), split=float(c.split),
+                    cap_exact=float(c.cap_exact), cap_closed=float(c.cap_closed), lower=float(c.lower),
+                    split_lo=float(c.split_lo), split_hi=float(c.split_hi), v1_limit=float(V1[(al, m)]))
+               for (al, m), c in CONST.items()],
+    closed_gap_M=float(gapB), closed_gap_Psi=float(gapP),
+    closed_over_exact=[float(min(c.cap_closed / c.cap_exact for c in CONST.values())),
+                       float(max(c.cap_closed / c.cap_exact for c in CONST.values()))],
+    design=dict(n=int(nrow), repro_max_diff=float(repro), replica_max_diff=float(dmax),
+                hold={k: _hold(rows, k) for k in ("b2", "b2c", "cap", "capc")},
+                max_ratio={k: _maxr(rows, k) for k in ("b2", "b2c", "cap", "capc")},
+                identity_n_z=int(len(zs)), identity_max_z=float(max(zs)), identity_n_poisson=int(nrow - len(zs)),
+                identity_fail=int(sum(not r["idok"] for r in rows)),
+                simrefit_hold={k: _hold(rows, k, "simrf") for k in ("b2", "cap")},
+                simrefit_max_ratio={k: _maxr(rows, k, "simrf") for k in ("b2", "cap")},
+                eb10=[dict(sweep=r["sweep"], snr=float(r["snr"]), dep=float(r["dep"]), m=int(r["m"]),
+                           split=float(r["split"][0]), ex=list(map(float, r["ex"])), simrf=float(r["simrf"][0]),
+                           b2=float(r["b2"]), b2c=float(r["b2c"]), cap=float(r["cap"]), capc=float(r["capc"]))
+                      for r in rows if r["op"] == "eb" and r["alpha"] == 0.1]),
+    crossfit=dict(n=int(ncf), m_values=sorted(set(int(r["m"]) for r in cf_rows)),
+                  hold={k: _hold(cf_rows, k) for k in ("b2", "cap", "capc")},
+                  max_ratio={k: _maxr(cf_rows, k) for k in ("b2", "cap", "capc")},
+                  jensen_hold=int(sum(r["ex"][0] <= r["jen"][0] + 1e-12 for r in cf_rows)),
+                  eb10=[dict(snr=float(r["snr"]), dep=float(r["dep"]), m=int(r["m"]), ex=list(map(float, r["ex"])),
+                             split=float(r["split"]), b2=float(r["b2"]), cap=float(r["cap"]))
+                        for r in cf_rows if r["op"] == "eb" and r["alpha"] == 0.1]),
+    adversarial=dict(n=int(nadv), hold={k: _hold(adv, k) for k in ("b2", "cap", "capc")},
+                     max_ratio={k: _maxr(adv, k) for k in ("b2", "cap", "capc")},
+                     identity_n=int(len(zz)), identity_max_z=float(max(zz)),
+                     identity_n_above3=int(sum(x > 3 for x in zz)),
+                     worst_over_cap=[float(r["ex"][0] / r["cap"]) for r in adv if r["fam"] == "worst(M_rho)"],
+                     reflect_over_lower=[float(r["ex"][0] / r["lower"]) for r in adv if r["fam"] == "reflect t=2.0"]),
+    adversarial_crossfit=dict(n=int(nacf), hold={k: _hold(advcf, k) for k in ("b2", "cap", "capc")},
+                              max_ratio={k: _maxr(advcf, k) for k in ("b2", "cap", "capc")},
+                              max_over_split=float(mxs["ex"][0] / mxs["split"]),
+                              max_over_split_at=dict(m=int(mxs["m"]), alpha=float(mxs["alpha"]), family=mxs["fam"]),
+                              worst=[dict(m=int(m), alpha=float(al),
+                                          ex=float(max(r["ex"][0] for r in advcf if r["m"] == m and r["alpha"] == al)),
+                                          split=float(CONST[(al, m)].split))
+                                     for m in sorted(set(r["m"] for r in advcf)) for al in ALPHAS]),
+)
+with open(os.path.join(ROOT, "results", "refit_check.json"), "w") as fh:
+    json.dump(summary, fh, indent=1)

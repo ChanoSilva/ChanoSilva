@@ -21,7 +21,7 @@ instances (p = 2, 3; targets enter / leave / any) as a sanity check of the imple
 Deterministic (seed 20261003).
 Reproducibility copy (v0.4): same logic as theory/check_hardness.py, which stays as the
 derivation-time original; this copy additionally writes
-  results/check_hardness_output.txt     (the printed log, frozen),
+  results/check_hardness_output.txt     (the printed log without the elapsed-time line, frozen; v0.5),
   results/check_hardness_output.sha256  (SHA-256 of that log; checked by make_numbers.py),
   results/hardness.json                 (all counts quoted in the manuscript, read by make_numbers.py).
 """
@@ -310,6 +310,7 @@ def exhaustive_fragility(X, y, mu, rule, target, j, S0, s0):
 # ----------------------------------------------------------------------------------------------
 def main():
     t0 = time.time()
+    lf.reset_kkt_stats()  # v0.5 (referee round 3, m3): count the KKT-guarded fits of this check
     rng = random.Random(20261003)
     log("TCD001 -- check_hardness.py (seed 20261003)")
     log("Reduction: Subset Sum (b, t), 1 <= t <= sum(b)-1  ->  p = 2 Lasso, target enter(variable 2)")
@@ -450,7 +451,9 @@ def main():
         f" vs mean 2^n = {subs_sum / max(total, 1):.1f}")
     log("")
     elapsed = time.time() - t0
-    log(f"elapsed {elapsed:.1f} s")
+    # v0.5 (referee round 3, m2): the elapsed time is printed but NOT written to the frozen log, so
+    # that a rerun reproduces the log and its SHA-256 exactly; the time goes to hardness.json only.
+    print(f"elapsed {elapsed:.1f} s", flush=True)
     os.makedirs(RES, exist_ok=True)
     out_txt = os.path.join(RES, "check_hardness_output.txt")
     with open(out_txt, "w") as fh:
@@ -461,7 +464,8 @@ def main():
     n_rules = 2
     summary = dict(
         meta=dict(script="experiments/check_hardness.py", seed=20261003, python=sys.version.split()[0],
-                  numpy=np.__version__, seconds=round(elapsed, 1), log_sha256=sha),
+                  numpy=np.__version__, seconds=round(elapsed, 1), log_sha256=sha,
+                  log_has_timing=False, kkt_guard=lf.kkt_stats()),
         reduction=dict(n_source=tot["inst"] // n_rules, n_yes=tot["yes"] // n_rules,
                        n_no=(tot["inst"] - tot["yes"]) // n_rules, n_hand_vectors=3,
                        n_hand_instances=n_hand, max_m=max_m, max_n=tot["maxn"], pairs=tot["inst"],

@@ -189,7 +189,11 @@ def simulate(rng, snr, dep_over_tau, m, tau2=None):
         # (1-lam)[(1-lam)||Xn-mu_hat||^2 - 2 d sigma^2/n]
         sure_diff = (1 - ln) * ((1 - ln) * sq(Xn - mu_hat) - 2 * d * se2_n)
         acc_sure = sure_diff < 0
-        out["ops"][name] = dict(L_b=L_b, L_bn=L_bn, Delta=Delta, Dhat=Dhat, s=s,
+        # transported refit (v0.4, Theorem thm:refit): Xbar_n + J (C - R); its loss change over
+        # Xbar_n when the check passes is ||w||^2 + 2 <w, Xbar_n - theta>, w = C - R.  No extra draws.
+        w_tr = b - Xe
+        gain_tr = sq(w_tr) + 2.0 * (w_tr * (Xn - theta)).sum(axis=1)
+        out["ops"][name] = dict(L_b=L_b, L_bn=L_bn, Delta=Delta, Dhat=Dhat, s=s, gain_tr=gain_tr,
                                 L_sure=out["L_Rn"] + (L_bn - out["L_Rn"]) * acc_sure,
                                 acc_sure=acc_sure, Delta_n=L_bn - out["L_Rn"])
     return out
@@ -275,6 +279,13 @@ def evaluate(sim, m):
                      accept_given_harmful=float(acc[Delta > 0].mean()) if (Delta > 0).any() else 0.0,
                      risk_refit=mse(L_refit), gain_refit_vs_Rn=rel_gain(L_Rn, L_refit),
                      harm_freq_refit=float((acc & (o["Delta_n"] > 0)).mean()))
+            # transported refit (v0.4): proved bounds in Theorem thm:refit, checked in theory/check_refit.py
+            L_tr = L_Rn + o["gain_tr"] * acc
+            r["risk_transported"] = mse(L_tr)
+            r["excess_transported_vs_Rn"] = mse(o["gain_tr"] * acc)
+            r["gain_transported_vs_Rn"] = rel_gain(L_Rn, L_tr)
+            r["useful_transported"] = bool(r["gain_transported_vs_Rn"]["lo"] >= thr)
+            r["harm_freq_transported"] = float((acc & (o["gain_tr"] > 0)).mean())
             r["useful"] = bool(r["gain_vs_Rn"]["lo"] >= thr)
             r["useful_refit"] = bool(r["gain_refit_vs_Rn"]["lo"] >= thr)
             r["safe_phi"] = bool(ex_mc[0] <= bound_phi + 2 * ex_mc[1])
@@ -394,6 +405,11 @@ def summarize(structure, departure, msweep, consts):
         useful_structure_sure_eb=[r["snr"] for r in structure if r["ops"]["eb"]["sure"]["useful"]],
         useful_structure_refit_eb={a: [r["snr"] for r in structure if r["ops"]["eb"]["rev"][a]["useful_refit"]]
                                    for a in alphas},
+        useful_structure_transported_eb={a: [r["snr"] for r in structure
+                                             if r["ops"]["eb"]["rev"][a]["useful_transported"]] for a in alphas},
+        harmful_vs_Rn_transported_eb_departure={a: [r["dep_over_tau"] for r in departure
+                                                    if r["ops"]["eb"]["rev"][a]["gain_transported_vs_Rn"]["hi"] < 0]
+                                                for a in alphas},
         harmful_vs_Rn_always_eb_departure=[r["dep_over_tau"] for r in departure
                                            if r["ops"]["eb"]["always"]["gain_vs_Rn"]["hi"] < 0],
         harmful_vs_Rn_rev_eb_departure={a: [r["dep_over_tau"] for r in departure
@@ -494,7 +510,8 @@ def write_tables(structure, departure, msweep, consts, summary, path):
               "useful_structure_eb", "useful_structure_always_eb", "useful_structure_always_full_eb", "useful_structure_sure_eb",
               "harmful_vs_Rn_always_full_eb_structure", "harmful_vs_Rn_always_full_eb_departure",
               "harmful_vs_Rn_sure_eb_departure", "harmful_vs_Rn_refit_eb_departure",
-              "useful_structure_refit_eb", "harmful_vs_Rn_always_eb_departure", "harmful_vs_Rn_rev_eb_departure",
+              "useful_structure_refit_eb", "useful_structure_transported_eb", "harmful_vs_Rn_transported_eb_departure",
+              "harmful_vs_Rn_always_eb_departure", "harmful_vs_Rn_rev_eb_departure",
               "max_harm_freq_rev_eb", "max_harm_freq_always_eb", "max_accept_given_harmful_eb", "worst_departure",
               "identity_recheck"):
         L.append(f"- {k}: {json.dumps(summary[k])}")
@@ -702,7 +719,7 @@ def main():
     import scipy, matplotlib
     meta = dict(seed=SEED, fast=FAST, seconds=seconds, seconds_cpu=seconds_cpu, python=platform.python_version(),
                 numpy=np.__version__, scipy=scipy.__version__, matplotlib=matplotlib.__version__,
-                date="2026-10-03", version="v0.3 (referee rounds 1 and 2 applied)")
+                date="2026-10-03", version="v0.4 (transported refit added; referee rounds 1 and 2 applied)")
     out = dict(meta=meta, config=CFG, criteria=dict(
         useful="lower end of the paired 95% CI of the relative risk gain with respect to the full-data reference Xbar_n is >= useful_threshold",
         safe="Monte Carlo excess risk over the estimation-sample reference <= bound + 2 SE, for every configuration and alpha",
