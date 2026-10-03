@@ -1,0 +1,31 @@
+=== (a) frame calculus ===
+K_d' = (-r*kp(t)*v(t) + v(t), 0, m*r)
+w' identity residual: 0
+a = a0 - 2 r v m kw residual: 0
+b_U residual: 0  b_W residual: 0
+cross identity residual: 0
+c_W a - c_T b_W residual: 0
+coefficient of kp'' in w*(K_d'''.n_chi): -m*r**2*v(t)   [-> -r v sin(chi) after /w]
+coefficient of v''  in w*(K_d'''.n_chi): -m*r*(r*kp(t) - 1)   [-> (1-x) sin(chi) after /w]
+kp'' or v'' in K_d'''.U ? False False
+highest derivative of kp, kw in K_d''': [2, 1, 1]
+
+=== (b) constants ===
+g(sqrt13) = 1.03245440534939092848599277639  2-g(sqrt13)-1/14 = 0.896117023222037642942578652181
+coef nu: 96/sqrt13 = 26.6256094188109978568804032059   coef mu: 64/sqrt13 = 17.7504062792073319045869354706
+nu threshold (alone):  0.0336562070421167826642344088171 * 4^d ;  mu threshold (alone): 0.0504843105631751739963516132256 * 8^d
+half each: 0.0168281035210583913321172044085 * 4^d ; 0.0252421552815875869981758066128 * 8^d
+d=2: coef nu 12*(1/4)*(2/sqrt13) = 1.66410058867568736605502520037  coef mu 8*(1/16)*(2/sqrt13) = 0.277350098112614561009170866729  rhs 2-g(sqrt13/2)-4/17 = 0.684472513170627626384594558849
+g decreasing on [sqrt2, inf): g'(z) sign at 1.5, 3.6, 10: [True, True, True]
+(1+e)/(1-e)^3 at e=1/2: 12.0  (1-e)^-3: 8.0
+a priori r_d sin(chi_d) <= 2^-d * 2 lam <= 2^-d * 2^(4-d)/sqrt13 = (16/sqrt13) 4^-d; 16/sqrt13 = 4.43760156980183297614673386766
+
+=== (c) smooth K_1 -> K_2 ===
+f1=0.5 r2=0.2079: K_1 v_min=1.80278 kappa_max=1.39832 nu=0.4182 mu=4.5444; alpha_2=-3.0270 m_2=1.9818; spectral tail 8.7e-16
+   nu(K_2) = 0.7174 <= bound 3.1030 ? True (ratio 0.231);  kappa_max(K_2) = 1.5657 <= bound 3.4563 ? True (ratio 0.453); r2*bound = 0.7186
+f1=0.5 r2=0.2500: K_1 v_min=1.80278 kappa_max=1.39832 nu=0.4182 mu=4.5444; alpha_2=-3.0270 m_2=1.9818; spectral tail 1.0e-15
+   nu(K_2) = 0.8564 <= bound 4.2368 ? True (ratio 0.202);  kappa_max(K_2) = 1.5998 <= bound 4.5847 ? True (ratio 0.349); r2*bound = 1.1462
+f1=0.35 r2=0.1225: K_1 v_min=1.67108 kappa_max=1.25534 nu=0.4045 mu=3.4201; alpha_2=1.6130 m_2=1.2433; spectral tail 2.2e-16
+   nu(K_2) = 0.4947 <= bound 1.2229 ? True (ratio 0.405);  kappa_max(K_2) = 1.4176 <= bound 1.7187 ? True (ratio 0.825); r2*bound = 0.2105
+f1=0.25 r2=0.0625: K_1 v_min=1.67705 kappa_max=1.16241 nu=0.3339 mu=1.9911; alpha_2=0.7971 m_2=1.3731; spectral tail 1.1e-16
+   nu(K_2) = 0.3461 <= bound 0.5740 ? True (ratio 0.603);  kappa_max(K_2) = 1.2227 <= bound 1.3349 ? True (ratio 0.916); r2*bound = 0.0834
