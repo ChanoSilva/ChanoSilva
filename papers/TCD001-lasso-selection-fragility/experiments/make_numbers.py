@@ -553,7 +553,7 @@ mac("SignedEmptyTotal", ga["total"])
 mac("SignedEmptyGe", ga["ge_ok"])
 mac("SignedEmptyClean", ga["clean"])
 mac("SignedEmptyAgree", ga["agree"])
-mac("SignedEmptyTies", word(ga["tie_instances"]) if ga["tie_instances"] <= 10 else ga["tie_instances"])
+mac("SignedEmptyTies", ga["tie_instances"])
 mac("SignedSeconds", int(round(gj["meta"]["cpu_seconds"])))
 mac("SignedSha", gsha[:16])
 assert ga["ge_ok"] == ga["total"] and ga["agree"] == ga["clean"] and ga["mismatches"] == 0, \
