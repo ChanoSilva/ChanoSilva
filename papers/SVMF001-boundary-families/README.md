@@ -23,7 +23,7 @@
 | `results/` | Resultados completos de v0.2 con semilla fija (`results.json`, `exact_example.json`, `posthoc_oracle.json`) y sus versiones Markdown; `results/v01/` conserva los de v0.1 (rejillas estrechas) para cotejo. |
 | `figures/` | Figuras en PNG y PDF. |
 | `PREREGISTRO_SVMF001.md` | Registro del criterio, los regímenes, la semilla y las rejillas ampliadas, escrito a las 04:00 UTC del 03/10/2026, antes del cambio de código (04:01) y de la corrida v0.2 (04:04–04:08), con anotaciones posteriores fechadas. Su fecha de archivo y su primer commit son posteriores a la corrida: la anterioridad descansa en el registro de sesión; el SHA-256 de su parte pre-corrida se verifica con `head -n 40 PREREGISTRO_SVMF001.md \| sha256sum` (`c89b2c76…`). |
-| `CONTINUIDAD_SVMF001_20260930.md` | Nota de continuidad interna: supuestos, decisiones, limitaciones, pendientes, y las tablas hallazgo → acción de las rondas 1 y 2. |
+| `CONTINUIDAD_SVMF001_20260930.md` | Nota de continuidad interna: supuestos, decisiones, limitaciones, pendientes, y las tablas hallazgo → acción de las rondas 1, 2 y 3 (con la renumeración de §3 en v0.5). |
 | `FICHA_SVMF001_propuesta.md` | Texto propuesto para la ficha pública (ES/EN). |
 
 ## Idea del paper en tres líneas
