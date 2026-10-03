@@ -5,7 +5,7 @@
     "seed": 20261003,
     "python": "3.11.15",
     "cpu_seconds": 3.6,
-    "log_sha256": "c3e7244d5c447f901d8f8aa47bd98c7676d30347e9ec0403cd803549f2a9b101",
+    "log_sha256": "c504943377954664b3e18a29dccd3ef0af0283e491c44a043be9d2f7dd88663f",
     "log_has_timing": false
   },
   "seed": 20261003,
@@ -15,7 +15,13 @@
     "clean": 397,
     "agree": 397,
     "tie_instances": 3,
-    "mismatches": 0
+    "mismatches": 0,
+    "f0_infinite": 39,
+    "f0_finite": 361,
+    "cert_ok": 359,
+    "cert_fail": 0,
+    "cert_ok_ties": 1,
+    "cert_open": 2
   },
   "B_cauchy_binet": {
     "cb_total": 295,
