@@ -345,10 +345,17 @@ The middle and right panels of Figure~\ref{fig:exact} report simulations in the 
 
 
 \section{Proofs for neighbourhood localisation}\label{app:knnproofs}
-New in v0.4 and not yet checked by an independent referee; \path{theory/knn_localisation_derivation.md} has the same arguments in more detail.
+Checked by an independent internal referee (round 3); \path{theory/knn_localisation_derivation.md} has the same arguments in more detail.
 
-\begin{proof}[Proof of Lemma~\ref{lem:radius}]
+\begin{lemma}[Neighbours given the radius]\label{lem:radius}\status{proved here; classical argument, see~\citet{biau2015}}
+Let $X\in\R^m$ have a density $f$, let $(X_i,Y_i)_{i\le n}$ be i.i.d., fix $x$ and $k\le n$, let $R$ be the $k$-th smallest of the distances $\|X_i-x\|$ (distinct almost surely), $J$ the index attaining it and $I=\{i:\|X_i-x\|<R\}$. Conditionally on $(I,J,R)=(I,j,r)$, the pairs $(X_i,Y_i)_{i\in I}$ are i.i.d.\ from $P_r=P(\cdot\mid\|X-x\|<r)$ and independent of $(X_j,Y_j)$, which has the law of $(X,Y)$ given $\|X-x\|=r$. (Of the density only the absence of atoms in the law of $\|X-x\|$ is used; with atoms, ties at the $k$-th distance break the statement.)
+\end{lemma}
+\begin{proof}
 Fix $I$ and $j\notin I$ with $|I|=k-1$, and measurable sets $B_i$ ($i\in I$). Given $(X_j,Y_j)=(z,y)$ with $\|z-x\|=s$, the other pairs are i.i.d.\ and independent of $(X_j,Y_j)$, so the probability that $(X_i,Y_i)\in B_i$ and $\|X_i-x\|<s$ for all $i\in I$ and $\|X_l-x\|>s$ for $l\notin I\cup\{j\}$ equals $\prod_{i\in I}P_s(B_i)\cdot F(s)^{k-1}(1-F(s))^{n-k}$, with $F(s)=\Prob(\|X-x\|<s)$ and $1-F(s)=\Prob(\|X-x\|>s)$ because $\|X-x\|$ has no atoms (which also makes the distances distinct almost surely). The event without the constraints $B_i$ is $\{(I,J)=(I,j)\}$. The probability depends on $(z,y)$ only through $s$ and factorises into $\prod_{i\in I}P_s(B_i)$ times a function of $s$; integrating against the law of $(X_j,Y_j)$ shows that, given $(I,J)=(I,j)$ and $(X_j,Y_j)$, the pairs indexed by $I$ are i.i.d.\ from $P_R$ with $R=\|X_j-x\|$, hence conditionally independent of $(X_j,Y_j)$ given $(I,J,R)$, and that $(X_j,Y_j)$ given $(I,J,R)=(I,j,r)$ has the law of $(X,Y)$ given $\|X-x\|=r$ (a regular conditional law, defined for almost every $r$).
+\end{proof}
+
+\begin{proof}[Proof of Lemma~\ref{lem:popsign}]
+Let $g(u)$ be the mean of $N(u,1)$ truncated to $[-r,r]$; $g$ is odd and strictly increasing ($g'(u)$ is the variance of the truncated law, an exponential family in $u$). In offset coordinates $m_+-x=g(\mu-x)$ and $m_--x=g(-\mu-x)=-g(\mu+x)$, so $x-t_r(x)=\tfrac12[g(\mu+x)-g(\mu-x)]$, which has the sign of $x$. So the kNN-localised nearest-centroid rule in $d=1$ with exact local means would be the Bayes rule for every window size: in this model informative localisation has no approximation error to remove either, and what it gains or loses is estimation (Lemma~\ref{lem:approx}).
 \end{proof}
 
 \begin{proof}[Proof of Lemma~\ref{lem:majority}]
