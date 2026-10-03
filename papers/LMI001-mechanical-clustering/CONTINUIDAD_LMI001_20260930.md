@@ -140,3 +140,9 @@ Informe: `REFEREE_LMI001_ronda2_20261003.md` (cambios mayores, solo de texto; 0 
 4. Problema abierto 4.2 (vía dinámica) y caracterización de los pesos de tamaño (Next steps (b), (c)).
 5. Extensión: 12 páginas; 10 exigiría quitar la tabla de afirmaciones o pruebas.
 6. La subcarpeta `theory/`, si aparece con trabajo de otro agente, no se tocó ni se integró en esta pasada.
+
+## Integración de la teoría de invariancias y pesos de tamaño (03/10/2026) [EN CURSO]
+
+Integrador: lleva el manuscrito de v0.3 a v0.4 con el material de `theory/` (`invariances.tex`, `invariances_derivation.md`, `check_invariances.py`, `check_invariances_output.txt`), que **no** se modifica. Plan: (1) verificación independiente de cada demostración y chequeo propio en el scratchpad; (2) integración de los bloques P, A, B, C, D y de las frases indicadas en la cabecera de `invariances.tex`; (3) etiquetas "[proved here; not yet checked by an independent referee]"; (4) demostraciones largas a un apéndice, objetivo ≤ 14 páginas; (5) compilación y revisión visual; (6) esta sección, README y ficha.
+
+Estado: verificación en curso.
