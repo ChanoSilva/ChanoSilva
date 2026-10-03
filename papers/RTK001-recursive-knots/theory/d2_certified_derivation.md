@@ -1,5 +1,3 @@
-[EN CURSO]
-
 # RTK001 — Caso d = 2 de (H_c) con c = 1/2: demostración asistida por computador (aritmética de intervalos), y barrido conjunto de normalizaciones para la Conjetura 3.23
 
 Bloque de teoría/cómputo certificado, 03/10/2026. No modifica `manuscript/main.tex` ni ningún archivo existente.
@@ -75,7 +73,7 @@ z^{(j)} = r_1 3^j cos^{(j)}(3s). Con v = |D_1|, v v' = D_1·D_2, Π_⊥ = proyec
 
 * κ = |D_1 × D_2| / v³;
 * ν_pt = |v'|/v² = |D_1·D_2| / v³ (invariante por reparametrizaciones lineales, como dice el texto);
-* vector curvatura κ = Π_⊥D_2 / v²; de K''' = v''T + 3 v v' κ + v² κ' + (v'v κ ya incluido) se obtiene
+* vector curvatura κ = Π_⊥D_2 / v²; de K'' = v'T + v²κ y T' = vκ sale K''' = v''T + 3 v v' κ + v² κ', así que
   Π_⊥K''' = 3 v v' κ + v² Π_⊥ κ', luego Π_⊥ dκ/dt = (Π_⊥D_3 − 3 (D_1·D_2) Π_⊥D_2 / v²)/v² y
   μ_pt = |Π_⊥ dκ/dt| / v = |Π_⊥D_3 − 3(D_1·D_2)Π_⊥D_2/v²| / v³
   (en la notación del texto, κ_par' = Π_⊥ dκ/dt, porque d/dt(κ_1N_0 + κ_2B_0) = κ_1'N_0 + κ_2'B_0 − v|κ|² T).
@@ -137,7 +135,10 @@ en 1/4, 0.533 en 3/8).
 **Enunciado certificado.** Para el patrón (2,3), todo r_1 ∈ (0, 1/2], todo r_2 ∈ (0, r_1/2], toda fase
 φ_1, φ_2 y toda normal inicial de los marcos de K_0 y K_1:
 
-    r_2 κ_max(K_2) ≤ 1.187,  luego  minRad(K_2) ≥ 0.842 r_2 > r_2/2.
+    r_2 κ_max(K_2) ≤ 1.187,  luego  minRad(K_2) ≥ 0.842 r_2 > r_2/2
+
+(el valor exacto de la cota es 1.18616…, de modo que también minRad(K_2) ≥ 0.843 r_2; en el texto se usa 0.842 =
+floor(1/1.187) para que el redondeo sea transparente).
 
 Con el Teorema 3.12(c): **thick(K_2) ≥ r_2/2 para todo f ≤ 1/2, toda r_1 ≤ f y toda r_2 ≤ f thick(K_1)**;
 es decir, la Hipótesis 3.19 con c = 1/2 vale en d = 1 (demostrado a mano) y en d = 2 (demostración asistida por
@@ -150,8 +151,9 @@ cota ≤ 1.2017 calculada sobre el periodo completo sin simetría.
 
 **Bono para la Conjetura 3.23 (parte de curvatura) en d = 2.** Con r_2 ≤ f² (familia r_1 = f), r_2 κ_max(K_2) < 1,
 es decir minRad(K_2) > r_2, queda certificado para todo f ≤ 0.484375 (cajas de (B) con r_2 = b_i²); con r_2 ≤ r_1/2
-cualquiera, para r_1 ≤ 0.47168. En f = 1/2 la cota (1.19) no basta para minRad > r_2 (los valores suaves dan
-r_2κ_max(K_2) ≈ 0.33 en r_2 = 0.208: la cota de la Prop. 3.15 separa supremos y pierde un factor ≈ 3.6). La
+cualquiera, para r_1 ≤ 0.47168. En f = 1/2 la cota (1.19) no basta para minRad > r_2 (el cálculo suave NO certificado del integrador,
+`verify_H3.py`, da r_2κ_max(K_2) ≈ 0.40 en r_2 = 1/4: la Prop. 3.15 separa los cuatro supremos y usa m ≤ 2, y
+pierde un factor ≈ 3; este número no está en `certify_d2.json` y no debe pasar al texto). La
 parte de pares doblemente críticos de la conjetura **no** se certifica aquí.
 
 **Holonomía vía torsión (no usada en la cota).** Como κ(K_1) > 0, el marco de Frenet es periódico y el de
@@ -184,4 +186,58 @@ simbólicamente en `verify_H3.py` del integrador).
 
 ## 7. Barrido conjunto de normalizaciones (Conjetura 3.23)
 
-(sigue)
+**Planteamiento.** Girar la normal inicial del marco de Bishop de K_{d−1} un ángulo β equivale a φ_d ↦ φ_d + β
+(Def. 2.1), y φ_d + π da la misma curva (p = 2, q impar: se intercambian las hebras). La normalización del marco de
+K_0 solo mueve K_1 por una congruencia (§1). Por tanto el margen de d = 3 es una función de (β_1, β_2) ∈ [0, π)²,
+β_1 = φ_2 (marco de K_1), β_2 = φ_3 (marco de K_2). `experiments/phase_margin.py` solo barrió β_2 con β_1 = 0.
+Margen = (mínima distancia entre pares de vértices doblemente críticos de K_3 que **no** son antipodales de un mismo
+disco normal de K_2)/(2 r_3) − 1, en %, con exactamente el censo de `classify_pairs.py` (mismas funciones
+importadas). Un margen negativo significaría τ(K_3) < r_3 para esa normalización.
+
+**Protocolo (fijado antes de correr).** Cadena (2,3), f = 1/2, r_d = f τ(K_{d−1}) poligonal (como en el paper).
+(1) rejilla gruesa N_0 = 256: β_1 = kπ/18 (18 valores), β_2 = kπ/24 (24 valores); (2) dos refinamientos locales
+9 × 9 alrededor del mejor punto, con pasos h/4 y h/16; (3) N_0 = 512 en el minimizador conjunto, en el
+minimizador 1-D de `phase_margin.py` (0, 0.4654) y en (0, 0); (4) consistencia: los valores (0, 0) y (0, 0.4654)
+de N_0 = 256 se recalculan y se comparan con `results/phase_margin.json`.
+
+**Resultados** (`joint_phase_sweep.py`, 145 s de CPU, salida en `joint_phase_sweep_output.txt` y `.json`):
+
+* Consistencia: (0, 0) → 2.128287 % y (0, 0.4654) → 0.238843 %, idénticos a `phase_margin.json`.
+* Rejilla gruesa (432 pares): margen entre 0.2340 % y 13.165 %; mínimo en (β_1, β_2) = (π/3, 0.6545).
+  El mínimo sobre β_2 en función de β_1 tiene periodo π/3 (filas k, k+6, k+12 iguales a ≤ 0.049 puntos
+  porcentuales, diferencia debida a la rejilla gruesa en β_2): 0.243, 0.332, 0.654, 1.382, 0.673, 0.333 (k = 0..5).
+  Es decir, el valle está en β_1 ≡ 0 (mod π/3) — la normalización por defecto de K_1 ya está cerca del peor caso.
+* Refinamientos: minimizador conjunto (β_1, β_2) = (1.05811, 0.67086) (≡ β_1 = 0.0109 mod π/3), margen
+  **0.2333 %** a N_0 = 256 y **0.2317 %** a N_0 = 512 (convergencia: −0.0016 puntos). Para comparar, el
+  minimizador 1-D (0, 0.4654) da 0.2388 % / 0.2329 % (256 / 512) y la normalización por defecto 2.128 % / 2.027 %.
+* En las 594 evaluaciones a N_0 = 256 y las 3 a N_0 = 512: τ_3/r_3 = 1 (a 2·10⁻¹⁴), la clase del siguiente par
+  es siempre "far" (bases a arco ≥ πτ: el par a través de la curva, no un par local), **ningún margen negativo**.
+
+**Conclusión.** El barrido conjunto **no refuta** la Conjetura 3.23 ni la afirmación numérica f_*(3) ≥ 1/2 para las
+normalizaciones probadas: el mínimo conjunto (0.232 % a N_0 = 512) es apenas menor que el mínimo 1-D (0.233 %).
+El margen es estrecho pero positivo y estable en N_0. Advertencias: (i) es una rejilla con refinamiento local alrededor
+del mejor punto de la rejilla gruesa, no una minimización global certificada; por la periodicidad π/3 en β_1 los otros
+valles (β_1 ≈ 0, 2π/3) son copias del refinado (rejilla gruesa 0.243 % y 0.238 %); (ii) el margen es una cantidad
+poligonal (pares de vértices) y no está certificado; (iii) solo f = 1/2 (para f = 0.35 los márgenes 1-D son mayores,
+véase el texto). La Conjetura 3.23 se refiere a la normalización por defecto; el barrido refuerza la afirmación
+"para toda normalización probada" pasando de 20 normalizaciones a 594 pares.
+
+## 8. Cambios propuestos en el manuscrito (detalle en el Bloque B de `d2_certified.tex`)
+
+* Resumen e introducción: d = 2 deja de estar abierto (demostración asistida por computador); thick(K_d) ≥ r_d/2
+  demostrado para d ≤ 2.
+* Nueva Prop. `prop:d2cert` + Obs. `rem:d2method` tras la Obs. 3.18 (Bloque A, compilado en una copia de main.tex
+  en el scratchpad: 14 páginas, sin errores, sin referencias indefinidas ni cajas desbordadas).
+* Hip. 3.19: estado "demostrado en d = 1 y (asistido por computador) en d = 2"; párrafo de estado reescrito.
+* Cor. 3.20: incondicional para d ≤ 2.
+* Tabla de constantes: la columna 1/(rκ̂_d) en d = 2 queda superada por la cota certificada.
+* Tabla de afirmaciones: fila nueva (asistido por computador) para d = 2; la fila "abierto" pasa a d ≥ 3; la fila
+  del Cor. 3.20 y la de la conjetura se actualizan.
+* Limitaciones (1) y (4); Next steps (1) (se elimina la tarea d = 2, se añade la ruta d = 3 del §6) y (2).
+* Conj. 3.23 y párrafo de normalizaciones de la Sección 4: margen mínimo conjunto 0.232 % (N_0 = 512) en lugar de
+  0.23 % de un barrido 1-D; nada se refuta; parte de curvatura (minRad(K_2) > r_2) demostrada para f ≤ 0.484375.
+
+## 9. Cómputo
+
+`certify_d2.py`: 8 s de CPU. `joint_phase_sweep.py`: 145 s de CPU (+ pruebas de tiempo ≈ 2 s). Total ≈ 2.6 min de
+CPU. Sin aleatoriedad. Python 3.11.15, numpy 2.4.6, mpmath 1.3.0.
