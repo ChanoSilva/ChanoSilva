@@ -17,6 +17,6 @@ El mismo texto está en la constante `CRITERION_TEXT` de `experiments/selective_
 
 ## Hash del script que evalúa el criterio (v0.2, 03/10/2026)
 
-`sha256(experiments/selective_benchmark.py) = 40280a3e2ea55cb7306746f0ce33501b19f6e9000427fd09f9ff50ee8386848a`
+`sha256(experiments/selective_benchmark.py) = ad532282ca90cb1773f876e4e1c7ff52451c044dae1d5707d402d8ddd8fbc0e8`
 
 Comprobación: `sha256sum experiments/selective_benchmark.py`.

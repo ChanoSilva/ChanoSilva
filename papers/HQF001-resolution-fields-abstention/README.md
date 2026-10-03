@@ -8,7 +8,7 @@
 
 | Ruta | Contenido |
 |---|---|
-| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés, PAGES_PLACEHOLDER páginas con referencias) y bibliografía (26 entradas reales). |
+| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés, 10 páginas con referencias) y bibliografía (26 entradas reales). |
 | `manuscript/main.pdf` | PDF compilado con pdflatex + bibtex (sin errores ni referencias indefinidas). |
 | `manuscript/numbers.tex`, `manuscript/table_*.tex` | Macros y cuerpos de tabla **generados** desde `results/`; ningún número del texto está tipeado a mano. |
 | `experiments/selective_benchmark.py` | Benchmark de clasificación selectiva (v0.2): campo de resolución anisótropo (y 5 variantes/ablaciones) frente a 7 referencias ajustadas por CV interna, en 8 datasets, 15 folds pareados; por cada par: IC bootstrap percentil (B = 20 000, el del criterio), IC t de Student, IC t con corrección de Nadeau–Bengio, victorias/empates/derrotas, p de Wilcoxon, indicador de caso límite. |

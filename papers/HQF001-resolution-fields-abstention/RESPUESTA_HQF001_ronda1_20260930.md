@@ -72,7 +72,7 @@ Añadida la Prop. 3.2(c) (prototipos arbitrarios $\nu_c(x)$): $s_{A,\nu} - s = 2
 - **m12. Aceptar.** "in expectation" añadido en §2.1.
 
 ### Recortes y compilación
-Aplicados los recortes 1–7 del árbitro (resumen a ≈ 240 palabras; Tablas 2 y 3 fusionadas; figura forest eliminada; Tablas 7–8 y Figura 4 fuera del PDF; Remarks 3.3–3.4 fusionados; "Tie handling" y "Grids" reducidos; §6 en un párrafo + limitaciones + vías). Como v0.2 añade contenido (tres IC por par, Prop. 3.2(c), M2, m5, registro v0.1 de synth-classcov), el PDF pasó de 11 a 13 páginas antes de los recortes y quedó en PAGES_PLACEHOLDER tras ellos. Compilación: 0 errores, 0 referencias/citas indefinidas, `pdftotext main.pdf - | grep -c "??"` = 0.
+Aplicados los recortes 1–7 del árbitro (resumen a ≈ 240 palabras; Tablas 2 y 3 fusionadas; figura forest eliminada; Tablas 7–8 y Figura 4 fuera del PDF; Remarks 3.3–3.4 fusionados; "Tie handling" y "Grids" reducidos; §6 en un párrafo + limitaciones + vías). Como v0.2 añade contenido (tres IC por par, Prop. 3.2(c), M2, m5, registro v0.1 de synth-classcov), el PDF pasó de 11 a 13 páginas antes de los recortes y quedó en 10 páginas tras ellos. Compilación: 0 errores, 0 referencias/citas indefinidas, `pdftotext main.pdf - | grep -c "??"` = 0.
 
 ## Números que cambiaron (v0.1 → v0.2)
 
