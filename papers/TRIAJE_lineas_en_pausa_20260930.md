@@ -6,7 +6,7 @@ Criterio de triaje: una línea es **tractable aquí** si su siguiente paso es un
 
 ## A. Avanzadas en esta sesión (carpeta propia en `papers/`)
 
-Actualización 03/10/2026: las diez carpetas pasaron una ronda de árbitro interno independiente (tres en el caso de MRT001) y la respuesta del autor está aplicada (v0.2; MRT001 v0.5). Estado detallado en `papers/README.md`.
+Actualización 03/10/2026: las diez carpetas pasaron dos rondas de árbitro interno independiente (tres MRT001) con respuesta del autor aplicada (v0.3; MRT001 v0.6; TCD001 v0.4). En esta ronda se demostraron además la ley de realizadores (MRT001), la NP-completitud de la selección para p ≥ 2 (TCD001), el caso misma hebra de (H_c) (RTK001) y la co-NP-completitud de la pertenencia al cono de pesos (EQO001). Estado detallado en `papers/README.md`.
 
 | Código | Línea | Avance | Carpeta |
 |---|---|---|---|
