@@ -1,0 +1,450 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{float}
+\captionsetup{font=small,labelfont=bf}
+
+\IfFileExists{numbers.tex}{\input{numbers.tex}}{}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Sc}{S^{\mathrm{c}}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\sgn}{\operatorname{sgn}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\status}[1]{\textnormal{\textsf{\small [#1]}}}
+\newcommand{\Dm}{D\setminus R}
+\newcommand{\Tk}{T_k}
+\newcommand{\tsc}[1]{\textnormal{\textsc{#1}}}  % upright small caps also inside italic theorem text
+
+\title{\textbf{Fragility of Lasso Variable Selection:}\\[2pt]
+\large Removal Witnesses, Exact Deletion Tests, Non-Monotonicity and Computational Status}
+\author{Luciano Silva Alarco\\
+\small Pontificia Universidad Cat\'olica del Per\'u\\
+\small ORCID 0000-0002-3395-3129}
+\date{\small Working draft v0.7 (five rounds of internal review applied) --- research line TCD001 --- 3 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+We study how the set of variables selected by the Lasso changes when observations are removed. For data $D$, a penalty $\mu$ and a subsample penalty rule, a \emph{removal witness} for a target change (a variable leaves, one enters, or the selected set changes) is a set $R$ of observations whose removal produces the change; the \emph{fragility number} is the minimal $|R|$. We establish: (i)~an exact closed-form test of whether removing $R$ preserves the signed support (for $|R|=1$ under a constant penalty, a Cook--Belsley deletion formula with the Lasso residual), a cheap single-removal certificate and a loose polynomial one for $k$ removals; (ii)~non-monotonicity of witness families, by hand for $p=1$ and in exact arithmetic for $p=2$; (iii)~NP-completeness of deselection witnesses already for $p=1$, where selection witnesses and the signed fragility number (the one computed in the experiments) are found by sorting, and of selection witnesses for every fixed $p\ge2$, weak for integer data, and strong under a constant penalty when $p$ is part of the input; the signed fragility number for $p\ge2$ is open, except when nothing is selected on the full data and the minimiser is unique on the relevant subsamples (e.g.\ continuous designs); (iv)~on two synthetic Gaussian families with $n\le14$, exact fragility numbers by exhaustive search (one removal changes the selection in \EtwoBFracOne\%/\EtwoAFracOne\% of the instances) and three heuristics failing a criterion fixed in advance, since none is cheaper than one tenth of the exhaustive search. No novelty is claimed for the algebra.
+\end{abstract}
+
+\section{Introduction}\label{sec:intro}
+
+Variable selection with the Lasso~\citep{tibshirani1996} is known to be unstable: small changes of the data can change the selected set. This instability has been addressed statistically, by aggregating selections over random subsamples~\citep[stability selection,][]{meinshausen2010}, and asymptotically, by conditions under which the selected set is the true one with high probability~\citep{zhao2006,wainwright2009,buhlmann2011}. A different, finite-sample and combinatorial question is the subject of the research line to which this draft belongs (TCD001): \emph{how many observations must be removed, and which, for the selected set to change?} The question has a long history for the coefficients of least squares, where case-deletion diagnostics~\citep{cook1977,belsley1980} and the influence curve~\citep{hampel1974} measure the effect of dropping one observation, and where the worst-case effect of dropping a small fraction of the data has recently been studied under the name of approximate maximum influence perturbation~\citep{broderick2020}, through adaptive heuristics for influential sets~\citep{kuschnig2021}, through exact or certified algorithms for the sign of a regression coefficient~\citep{moitra2022,freund2023,rubinstein2025}, and, for estimands whose leave-set-out effect is linear-fractional, through a reduction of the most influential set to a sequence of top-$k$ problems~\citep{konrad2026}. For a \emph{selection}, the quantity of interest is discrete, so the influence function does not apply directly, and the natural object is a set of observations (a \emph{witness}) and its minimal size.
+
+The public record of the line states that non-monotone changes and connections to known combinatorial problems were identified, and that novelty, computational advantage and some certificates were not sufficiently established. This draft gives the line a precise core. Section~\ref{sec:setting} fixes the definitions; Section~\ref{sec:exact} proves the exact deletion test and two certificates; Section~\ref{sec:nonmono} shows that witness families are not closed under supersets; Section~\ref{sec:hardness} settles the complexity of witness existence in the cases listed in the abstract (from \tsc{Subset Sum} for fixed $p$, where a competing variable absorbs the target unless a subset sum is exact, and from \tsc{Exact Cover by 3-Sets} for $p$ in the input, Theorem~\ref{thm:strong}) and leaves open strong hardness for deselection and rule P (Conjecture~\ref{conj:strong-rest}) and the signed fragility number for $p\ge2$ with a nonempty support (Proposition~\ref{prop:signed-empty} treats the empty one under uniqueness); Section~\ref{sec:experiments} reports exact fragility numbers, non-monotone pairs, scaling with $n$, and three heuristics against the exact minimum under a criterion fixed before the runs. The paper is methodological: it makes no claim about real data and does not propose the fragility number as a replacement for stability selection (Remark~\ref{rem:stabsel}); every number in the text is produced by the scripts of Appendix~\ref{app:repro} with fixed seeds, and Section~\ref{sec:claims} lists all claims with their status.
+
+\section{Setting and definitions}\label{sec:setting}
+
+Let $D=(X,y)$ with $X\in\R^{n\times p}$, $y\in\R^n$, no intercept and columns as given. For $\mu>0$ the Lasso objective in sum form is
+\begin{equation}\label{eq:lasso}
+L_D(\beta;\mu)=\tfrac12\lVert y-X\beta\rVert_2^2+\mu\lVert\beta\rVert_1 ,
+\end{equation}
+which is the objective of scikit-learn's \texttt{Lasso} with \texttt{alpha}$=\mu/n$~\citep{pedregosa2011}. We write $\hat\beta(D;\mu)$ for its minimiser when it is unique, $S(D)=\supp\hat\beta$ for the \emph{support} (the selected set) and $(S,s)$ with $s=\sgn\hat\beta_S\in\{\pm1\}^S$ for the \emph{signed support}. Two facts from~\citet{tibshirani2013} are used throughout: if the columns of $X$ are in general position the minimiser is unique for every $y$ and $\mu>0$; and if the \emph{equicorrelation set} $E=\{j:\lvert X_j^{\top}(y-X\hat\beta)\rvert=\mu\}$ has $X_E$ of full column rank, the minimiser is unique and determined by the KKT system on $E$. Conversely a unique minimiser has $X_S$ of full column rank (Lemma~\ref{lem:rank}). \status{literature}
+
+\begin{definition}[Penalty rule]\label{def:rule}
+A \emph{penalty rule} assigns to the subsample $\Dm$ of size $n-k$ a penalty $\mu_k$. Two rules are used: the \emph{constant rule} (C), $\mu_k=\mu$, and the \emph{proportional rule} (P), $\mu_k=\mu(n-k)/n$, which keeps scikit-learn's \texttt{alpha} fixed and is what a practitioner does who refits ``with the same $\lambda$'' in the mean-squared-error parametrisation.
+\end{definition}
+
+\begin{definition}[Removal witness, fragility number]\label{def:witness}
+Fix $D$, $\mu$, a rule, and let $(S,s)$ be the signed support on $D$. A \emph{target} $\Pi$ is a property of the signed support of the Lasso on a subsample, relative to $(S,s)$; the targets used here are
+\begin{itemize}[leftmargin=2em,itemsep=1pt]
+\item \tsc{any}: $S(\Dm)\neq S$ (unsigned), or $(S(\Dm),s(\Dm))\neq(S,s)$ (signed);
+\item \tsc{leave}$(j)$, $j\in S$: $j\notin S(\Dm)$;
+\item \tsc{enter}$(j)$, $j\notin S$: $j\in S(\Dm)$.
+\end{itemize}
+A \emph{removal witness} for $\Pi$ is a nonempty proper subset $\emptyset\neq R\subsetneq[n]$ such that the Lasso on $\Dm$ with penalty $\mu_{|R|}$ has a unique minimiser and $\Pi$ holds. The \emph{witness family} is $W_\Pi(D)=\{R:\ R\text{ is a witness}\}$ and the \emph{fragility number} is $f_\Pi(D)=\min\{|R|:R\in W_\Pi(D)\}\ge1$, with $f_\Pi(D)=\infty$ if $W_\Pi(D)=\emptyset$.
+\end{definition}
+
+The signed and unsigned versions of \tsc{any} differ only when a coefficient changes sign without leaving the support; $f_{\tsc{any}}^{\mathrm{signed}}\le f_{\tsc{any}}$ and the experiments report how often the two differ. Witnesses for the signed target are decided without refitting by Proposition~\ref{prop:exact}.
+
+\begin{definition}[Monotonicity]\label{def:mono}
+The target $\Pi$ is \emph{monotone on $D$} if $R\in W_\Pi(D)$ and $R\subseteq R'\subsetneq[n]$ imply $R'\in W_\Pi(D)$. A \emph{non-monotone pair} is a pair $R\subsetneq R'$ with $R\in W_\Pi(D)$ and $R'\notin W_\Pi(D)$; for \tsc{leave}$(j)$ this means that $j$ leaves the support after removing $R$ and re-enters after removing $R'$.
+\end{definition}
+
+\begin{lemma}\label{lem:rank}\status{classical}
+If the minimiser of \eqref{eq:lasso} is unique with support $S$, then $X_S$ has full column rank.
+\end{lemma}
+\begin{proof}
+If $X_S\eta=0$ with $\eta\neq0$, extend $\eta$ by zeros. For $|t|$ small, $\hat\beta+t\eta$ has the same fit and the same signs on $S$, so $L_D(\hat\beta+t\eta)=L_D(\hat\beta)+t\mu\,s^{\top}\eta$. If $s^{\top}\eta\ne0$ one sign of $t$ decreases the objective, contradicting optimality; if $s^{\top}\eta=0$ every such $\hat\beta+t\eta$ is a minimiser, contradicting uniqueness. (This is part of the characterisation in~\citealp{tibshirani2013}.)
+\end{proof}
+
+\section{An exact deletion test and two certificates}\label{sec:exact}
+
+Throughout this section $\hat\beta$ is the unique minimiser on $D$ with signed support $(S,s)$, $|S|=s_0\ge0$ (we write $s_0$ for the size to avoid a clash with the sign vector), $X_S$ has full column rank, and
+\begin{gather*}
+A=X_S^{\top}X_S,\qquad r=y-X\hat\beta,\qquad c=X^{\top}r,\qquad V=X_SA^{-1}\ (\text{rows }v_i^{\top}),\\
+h_i=x_{iS}^{\top}A^{-1}x_{iS},\qquad \tilde X=(I-X_SA^{-1}X_S^{\top})X_{\Sc},
+\end{gather*}
+so that $c_S=\mu s$, $|c_j|\le\mu$ for $j\notin S$, $h_i\in[0,1]$ are the leverages of the active-set regression and $\tilde X_j$ is the residual of $X_j$ regressed on $X_S$. For $R\subseteq[n]$ with $|R|=k$ let $U=X_{R,S}\in\R^{k\times s_0}$ and $H_R=UA^{-1}U^{\top}$, the $R\times R$ block of the projection $X_SA^{-1}X_S^{\top}$.
+
+\begin{proposition}[Exact removal test]\label{prop:exact}\status{proved here}
+Let $R\subsetneq[n]$, $|R|=k$, and let $\mu'$ be the penalty on $\Dm$, $\delta=\mu-\mu'$.
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item If $I-H_R$ is singular, $(S,s)$ is not the signed support of a unique minimiser on $\Dm$.
+\item If $I-H_R$ is nonsingular, put $e_R=(I-H_R)^{-1}r_R$, $w=A^{-1}s$, $z=w+V_R^{\top}(I-H_R)^{-1}Uw$, and
+\begin{align}
+\tilde\beta_S&=\hat\beta_S-V_R^{\top}e_R+\delta z,\label{eq:betatilde}\\
+\tilde c_j&=c_j-\tilde X_{R,j}^{\top}e_R-\delta\,\bigl(X_j^{\top}X_S-X_{R,j}^{\top}U\bigr)z,\qquad j\notin S.\label{eq:ctilde}
+\end{align}
+Then $(S,s)$ is the signed support of a minimiser on $\Dm$ if and only if $s_j\tilde\beta_j>0$ for all $j\in S$ and $|\tilde c_j|\le\mu'$ for all $j\notin S$. If moreover $|\tilde c_j|<\mu'$ for all $j\notin S$, the minimiser on $\Dm$ is unique and equals $\tilde\beta$ (extended by zeros).
+\end{enumerate}
+Under the constant rule $\delta=0$ and the last terms of \eqref{eq:betatilde}--\eqref{eq:ctilde} vanish.
+\end{proposition}
+
+\begin{proof}
+A vector $\beta$ with signed support $(S,s)$ minimises the objective on $\Dm$ if and only if it satisfies the KKT conditions
+\begin{equation}\label{eq:kkt}
+X_{S,-R}^{\top}\bigl(y_{-R}-X_{S,-R}\beta_S\bigr)=\mu's,\qquad \bigl|X_{j,-R}^{\top}(y_{-R}-X_{S,-R}\beta_S)\bigr|\le\mu'\ (j\notin S),\qquad s_j\beta_j>0\ (j\in S).
+\end{equation}
+The matrix of the linear system is $A'=X_{S,-R}^{\top}X_{S,-R}=A-U^{\top}U$, and by the matrix determinant lemma $\det A'=\det A\cdot\det(I-UA^{-1}U^{\top})=\det A\cdot\det(I-H_R)$.
+
+(a) If $I-H_R$ is singular then $X_{S,-R}$ is rank deficient, and by Lemma~\ref{lem:rank} no unique minimiser on $\Dm$ has support $S$.
+
+(b) If $I-H_R$ is nonsingular, the KKT equation on $D$, $X_S^{\top}y-\mu s=A\hat\beta_S$, and $r_R=y_R-U\hat\beta_S$ turn the linear system into $\beta_S=A'^{-1}(A'\hat\beta_S-U^{\top}r_R+\delta s)$. The Sherman--Morrison--Woodbury identity~\citep{sherman1950,woodbury1950,hager1989} gives $A'^{-1}=A^{-1}+V_R^{\top}(I-H_R)^{-1}V_R$, hence $A'^{-1}U^{\top}=V_R^{\top}(I-H_R)^{-1}$ (as $V_RU^{\top}=H_R$) and $A'^{-1}s=z$, which is \eqref{eq:betatilde}. For $j\notin S$ the full-length residual of $\hat\beta_S-V_R^{\top}e_R$ is $\tilde r=r+X_SV_R^{\top}e_R$, with $R$-block $r_R+H_Re_R=e_R$, so $X_{j,-R}^{\top}\tilde r_{-R}=X_j^{\top}\tilde r-X_{R,j}^{\top}e_R=c_j-\tilde X_{R,j}^{\top}e_R$; the term $\delta z$ adds $-\delta X_{j,-R}^{\top}X_{S,-R}z=-\delta(X_j^{\top}X_S-X_{R,j}^{\top}U)z$, which is \eqref{eq:ctilde}. The equivalence is now \eqref{eq:kkt}. If the inactive inequalities are strict, the equicorrelation set on $\Dm$ is $S$ and $X_{S,-R}$ has full column rank, so the minimiser is unique~\citep{tibshirani2013}.
+\end{proof}
+
+The test costs $O(k^3+pk)$ per set $R$ after the $O(nps_0+s_0^3)$ precomputation of $V$, $h$, $\tilde X$ and $c$; Section~\ref{sec:experiments} measures its throughput against refits. Boundary cases ($s_j\tilde\beta_j=0$ or $|\tilde c_j|=\mu'$) have probability zero for continuous designs and are counted, not hidden, in the validation.
+
+The test decides whether $(S,s)$ is preserved, not whether $R$ is a witness. For the signed \tsc{any} target, failure of the test (or case (a)) identifies a witness provided the minimiser on $\Dm$ is unique: for designs with a continuous distribution this holds for every $R$ with probability one (\citealp{tibshirani2013}), which is how the exhaustive searches of Section~\ref{sec:experiments} use the test; for integer data (Example~\ref{ex:two}) uniqueness is certified in exact arithmetic. For the other targets the flagged sets are refitted.
+
+\begin{corollary}[Single removal; a stability margin]\label{cor:single}\status{proved here}
+Under the constant rule let $R=\{i\}$ and suppose $h_i<1$ (equivalently, $X_{S,-i}$ has full column rank; $h_i=1$ is the rank-deficient case of Proposition~\ref{prop:exact}(a), in which $(S,s)$ is not preserved). Put $e_i=r_i/(1-h_i)$. Then
+\[
+\tilde\beta_S=\hat\beta_S-v_i\,e_i,\qquad \tilde c_j=c_j-\tilde x_{ij}\,e_i\quad(j\notin S),
+\]
+so removing observation $i$ preserves $(S,s)$ if and only if $s_j(\hat\beta_j-v_{ij}e_i)>0$ for $j\in S$ and $|c_j-\tilde x_{ij}e_i|<\mu$ for $j\notin S$ (boundary cases aside). With $m=\min_{j\in S}|\hat\beta_j|$ and $\gamma=\min_{j\notin S}(\mu-|c_j|)$ (if $S=\emptyset$, $m=+\infty$ and the first term below is $0$; if $\Sc=\emptyset$, $\gamma=+\infty$ and the second term is $0$; $\gamma=0$ is a KKT boundary case and is excluded), define the \emph{instability index}
+\[
+\iota_i=|e_i|\max\Bigl\{\frac{\lVert v_i\rVert_\infty}{m},\ \frac{\max_{j\notin S}|\tilde x_{ij}|}{\gamma}\Bigr\}\quad\text{if }h_i<1,\qquad \iota_i=+\infty\quad\text{if }h_i=1 .
+\]
+Then $\iota_i<1$ implies that removing $i$ preserves $(S,s)$, and $\max_i\iota_i<1$ implies $f^{\mathrm{signed}}_{\tsc{any}}(D)\ge2$. Both statements are checkable in $O(np)$ time after the precomputation.
+\end{corollary}
+\begin{proof}
+Specialise Proposition~\ref{prop:exact} to $k=1$: $H_R=h_i$ and $I-H_R=1-h_i$ is nonsingular exactly when $h_i<1$, since $\det A'=(1-h_i)\det A$. The sufficient condition is the triangle inequality applied to \eqref{eq:betatilde}--\eqref{eq:ctilde}; when $h_i=1$ the removal does not preserve $(S,s)$ by part (a), consistently with $\iota_i=+\infty$. The hypothesis is not vacuous: for $n=p=2$, $X=I_2$, $y=(3,3)^{\top}$, $\mu=1$ the minimiser $\hat\beta=(2,2)^{\top}$ is unique and $h_1=h_2=1$.
+\end{proof}
+
+\begin{remark}[Relation to case-deletion diagnostics]\label{rem:cook}
+The Lasso residual $r$ differs from the least-squares residual of $y$ on $X_S$ by $\mu X_SA^{-1}s$, and $e_i=r_i/(1-h_i)$ is the leave-one-out residual of the fixed-support fit. Under rule C, $v_ie_i=A^{-1}x_{iS}\,e_i$ is the DFBETA formula of~\citet{belsley1980} for the regression of $y$ on $X_S$ with $r_i$ in place of the least-squares residual; $\tilde c_j-c_j=-\tilde x_{ij}e_i$ has no least-squares counterpart and decides entries. Cook's distance~\citep{cook1977} of the active-set regression, proportional to $h_ie_i^2$, is used below as a target-agnostic heuristic. \status{classical}
+\end{remark}
+
+\begin{proposition}[Polynomial certificate for $k$ removals, constant rule]\label{prop:cert}\status{proved here}
+For a vector $a\ge0$ let $\Tk(a)$ be the sum of its $k$ largest entries. Suppose $\Tk(h)<1$. Then for every $R$ with $|R|\le k$ the matrix $I-H_R$ is nonsingular and, with $\tilde\beta$ as in \eqref{eq:betatilde} and $\delta=0$,
+\begin{align*}
+|\tilde\beta_j-\hat\beta_j|&\le B_j(k):=\Tk\bigl(|v_{\cdot j}|\odot|r|\bigr)+\sqrt{\Tk(v_{\cdot j}^2)\,\Tk(r^2)}\;\frac{\Tk(h)}{1-\Tk(h)}\qquad(j\in S),\\
+|\tilde c_j-c_j|&\le C_j(k):=\Tk\bigl(|\tilde x_{\cdot j}|\odot|r|\bigr)+\sqrt{\Tk(\tilde x_{\cdot j}^2)\,\Tk(r^2)}\;\frac{\Tk(h)}{1-\Tk(h)}\qquad(j\notin S).
+\end{align*}
+Consequently, if $B_j(k)<|\hat\beta_j|$ for all $j\in S$ and $C_j(k)<\mu-|c_j|$ for all $j\notin S$, then no removal of at most $k$ observations changes the signed support: $f^{\mathrm{signed}}_{\tsc{any}}(D)\ge k+1$. The certificate costs $O(nps_0+pn\log n)$ (the $T_k$ of $p+1$ vectors of length $n$ are read off after sorting each once; $O(np)$ with selection instead of sorting) and is monotone in $k$; we write $k^\ast(D)$ for the largest certified $k$ ($k^\ast=0$ if none).
+\end{proposition}
+\begin{proof}
+$H_R$ is a principal submatrix of a projection, so $0\preceq H_R\preceq I$ and $\lambda_{\max}(H_R)\le\tr H_R=\sum_{i\in R}h_i\le\Tk(h)<1$; hence $I-H_R$ is nonsingular with $\lVert(I-H_R)^{-1}\rVert_2\le(1-\Tk(h))^{-1}$ and $\lVert e_R\rVert_2\le\lVert r_R\rVert_2/(1-\Tk(h))\le\sqrt{\Tk(r^2)}/(1-\Tk(h))$. From $(I-H_R)e_R=r_R$ we have $e_R=r_R+H_Re_R$, so
+\begin{gather*}
+\tilde\beta_j-\hat\beta_j=-v_{R,j}^{\top}e_R=-\sum_{i\in R}v_{ij}r_i-v_{R,j}^{\top}H_Re_R ,\\
+\bigl|v_{R,j}^{\top}H_Re_R\bigr|\le\lVert v_{R,j}\rVert_2\lVert H_R\rVert_2\lVert e_R\rVert_2\le\frac{\sqrt{\Tk(v^2_{\cdot j})\,\Tk(r^2)}\;\Tk(h)}{1-\Tk(h)},
+\end{gather*}
+and the first term is bounded by $\Tk(|v_{\cdot j}|\odot|r|)$. The bound for $\tilde c_j$ is identical with $\tilde x_{\cdot j}$ in place of $v_{\cdot j}$. Under the hypotheses, every $R$ with $|R|\le k$ satisfies the conditions of Proposition~\ref{prop:exact}(b) strictly, so the signed support is preserved.
+\end{proof}
+
+The first term of $B_j(k)$ is the additive, ``sum of single-deletion effects'' approximation on which sorted-influence heuristics rest~\citep{broderick2020}; the second term controls the interaction between removed observations. Since $\sum_ih_i=s_0$, the hypothesis $\Tk(h)<1$ restricts the certificate to $k<n/s_0$ roughly, and the experiments show that it is loose (Section~\ref{sec:experiments}). Certified lower bounds on the number of removals that can overturn a least-squares conclusion, for far larger problems, are given by~\citet{rubinstein2025}; Proposition~\ref{prop:cert} is a crude bound of this kind for the Lasso signed support.
+
+\begin{remark}[Stability selection]\label{rem:stabsel}\status{proved here}
+Stability selection~\citep{meinshausen2010} refits on subsamples of size $\lfloor n/2\rfloor$ with a fixed penalty and reports the selection frequency $\Pi_j$ of variable $j$. In the original paper the Lasso is $\lVert Y-X\beta\rVert_2^2+\lambda\lVert\beta\rVert_1$ with $\lambda$ fixed across subsamples, i.e.\ rule C (with $\mu=\lambda/2$); software that keeps a per-observation penalty fixed uses rule P. A subsample of size $\lfloor n/2\rfloor$ is $\Dm$ with $|R|=\lceil n/2\rceil$. Hence, if the minimiser on every such subsample is unique (with probability one for continuous designs), $f_{\tsc{leave}(j)}(D)>\lceil n/2\rceil$ under the rule used implies $\Pi_j=1$; without uniqueness a subsample on which the solver drops $j$ need not be a witness. The converse does not follow, since by Section~\ref{sec:nonmono} a superset of size $\lceil n/2\rceil$ of a smaller witness need not be a witness (we did not search for a counterexample).
+\end{remark}
+
+\section{Non-monotonicity}\label{sec:nonmono}
+
+\begin{proposition}\label{prop:nonmono}
+For each of the targets \tsc{leave}, \tsc{enter} and \tsc{any} there exist data $D$ and $\mu$ for which the target is not monotone, under both penalty rules.
+\end{proposition}
+
+\begin{example}[$p=1$, by hand]\label{ex:one}\status{proved here}
+Let $x=(1,1,1)^{\top}$, $y=(2,-2,2)^{\top}$, $\mu=\tfrac32$. For $p=1$ the minimiser is $\hat\beta=\sgn(x^{\top}y)(|x^{\top}y|-\mu)_+/\lVert x\rVert^2$, so the variable is selected iff $|x^{\top}y|>\mu$. On $D$, $x^{\top}y=2>\tfrac32$: selected. On $D\setminus\{1\}$, $x^{\top}y=0$: not selected under rule C ($\mu'=\tfrac32$) and under rule P ($\mu'=1$). On $D\setminus\{1,2\}$, $x^{\top}y=2$: selected under rule C ($2>\tfrac32$) and under rule P ($\mu''=\tfrac12$). Thus $\{1\}$ is a \tsc{leave} witness and its superset $\{1,2\}$ is not: $R=\{1\}$, $R'=\{1,2\}$ is a non-monotone pair for \tsc{leave} and for \tsc{any}. For \tsc{enter} take $x=(1,1,1,1)^{\top}$, $y=(2,-2,2,-2)^{\top}$, $\mu=\tfrac32$: the variable is not selected on $D$ ($x^{\top}y=0$), is selected after removing observation $2$ ($x^{\top}y=2$, above $\mu'=\tfrac32$ under rule C and $\mu'=\tfrac98$ under rule P), and is not selected after removing $\{2,3\}$ ($x^{\top}y=0$); both removal sets are proper. Both examples are checked in exact arithmetic by the script of Appendix~\ref{app:repro} (\ExOneChecks{} data-set/rule combinations).
+\end{example}
+
+The next example shows a mechanism specific to selection: a variable is excluded not because its own correlation with the response drops below the penalty, but because a competing variable absorbs it.
+
+\begin{example}[$p=2$, competition; exact arithmetic]\label{ex:two}\status{computationally verified (exact arithmetic)}
+Let $n=5$, $p=2$, $\mu=\ExTwoMu$ and
+\[
+\bigl[\,X\ \big|\ y\,\bigr]=\begin{bmatrix}\ExTwoRows\end{bmatrix}\quad\text{(rows are observations; last column is $y$)},
+\]
+with rule C, $R=\{\ExTwoR\}$ and $R'=\{\ExTwoRp\}$. Table~\ref{tab:ex2} lists, for $D$, $\Dm$ and $D\setminus R'$, the signed support returned by the homotopy solver and the exact rational solution of the KKT system on that support, with all inequalities checked strictly in exact arithmetic (so the support is that of the unique minimiser). Variable~1 is selected on $D$, leaves on $\Dm$ while variable~2 enters, and returns on $D\setminus R'$. The exclusion is due to competition: on $\Dm$ the marginal correlation $|x_1^{\top}y|=\ExTwoDRMargOne$ exceeds $\mu=\ExTwoMu$, so with $p=1$ variable~1 would be selected, but the residual correlation after fitting variable~2 is $c_1=\ExTwoDRCValOne$, below $\mu$. The instance was found by a seeded search over integer data in $\{-2,\dots,2\}^{5\times2}\times\{-3,\dots,3\}^5$ and rational $\mu$ (\ExTwoTrials{} trials); all \ExTwoSubsets{} removal sets with $|R|\le n-2$ (including $R=\emptyset$) are exactly verifiable (no KKT ties), and among them there are \ExTwoPairs{} non-monotone pairs for \tsc{leave}$(1)$.
+\end{example}
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lllll}
+\toprule
+data set & support & exact coefficients & exact inactive $c_j$ & marginal $x_1^{\top}y$, $x_2^{\top}y$\\
+\midrule
+$D$ & $\{\ExTwoDSupp\}$ & $\ExTwoDBeta$ & $\ExTwoDC$ & $\ExTwoDMargOne$, $\ExTwoDMargTwo$\\
+$\Dm$, $R=\{\ExTwoR\}$ & $\{\ExTwoDRSupp\}$ & $\ExTwoDRBeta$ & $\ExTwoDRC$ & $\ExTwoDRMargOne$, $\ExTwoDRMargTwo$\\
+$D\setminus R'$, $R'=\{\ExTwoRp\}$ & $\{\ExTwoDRpSupp\}$ & $\ExTwoDRpBeta$ & $\ExTwoDRpC$ & $\ExTwoDRpMargOne$, $\ExTwoDRpMargTwo$\\
+\bottomrule
+\end{tabular}
+\caption{Example~\ref{ex:two} in exact arithmetic ($\mu=\ExTwoMu$, rule C): KKT solution on the listed support; $|c_j|<\mu$ strictly for the inactive $c_j=X_j^{\top}(y-X\hat\beta)$ certifies the unique minimiser.}
+\label{tab:ex2}
+\end{table}
+
+By non-monotonicity, a minimal witness cannot be found by growing a set until the target holds and then pruning; exhaustive search by increasing size, or a heuristic followed by verification, are the honest options at small $n$.
+
+\section{Computational status}\label{sec:hardness}
+
+For $p=1$, with $a_i=x_iy_i$ and $T=\sum_ia_i$, the variable is selected on $\Dm$ iff $\bigl|\sum_{i\notin R}a_i\bigr|>\mu_{|R|}$: the problem is about sums of subfamilies of the $a_i$, and the directions of change behave very differently.
+
+\begin{theorem}[$p=1$]\label{thm:hard}\status{proved here}
+Consider instances with $p=1$, rational data and rational $\mu>0$, under either penalty rule.
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item \tsc{Deselection-Witness}: given $(x,y,\mu)$ with the variable selected on $D$, decide whether some nonempty proper $R\subsetneq[n]$ deselects it. This problem is NP-complete. Consequently computing $f_{\tsc{leave}}$ (equivalently the unsigned $f_{\tsc{any}}$, since for $p=1$ every unsigned change is a deselection) is NP-hard, already for $p=1$, hence for the general problem.
+\item \tsc{Selection-Witness}: given $(x,y,\mu)$ with the variable not selected on $D$, the minimal $|R|$ such that it is selected on $\Dm$ can be computed in $O(n\log n)$ time.
+\item The signed fragility number $f^{\mathrm{signed}}_{\tsc{any}}$ can be computed in $O(n\log n)$ time.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+(a) Membership in NP: given $R$, compute $\sum_{i\notin R}a_i$ and compare with $\mu_{|R|}$. Hardness: reduce from \tsc{Subset Sum}~\citep{karp1972,garey1979}: given positive integers $b_1,\dots,b_m$ and a target $t\ge1$, decide whether some subfamily sums to $t$; without loss of generality $t<\sum_ib_i$ (otherwise the answer is immediate). Set $n=m+1$, $x_i=1$ for all $i$, $y_i=b_i$ for $i\le m$, $y_{m+1}=-t$ and $\mu=\tfrac12$. Then $a=(b_1,\dots,b_m,-t)$ and $T=\sum_ib_i-t\ge1>\mu\ge\mu_k$ for every $k$, so the variable is selected on $D$. For a nonempty proper $R$ with $K=[n]\setminus R\neq\emptyset$, the variable is deselected on $\Dm$ iff $|\sum_{i\in K}a_i|\le\mu_{|R|}\le\tfrac12$, iff $\sum_{i\in K}a_i=0$ because the sum is an integer. If $m+1\notin K$ the sum is a nonempty sum of positive integers; hence $m+1\in K$ and $\sum_{i\in K\setminus\{m+1\}}b_i=t$, which is a solution of the \tsc{Subset Sum} instance, and conversely every solution $K'$ gives the witness $R=[n]\setminus(K'\cup\{m+1\})$, nonempty because $t<\sum_ib_i$ forces $K'\neq[m]$, and proper because $m+1\notin R$. The reduction is polynomial and works verbatim for rule P, since $\mu_k=\tfrac12(n-k)/n<1$.
+
+(b) Suppose $|T|\le\mu$. For $k$ fixed, over all $R$ with $|R|=k$ the sum $\sum_{i\notin R}a_i$ ranges over $[T-\sigma^+_k,\,T-\sigma^-_k]$ where $\sigma^+_k$ and $\sigma^-_k$ are the sums of the $k$ largest and of the $k$ smallest $a_i$, and both endpoints are attained. Hence a witness of size $k$ exists iff $T-\sigma^-_k>\mu_k$ or $T-\sigma^+_k<-\mu_k$. After sorting the $a_i$ once, all $\sigma^\pm_k$ are prefix sums and the smallest feasible $k\le n-1$ is found in $O(n)$.
+
+(c) For $p=1$ the minimiser on every $\Dm$ is unique (the objective is strictly convex if $x_K\ne0$, and $\mu'|\beta|$ plus a constant otherwise). If $|T|\le\mu$, a signed \tsc{any} witness is a selection witness: use (b). If $|T|>\mu$, let $s=\sgn T$; the signed support on $\Dm$ is still $(\{1\},s)$ iff $s\sum_{i\notin R}a_i>\mu_{|R|}$. Over $|R|=k$ the minimum of $s\sum_{i\notin R}a_i$ is $sT-\sigma^{(s)}_k$, with $\sigma^{(s)}_k$ the sum of the $k$ largest values $sa_i$, so a witness of size $k$ exists iff $sT-\sigma^{(s)}_k\le\mu_k$; one sort gives all $\sigma^{(s)}_k$. (Exhaustive check in exact arithmetic: \SignedPOneAgree/\SignedPOneTotal{} random instances.)
+\end{proof}
+
+\begin{remark}[What the theorem does and does not say]\label{rem:hardness}
+(i) The hardness is inherited from \tsc{Subset Sum} and is therefore \emph{weak} for integer data: a dynamic programme over partial sums computes $f_{\tsc{leave}}$ in time polynomial in $n$ and in $\sum_i|a_i|$ (with the cardinality as a second state, which rule P needs also for the existence question), so strong NP-hardness (hardness for numbers polynomially bounded in $n$) is excluded for $p=1$ and integer data unless P${}={}$NP. (ii) For $p\ge2$, \tsc{leave} and unsigned \tsc{any} inherit the hardness of (a) by padding with zero columns; Theorem~\ref{thm:enter2} adds \tsc{enter}, and Proposition~\ref{prop:pseudo} extends (i) to integer data and every fixed $p$. (iii) The analogous question for the sign of a least-squares coefficient is the subject of~\citet{moitra2022}, \citet{freund2023} and~\citet{rubinstein2025}; the first decide whether $k$ removals change the sign in time $n^{O(d^3)}$ for $d$ regressors and exclude $n^{o(d)}$ algorithms under the Exponential Time Hypothesis. A sign change is one-sided, whereas a deselection asks a correlation to enter the two-sided window $|c_j|\le\mu$, which is what \tsc{Subset Sum} encodes. For maximum feasible subsystems see~\citet{amaldi1995,amaldi1998}; we rely on no hardness statement from these papers and do not claim that the reductions are new. (iv) The reductions say nothing about the signed \tsc{any} target of Section~\ref{sec:experiments}: padding (c) with zero columns gives $O(n\log n)$, and in the constructions of Theorems~\ref{thm:enter2} and~\ref{thm:strong} signed \tsc{any} witnesses always exist (removing all items, or all triples, changes the support). Its complexity for $p\ge2$ is open (it is in NP, and pseudo-polynomial for integer data and fixed $p$), except when nothing is selected on $D$: then it is at least the least of $p$ one-column selection-witness numbers, and equal to it under uniqueness (Proposition~\ref{prop:signed-empty}); without uniqueness (e.g.\ integer data with repeated or tied columns) it can be strict. \status{literature / not claimed}
+\end{remark}
+
+\paragraph{Selection witnesses for $p\ge2$.} For $p=2$ the residual correlation of an inactive variable has a kink: it grows with the kept data while a competing variable is inactive, and the competitor absorbs it once active. In the construction (Appendix~\ref{app:proofs}) the slack $\Delta=\sigma-t$ between a kept subset sum and the target is an integer and the kink leaves a window of width less than one around $\Delta=0$, so the inactive variable enters exactly when a subset sum hits the target: the competition of Example~\ref{ex:two} made exact.
+
+\begin{lemma}[Entry criterion]\label{lem:entry}\status{proved here}
+Let $R\subsetneq[n]$, $K=[n]\setminus R$, $\mu'=\mu_{|R|}$, $j\in[p]$, and $\gamma_j=X_{K,j}^{\top}r_{-j}$, where $r_{-j}=y_K-X_{K,-j}b$ for any minimiser $b$ of the Lasso on $(X_{K,-j},y_K)$ with penalty $\mu'$ (all minimisers give the same $r_{-j}$). (a)~If $|\gamma_j|\le\mu'$, some minimiser on $\Dm$ has $\beta_j=0$, and $R$ is not a witness for \tsc{enter}$(j)$. (b)~If $|\gamma_j|>\mu'$, no minimiser on $\Dm$ has $\beta_j=0$; if the minimiser is unique, $j\in S(\Dm)$. For $p=2$, $j=2$ and $G_{11}:=\lVert X_{K,1}\rVert^2>0$, $\gamma_2=q_2-G_{12}\beta_1^\ast$ with $G_{12}=X_{K,1}^{\top}X_{K,2}$, $q_l=X_{K,l}^{\top}y_K$ and $\beta_1^\ast=\sgn(q_1)(|q_1|-\mu')_+/G_{11}$.
+\end{lemma}
+
+\begin{theorem}[Selection witnesses, fixed $p\ge2$]\label{thm:enter2}\status{proved here}
+Fix $p\ge2$ and either penalty rule. \tsc{Selection-Witness}: given rational $(X,y,\mu)$ with $p$ columns, a unique minimiser on $D$ and $j\notin S(D)$, decide whether some nonempty proper $R\subsetneq[n]$ is a witness for \tsc{enter}$(j)$. This problem is NP-complete, also for integer data and already on instances on which the Lasso has a unique minimiser on $\Dm$ for every $R\subsetneq[n]$. Consequently computing $f_{\tsc{enter}(j)}$ is NP-hard for every fixed $p\ge2$.
+\end{theorem}
+\noindent The conditions on $D$ are checked in polynomial time (proof of membership in NP), so instances violating them can be rejected; equivalently, the problem may be read as a promise problem. The reduction uses item rows $(1,\rho)$ with responses $b_i$ and a gadget row $(u,\kappa u)$, $\rho<1<\kappa$: variable~2 enters iff the gadget is kept and the kept $b_i$ sum to $t$.
+
+\begin{proposition}[Pseudo-polynomial algorithm for fixed $p$]\label{prop:pseudo}\status{proved here}
+Fix $p\ge1$. For integer data with $|x_{ij}|,|y_i|\le M$, rational $\mu>0$, either rule and any target $\Pi$ of Definition~\ref{def:witness}, $f_\Pi(D)$, and in particular whether $W_\Pi(D)=\emptyset$, can be computed with $O\bigl(n^2(2nM^2+1)^{p(p+3)/2}\bigr)$ additions of integers of $O(\log(nM))$ bits, plus one test per reachable state whose cost depends only on $p$ and is polynomial in the bit lengths of $nM$ and $\mu$.
+\end{proposition}
+\noindent\emph{Idea.} The target depends on $\Dm$ only through $(|K|,G_K,q_K)$, $G_K=X_K^{\top}X_K$, $q_K=X_K^{\top}y_K$; a dynamic programme over the rows enumerates the reachable states.
+
+\begin{corollary}[For integer data the hardness is weak for every fixed $p$]\label{cor:weak}\status{proved here}
+For every fixed $p$, \tsc{Deselection-Witness} and the existence of an unsigned \tsc{any} witness (Theorem~\ref{thm:hard}(a) padded with zero columns, which never enter) are NP-complete, and so is \tsc{Selection-Witness} for fixed $p\ge2$. For integer data none of them is NP-hard in the strong sense unless P${}={}$NP, so strong NP-hardness for integer data requires $p$ to grow with the input.
+\end{corollary}
+\begin{proof}
+Hardness is Theorems~\ref{thm:hard}(a) and~\ref{thm:enter2}, membership in NP as in the proof of Theorem~\ref{thm:enter2}. Proposition~\ref{prop:pseudo} gives an algorithm polynomial in $n$, $M$ and the bit length of $\mu$, which a strongly NP-hard problem does not admit unless P${}={}$NP~\citep{garey1979}.
+\end{proof}
+
+\begin{remark}[Exhaustive check]\label{rem:verify2}\status{computationally verified (exact arithmetic)}
+Theorem~\ref{thm:enter2} and Proposition~\ref{prop:pseudo} were checked exhaustively in rational arithmetic (\HardEquivOk/\HardPairs{} instance--rule pairs, \HardSubsets{} subsamples; Appendix~\ref{app:repro}).
+\end{remark}
+
+\paragraph{Strong hardness with growing $p$.} By Corollary~\ref{cor:weak}, strong NP-hardness for integer data needs $p$ to grow; for selection witnesses under rule C it holds. From an \tsc{Exact Cover by 3-Sets} instance we build one \emph{absorbing} column and one heavy \emph{anchor} row per element, one row per triple, and a target column equal to $\rho$ times the average absorber plus a small deviation on the anchors (Appendix~\ref{app:proofs}). Dominant anchors make the absorber coefficients nonnegative with a support read off integers (Lemma~\ref{lem:absorb}), a missing anchor costs a fixed amount in the target correlation, and an absorber without its anchor stays inactive because $\mu$ exceeds every coverage; so the target enters iff all anchors are kept and the kept triples partition the elements.
+
+\begin{theorem}[Selection witnesses with growing $p$]\label{thm:strong}\status{proved here}
+Under the constant rule, \tsc{Selection-Witness} with $p$ part of the input is NP-complete in the strong sense. It is NP-hard already for integer data with $y_i\in\{1,3\}$ and $|x_{ij}|\le\mu\le72n^4$, on instances with a unique minimiser on $\Dm$ for every $R\subsetneq[n]$ (so also on $D$).
+\end{theorem}
+\begin{corollary}\label{cor:strong-f}\status{proved here}
+Under rule C, with $p$ in the input, computing $f_{\tsc{enter}(j)}$ is NP-hard in the strong sense: unless P${}={}$NP no algorithm runs in time polynomial in $n$, $p$ and $M=\max_{i,j}(|x_{ij}|,|y_i|,\mu)$ (integer data and $\mu$), so the bound of Proposition~\ref{prop:pseudo} cannot be made polynomial in $(n,p,M)$. Whether a bound $g(p)\,\mathrm{poly}(n,M)$ is possible (fixed-parameter tractability in $p$ for unary data) is not addressed.
+\end{corollary}
+
+\begin{remark}[Exhaustive check; review status]\label{rem:verify-strong}\status{computationally verified (exact arithmetic)}
+On \StrongInst{} \tsc{X3C} instances (\StrongYes{} yes, \StrongNo{} no) the integer construction was solved in rational arithmetic on all \StrongSubsets{} subsamples: a witness exists iff the answer is yes in every instance, and Lemma~\ref{lem:absorb}, the characterisation and uniqueness never fail (Appendix~\ref{app:repro}). Theorem~\ref{thm:strong} was checked by an independent internal referee (round 4), by hand and with a separate exact computation.
+\end{remark}
+
+\begin{conjecture}[What remains open]\label{conj:strong-rest}\status{conjectural}
+With $p$ part of the input, \tsc{Deselection-Witness} and the existence of an unsigned \tsc{any} witness are NP-hard in the strong sense under either rule, and so is \tsc{Selection-Witness} under rule P.
+\end{conjecture}
+\noindent Theorem~\ref{thm:strong} does not settle these cases: in its construction \tsc{any} witnesses are easy to find; for \tsc{leave} the target's entry would have to become another variable's exit with uniqueness kept; under rule P, $\mu'$ depends on $|K|$ and breaks the exact ties $c_e=\mu'$ at a cover. Whether data in $\{-1,0,1\}$ suffice is open, even for Theorem~\ref{thm:strong}. No parameterised lower bound in $p$ (such as W[1]-hardness) is shown; the ETH bound of~\citet{moitra2022} concerns least-squares signs and does not transfer.
+
+\begin{proposition}[Signed witnesses from the empty support]\label{prop:signed-empty}\status{proved here}
+Let $p\ge1$, either rule, and $S(D)=\emptyset$, i.e.\ $\lVert X^{\top}y\rVert_\infty\le\mu$. A nonempty proper $R$ is a signed \tsc{any} witness iff $\lVert X_K^{\top}y_K\rVert_\infty>\mu_{|R|}$ ($K=[n]\setminus R$) and the minimiser on $\Dm$ is unique. Hence $f^{\mathrm{signed}}_{\tsc{any}}(D)\ge f^0(D):=\min_jf^0_j$, where $f^0_j$ is the selection-witness number of the one-column instance $(X_{\cdot j},y,\mu)$, computed by Theorem~\ref{thm:hard}(b). Equality holds iff $f^0=\infty$ or some $R$ with $|R|=f^0$ and $\lVert X_K^{\top}y_K\rVert_\infty>\mu_{|R|}$ has a unique minimiser on $\Dm$; in particular if one of the removal sets $R^\ast_j$ found by the sort has one (a polynomial check), or if the minimiser is unique on every subsample (with probability one for continuous designs~\citep{tibshirani2013}). $f^0$ and the $R^\ast_j$ take $O(pn\log n)$ time.
+\end{proposition}
+\begin{proof}
+On $\Dm$, $\beta=0$ is a minimiser iff $\lVert X_K^{\top}y_K\rVert_\infty\le\mu'$ (KKT). All minimisers share the fit and the objective value, hence, as $\mu'>0$, the $\ell_1$ norm~\citep{tibshirani2013}: if $0$ is a minimiser it is the only one and the signed support stays empty; otherwise every minimiser is nonzero and $R$ is a witness iff the minimiser is unique. Finally $\lVert X_K^{\top}y_K\rVert_\infty>\mu'$ iff $|X_{K,j}^{\top}y_K|>\mu'$ for some $j$, and for each $j$ the least such $|R|$ is $f^0_j$, as $|X_{\cdot j}^{\top}y|\le\mu$. So the witnesses are the sets with $\lVert X_K^{\top}y_K\rVert_\infty>\mu'$ and a unique minimiser, and the least size of such sets is $f^0$; this gives the inequality and the condition for equality. For $f^0_j=f^0<\infty$, $R^\ast_j$ is the set of the $f^0$ smallest (or largest) $x_{ij}y_i$ at which the sort of Theorem~\ref{thm:hard}(b) leaves the window, so $|X_{K,j}^{\top}y_K|>\mu'$; its uniqueness is decided in polynomial time as in the proof of Theorem~\ref{thm:strong}. As $0$, when a minimiser, is the only one, the case $R=\emptyset$ shows that $S(D)$ is defined and empty iff $\lVert X^{\top}y\rVert_\infty\le\mu$; the `iff' above needs no such step, as Definition~\ref{def:witness} requires uniqueness.
+\end{proof}
+\noindent Without uniqueness the inequality can be strict: if $p=2$ and $X_{\cdot1}=X_{\cdot2}$, a nonzero minimiser $(b_1,b_2)$ has $b_1b_2\ge0$, so $(b_1+b_2,0)$ and $(0,b_1+b_2)$ are minimisers and $f^{\mathrm{signed}}_{\tsc{any}}=\infty$, whereas $X_{\cdot1}=X_{\cdot2}=(1,1,-1)^{\top}$, $y=(1,1,1)^{\top}$, $\mu=1$ and rule C give $f^0=1$.
+\noindent For $S(D)\ne\emptyset$ we only record, in \path{results/signed_any_notes.md}, two identities (a Cauchy--Binet form for $p=2$ and a one-scalar reduction of \tsc{X3C}-type gadgets) that explain why the gadgets of Theorems~\ref{thm:enter2} and~\ref{thm:strong} do not adapt to the signed target; they are not bounds.
+
+\section{Experiments}\label{sec:experiments}
+
+\paragraph{Protocol.} All experiments use Gaussian designs with rows $x_i\sim N(0,\Sigma)$, $\Sigma_{jk}=\rho^{|j-k|}$, $\beta^\ast$ with two nonzero entries $\pm b$, noise $N(0,1)$, and $\mu=c\sqrt{2n\log p}$ (the universal threshold in sum form, scaled by $c$). Two families are used (their choice is discussed under ``Pre-specification and changes'' below): \textbf{A} (``strong signal''), $p=\FamAp$, $b=\FamAb$, $\rho=\FamArho$, $c=\FamAc$; \textbf{B} (``noisy''), $p=\FamBp$, $b=\FamBb$, $\rho=\FamBrho$, $c=\FamBc$. The Lasso is solved by the homotopy algorithm~\citep{efron2004,osborne2000} as implemented in \texttt{sklearn.linear\_model.lars\_path}, whose output in E1--E5 satisfies the KKT equalities to $\KKTMaxActiveRel$ relative to $\max(1,\mu)$ and agrees in support with coordinate descent at tolerance $10^{-13}$ on all \EoneCdN{} refits checked (maximal coefficient difference $\EoneCdMaxDiff$). Rule C is the default; rule P is reported where stated. Seeds are \MetaSeed{} (E0--E3, E5) and \MetaSeedScaling{} (E4). Exhaustive searches enumerate removal sets by increasing size, decide the signed target with Proposition~\ref{prop:exact} and refit only the flagged sets when the target requires the new support; targeted searches are capped at $|R|\le\EtwoKmax$ and the \tsc{any} search at $|R|\le n-2$ ($|R|\le\EfourKmax$ in E4), and a capped search that finds nothing is reported as ``not found'', never as a value.
+
+\paragraph{Criterion for ``computational advantage'' (fixed before the runs).} A heuristic has computational advantage on a family if (i) it returns a witness of exactly minimal size in at least \EthreeCritExact\% of the instances whose exact fragility number is finite within the cap, and (ii) its median wall-clock cost is at most \EthreeCritCost\% of that of the exhaustive search on the same instances and machine.
+
+\paragraph{Pre-specification and changes.} The criterion above was fixed in the code (\path{run_fragility.py}) before any stored run, is recorded in \path{results/fragility.json}, and was never moved. Two choices were made after looking at data: (i)~Families A and B were chosen after a pilot sweep (not included) over $c$ at $n\le14$, in which almost all instances with $c\le1$ had $f=1$; A is the most stable family found whose support is not always the true one, B a noisy one, and the fractions below describe these two families only. (ii)~After a first complete run of E2, E3 and E5 the one-step greedy was corrected (its score became the predicted margin of the target instead of any break of the current pattern) and these were rerun. All scripts of this version were run with the final library in one session. \emph{Timing.} The exhaustive-search timer starts after the initial fit and the $O(nps_0)$ precomputation, the heuristic timers include the initial fit (about one refit, \EoneRefitUs~$\mu$s at $n=\EoneThroughputN$); subtracting from every heuristic its mean time per refit step (which favours the heuristic) leaves the smallest median cost ratio at \EthreeMinCostAdjusted{} (raw: \EthreeMinCostRaw), so no verdict changes.
+
+\subsection{E1: validation of Proposition~\ref{prop:exact} and of the certificates}
+On four $(n,p)$ cells ($b=2$, $\rho=0.3$, $c=1$; \EoneReps{} instances per cell, and \EoneCorInstancesPerCell{} fresh ones for the certificates), Proposition~\ref{prop:exact} was compared with a refit for every single removal and for random sets of $2$, $3$ and $5$ observations, under both rules. Agreement was \EoneSingleAgree/\EoneSingleTests{} (single) and \EoneMultiAgree/\EoneMultiTests{} (sets), and when the signed support was preserved \eqref{eq:betatilde} matched the refit to $\EoneSingleMaxDiff$ and $\EoneMultiMaxDiff$ (per cell in \path{results/validation.md}). The sufficient condition of Corollary~\ref{cor:single} certified \EoneCorCertified{} of the \EoneCorStable{} single removals that are in fact stable (\EoneCorCoverage\%), and never a removal that is not. On $n=\EoneThroughputN$, $p=\EoneThroughputP$, all \EoneThroughputSubsets{} subsets of size $4$ were tested at \EoneOracleUs~$\mu$s per subset against \EoneRefitUs~$\mu$s per refit, a factor of \EoneSpeedup. Per-cell results for Proposition~\ref{prop:cert} are in \path{results/validation.md} and are summarised with E2.
+
+
+
+\subsection{E2: exact fragility numbers for \texorpdfstring{$n\le14$}{n <= 14}}
+For \EtwoReps{} instances per cell we computed the exact signed fragility number for \tsc{any} under both rules, the type of change of the minimal witnesses, and targeted fragility numbers for the weakest selected variable (smallest $|\hat\beta_j|$) and the strongest inactive one (largest $|c_j|$); per-cell values are in \path{results/fragility.md}. In family B the selected set changes after a single removal in \EtwoBFracOne\% of the \EtwoBN{} instances (maximal $f=\EtwoBMax$); in family A in \EtwoAFracOne\% (maximal $f=\EtwoAMax$). Family B had \EtwoBEmptySupport{} instances with an empty support, \EtwoBNotFound{} of them without a witness within $|R|\le n-2$ (counted as not found); signed and unsigned \tsc{any} differed in \EtwoASignedNeUnsignedCount{} (A) and \EtwoBSignedNeUnsignedCount{} (B) instances. The type of change of the minimal witnesses (mostly a single variable leaving or entering) is tabulated per cell in the same file. Targeted searches were not concluded within the cap in \EtwoALeaveNotFound/\EtwoALeaveN{} (A, \tsc{leave}) and \EtwoAEnterNotFound/\EtwoAEnterN{} (A, \tsc{enter}) instances. The certificate of Proposition~\ref{prop:cert} gave $k^\ast\ge1$ in \EtwoAKstarGeOne\% of the \EtwoANGeTwo{} family-A instances with $f\ge2$ (mean gap \EtwoAKstarGap).
+
+
+\subsection{E3: heuristics against the exact minimum}
+Three heuristics were run on the same instances (rule C; E3 uses the unsigned \tsc{any} target, which coincided with the signed one in every instance): \emph{one-step greedy}, which at every step removes the observation whose exact single-removal effect (Corollary~\ref{cor:single} on the current fit) brings the target closest, refits, and repeats; \emph{sorted scores}, in the style of the approximate maximum influence perturbation~\citep{broderick2020}, which scores every observation once on the full data by its exact single-removal effect on each margin, predicts the number of removals $k_{\mathrm{pred}}$ from cumulative sums, and then removes observations in that fixed order with a refit after each until the target holds; and \emph{Cook's distance}, target-agnostic. Table~\ref{tab:e3} pools the results over $n\le14$; \EthreeNumAdvantage{} of the \EthreeNumVerdicts{} (family, target, heuristic) combinations met the predefined criterion. The one-step greedy is the most accurate (maximal excess in family A: \EthreeAOnestepMaxGap), in line with the observation of~\citet{hu2024} that adaptive heuristics capture interactions that additive influence scores miss. With \EthreeNMin--\EthreeNMax{} instances and standard errors of \EthreeSEMin--\EthreeSEMax{} points it meets the accuracy part for \tsc{any} and \tsc{leave}; for \tsc{enter} its shortfall is \EthreeAEnterOnestepShortfallSE{} and \EthreeBEnterOnestepShortfallSE{} standard errors, not a settled failure. The sorted-scores heuristic is less accurate and Cook's distance is the worst for the targeted changes. No heuristic meets the cost part: none is cheaper than one tenth of the exhaustive search with Proposition~\ref{prop:exact} (smallest median cost ratio \EthreeMinCostRaw, or \EthreeMinCostAdjusted{} with the adjustment under \emph{Timing}). The linear prediction $k_{\mathrm{pred}}$ of the sorted-scores heuristic equals the exact fragility number in \EthreeAAnyKpredExact\%/\EthreeBAnyKpredExact\% of the \tsc{any} instances (A/B) and underestimates it in \EthreeAAnyKpredUnder\%/\EthreeBAnyKpredUnder\%.
+
+\begin{table}[t]
+\centering\small\renewcommand{\arraystretch}{0.85}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lllrlrrrrl}
+\toprule
+fam. & target & heuristic & $n$ & exact $\pm$ s.e. & $n$ ($f\ge2$) & exact ($f\ge2$) & cost ratio & adj.\ cost ratio & advantage\\
+\midrule
+\input{table_e3.tex}\\
+\bottomrule
+\end{tabular}}
+\caption{E3, pooled over $n\in\{8,10,12,14\}$, rule C. ``Exact'': fraction of instances (finite $f$ within the cap) in which the witness has minimal size, with binomial s.e.\ in points; ``cost ratio'': median of heuristic over exhaustive-search time; ``adj.'': heuristic time minus its mean time per refit step (interquartile ranges in \texttt{results/fragility.md}). Verdict: exact $\ge\EthreeCritExact\%$ and median cost ratio $\le\EthreeCritCost\%$, fixed before the run.}
+\label{tab:e3}
+\end{table}
+
+\subsection{E4: scaling with \texorpdfstring{$n$}{n}}
+With the closed-form test the exhaustive search for signed \tsc{any} extends to $n=\EfourNmaxExact$ at $|R|\le\EfourKmax$ (Figure~\ref{fig:combined}a,b; per-cell values, including medians, the greedy's exactness at each $n$ and the times, are in \path{results/scaling.md}). In family A the censored mean fragility number (instances above the cap excluded, which biases it downwards as $n$ grows) rises slowly with $n$ (\EfourATenMean{} at $n=10$, \EfourAThirtyfourMean{} at $n=34$, where \EfourAThirtyfourNotFound{} of \EfourAThirtyfourInstances{} instances lie above the cap), while in family B it stays close to one (\EfourBThirtyfourFracOne\% of the instances have $f=1$ at $n=34$). Over the \EfourANAll{} family-A instances with finite $f$ the one-step greedy returned the exact minimum in \EfourAOnestepExactAll\% of the cases (\EfourAOnestepExactNT\% of the \EfourANT{} with $f\ge2$, maximal excess \EfourAOnestepMaxGap). Its cost relative to the exhaustive search varies between complete runs of the same code (cell medians by up to a factor \EfourRunFactor{} over \CostRuns{} runs), so ranges over the runs are quoted. It is slower than the exhaustive search in family B at every $n\le34$ (\EfourBCostLo--\EfourBCostHi) and in family A at $n\le18$ (\EfourACostSmallLo--\EfourACostSmallHi), because with small $f$ one batch of $n$ closed-form tests beats its two or more fits; in family A the ratio is \EfourACostMidLo--\EfourACostMidHi{} at $n=22$--$26$, \EfourAThirtyCostLo--\EfourAThirtyCostHi{} at $n=30$, and below the 10\% threshold only at $n=34$ (\EfourAThirtyfourCostLo--\EfourAThirtyfourCostHi), where it was exact in \EfourAThirtyfourHits{} of the \EfourAThirtyfourFinite{} instances with finite $f$ (\EfourAThirtyfourOnestepExact\%, standard error \EfourAThirtyfourOnestepSE{} points), too few to decide the accuracy part of the criterion. Beyond exhaustive reach, Figure~\ref{fig:combined}c,d brackets the fragility number between the certificate ($k^\ast+1$) and the greedy upper bound $g$: at $n=400$ in family A the median $g$ is \EfourAFourhundredMedian{} (mean $g/n\approx\EfourAFourhundredMeanOverN$), the median $k^\ast$ is \EfourAFourhundredKstar{} and the mean ratio $(k^\ast+1)/g$ is \EfourAFourhundredBracket; the bracket is wide, and the decrease of $g/n$ with $n$ is an empirical statement about these families only.
+
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.64\linewidth]{../figures/fig_combined.pdf}
+\caption{(a,b)~Distribution of the exact signed fragility number for \tsc{any} (rule C) against $n$, from E2 ($n\le14$) and E4 ($n\ge18$; cap $|R|\le\EfourKmax$; top segment: $f\ge6$ or not found). (c,d)~Bracketing at large $n$: median one-step greedy witness size (upper bound, with interquartile range), median certified lower bound $k^\ast+1$ (Proposition~\ref{prop:cert}) and exact medians from E4.}
+\label{fig:combined}
+\end{figure}
+
+
+\subsection{E5: frequency of non-monotone pairs}
+For every instance of E2 with a finite targeted fragility number, all one-element supersets $R\cup\{i\}$ of 20 of the (up to 50) collected minimal witnesses $R$ were refitted. For \tsc{leave} of the weakest variable, the variable re-entered in \EfiveALeaveFracPairs\% of the \EfiveALeavePairs{} superset pairs of family A (at least once in \EfiveALeaveFracInst\% of the \EfiveALeaveInstances{} instances) and in \EfiveBLeaveFracPairs\% of \EfiveBLeavePairs{} pairs of family B (\EfiveBLeaveFracInst\% of \EfiveBLeaveInstances{} instances). For \tsc{any}, adding one observation to a minimal witness restored the original support in \EfiveAAnyFracPairs\% (A) and \EfiveBAnyFracPairs\% (B) of the pairs (per cell in \path{results/fragility.md}). Non-monotonicity is thus a regular feature of minimal witnesses on these designs.
+
+
+\section{What can be claimed}\label{sec:claims}
+
+\begin{table}[!htb]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{0.92}
+\begin{tabular}{p{0.73\linewidth}>{\raggedright\arraybackslash}p{0.22\linewidth}}
+\toprule
+claim & status\\
+\midrule
+Unique minimiser $\Rightarrow$ $X_S$ of full rank (Lemma~\ref{lem:rank}); uniqueness under full rank of $X_E$ (\citealp{tibshirani2013}) & classical / literature\\
+Exact closed-form test of whether removing $R$ preserves the signed support (Prop.~\ref{prop:exact}); agrees with refits in \EoneSingleAgree/\EoneSingleTests{} single and \EoneMultiAgree/\EoneMultiTests{} multiple removals (E1) & proved here; verified\\
+Single removal (rule C, $h_i<1$): DFBETA-type formula with the Lasso residual; $O(np)$ certificate for $f\ge2$ (Cor.~\ref{cor:single}) & proved here\\
+Polynomial certificate for $f\ge k+1$ (Prop.~\ref{prop:cert}); loose: $k^\ast\ge1$ in \EtwoAKstarGeOne\% of family-A instances with $f\ge2$, $n\le14$ & proved here; verified\\
+Witness families are not monotone: $p=1$ by hand (Ex.~\ref{ex:one}), $p=2$ with an exact KKT certificate (Ex.~\ref{ex:two}) & proved here; verified (exact)\\
+$f_{\tsc{leave}(j)}>\lceil n/2\rceil$ implies stability-selection frequency $1$ if all minimisers on half-subsamples are unique; converse not implied (Rem.~\ref{rem:stabsel}) & proved here\\
+Deselection witnesses NP-complete for $p=1$ ($f_{\tsc{leave}}$, unsigned $f_{\tsc{any}}$ NP-hard); for $p=1$ selection witnesses and the signed $f_{\tsc{any}}$ in $O(n\log n)$ (Thm.~\ref{thm:hard}); selection witnesses NP-complete for every fixed $p\ge2$, both rules (Thm.~\ref{thm:enter2}); for integer data pseudo-polynomial for every fixed $p$ and target, so only weakly NP-complete (Prop.~\ref{prop:pseudo}, Cor.~\ref{cor:weak}); checked (Rem.~\ref{rem:verify2}) & proved here; verified (exact)\\
+Selection witnesses strongly NP-complete with $p$ in the input, rule C, unique minimiser on every subsample (Thm.~\ref{thm:strong}), and $f_{\tsc{enter}}$ strongly NP-hard (Cor.~\ref{cor:strong-f}); exhaustive check, \StrongEquivOk/\StrongInst{} instances (Rem.~\ref{rem:verify-strong}) & proved here; checked by internal referee (round 4); verified (exact)\\
+Signed $f_{\tsc{any}}$ for any $p$ when $S(D)=\emptyset$: at least $f^0$ ($O(pn\log n)$), equal iff a candidate of size $f^0$ has a unique minimiser, e.g.\ a set $R^\ast_j$ of the sort (polynomial check; Prop.~\ref{prop:signed-empty}); exhaustive check, \SignedEmptyAgree/\SignedEmptyClean; $R^\ast_j$ closes \SignedCertOk/\SignedEmptyFinite{} & proved here; checked by internal referee (round 5); verified (exact)\\
+Strong hardness for deselection, unsigned \tsc{any} and rule P (Conj.~\ref{conj:strong-rest}); complexity of the signed $f_{\tsc{any}}$ for $p\ge2$ with $S(D)\ne\emptyset$, or with $S(D)=\emptyset$ without uniqueness & conjectural; open\\
+$f=1$ in \EtwoBFracOne\% (B) and \EtwoAFracOne\% (A) of instances with $n\le14$; minimal witnesses mostly single events (E2); non-monotone pairs common among their one-element supersets (E5) & verified, these two families only\\
+No heuristic meets the predefined criterion at $n\le14$ (all fail the cost part); the one-step greedy is the most accurate, cheaper than exhaustive search in all \CostRuns{} runs only in family A at $n\ge30$ and below the cost threshold only at $n=34$ (\EfourAThirtyfourHits/\EfourAThirtyfourFinite{} exact) (E3, E4) & verified, these two families only\\
+Rates of $f/n$ with $n$; behaviour on real data; novelty of the algebra or of the reductions & not claimed\\
+\bottomrule
+\end{tabular}
+\caption{Claims and their status. Every result marked ``proved here'' was checked by internal referees in rounds 1--5 (Theorem~\ref{thm:hard}(c), Lemma~\ref{lem:absorb} and Corollary~\ref{cor:strong-f} in round 4), not externally; ``verified'' means reproduced by the scripts of Appendix~\ref{app:repro} with the fixed seeds, specific to the two synthetic families and not a proof.}
+\label{tab:claims}
+\end{table}
+
+\paragraph{Limitations.} The exact test presupposes a unique minimiser and full column rank on the support; ties are measure-zero for continuous designs but real in integer data, and the code counts them rather than resolving them. For the signed \tsc{any} target the exhaustive search records a non-preserved set as a witness without refitting, which presupposes uniqueness on $\Dm$: almost sure for the Gaussian designs used here and certified exactly for the integer examples. The homotopy solver mishandles exact ties of correlations, so every fit is KKT-checked with a coordinate-descent fallback, triggered in E0 (\EzeroFallbacks{} of \EzeroFits{} fits, all exact ties at entry; the examples are \EzeroGuardIdentical{} with and without it), never in E1--E5 (\EoneToFiveFits{} fits) or in the hardness check for fixed $p$ (\HardKKTFits{} fits), and in \StrongKKTFallbacks{} of the \StrongKKTCalls{} fits of the strong-hardness check (exact ties by construction). The certificate of Proposition~\ref{prop:cert} is loose and restricted to $k<n/s_0$. The hardness is weak for integer data and every fixed $p$ (Corollary~\ref{cor:weak}); for rational data with many distinct denominators the pseudo-polynomial algorithm does not apply. Strong hardness needs $p$ to grow and covers only selection witnesses under rule C. No hardness result covers the signed \tsc{any} target of the experiments, whose only algorithmic result for $p\ge2$ assumes an empty support on $D$ and uniqueness on the subsamples; all constructions use structured data and say nothing about typical instances. The experiments use two synthetic families chosen after a pilot sweep, one solver and a cap on $|R|$; the fragility numbers are exact under that cap and estimate nothing beyond the families, and the cost ratios depend on the implementation and on machine load.
+
+\paragraph{Next steps for the research line.} (a) Settle the complexity of the signed fragility number for $p\ge2$ when $S(D)\ne\emptyset$, or $S(D)=\emptyset$ without uniqueness (compare the sign problem of~\citet{moitra2022}) and Conjecture~\ref{conj:strong-rest}; an external review of Theorem~\ref{thm:strong} and Proposition~\ref{prop:signed-empty}; improve the exponent $p(p+3)/2$ of Proposition~\ref{prop:pseudo}. (b) Tighten Proposition~\ref{prop:cert} (sign structure of the interaction term, or a small semidefinite relaxation). (c) Data-driven penalties, for which the witness must account for the change of $\mu$. (d) The elastic net and the square-root Lasso, whose KKT systems are also linear on a fixed signed support.
+
+\appendix
+\section{Reproducibility}\label{app:repro}
+{\sloppy The library \path{experiments/lasso_fragility.py} and the scripts \path{exact_examples.py} (E0), \path{run_validation.py} (E1), \path{run_fragility.py} (E2, E3, E5), \path{run_scaling.py} (E4), \path{make_figures.py} and \path{make_numbers.py} (which turns \path{results/*.json} into the macros of this document; the cost ranges of E4 also use two earlier runs archived by \path{snapshot_cost_ratios.py}) are described in the README. The reference run (Python \MetaPython, NumPy \MetaNumpy, SciPy \MetaScipy, scikit-learn \MetaSklearn~\citep{pedregosa2011}; seeds \MetaSeed{} and \MetaSeedScaling) took \MetaSecondsValidation/\MetaSecondsFragility/\MetaSecondsScaling~s for E1/E2--E3--E5/E4, \MetaMinutesTotal~minutes in all, on one core of a shared four-core machine.\par}
+
+\paragraph{Exhaustive checks of Section~\ref{sec:hardness}.} {\sloppy In rational arithmetic; the logs carry no timing lines (times go to the JSON files) and are frozen by SHA-256 prefixes that a rerun reproduces and \path{make_numbers.py} checks. \path{check_hardness.py} (seed \HardSeed, \HardSeconds~s; log \texttt{\HardSha}): \HardYes{} yes- and \HardNo{} no-instances, $n\le\HardMaxN$, both rules; the set-by-set characterisation never fails; uniqueness is certified on every subsample by full rank of $X_E$~\citep{tibshirani2013}; Proposition~\ref{prop:exact} and the guarded solver (\HardSolverChecked{} subsamples) agree with the exact solution; the dynamic programme of Proposition~\ref{prop:pseudo} matches exhaustive search (\HardDPAgree/\HardPairs{} pairs; \HardDPRandAgree/\HardDPRandTotal{} random cases with $p\in\{2,3\}$); negative controls ($u=1$, $\kappa=2$, $\rho=1$) are detected. \path{check_strong.py} (\StrongSeconds~s; log \texttt{\StrongSha}): \StrongNqTwo{} instances with $q=2$ and \StrongNqThree{} with $q=3$, integers up to \StrongMaxInt{}; uniqueness certified on every subsample, as Theorem~\ref{thm:strong} asserts (\StrongTies{} subsamples have absorbers exactly at $|c_e|=\mu$, by design); without the target column the minimiser is nonnegative with support $P_2$ on every subsample; the guarded solver agrees on all \StrongLibChecked{} fits checked; negative controls that violate the margin ($\theta=1/q$, $\theta<0$), the offset ($S=0$) or anchor dominance ($u=1$, only through the intermediate claims) are detected. \path{check_signed_any.py} (\SignedSeconds~s; log \texttt{\SignedSha}) checks Proposition~\ref{prop:signed-empty} against exhaustive search on \SignedEmptyTotal{} instances with $S(D)=\emptyset$ ($p\in\{2,3\}$, $n\le8$, both rules): $f^{\mathrm{signed}}_{\tsc{any}}\ge f^0$ in \SignedEmptyGe/\SignedEmptyTotal, with equality in \SignedEmptyAgree/\SignedEmptyClean{} instances whose subsamples all have a certified unique minimiser (\SignedEmptyTies{} have tied subsamples); the certificate $R^\ast_j$ (uniqueness by full rank of $X_E$) closes the equality in \SignedCertOk/\SignedEmptyFinite{} instances with $f^0<\infty$ (\SignedCertTies{} tied; $f^0=\infty$ in \SignedEmptyInf), as the exhaustive search confirms; it also checks the identities of \path{results/signed_any_notes.md}. These three scripts are copies of the derivation-time originals in \path{theory/} (\path{check_signed_any.py} adds the counters for $R^\ast_j$); \path{check_signed_any_p1.py} checks Theorem~\ref{thm:hard}(c).\par}
+\paragraph{Solver and exact test.} \texttt{lars\_path(X, y, method="lasso", alpha\_min=$\mu/n'$)} on the $n'$ kept rows, supports read off exact zeros (threshold $10^{-10}$), every fit KKT-checked (relative tolerance $10^{-8}$) with the fallback of the Limitations (counters in \path{meta.kkt_guard}). The exact test is batched over subsets of equal size, $\det(I-H_R)\le10^{-12}$ counting as rank deficient.
+
+\section{Proofs for Section~\ref{sec:hardness}}\label{app:proofs}
+
+\begin{proof}[Proof of Lemma~\ref{lem:entry}]
+All minimisers share the fit~\citep{tibshirani2013}, so $r_{-j}$ is well defined; let $F$ be the objective on $\Dm$ and $F_{-j}(b)=F(b,0)$. (a)~If $b$ minimises $F_{-j}$ and $|\gamma_j|\le\mu'$, then $(b,0)$ satisfies the (sufficient) KKT conditions of $F$; if the minimiser is unique it is $(b,0)$ and $j\notin S(\Dm)$, and otherwise $R$ is no witness. (b)~A minimiser $(b,0)$ of $F$ would give $F_{-j}(b)=\min F\le\min F_{-j}$, so $b$ would minimise $F_{-j}$ with residual $r_{-j}$, and the KKT condition of $F$ at coordinate $j$ would give $|\gamma_j|\le\mu'$. For $p=2$, $j=2$: $F_{-2}$ is $\frac12\lVert y_K-X_{K,1}\beta_1\rVert^2+\mu'|\beta_1|$, strictly convex as $G_{11}>0$, with minimiser $\beta_1^\ast$ (the formula of Example~\ref{ex:one}), so $\gamma_2=X_{K,2}^{\top}(y_K-X_{K,1}\beta_1^\ast)=q_2-G_{12}\beta_1^\ast$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:enter2}]
+\emph{Membership in NP} (fixed $p$). The certificate is $R$. By Lemma~\ref{lem:rank} a unique minimiser on $\Dm$ has a support $S$ with $X_{K,S}$ of full column rank, so a candidate is found by solving exactly the KKT system of each of the $3^p$ signed supports (Cramer's rule) and checking the inequalities; if none passes, the minimiser is not unique. All minimisers share the fit and the $\ell_1$ norm~\citep{tibshirani2013}, so given a minimiser $\hat\beta$ the set of minimisers is the polytope $\mathcal M=\{\beta:\ X_K^{\top}X_K(\beta-\hat\beta)=0,\ \lVert\beta\rVert_1\le\lVert\hat\beta\rVert_1\}$ (as $X_Kv=0$ iff $X_K^{\top}X_Kv=0$). If $\mathcal M$ contains a segment, an initial piece of it from $\hat\beta$ lies in one closed orthant, whose intersection with $\mathcal M$ is then a polytope of dimension $\ge1$ and has a vertex other than $\hat\beta$; so uniqueness is decided by enumerating the vertices of these $2^p$ intersections, in time polynomial for fixed $p$ (for $p$ in the input see the proof of Theorem~\ref{thm:strong}). Finally test $\hat\beta_j\neq0$; the same procedure checks the conditions on $D$.
+
+\emph{Reduction for $p=2$, $j=2$.} Let $b_1,\dots,b_m>0$ be integers, $B=\sum_ib_i$ and $t\ge1$ the target. If $t\ge B$ the answer is immediate (for $t=B$ the construction below would have $\Delta=0$ on $D$, so variable~2 would be active on $D$) and we output the instance below for $((1,1),1)$ (yes) or $((2,2),1)$ (no). Otherwise $1\le t\le B-1$ and we set $n=m+1$, item rows $x_i=(1,\rho)$ ($i\le m$), a gadget row $x_g=(u,\kappa u)$, $g=m+1$, with $y_g=1/(2u)$, $u=m+1$, $\eta=1/(2B)$, $\kappa=1+\eta$, $\varepsilon=\eta/(4\mu)$, $\rho=1-\varepsilon$; rule C: $y_i=b_i$, $\mu=t+\frac12$; rule P: $y_i=b_i+\lambda$, $\lambda=t+\frac12$, $\mu=\lambda n$, a shift that makes $q_1-\mu'=\sigma-t$ independent of $|K|$ whenever the gadget is kept ($\sigma$ is the sum of the kept $b_i$). Numerators and denominators are bounded by a polynomial in $m$, $B$, $t$. We use $\kappa-\rho=\eta+\varepsilon\in(0,1/B]$, $\rho>\frac12$, $u^2>m$, $\mu'\le\mu$ and $\mu'\ge\frac32$ (rule C: $\mu'=t+\frac12$; rule P: $\mu'=\lambda|K|$). For $R\subsetneq[n]$ let $K=[n]\setminus R$, $I=K\cap[m]$, $N=|I|$, $\sigma=\sum_{i\in I}b_i$, $W=\sum_{i\in I}y_i$, in the notation of Lemma~\ref{lem:entry}, and $\gamma=\gamma_2$.
+
+\emph{Case $g\notin K$} ($N\ge1$): $G_{11}=N$, $G_{12}=\rho N$, $q_1=W$, $q_2=\rho W$, so $\gamma=\rho\,(W-\sgn(W)(|W|-\mu')_+)$ and $|\gamma|=\rho\min(|W|,\mu')<\mu'$; no entry by Lemma~\ref{lem:entry}(a).
+
+\emph{Case $g\in K$}: $G_{11}=u^2+N$, $G_{12}=\kappa u^2+\rho N$, $q_1=\frac12+W>0$, $q_2=\frac{\kappa}{2}+\rho W>0$. Put $\Delta=q_1-\mu'$. Under rule C, $\Delta=\sigma-t$; under rule P, $\mu'=\lambda(N+1)$ and $W=\sigma+\lambda N$, so again $\Delta=\sigma-t\in\mathbb Z$. Direct computation gives
+\begin{equation}\label{eq:entry-id}
+q_2-\mu'=\tfrac12(\kappa-\rho)+\rho\Delta-(1-\rho)\mu',\qquad G_{12}/G_{11}-\rho=(\kappa-\rho)u^2/(u^2+N),
+\end{equation}
+with $0<(1-\rho)\mu'\le\varepsilon\mu=\eta/4$, and $\beta_1^\ast=\Delta_+/G_{11}$. (i)~$\Delta\le-1$: $\gamma=q_2\in(0,\mu')$, since $q_2-\mu'\le\frac12(\kappa-\rho)-\rho<0$; no entry. (ii)~$\Delta=0$: $\gamma=q_2$ and $q_2-\mu'\ge\frac12(\eta+\varepsilon)-\frac14\eta>0$; here $\sigma=t\ge1$, so $N\ge1$, the rows $(1,\rho)$ and $(u,\kappa u)$ are independent, the objective is strictly convex, and $2\in S(\Dm)$ by Lemma~\ref{lem:entry}(b). (iii)~$\Delta\ge1$: $\gamma=q_2-G_{12}\Delta/G_{11}$ and, by~\eqref{eq:entry-id} and $u^2>m\ge N$, $\Delta\le B-t$, $\kappa-\rho\le1/B$,
+\[
+\gamma-\mu'=(\kappa-\rho)\Bigl(\tfrac12-\frac{\Delta u^2}{u^2+N}\Bigr)-(1-\rho)\mu'<0,\qquad
+\gamma+\mu'>(1+\rho)\mu'-(\kappa-\rho)\Delta\ge\tfrac32-\tfrac{B-t}{B}>0 ;
+\]
+no entry. Hence $R$ is a witness iff $g\notin R$ and $\sum_{i\in[m]\setminus R}b_i=t$. For $K=[n]$, $\Delta=B-t\ge1$, and (iii) with $\mu'=\mu$ gives the unique minimiser $(\beta_1^\ast,0)$, $\beta_1^\ast>0$: $2\notin S(D)$. A subfamily $I$ with sum $t$ satisfies $\emptyset\neq I\neq[m]$, so $R=[m]\setminus I$ is a nonempty proper witness, and conversely.
+
+\emph{Uniqueness on every subsample.} If $g\in K$ and $N\ge1$, $X_K$ has rank~$2$. If $K=\{g\}$ (resp.\ $g\notin K$), the rows of $X_K$ are multiples of $(1,\kappa)$ (resp.\ $(1,\rho)$); all minimisers share the fit, hence $\beta_1+\kappa\beta_2$ (resp.\ $\beta_1+\rho\beta_2$), and as $\kappa>1$ (resp.\ $\rho<1$) the $\ell_1$ norm at fixed value is minimised only at $\beta_1=0$ (resp.\ $\beta_2=0$). \emph{Integer data and $p\ge3$.} Replacing $(X,y,\mu)$ by $(\alpha X,\alpha'y,\alpha\alpha'\mu)$, $\alpha,\alpha'>0$, with $\beta=(\alpha'/\alpha)\beta'$ multiplies the objective by $\alpha'^2$ under both rules, so supports, uniqueness and witnesses are unchanged; clearing denominators gives integers bounded by a polynomial in $m$, $B$, $t$. For $p\ge3$ append $p-2$ zero columns, on which every minimiser vanishes.
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:pseudo}]
+The minimisers on $\Dm$, their uniqueness ($\mathcal M$ above, with $X_K^{\top}X_K=G_K$), the signed support and the truth of $\Pi$ depend only on $(|K|,G_K,q_K)$, as $\mu'$ depends on $|K|$ only. The entries of $G_K$ and $q_K$ are integers in $[-nM^2,nM^2]$, so there are at most $(n+1)(2nM^2+1)^{p(p+1)/2+p}$ states; those reachable with the first $i$ rows arise from those with $i-1$ rows by adding row $i$ or not, at cost $O(p^2)$ per state and row. Test $\Pi$, with uniqueness, on every reachable state with $1\le|K|\le n-1$ ($3^p$ signed supports and the vertex enumeration above) and return $n$ minus the largest passing $|K|$ ($\infty$ if none).
+\end{proof}
+
+\paragraph{Construction for Theorem~\ref{thm:strong}.} \tsc{X3C} (is there a subfamily of the 3-sets $C_1,\dots,C_m$ partitioning $U$, $|U|=3q$?) has no numbers and is NP-complete, hence so in the strong sense~\citep{garey1979}. If $m\le q$ the answer is decided directly (yes iff $m=q$ and the sets are pairwise disjoint) and, with $U=\{0,\dots,3q-1\}$, we output the construction below for $q=1$, $C=(U,U)$ (yes; witness $R=\{2\}$) or for $q=2$, $C=(\{0,1,2\},\{2,3,4\},\{1,4,5\},\{0,3,5\})$ (no: any two of these sets meet); from now on $m>q$. Columns and rows are as in Section~\ref{sec:hardness} ($p=3q+1$, $n=m+3q$), with $u=3m$, $S=m$, $\mu=S+1$, $\eta=\frac12$, $\theta=1/(24q)$, $\rho=1-(\eta S-\theta)/\mu\in(\frac12,1)$, $\kappa=\rho+\eta$ and $w=1/(3q)$. Fix $R\subsetneq[n]$, $K=[n]\setminus R$; under rule C, $\mu'=\mu$. Let $T\subseteq[m]$ be the kept triples, $N=|T|$, $\mathrm{cov}_e=|\{i\in T:e\in C_i\}|$, $P=\{e:a_e\in K\}$ the anchored elements, $\bar P=U\setminus P$ and $P_2=\{e\in P:\mathrm{cov}_e\ge2\}$. On $K$ the absorber columns have Gram matrix $G$ and correlations $q_e=X_{K,e}^{\top}y_K$ with $G_{ee}=u^2\,\mathbf 1[e\in P]+\mathrm{cov}_e$, $G_{ee'}=|\{i\in T:e,e'\in C_i\}|\ge0$, $\sum_{e'\ne e}G_{ee'}=2\,\mathrm{cov}_e$ and $q_e=S\,\mathbf 1[e\in P]+\mathrm{cov}_e$, and the choice of $\rho$ gives
+\begin{equation}\label{eq:theta}
+\theta=\eta S-(1-\rho)\mu=\tfrac1{24q},\qquad \rho\mu+\eta S=\mu+\theta=\kappa S+\rho .
+\end{equation}
+
+\begin{lemma}[The absorbers]\label{lem:absorb}\status{proved here}
+For every $K$, the Lasso on $K$ restricted to the absorbers (column $0$ removed) has a minimiser $\beta$ with $\beta_{\bar P}=0$, $\beta\ge0$ and support exactly $P_2$. It satisfies $\frac12\le u^2\beta_e\le\mathrm{cov}_e-1$ on $P_2$, and its correlations $c_e=q_e-(G\beta)_e$ lie in $[0,\mu]$ for all $e\in U$.
+\end{lemma}
+\begin{proof}
+Let $b^\ast$ minimise $\frac12b^{\top}G_{PP}b-(q_P-\mu\mathbf 1)^{\top}b$ over $b\ge0$; it exists and is unique because $G_{PP}\succeq u^2I$. Put $\beta=(b^\ast,0_{\bar P})$ and $c=q-G\beta$. The optimality conditions of this nonnegative problem say $c_e\le\mu$ for $e\in P$, with equality where $\beta_e>0$. If $\beta_e>0$, then $G_{ee}\beta_e=q_e-\mu-\sum_{e'\ne e}G_{ee'}\beta_{e'}\le q_e-\mu=\mathrm{cov}_e-1$, because $G_{ee'}\ge0$ and $\beta\ge0$; hence $\mathrm{cov}_e\ge2$, $u^2\beta_e\le\mathrm{cov}_e-1$ and $\beta_e\le(m-1)/u^2$ for all $e$. Therefore, for every $e$, with $u=3m$, $0\le\sum_{e'\ne e}G_{ee'}\beta_{e'}\le 2\,\mathrm{cov}_e(m-1)/u^2\le 2\,\mathrm{cov}_e/(9m)$. It follows that every $e\in\bar P$ has $c_e\in[0,\mathrm{cov}_e]\subseteq[0,m]$, inside $(-\mu,\mu)$ as $\mu=m+1$; every $e\in P$ with $\beta_e=0$ has $c_e\ge S>0$; and every $e$ with $\beta_e>0$ has $c_e=\mu$. Thus $\beta$ satisfies the KKT conditions of the Lasso and is a minimiser, and $c_e\in[0,\mu]$ for all $e$. If $e\in P$ had $\mathrm{cov}_e\ge2$ and $\beta_e=0$, then $c_e\ge S+\mathrm{cov}_e(1-\frac2{9m})\ge S+\frac{14}9>\mu$, a contradiction; so the support is exactly $P_2$. On $P_2$, $G_{ee}\beta_e\ge\mathrm{cov}_e-1-\frac{2\mathrm{cov}_e}{9m}\ge\frac5{18}\mathrm{cov}_e\ge\frac59$ and $G_{ee}\le u^2+m$, hence $u^2\beta_e\ge\frac59\cdot\frac{9m}{9m+1}\ge\frac12$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:strong}]
+\emph{The target correlation.} As $\rho w\sum_ex_{ie}=\rho/q=x_{i0}$ on triple rows and $(\rho+\eta)wu=x_{a_e0}$ on anchor rows, $X_{K,0}=\rho w\sum_{e\in U}X_{K,e}+\eta wu\sum_{e\in P}\delta_{a_e}$. With $r=r_{-0}$ the residual of the minimiser of Lemma~\ref{lem:absorb} and $u\,r_{a_e}=S-u^2\beta_e$,
+\[
+\gamma_0=X_{K,0}^{\top}r=\rho w\sum_{e\in U}c_e+\eta w\sum_{e\in P}\bigl(S-u^2\beta_e\bigr).
+\]
+By Lemma~\ref{lem:absorb}, $c_e\ge0$ and $S-u^2\beta_e\ge S-m+1>0$, so $\gamma_0\ge0>-\mu$. Since $c_e\le\mu$ and $w|U|=1$, \eqref{eq:theta} gives $\gamma_0\le\mu+\theta-\eta wS\,|\bar P|-\eta w\sum_{e\in P}u^2\beta_e$. (i)~If $\bar P\ne\emptyset$, then $\gamma_0\le\mu+\frac1{24q}-\frac{m}{6q}<\mu$. (ii)~If $\bar P=\emptyset$ and $P_2\ne\emptyset$, then $\gamma_0\le\mu+\frac1{24q}-\frac1{12q}<\mu$ by Lemma~\ref{lem:absorb}. (iii)~If $\bar P=\emptyset$ and $P_2=\emptyset$, then $\mathrm{cov}_e\le1$ for all $e$, so $N\le q$, $\beta=0$, $r=y_K$, $c_e=S+\mathrm{cov}_e$ and, by~\eqref{eq:theta}, $\gamma_0=\rho S+\rho N/q+\eta S=\mu+\theta-\rho(q-N)/q$. If $N=q$, every element is covered exactly once and $\gamma_0=\mu+\theta>\mu$; if $N\le q-1$, $\gamma_0\le\mu+\frac1{24q}-\frac\rho q<\mu$, as $\rho>\frac12$. By Lemma~\ref{lem:entry}(a), $R$ is not a witness unless all anchors are kept and the kept triples partition $U$.
+
+\emph{Uniqueness and the witnesses.} Suppose all anchors are kept and $N\ge1$. On the anchor rows the absorber columns are $uI$, so they are independent; $X_{K,0}=\sum_e\vartheta_eX_{K,e}$ would force $\vartheta_e=\kappa w$ there and $3\kappa w=\kappa/q\ne\rho/q$ on a kept triple row. Hence $X_K$ has full column rank and the minimiser is unique. When the kept triples partition $U$, Lemma~\ref{lem:entry}(b) puts $0$ in $S(\Dm)$. If $I$ is an exact cover, $R=[m]\setminus I$ is nonempty because $m>q$, proper because the anchors are kept, and a witness; conversely every witness is of this form. For every other $K$ the cases above give $|\gamma_0|<\mu$, so $(\beta,0)$ is a minimiser (Lemma~\ref{lem:entry}(a)) with correlations $c_e$ and $\gamma_0$; as $c_e\le m<\mu$ for $e\in\bar P$, its equicorrelation set lies in $P$, where $X_{K,P}$ contains the block $uI$, so the minimiser is unique~\citep{tibshirani2013}. On $D$ the $3m>3q$ incidences force some $\mathrm{cov}_e\ge2$, so case (ii) applies: $|\gamma_0|<\mu$, $X$ has full column rank, and the unique minimiser has $0\notin S(D)$.
+
+\emph{Integer data.} $\rho=(12qm+24q+1)/(24q(m+1))$, so with $\alpha=24q^2(m+1)$ and $\alpha'=3$ the data $(\alpha X,\alpha'y,\alpha\alpha'\mu)$ are integers: $y_i\in\{1,3\}$, $|x_{ij}|\le\alpha u=72q^2m(m+1)$ and $\mu=72q^2(m+1)^2\le72n^4$. Rescaling (proof of Theorem~\ref{thm:enter2}) changes no support, uniqueness or witness. The numbers are polynomially bounded and \tsc{X3C} is strongly NP-complete, so \tsc{Selection-Witness} is NP-hard in the strong sense.
+
+\emph{Membership in NP ($p$ in the input, either rule).} The certificate is $R$. Convex quadratic programmes with rational data, linear programmes being the case of a zero quadratic term, are solved exactly in time polynomial in their bit length~\citep{kozlov1980}, so the verifier computes a minimiser $\hat\beta$ on $\Dm$ (\eqref{eq:lasso} is such a programme in $(\beta^+,\beta^-)$) and, with $\mathcal M$ as in the proof of Theorem~\ref{thm:enter2}, decides uniqueness by checking $\max_{\mathcal M}\beta_k=\hat\beta_k=\min_{\mathcal M}\beta_k$ for every $k$ ($2p$ linear programmes, with $-t\le\beta\le t$, $\mathbf 1^{\top}t\le\lVert\hat\beta\rVert_1$); finally it checks $\hat\beta_j\ne0$. The same computation checks the conditions on $D$; alternatively, \tsc{Selection-Witness} is read as a promise problem, whose promise the reduction satisfies.
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{cor:strong-f}]
+A witness exists iff $f_{\tsc{enter}(j)}(D)<\infty$; a pseudo-polynomial algorithm for a strongly NP-hard problem gives P${}={}$NP~\citep{garey1979}. (In Theorem~\ref{thm:strong}, $f_{\tsc{enter}(0)}=m-q$ on yes-instances.)
+\end{proof}
+
+\bibliographystyle{abbrvnat}
+{\footnotesize\setlength{\bibsep}{0pt}\bibliography{refs}}
+\end{document}

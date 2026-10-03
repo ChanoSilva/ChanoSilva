@@ -1,0 +1,75 @@
+% =====================================================================================================
+% TCD001 -- the signed ANY target for p >= 2: what is proved, what is not.        theory/signed_any.tex
+% Ready to paste into manuscript/main.tex; uses only macros of main.tex (\R, \Dm, \sgn, \status, \tsc,
+% \supp) and existing bibliography keys (tibshirani2013).  Derivation (Spanish, full steps):
+% theory/signed_any_derivation.md.  Check: theory/check_signed_any.py -> check_signed_any_output.txt,
+% signed_any_results.json (numbers below are copied from there; macros suggested at the end).
+%
+% OUTCOME: the complexity question of Remark 5.2(iv) is NOT settled.  No NP-hardness and no polynomial
+% algorithm for the signed fragility number with p >= 2 (fixed or in the input) is proved here.  What is
+% proved: (1) a polynomial case (empty support on D, any p, under a uniqueness condition); (2) an exact
+% identity (Cauchy--Binet form) for the only inactive-correlation condition when p = 2, |S| = 1, which
+% explains why the Subset Sum gadget of Theorem 5.4 cannot be turned into a signed witness gadget
+% within one-parameter polynomial item families; (3) an exact identity for X3C-type gadgets with uniform
+% triple rows and all anchors kept, showing that every KKT quantity is affine in one monotone scalar
+% f(K), so exact covers are not isolated.  (2)--(3) are statements about gadget families, not lower bounds.
+%
+% Suggested placement (NOT applied; main.tex was not modified):
+%   * Part 1 goes at the end of Section~\ref{sec:hardness}, after the paragraph that follows
+%     Conjecture~\ref{conj:strong-rest} (before \section{Experiments}).  It adds Proposition
+%     prop:signed-empty, Lemma lem:cb, Remark rem:gadgets, Remark rem:verify-signed (numbers 5.12--5.15
+%     in the current numbering).
+%   * Remark~\ref{rem:hardness}(iv): after "Its complexity for $p\ge2$ is open (it is in NP, and
+%     pseudo-polynomial for integer data and fixed $p$)" add: "; it is polynomial when nothing is
+%     selected on $D$ (Proposition~\ref{prop:signed-empty}), and Remark~\ref{rem:gadgets} explains why the
+%     gadgets of Theorems~\ref{thm:enter2} and~\ref{thm:strong} do not adapt".
+%   * Table of claims: the row "Strong hardness for deselection, ... complexity of the signed $f_{\tsc{any}}$
+%     for $p\ge2$ & conjectural; open" stays; add a row "Signed $f_{\tsc{any}}$ for $p\ge2$ polynomial when
+%     $S(D)=\emptyset$ under uniqueness (Prop.~\ref{prop:signed-empty}); Cauchy--Binet form and gadget
+%     identities (Lemma~\ref{lem:cb}, Rem.~\ref{rem:gadgets}); exact checks (Rem.~\ref{rem:verify-signed})
+%     & proved here; verified (exact)".
+%   * Next steps (a): "Settle the complexity of the signed fragility number for $p\ge2$ (compare ...)"
+%     becomes "... for $p\ge2$ when $S(D)\neq\emptyset$; Remark~\ref{rem:gadgets} rules out the natural
+%     adaptations of the existing gadgets and points to rational (non-polynomial) item families".
+%   * CONTINUIDAD, "Queda abierto" (ii): unchanged in substance; add the polynomial case and the two
+%     gadget identities as "avance parcial (v0.6 candidata)".
+%   * Optional macros for make_numbers.py (values from theory/signed_any_results.json):
+%       \SignedEmptyTotal=400 \SignedEmptyClean=397 \SignedEmptyAgree=397 \SignedEmptyTies=3
+%       \SignedCBOk=295 \SignedVarOk=200 \SignedGadgetOk=344 \SignedGadgetCovers=9
+% =====================================================================================================
+
+% ------------------------------------------------ Part 1: statements and proofs (Section 5) ---------
+
+\paragraph{The signed target for $p\ge2$.} Remark~\ref{rem:hardness}(iv) leaves the signed fragility number open for $p\ge2$. We record one polynomial case and two identities that explain why the gadgets above do not adapt; we do not settle the question. Write $K=[n]\setminus R$, $\mu'=\mu_{|R|}$, $G=X_K^{\top}X_K$, $q=X_K^{\top}y_K$.
+
+\begin{proposition}[Signed witnesses from the empty support]\label{prop:signed-empty}\status{proved here}
+Let $p\ge1$, either rule, and suppose $S(D)=\emptyset$, i.e.\ $\lVert X^{\top}y\rVert_\infty\le\mu$. A nonempty proper $R$ is a witness for the signed \tsc{any} target iff $\lVert X_K^{\top}y_K\rVert_\infty>\mu'$ and the Lasso on $\Dm$ has a unique minimiser. Hence $f^{\mathrm{signed}}_{\tsc{any}}(D)\ge f^{0}(D):=\min_{j\le p}f^{0}_j$, where $f^{0}_j$ is the selection-witness number of the one-column instance $(X_{\cdot j},y,\mu)$, computed by Theorem~\ref{thm:hard}(b); equality holds if the minimiser is unique on every subsample (for instance if the columns of every $X_K$ are in general position, which holds with probability one for continuous designs~\citep{tibshirani2013}). In that case $f^{\mathrm{signed}}_{\tsc{any}}(D)$ is computed in $O(pn\log n)$ time.
+\end{proposition}
+\begin{proof}
+On $\Dm$, $\beta=0$ is a minimiser iff $\lVert q\rVert_\infty\le\mu'$ (KKT). All minimisers share the fit and the $\ell_1$ norm~\citep{tibshirani2013}, so when $0$ is a minimiser it is the only one and the signed support is $(\emptyset,\cdot)$, unchanged; when it is not, every minimiser is nonzero, the signed support differs from $(\emptyset,\cdot)$, and $R$ is a witness iff the minimiser is unique. Since $\lVert q\rVert_\infty>\mu'$ iff $\lvert X_{K,j}^{\top}y_K\rvert>\mu'$ for some $j$, the least $|R|$ with $\lVert q\rVert_\infty>\mu'$ is $\min_jf^{0}_j$, and each $f^0_j$ is a $p=1$ selection-witness number ($|X_{\cdot j}^{\top}y|\le\mu$ by hypothesis), obtained after one sort of $(x_{ij}y_i)_i$.
+\end{proof}
+
+For $S(D)\neq\emptyset$ a witness needs one preservation condition of Proposition~\ref{prop:exact} to fail. For $p=2$ and $S=\{1\}$, $s=+1$, the conditions are $q_1>\mu'$ (one-sided and linear in the kept rows, hence solved by sorting as in Theorem~\ref{thm:hard}(c)) and $\lvert c_2\rvert\le\mu'$, $c_2=q_2-G_{12}(q_1-\mu')/G_{11}$, whose form is the following.
+
+\begin{lemma}[Cauchy--Binet form]\label{lem:cb}\status{proved here}
+If $G_{11}>0$, then with $m_{il}=x_{i1}x_{l2}-x_{l1}x_{i2}$ and $m'_{il}=x_{i1}y_l-x_{l1}y_i$,
+\[
+G_{11}(c_2-\mu')=\sum_{\{i,l\}\subseteq K}m_{il}m'_{il}\;-\;\mu'\sum_{i\in K}x_{i1}(x_{i1}-x_{i2}),
+\]
+and $G_{11}(c_2+\mu')$ is the same with $+\mu'\sum_{i\in K}x_{i1}(x_{i1}+x_{i2})$. In particular, if the kept rows other than a fixed set of anchor rows are \emph{items} $x_i=(1,1+eb_i)$, $y_i=y_0+y_1b_i$ with numbers $b_i$, the item--item part equals $ey_1\bigl(N\sum_{i}b_i^2-\sigma^2\bigr)$, $N$ the number and $\sigma$ the sum of the kept $b_i$.
+\end{lemma}
+\begin{proof}
+$G_{11}c_2=G_{11}q_2-G_{12}(q_1-\mu')$, and $G_{11}q_2-G_{12}q_1=\det\bigl(X_{K,\{1,2\}}^{\top}[X_{K,1},y_K]\bigr)$ is the stated sum of products of $2\times2$ minors by the Cauchy--Binet formula; the $\mu'$ terms are $\mu'(G_{12}-G_{11})$ (resp.\ $\mu'(G_{12}+G_{11})$). For the items, $m_{il}=e(b_l-b_i)$, $m'_{il}=y_1(b_l-b_i)$ and $\sum_{\{i,l\}}(b_l-b_i)^2=N\sum b_i^2-\sigma^2$.
+\end{proof}
+
+\begin{remark}[Why the gadgets of Theorems~\ref{thm:enter2} and~\ref{thm:strong} do not adapt]\label{rem:gadgets}\status{proved here (identities); the conclusions concern these gadget families only}
+(i)~In Theorem~\ref{thm:enter2} the window $\Delta=0$ is produced by the kink at which variable~1 becomes active, so every kept family with $\Delta\le0$ already changes the signed support; a window for the signed target must come from a smooth (rational) dependence on a \emph{fixed} signed support. By Lemma~\ref{lem:cb}, with items affine in their numbers the quadratic part of the only two-sided condition is $ey_1(N\sum b_i^2-\sigma^2)$: concave in $\sigma$ only together with the term $ey_1N\sum b_i^2$, which is not a function of $(N,\sigma)$ and dominates the curvature ($\sigma^2\le N\sum b_i^2$); an anchor row $(\alpha_g,\beta_g)$ adds $ey_1\alpha_g^2b_i^2\ge0$ per kept item, so the coefficient of $\sum b_i^2$ is $ey_1(N+\sum_g\alpha_g^2)$ and never cancels. Thus $c_2\ge\mu'$ is not a threshold on $(N,\sigma)$ in this family. More generally, if the item rows and responses are polynomials in $b_i$, the item--item part is $\sum_{\{i,l\}}\Psi(b_i,b_l)$ with $\Psi$ symmetric and $\Psi(b,b)=0$, which excludes $\Psi(b,b')=-2bb'+\kappa_1(b+b')+\kappa_0$, the form that $-(\sigma-t)^2$ would need. (ii)~For an \tsc{X3C}-type gadget with uniform triple rows (target entry $\theta$, incidence vector, response $3b_0+\gamma$) and $L$ unit anchor rows per element (target entry $\varphi$, response $b_0+\mu/L$), all anchors kept, the candidate on the fixed signed support $(U,+)$ has triple residuals $\gamma(I+M_K/L)^{-1}\mathbf 1$ and
+\[
+c_0=3q\varphi\mu+\gamma L(\theta-3\varphi)\,f(K),\qquad f(K)=\mathbf 1^{\top}(LI+M_K)^{-1}\mathbf 1,
+\]
+where $M_K$ is the matrix of intersection sizes of the kept triples (proof: the target column on triple rows is $\theta/3$ times the sum of the absorber columns, so the KKT equalities reduce $c_0$ to the anchor residuals, and $C_K\mathbf 1=3\mathbf 1$). Every threshold on $c_0$ is therefore a threshold on the single scalar $f$, and exact covers are neither its maximisers nor its minimisers in the checked instances (Remark~\ref{rem:verify-signed}); the mechanism of Theorem~\ref{thm:strong}, which isolates exact covers through absorbers changing status, is precisely a signed-support change. Neither observation is a lower or an upper bound for the signed target.
+\end{remark}
+
+\begin{remark}[Exact checks]\label{rem:verify-signed}\status{computationally verified (exact arithmetic)}
+{\sloppy In rational arithmetic (\path{theory/check_signed_any.py}, seed 20261003, 4\,s): on 400 instances with $S(D)=\emptyset$ ($p\in\{2,3\}$, $5\le n\le8$, both rules, one in four with entries in $\{-2,\dots,2\}$), $f^{\mathrm{signed}}_{\tsc{any}}\ge f^0$ in 400/400, the least $|R|$ with $\lVert X_K^{\top}y_K\rVert_\infty>\mu'$ equals $f^0$ in 400/400, and $f^{\mathrm{signed}}_{\tsc{any}}=f^0$ in 397/397 instances whose subsamples all have a certified unique minimiser (3 instances have tied subsamples); the identity of Lemma~\ref{lem:cb} holds on 295/295 random subsamples and its item form on 200/200; the identities of Remark~\ref{rem:gadgets}(ii) hold on 344/344 kept families of 30 random gadgets ($q=2$), and in none of the 9 gadgets with an exact cover is an exact cover the strict maximiser or minimiser of $f$.\par}
+\end{remark}

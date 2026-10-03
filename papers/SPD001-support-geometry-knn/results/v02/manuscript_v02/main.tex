@@ -1,0 +1,306 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{url}
+\captionsetup{font=small,labelfont=bf}
+\setlength{\textfloatsep}{9pt plus 2pt minus 2pt}
+\setlength{\floatsep}{7pt plus 2pt minus 2pt}
+\setlength{\intextsep}{7pt plus 2pt minus 2pt}
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.6}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.85}
+
+\IfFileExists{numbers.tex}{\input{numbers.tex}}{}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Nk}{N_k^{c}(q)}
+\newcommand{\aff}{\operatorname{aff}}
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\status}[1]{\textsf{\small [#1]}}
+\newcommand{\meth}[1]{\textsf{#1}}
+\newcommand{\kNN}{k_{\rm NN}}
+
+\title{\textbf{Support Geometry and Nearest Neighbours:}\\[2pt]
+\large Does the Tangential--Orthogonal--Depth Decomposition Add Information\\ Beyond Feature Lines, Local Hulls and Depth?}
+\author{Luciano Silva Alarco\\
+\small Pontificia Universidad Cat\'olica del Per\'u\\
+\small ORCID 0000-0002-3395-3129}
+\date{\small Working draft v0.2 (round 1 of internal review applied) --- research line SPD001 --- 3 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+For a query $q$ and its $k$ nearest training neighbours of a class, the residual from the neighbourhood centroid splits into a \emph{tangential} component along the local principal subspace and an \emph{orthogonal} component normal to it, and the position of $q$ among the neighbours can be summarised by a \emph{depth}. The research line SPD001 asked whether this description carries information for classification beyond nearest feature lines, local hulls and depth measures. We show that the regularised local-hyperplane distance of Vincent and Bengio is exactly a data-weighted sum of the orthogonal component and the squared tangential coordinates, $h_\lambda^2=O^2+\sum_j \lambda t_j^2/(s_j^2+\lambda)$, while the local spatial depth is not a function of the two distances. We then run the isolating comparison the line had left pending (\NDatasets{} datasets, $\MetaSplits\times\MetaRepeats$ repeated cross-validation, six tuned references, a conditional-logit combination of the three components and its ablations) under a criterion fixed before the first complete run: a paired bootstrap interval above zero against the best reference on at least \NRequired{} of \NDatasets{} datasets. The combination met it on \NSigWins; its difference to the best reference ranged from \DeltaBestMin{} to \DeltaBestMax{} accuracy points, and the largest upper limit is \CiHiBestMax{} points with the bootstrap and \CiHiBestMaxNb{} with the Nadeau--Bengio variance, so the study excludes gains of a few points, not of one. Removing the orthogonal component costs \AblOrthMin{} to \AblOrthMax{} points (interval above zero on \NAblOrthCiAboveZero{} of \NDatasets{} datasets with the bootstrap, \NAblOrthNbAboveZero{} with Nadeau--Bengio); removing the depth or the tangential component never does so significantly. The decomposition describes local-hull classifiers well, but it does not add predictive information beyond them.
+\end{abstract}
+
+\section{Introduction}\label{sec:intro}
+
+Nearest-neighbour classification~\citep{fixhodges1989,coverhart1967} uses only distances from the query to individual training points. A family of extensions replaces the point by a local set built from the query's neighbours in each class: the line through two prototypes (nearest feature line, \citealp{lilu1999}), the affine hull of the $k$ nearest same-class neighbours with a ridge penalty (HKNN, \citealp{vincentbengio2002}), bounded hulls and hyperdisks~\citep{cevikalp2008}, local principal subspaces~\citep{kambhatlaleen1997} or locally adapted metrics~\citep{hastietibshirani1996}. All of them measure, in one way or another, how far the query lies \emph{off} the local class support. A separate tradition, statistical depth~\citep{tukey1975,liu1990,zuoserfling2000}, measures how central a point is \emph{inside} a cloud, and depth-based classifiers assign the query to the class in which it is deepest~\citep{ghoshchaudhuri2005,licuestaliu2012}, with local versions for multimodal classes~\citep{paindaveinevanbever2013}.
+
+The research line SPD001 (``support geometry and nearest neighbours'') set out from the observation that these quantities are components of one decomposition: if $\mu$ is the centroid of the $k$ nearest neighbours of $q$ in class $c$ and $T_m$ the $m$-dimensional principal subspace of that neighbourhood, $q-\mu$ splits orthogonally into a tangential part in $T_m$ and an orthogonal part normal to it, and a depth measures where $q$ falls relative to the neighbours. The line's public record states its objective as \emph{determining whether this decomposition adds information beyond feature lines, hulls and depth measures}, and its findings as \emph{a comparison isolating a specific contribution remains pending; no improvement in predictive accuracy has been validated}. This paper runs that comparison and writes down the answer, with the elementary facts that explain it.
+
+\paragraph{Contributions.} (i)~Precise definitions of the tangential, orthogonal and depth components of a query with respect to a class neighbourhood (Section~\ref{sec:defs}). (ii)~Elementary propositions (Section~\ref{sec:theory}): the regularised HKNN distance is an explicit weighted combination of the orthogonal component and the tangential coordinates, monotone in the penalty and bounded by the hull distance and the centroid distance; the nearest-feature-line distance restricted to the same neighbours is sandwiched between the hull distance and the nearest-neighbour distance; the local spatial depth is not a function of the two distances, so it \emph{could} carry information. (iii)~The isolating comparison with a criterion stated before the first complete run (Section~\ref{sec:protocol}) and its outcome (Section~\ref{sec:results}), which is negative under that criterion. (iv)~A list of claims with their status (Section~\ref{sec:claims}).
+
+\paragraph{Scope.} The paper is a methodological study on small public and synthetic datasets; it makes no claim about any application domain. ``Adds information'' is given one operational meaning (Section~\ref{sec:protocol}); other meanings, such as usefulness for visualisation or description, are not tested and not denied. Every number is produced by the scripts of Appendix~\ref{app:repro} with a fixed seed; none is typed by hand.
+
+\section{Definitions}\label{sec:defs}
+
+Let $(x_i,y_i)_{i=1}^n$ be a training set with $x_i\in\R^d$ and labels $y_i\in\{1,\dots,C\}$, standardised coordinate-wise with training statistics. Fix a query $q\in\R^d$, a class $c$ and an integer $k$ with $k\le n_c$, where $n_c$ is the number of training points of class $c$ (when $q$ is itself a training point it is excluded from its own neighbourhoods).
+
+\begin{definition}[class neighbourhood, centred SVD]\label{def:nbhd}
+$\Nk\subset\{x_i: y_i=c\}$ is the set of the $k$ training points of class $c$ nearest to $q$ in Euclidean distance (ties broken deterministically). Let $\mu=\mu_c(q)$ be its mean, $V\in\R^{k\times d}$ the matrix with rows $x_i-\mu$, $x_i\in\Nk$, and $V=W\,\mathrm{diag}(s_1,\dots,s_p)\,U^{\top}$ a thin singular value decomposition with $p=\min(k,d)$, $s_1\ge\dots\ge s_p\ge0$ and orthonormal columns $u_1,\dots,u_p$ of $U$. Write $r=q-\mu$ and $t_j=u_j^{\top}r$. Since the rows of $V$ sum to zero, $\operatorname{rank}V\le\min(k-1,d)$; we call the neighbourhood \emph{generic} when equality holds, and write $\rho=\min(k-1,d)$.
+\end{definition}
+
+\begin{definition}[tangential and orthogonal components]\label{def:TO}\sloppy
+For $1\le m\le\rho$ let $T_m=\operatorname{span}(u_1,\dots,u_m)$ (the local principal, or tangent, subspace of dimension $m$) and $P_m$ the orthogonal projector onto it. The \emph{tangential distance} and the \emph{orthogonal distance} of $q$ to the class-$c$ neighbourhood are
+\[
+T_m(q,c)=\|P_m r\|=\Big(\sum_{j\le m}t_j^2\Big)^{1/2},\qquad
+O_m(q,c)=\|(I-P_m)r\|=\Big(\|r\|^2-\sum_{j\le m}t_j^2\Big)^{1/2}.
+\]
+\end{definition}
+
+\begin{definition}[local hull, HKNN and feature-line distances]\label{def:hull}
+The \emph{local hull distance} is $\dist(q,\aff\Nk)$, the Euclidean distance from $q$ to the affine hull of the neighbourhood. For $\lambda\ge0$ the \emph{penalised local-hyperplane distance} of \citet{vincentbengio2002} is
+\[
+h_\lambda(q,c)^2=\min_{\alpha\in\R^k}\ \|r-V^{\top}\alpha\|^2+\lambda\|\alpha\|^2 .
+\]
+We take as the \meth{HKNN} score the value of this penalised objective; this is our reading of Section~3 of \citet{vincentbengio2002}. If one takes instead the plain distance $\|r-V^{\top}\alpha^*\|$ at the penalised minimiser $\alpha^*$, Proposition~\ref{prop:hknn} below holds with weights $\lambda^2/(s_j^2+\lambda)^2$ in place of $\lambda/(s_j^2+\lambda)$, and nothing else in the paper changes. The \emph{local feature-line distance} is $\ell(q,c)=\min_{x_i\ne x_j\in\Nk}\dist\big(q,\,x_i+\R(x_j-x_i)\big)$, the nearest-feature-line distance of \citet{lilu1999} restricted to the $k$ neighbours. The \emph{local class distance} is $\bar d(q,c)=\frac1k\sum_{x_i\in\Nk}\|q-x_i\|$.
+\end{definition}
+
+\begin{definition}[local spatial depth]\label{def:depth}
+With the spatial sign $S(v)=v/\|v\|$ for $v\ne0$ and $S(0)=0$, the \emph{local spatial depth} of $q$ with respect to the class-$c$ neighbourhood is
+\[
+D(q,c)=1-\Big\|\frac1k\sum_{x_i\in\Nk}S(x_i-q)\Big\|\in[0,1],
+\]
+the spatial ($L_1$) depth of \citet{vardizhang2000} and \citet{serfling2002}, computed on the neighbourhood instead of on the whole class. We call $E=1-D$ the \emph{outlyingness}.
+\end{definition}
+
+The spatial depth equals $1$ at the spatial median of the neighbourhood when the median is not itself a neighbour (at a neighbour $x_i$ the term $S(0)=0$ drops out and $D(x_i)$ may be below $1$); the median is unique when the neighbours are not collinear~\citep{milasevicducharme1987}; $D$ tends to $0$ as $\|q\|\to\infty$ and is invariant under orthogonal transformations and translations but not under general affine maps~\citep{chaudhuri1996,vardizhang2000,serfling2002} \status{literature}. Restricting a depth to a neighbourhood of the query is a simple proxy for the local depths of \citet{paindaveinevanbever2013}; we do not use their symmetrised construction.
+
+\begin{definition}[classifiers]\label{def:clf}\sloppy
+All classifiers below assign $q$ to the class that minimises a score $\sigma(q,c)$ (or maximises the depth), with no class prior, except \meth{kNN}, which takes a majority vote among the $\kNN$ nearest neighbours of all classes (ties towards the class of the nearest neighbour).
+\begin{itemize}[leftmargin=2em,itemsep=1pt]
+\item \meth{NFL}: $\sigma=\ell(q,c)$;\quad \meth{HKNN}: $\sigma=h_\lambda(q,c)$;\quad \meth{LPH} (local PCA hull): $\sigma=O_m(q,c)$;
+\item \meth{LCD}: $\sigma=\bar d(q,c)$;\quad \meth{SD}: $\sigma=E(q,c)$;\quad \meth{T}: $\sigma=T_m(q,c)$;
+\item \meth{TOD} (the decomposition classifier): with the feature vector $f_c(q)=\big(\log T_m,\ \log O_m,\ \log E\big)(q,c)$, standardised feature-wise with training statistics, and a weight vector $w\in\R^3$ shared by all classes,
+\[
+P(c\mid q)=\frac{\exp(-w^{\top}f_c(q))}{\sum_{c'}\exp(-w^{\top}f_{c'}(q))},
+\]
+a conditional logit without intercepts; $w$ is fitted by maximum likelihood with an $L_2$ penalty $\MetaRidge\,\|w\|^2$ on leave-one-out features of the training fold. \meth{TO}, \meth{TD}, \meth{OD} are the same model with one feature removed. (A one-feature model with a positive weight reproduces the corresponding argmin rule, so \meth{LPH} and \meth{SD} are the one-component ablations for $O$ and for $D$.)
+\end{itemize}
+\end{definition}
+
+The logarithms make the combination a product of powers $T_m^{w_1}O_m^{w_2}E^{w_3}$, invariant to the scale of each feature; a floor of $10^{-6}$ is added inside each logarithm.
+
+\section{Elementary results}\label{sec:theory}
+
+\begin{proposition}[Pythagoras and the hull]\label{prop:pyth}
+For every $m\le\rho$, $\|q-\mu\|^2=T_m^2+O_m^2$. If the neighbourhood is generic then $O_\rho(q,c)=\dist(q,\aff\Nk)=h_0(q,c)$.
+\end{proposition}
+\begin{proof}
+The first identity is orthogonality of $P_m$ and $I-P_m$. For the second, $\aff\Nk=\mu+\operatorname{row}(V)=\mu+\operatorname{span}(u_j:s_j>0)$; in the generic case this is $\mu+T_\rho$, so $\dist(q,\aff\Nk)=\|(I-P_\rho)r\|=O_\rho$. Finally $h_0^2=\min_\alpha\|r-V^{\top}\alpha\|^2$ is the squared distance from $r$ to $\operatorname{row}(V)$, the same quantity.
+\end{proof}
+
+\begin{remark}[low dimension]\label{rem:lowdim}
+When $k>d$ and the neighbourhood is generic, $\rho=d$, $\aff\Nk=\R^d$ and the hull distance $h_0=O_\rho$ vanishes identically. This is the case for every $k$ in our grids on the \NLowDim{} datasets with $d\le3$ (\LowDimList): there \meth{HKNN} reduces to the penalised tangential term of Proposition~\ref{prop:hknn} below, an anisotropic distance to the local centroid that is zero for $\lambda=0$, and \meth{LPH} is non-trivial only because $m\le d-1$. ``Hull'' carries information only when $d\ge k$.
+\end{remark}
+
+\begin{proposition}[HKNN is a weighted tangential--orthogonal combination]\label{prop:hknn}
+For a generic neighbourhood and every $\lambda>0$,
+\[
+h_\lambda(q,c)^2=O_\rho(q,c)^2+\sum_{j=1}^{\rho}\frac{\lambda}{s_j^2+\lambda}\,t_j^2 .
+\]
+Consequently $\lambda\mapsto h_\lambda$ is non-decreasing, $O_\rho\le h_\lambda\le\|q-\mu\|$, $h_\lambda\to O_\rho$ as $\lambda\downarrow0$ and $h_\lambda\to\|q-\mu\|$ as $\lambda\to\infty$.
+\end{proposition}
+\begin{proof}
+Write $V^{\top}\alpha=U\,\mathrm{diag}(s)\,W^{\top}\alpha$. Decompose $\alpha=W\beta+\gamma$ with $W^{\top}\gamma=0$, so that $V^{\top}\gamma=0$ and $\|\alpha\|^2=\|\beta\|^2+\|\gamma\|^2$, and decompose $r=\sum_j t_ju_j+r_\perp$ with $r_\perp\perp\operatorname{span}(U)$. Then
+\[
+\|r-V^{\top}\alpha\|^2+\lambda\|\alpha\|^2=\sum_{j\le p}(t_j-s_j\beta_j)^2+\|r_\perp\|^2+\lambda\|\beta\|^2+\lambda\|\gamma\|^2 .
+\]
+The minimum has $\gamma=0$ and, for each $j$, $\beta_j=s_jt_j/(s_j^2+\lambda)$, with minimal value $(t_j-s_j\beta_j)^2+\lambda\beta_j^2=t_j^2\big(\lambda^2+\lambda s_j^2\big)/(s_j^2+\lambda)^2=\lambda t_j^2/(s_j^2+\lambda)$. For $j>\rho$ one has $s_j=0$ in the generic case and the term equals $t_j^2$; together with $\|r_\perp\|^2$ these terms sum to $\|r\|^2-\sum_{j\le\rho}t_j^2=O_\rho^2$ by Proposition~\ref{prop:pyth}. Each weight $\lambda/(s_j^2+\lambda)$ lies in $(0,1]$, increases with $\lambda$ and tends to $0$ or $1$ at the two ends, which gives the monotonicity and the limits.
+\end{proof}
+
+\begin{remark}\label{rem:family}
+Proposition~\ref{prop:hknn} says that HKNN already combines the two distances of Definition~\ref{def:TO}, with an anisotropic weighting of the tangential coordinates that penalises low-variance directions more ($\lambda/(s_j^2+\lambda)$ is larger when $s_j$ is small). The model \meth{TO} combines $\log T_m$ and $\log O_m$ with two scalar weights and a cut-off $m$; neither family contains the other. The classifier \meth{LCD} is close to the $\lambda\to\infty$ end (distance to the local centroid versus mean distance to the neighbours). What the decomposition can add over this family is therefore, in the first place, the depth.
+\end{remark}
+
+\begin{proposition}[feature lines]\label{prop:nfl}
+$\dist(q,\aff\Nk)\le\ell(q,c)\le\min_{x_i\in\Nk}\|q-x_i\|$.
+\end{proposition}
+\begin{proof}
+Every line through two points of $\Nk$ lies in $\aff\Nk$, which gives the left inequality; the distance to a line is at most the distance to any of its points, which gives the right one.
+\end{proof}
+
+\begin{proposition}[the depth is not a function of the two distances]\label{prop:nonredundant}
+There are neighbourhoods and pairs of queries with equal $(T_m,O_m)$ and different $D$, and pairs with equal $D$ and different $(T_m,O_m)$.
+\end{proposition}
+\begin{proof}
+Take $d=2$, $\Nk=\{(-1,0.3),\,(0,-0.4),\,(3,0.1)\}$, $k=3$, so $\mu=(2/3,0)$; the centred scatter matrix is diagonal, $u_1=e_x$, $u_2=e_y$, $s=(2.944,\,0.510)$, and take $m=1$. The queries $q_1=(8/3,1/2)$ and $q_2=(-4/3,1/2)$ both have $T_1=2$ and $O_1=1/2$, but $D(q_1)=0.422$ and $D(q_2)=0.025$ (the unit vectors $S(x_i-q_1)$ point to both sides of $q_1$, those of $q_2$ all point to the right; values to three decimals). For the converse take $d=1$, $\Nk=\{-1,0,3\}$, $\mu=2/3$, $m=\rho=1$: in one dimension $D(q)=1-\big|\frac1k\sum_i\operatorname{sign}(x_i-q)\big|$, so $q_3=1$ and $q_4=5/3$ both have $D=\tfrac23$ (two neighbours below, one above) while $T_1=\tfrac13$ and $T_1=1$.
+\end{proof}
+
+Propositions~\ref{prop:pyth}--\ref{prop:nonredundant} are elementary \status{proved here}. They fix expectations: relative to HKNN and LPH, the only component that is not already in play is the depth, and Proposition~\ref{prop:nonredundant} shows that it is formally free to help. Whether it does is the empirical question.
+
+\section{Protocol and predefined criterion}\label{sec:protocol}
+
+\paragraph{Datasets.} Four standard sets from scikit-learn~\citep{pedregosa2011}: iris~\citep{fisher1936} ($n=\NIris$, $d=\DimIris$, $C=\ClsIris$), wine~\citep{uci} ($\NWine$, $\DimWine$, $\ClsWine$), Wisconsin diagnostic breast cancer~\citep{street1993} ($\NBc$, $\DimBc$, $\ClsBc$) and a stratified subsample of the digits ($\NDigits$ images, 100 per class, $d=\DimDigits$). Four synthetic manifolds with $n=600$: a swiss roll (\texttt{make\_swiss\_roll}, noise $1.0$) with three classes given by the terciles of the roll parameter, so that class boundaries run \emph{along} the manifold; two moons (noise $0.3$) in the plane; the same moons with ten independent $N(0,1)$ coordinates appended ($d=\DimMoonsN$), the off-manifold-noise regime; and two nested spheres in $\R^3$ (radii $1$ and $1.5$, 300 points each, isotropic Gaussian noise of standard deviation $0.2$). The digits subsample, the noise coordinates and the spheres are drawn once with the master seed.
+
+\paragraph{Evaluation.} $\MetaSplits\times\MetaRepeats$ repeated stratified $k$-fold cross-validation (\MetaFolds{} folds, identical for all methods). Within each fold, coordinates are standardised with training statistics. Every hyper-parameter is chosen on the training fold by leave-one-out accuracy over a fixed grid, ties going to the first grid point: $\kNN\in\{\MetaKnnGrid\}$ for \meth{kNN}; $k\in\{\MetaKgrid\}$ for all class-neighbourhood methods; $m\in\{\MetaMgrid\}$ restricted to $m\le\min(k-1,d-1)$ for \meth{LPH}, \meth{T} and the logit models; $\lambda=\lambda_{\rm rel}\,\bar s^2$ with $\lambda_{\rm rel}\in\{\MetaLambdaGrid\}$ for \meth{HKNN}, where $\bar s^2$ is the median over training points of the mean squared singular value of their own-class neighbourhood. Leave-one-out features of the training points (each point excluded from its own class neighbourhood) also serve to fit the logit weights; for the logit models, $(k,m)$ is therefore chosen by the resubstitution accuracy of a logit fitted on those leave-one-out features (the three weights see the points they score), an optimism shared by \meth{TOD} and its ablations. The resulting optimism (training-fold selection accuracy minus test accuracy) ranges over datasets from \OptimTodMin{} to \OptimTodMax{} points for \meth{TOD} and from \OptimHknnMin{} to \OptimHknnMax{} for \meth{HKNN}, so it does not tilt the comparison. The test metrics are accuracy and \emph{selective accuracy at \MetaCoverage\% coverage}~\citep{chow1970}: accuracy on the \MetaCoverage\% of test points with the highest confidence, the confidence being the vote fraction for \meth{kNN}, the relative margin $(\sigma_{(2)}-\sigma_{(1)})/(\sigma_{(1)}+\sigma_{(2)})$ between the two best scores for the argmin classifiers and the maximal posterior for the logit models.
+
+\paragraph{Statistics.} For two methods, the paired fold-level differences in accuracy ($J=\MetaFolds$) are summarised by their mean and a percentile bootstrap 95\% interval with $\MetaBoot$ resamples~\citep{efrontibshirani1993}, seeded. Folds of repeated cross-validation share data, so this interval is too narrow~\citep{dietterich1998}. For the same differences we therefore also report the 95\% interval and the two-sided $p$-value of the corrected resampled $t$-test of \citet{nadeaubengio2003}, with the variance inflated by $1/J+n_{\rm test}/n_{\rm train}=1/J+1/4$ as used for repeated $k$-fold by \citet{bouckaertfrank2004}; this correction is known to be conservative, so the truth lies between the two readings, and every count of significant differences below is given in both (bootstrap / NB). The predefined criterion uses the bootstrap interval, the \emph{less} demanding of the two for a positive result. Datasets are not pooled into one test~\citep{demsar2006}; the criterion counts them.
+
+\paragraph{Criterion.} The criterion was fixed before the first complete run. There is no time-stamped preregistration; the only record is the constant in the code and the two complete runs kept in \path{results/}, between which the grids, but not the criterion, were changed (see the note below). For each dataset the \emph{best reference} is the one of \meth{kNN}, \meth{NFL}, \meth{HKNN}, \meth{LPH}, \meth{LCD}, \meth{SD} with the highest mean accuracy. \textbf{C1}: the decomposition ``adds information'' if and only if \meth{TOD} beats the best reference on at least \NRequired{} of the \NDatasets{} datasets with a bootstrap interval strictly above zero. Choosing the best reference after the fact biases the comparison \emph{against} \meth{TOD} (winner's curse on the reference), so a positive C1 would have been strong evidence; a negative C1 is complemented by the comparison against each reference separately. \textbf{C2} (attribution): the same rule applied to \meth{TOD} versus each ablation identifies which component carries any gain. \textbf{C3} (secondary): the same rule on selective accuracy. \textbf{E2} (regime): the moons with $p\in\{0,2,5,10,20\}$ appended noise coordinates, to look for a regime of low-dimensional support with off-manifold noise in which some component might help.
+
+\paragraph{Note on the grids.} A first full run used $k\le20$ for the neighbourhood methods, $\kNN\le21$ and $\lambda_{\rm rel}\le10$; the chosen values sat at the upper end of these grids on several datasets, so the grids were widened to the values above and the whole experiment was rerun with the criterion unchanged; both runs are kept and reach the same verdict. After widening, the chosen $k$ still sits at the top of the grid ($k=\MetaKMax$) in most folds on the moons (\FracKMaxMoonsTod\% of folds for \meth{TOD}, \FracKMaxMoonsHknn\% for \meth{HKNN}) and on the moons with noise (\FracKMaxMoonsNTod\% and \FracKMaxMoonsNHknn\%, where also $\lambda_{\rm rel}=\MetaLambdaMax$ is chosen in \FracLamMaxMoonsN\% of the folds and $\kNN=\MetaKnnKMax$ in \FracKMaxMoonsNKnn\%); on the other six datasets the fraction is at most \FracKMaxOtherMax\% (\meth{HKNN} on \FracKMaxOtherMaxArg). On the two moons datasets the comparison is symmetric, since \meth{TOD} and \meth{HKNN} are both at the edge, but their absolute accuracies may be slightly below their optimum. A further widening ($k$ up to 50, feasible on all datasets but iris and wine, whose training folds hold 40 and 38 points in the smallest class) was measured at about twice the cost of the reference run and is left as a next step.
+
+\section{Results}\label{sec:results}
+
+\begin{figure}[tb]
+\centering
+\includegraphics[width=0.56\linewidth]{../figures/decomposition.pdf}
+\caption{The decomposition on the two-moons data for one query $q$ (star) with respect to each class: circles are the $k=10$ class neighbours, the square their centroid, the line the one-dimensional tangent subspace $T_1$; the solid segment is the tangential component, the dashed segment the orthogonal one; the short rays are the unit vectors $S(x_i-q)$ whose mean defines the spatial depth.}
+\label{fig:schematic}
+\end{figure}
+
+Table~\ref{tab:main} gives the mean cross-validated accuracy of every method, Table~\ref{tab:delta} the primary comparison together with the comparison against \meth{HKNN}, and Table~\ref{tab:ablation} the ablations; Figure~\ref{fig:forest} shows the last two graphically. The comparison against every reference, the selective accuracies and the regime scan are tabulated in \path{results/tables_appendix.md}, generated by the same script as this document; the hyper-parameters are in Appendix~\ref{app:tables}. The whole experiment, including the regime scan, took \MetaSecondsCpu{} CPU-seconds.
+
+\begin{table}[tb]
+\centering\small\setlength{\tabcolsep}{3.6pt}
+\begin{tabular}{lrrrrrrrrrrrrrr}
+\toprule
+& & & & \multicolumn{6}{c}{references} & \multicolumn{5}{c}{decomposition and ablations}\\
+\cmidrule(lr){5-10}\cmidrule(lr){11-15}
+dataset & $n$ & $d$ & $C$ & kNN & NFL & HKNN & LPH & LCD & SD & TOD & TO & TD & OD & T\\
+\midrule
+\input{table_main}\\
+\bottomrule
+\end{tabular}
+\caption{Mean test accuracy (\%) over the \MetaFolds{} folds. The best reference on each dataset is in bold. TOD $=$ tangential $+$ orthogonal $+$ depth; TO, TD, OD drop one component; T, LPH ($=$O) and SD ($=$D) are the single components.}
+\label{tab:main}
+\end{table}
+
+\begin{table}[tb]
+\centering\footnotesize\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lllcccl}
+\toprule
+dataset & best ref. & TOD $-$ best [boot.\ CI] & NB CI & NB $p$ & W/L/T & TOD $-$ HKNN [boot.\ CI]\\
+\midrule
+\input{table_delta}\\
+\bottomrule
+\end{tabular}
+\caption{Primary comparison (C1), in accuracy points: mean and percentile bootstrap interval over the \MetaFolds{} folds, interval and $p$-value with the Nadeau--Bengio (NB) variance, folds won/lost/tied by TOD, and the same difference against HKNN. Significant wins under C1: \NSigWins{} of \NDatasets{} (\NRequired{} required; \NSigWinsNb{} with NB); significant losses: \NSigLosses{} with the bootstrap (\SigLossesList), \NSigLossesNb{} with NB.}
+\label{tab:delta}
+\end{table}
+
+\paragraph{C1: the decomposition against the best reference.} The best reference was a local-support method (\meth{HKNN}, \meth{LPH} or \meth{NFL}) on \NBestRefHull{} of the \NDatasets{} datasets (Table~\ref{tab:delta}). \meth{TOD} beat it with a bootstrap interval above zero on \NSigWins{} of \NDatasets{} datasets, against \NRequired{} required; the criterion is not met. The mean difference ranged from \DeltaBestMin{} to \DeltaBestMax{} points (positive on \NDeltaPositive: \DeltaPositiveList) and was within one point on \NDeltaWithinOne{} of \NDatasets{} datasets; its bootstrap interval lay entirely below zero on \NSigLosses{} datasets (\SigLossesList): \DeltaBestTwoDigits{} points on digits [\CiLoBestTwoDigits, \CiHiBestTwoDigits] and \DeltaBestTwoMoons{} on moons [\CiLoBestTwoMoons, \CiHiBestTwoMoons]. Neither loss survives the corrected $t$-test ($p=\NbPBestDigits$ and $p=\NbPBestMoons$; NB intervals [\NbLoBestTwoDigits, \NbHiBestTwoDigits] and [\NbLoBestTwoMoons, \NbHiBestTwoMoons]), which is the cautious reading in both directions: the data neither show a gain nor establish a loss beyond a fraction of a point. The largest upper interval limit over all datasets is \CiHiBestMax{} points with the bootstrap and \CiHiBestMaxNb{} points with the Nadeau--Bengio variance (both on \CiHiBestMaxNbArg): gains larger than the latter are excluded at the 95\% level under the cautious reading, gains between the two values are excluded only under the anti-conservative one, and smaller gains are not excluded by this study.
+
+\begin{table}[tb]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lllll}
+\toprule
+dataset & $-$ depth (vs TO) & $-$ orthogonal (vs TD) & NB 95\% CI (vs TD) & $-$ tangential (vs OD)\\
+\midrule
+\input{table_ablation}\\
+\bottomrule
+\end{tabular}
+\caption{Ablations (C2): TOD minus the model with the named component removed, in accuracy points, mean and bootstrap 95\% interval; for the orthogonal component also the interval with the Nadeau--Bengio variance. A positive value means the component helped. Both intervals for all three ablations are in \texttt{results/tables\_appendix.md}.}
+\label{tab:ablation}
+\end{table}
+
+\begin{figure}[tb]
+\centering
+\includegraphics[width=0.78\linewidth]{../figures/forest.pdf}
+\caption{Left: TOD minus the best reference per dataset (C1). Right: the three ablations (C2). Thick segments: bootstrap 95\% intervals; thin segments: intervals with the Nadeau--Bengio variance; black (left) marks a bootstrap interval excluding zero.}
+\label{fig:forest}
+\end{figure}
+
+\paragraph{C2: where the information is.} Against \meth{HKNN}, the reference closest in spirit, the difference ranged from \DeltaHknnMin{} to \DeltaHknnMax{} points, with \NHknnCiAboveZero{} bootstrap intervals above zero and \NHknnCiBelowZero{} below (NB: \NHknnNbAboveZero{} and \NHknnNbBelowZero; Table~\ref{tab:delta}); against \meth{LPH} from \DeltaLphMin{} to \DeltaLphMax{} (\NLphCiAboveZero{} bootstrap interval above zero, \NLphNbAboveZero{} with NB). The one dataset on which \meth{TOD} beats the plain PCA hull with a bootstrap interval above zero is the spheres (\DeltaVsSpheresLph{} points; NB [\NbLoVsSpheresLph, \NbHiVsSpheresLph]), where the depth is the component that helps (\meth{TOD} $-$ \meth{TO} $=$ \AblSpheresTo{} [\AblLoSpheresTo, \AblHiSpheresTo]); but \meth{HKNN} closes the same gap with its penalty, and \meth{TOD} $-$ \meth{HKNN} is \DeltaVsSpheresHknn{} points there. \meth{TOD} beat \meth{kNN} with a bootstrap interval above zero on \NKnnCiAboveZero{} datasets (\NKnnNbAboveZero{} with NB) and the depth-only classifier \meth{SD} on \NSdCiAboveZero{} of \NDatasets{} (\NSdNbAboveZero{} with NB); the hull classifiers do the same, so these are the known advantages of local hulls over points and over depth~\citep{vincentbengio2002}, not a contribution of the decomposition. The accuracies of \meth{HKNN}, \meth{LPH}, \meth{TOD}, \meth{TO} and \meth{OD} never differ by more than \HullFamilyMaxSpread{} points on any dataset: they behave as one family, as Proposition~\ref{prop:hknn} and Remark~\ref{rem:family} suggest.
+
+The ablations (Table~\ref{tab:ablation}, Figure~\ref{fig:forest}) say where the information sits. Removing the orthogonal component costs between \AblOrthMin{} and \AblOrthMax{} points, with a bootstrap interval above zero on \NAblOrthCiAboveZero{} of \NDatasets{} datasets and a Nadeau--Bengio interval above zero on \NAblOrthNbAboveZero{} (\AblOrthNbAboveList); the attribution therefore rests on the size of the effects (\AblDigitsTd{} points on digits, \AblSpheresTd{} on spheres, \AblMoonsNTd{} on the moons with noise) and on the fitted weights, not on a count of intervals. Removing the depth changes accuracy by \AblDepthMin{} to \AblDepthMax{} points, with \NAblDepthCiAboveZero{} bootstrap intervals above zero and \NAblDepthCiBelowZero{} below (breast cancer, upper limit \AblHiBcTo, i.e.\ marginal; \NAblDepthNbAboveZero{} and \NAblDepthNbBelowZero{} with NB); removing the tangential component changes it by \AblTangMin{} to \AblTangMax{} points, with \NAblTangCiAboveZero{} and \NAblTangCiBelowZero{} bootstrap intervals above and below zero (\NAblTangNbAboveZero{} and \NAblTangNbBelowZero{} with NB). The largest upper limits for the depth and tangential contributions are \AblDepthCiHiMax{} and \AblTangCiHiMax{} points with the bootstrap, \AblDepthNbHiMax{} and \AblTangNbHiMax{} with NB. The fitted weights tell the same story (Table~\ref{tab:params}, Appendix~\ref{app:tables}): the weight on $\log O$ lies between \WOMin{} and \WOMax{} across datasets, the weight on $\log T$ between \WTMin{} and \WTMax, and the weight on $\log E$ between \WDMin{} and \WDMax, negative on \NWDNegative{} datasets, so its sign is not even stable. The tangential distance alone is a poor classifier (\meth{T}: from \AccTMin\% on \AccTArgMin{} to \AccTMax\%), consistent with it being a within-support coordinate rather than an off-support one.
+
+\paragraph{C3: abstention.} With each method abstaining on its own least confident fifth of the test points, \meth{TOD} differed from the best reference of Table~\ref{tab:delta} by \SelDeltaMin{} to \SelDeltaMax{} points; the bootstrap interval lay above zero on \NSelCiAboveZero{} dataset (digits, \SelDeltaBestDigits{} points; NB [\SelNbLoDigits, \SelNbHiDigits]) and below zero on \NSelCiBelowZero{} (moons and moons with noise, \SelDeltaBestMoons{} and \SelDeltaBestMoonsN); with NB, \NSelNbAboveZero{} above and \NSelNbBelowZero{} below. The natural comparison for abstention is with the reference that is best \emph{by selective accuracy}: there the differences run from \SelBySelDeltaMin{} to \SelBySelDeltaMax{} points with \NSelBySelCiAboveZero{} bootstrap intervals above zero and \NSelBySelCiBelowZero{} below (\SelBySelBelowList); on digits that reference is \meth{\SelBySelRefDigits} and the difference is \SelBySelDeltaDigits{} [\SelBySelLoDigits, \SelBySelHiDigits]. The posterior of the three-component logit is therefore not a better abstention signal than the margins of the reference scores; in particular the depth, which one might expect to flag off-support queries, does not improve selective accuracy here.
+
+\begin{figure}[tb]
+\centering
+\includegraphics[width=0.4\linewidth]{../figures/regime.pdf}
+\caption{E2: accuracy against the number $p$ of appended noise coordinates for five references and TOD (dashed); the best reference at each $p$ is the highest line (\RegBestSet).}
+\label{fig:regime}
+\end{figure}
+
+\paragraph{E2: the off-manifold-noise regime.} Appending noise coordinates to the moons lowers every method (Figure~\ref{fig:regime}; table in \path{results/tables_appendix.md}): \meth{kNN} by \RegKnnDrop{} points from $p=0$ to $p=20$, \meth{HKNN} by \RegHknnDrop, \meth{TOD} by \RegTodDrop, \meth{SD} by \RegSdDrop. The best reference at each $p$ was one of \{\RegBestSet\}; \meth{TOD} minus the best reference ranged from \RegDeltaMin{} to \RegDeltaMax{} points with \NRegSigWins{} bootstrap intervals above zero and \NRegSigLosses{} below (\NRegSigWinsNb{} and \NRegSigLossesNb{} with NB). The depth contribution (\meth{TOD} $-$ \meth{TO}) ranged from \RegAblDepthMin{} to \RegAblDepthMax{} points and the tangential contribution (\meth{TOD} $-$ \meth{OD}) from \RegAblTangMin{} to \RegAblTangMax, with \NRegAblDepthCiAboveZero{} and \NRegAblTangCiAboveZero{} bootstrap intervals above zero respectively; the orthogonal contribution (\meth{TOD} $-$ \meth{TD}) ranged from \RegAblOrthMin{} to \RegAblOrthMax. The single bootstrap interval above zero for the depth contribution in the whole study occurs at $p=2$ (\RegAblDepthPTwo{} points [\RegAblDepthLoPTwo, \RegAblDepthHiPTwo]; NB [\RegAblDepthNbLoPTwo, \RegAblDepthNbHiPTwo], $p=\RegAblDepthNbPPTwo$). It is one of \NDepthIntervals{} depth intervals examined in E1 and E2 (the $p=0$ row repeats the moons), so it is compatible with chance even before the dependence between folds is taken into account, and there \meth{TOD} remains \RegDeltaPTwo{} points from the best reference (\RegBestPTwo, \RegBestAccPTwo\%): with a few noise coordinates the depth helps the logit model catch up with the references, not overtake them. There is thus no noise regime, in this range, in which the depth or the tangential component adds to what the best reference already achieves.
+
+\section{What can be claimed}\label{sec:claims}
+
+\begin{table}[tb]
+\centering\small
+\begin{tabular}{p{0.76\linewidth}l}
+\toprule
+claim & status\\
+\midrule
+C1: TOD beats the best reference on \NSigWins{} of \NDatasets{} datasets (\NRequired{} required; \NSigWinsNb{} with NB); the decomposition \VerdictWord{} information in the predefined sense & verified (negative)\\
+Upper 95\% limit of the gain over the best reference: at most \CiHiBestMax{} points (bootstrap) / \CiHiBestMaxNb{} points (NB) on every dataset & verified\\
+C2: the orthogonal component carries the information: removing it costs \AblOrthMin{} to \AblOrthMax{} points (interval above zero on \NAblOrthCiAboveZero/\NDatasets{} bootstrap, \NAblOrthNbAboveZero/\NDatasets{} NB); depth and tangential components removable without significant loss (\NAblDepthCiAboveZero/\NDatasets{} and \NAblTangCiAboveZero/\NDatasets{} bootstrap, \NAblDepthNbAboveZero/\NDatasets{} and \NAblTangNbAboveZero/\NDatasets{} NB) & verified\\
+C3: no gain in selective accuracy at \MetaCoverage\% coverage (\NSelCiAboveZero{} bootstrap interval above zero against the best reference by accuracy, \NSelBySelCiAboveZero{} against the best by selective accuracy, \NSelNbAboveZero{} with NB) & verified\\
+E2: no off-manifold-noise regime with $p\le20$ in which TOD exceeds the best reference; the depth helps the logit model only at $p=2$ (\RegAblDepthPTwo{} points, bootstrap; NB $p=\RegAblDepthNbPPTwo$) & verified\\
+HKNN, LPH, TOD, TO, OD differ by at most \HullFamilyMaxSpread{} points on every dataset & verified\\
+Gains below \CiHiBestMaxNb{} points (below \CiHiBestMax{} under the bootstrap); behaviour on large or high-dimensional data; other depths & not established\\
+\bottomrule
+\end{tabular}
+\caption{Empirical claims and their status; the propositions of Section~\ref{sec:theory} are labelled where they are stated. ``Verified'' means produced by the scripts of Appendix~\ref{app:repro} with the fixed seed on the datasets of Section~\ref{sec:protocol}; it is not a general statement.}
+\label{tab:claims}
+\end{table}
+
+Table~\ref{tab:claims} lists the claims with their status. The answer to the line's question, in the operational sense fixed in Section~\ref{sec:protocol}, is negative: the tangential--orthogonal--depth decomposition does not add predictive information beyond the local hull. Proposition~\ref{prop:hknn} says why the tangential part cannot be expected to: the regularised hull distance already contains it with a sensible weighting. The depth was formally free to help (Proposition~\ref{prop:nonredundant}) and did not add to the best reference, in accuracy or in abstention, on any of the \NDatasets{} datasets or in the noise regime scanned; its one bootstrap-significant contribution ($p=2$ in E2, not significant with the Nadeau--Bengio variance) brought the logit model level with the references, not past them.
+
+\paragraph{Limitations.} The datasets are small and, for \NNearCeiling{} of them (\NearCeilingList), the best reference is at or above 96\% accuracy, close to the ceiling; one test error is worth \FoldResIris{} accuracy points on iris and \FoldResWine{} on wine, so ``within one point'' is there below the resolution of a single fold and most folds are exact ties (W/L/T in Table~\ref{tab:delta}). The study therefore has power to exclude gains of a few points, \CiHiBestMaxNb{} with the Nadeau--Bengio variance and \CiHiBestMax{} with the fold-level bootstrap, which is anti-conservative because the folds of repeated cross-validation share data; it does not exclude smaller gains. Every count of significant differences is given in both readings, and the attribution of C2 rests on effect sizes rather than on counts. Hyper-parameters were chosen by leave-one-out accuracy on the training fold and the logit weights were fitted on the same leave-one-out features, an optimism of three parameters shared by all logit models; the references have one or two tuned parameters each. On the moons and the moons with noise the chosen neighbourhood size sits at the top of the grid in most folds for both \meth{TOD} and \meth{HKNN} (Section~\ref{sec:protocol}). Only one depth (local spatial depth) and one combination rule (a conditional logit without intercepts) were tried; a different depth, per-class weights or a non-linear combiner could behave differently, and the negative finding is about the tested instance, not about every conceivable use of the components. The tangent dimension $m$ was tuned globally, not per neighbourhood by explained variance. No class priors are used by the score-based methods, which handicaps them slightly on the imbalanced breast-cancer data relative to \meth{kNN}.
+
+\paragraph{Next steps for the research line.} The line's stated objective is discharged with a negative answer and can be closed. If it were reopened, the only directions the present results leave open are: (a) depths with a different mechanism (halfspace or simplicial depth on the neighbourhood, or the symmetrised local depth of \citealp{paindaveinevanbever2013}) tested under the same criterion; (b) the use of the decomposition as a \emph{descriptive} tool for local-hull methods, e.g.\ choosing $\lambda$ from the spectrum $(s_j)$ via Proposition~\ref{prop:hknn} rather than by search, which is a question about HKNN and not about a new classifier; (c) larger and higher-dimensional data, where the hull methods differ more from \meth{kNN} and the hull distance is not identically zero (Remark~\ref{rem:lowdim}), with the caveat that the study would then be about the hull family and not about the added components.
+
+\appendix
+\section{Reproducibility}\label{app:repro}
+{\sloppy The directory contains \path{experiments/support_geometry.py} (the whole experiment, E1 and E2; flag \texttt{--fast} for a reduced run), \path{experiments/make_figures.py} and \path{experiments/make_numbers.py}, which converts \path{results/results.json} and \path{results/results_regime.json} into the macros and table bodies used by this document and into \path{results/tables_appendix.md}, so that every number in the text is generated and none is typed; the Nadeau--Bengio intervals, the grid-edge fractions and the modal hyper-parameters are recomputed by that script from the per-fold lists. The run used seed \MetaSeed, Python \MetaPython, NumPy \MetaNumpy~\citep{harris2020}, SciPy \MetaScipy~\citep{virtanen2020} and scikit-learn \MetaSklearn~\citep{pedregosa2011}, single-threaded BLAS, and took \MetaSecondsWall{} s wall / \MetaSecondsCpu{} s CPU on a shared four-core machine. The first run with the narrower grids is kept as \path{results/tables_run1_narrow_grids.md}. Computation: per fold, all squared distances are computed once; for each class and $k$ the $k$ nearest same-class points are found by partial sorting and decomposed by a batched thin SVD, from which all scores and the closed form of Proposition~\ref{prop:hknn} are evaluated (checked against brute force and \texttt{lstsq} before the runs); logit weights are fitted by L-BFGS-B with the analytic gradient.\par}
+
+\section{Hyper-parameters}\label{app:tables}
+\begin{table}[htb]
+\centering\footnotesize\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lrrrrrcrrr}
+\toprule
+dataset & $\kNN$ & HKNN $(k,\lambda_{\rm rel})$ & LPH $(k,m)$ & SD $k$ & TOD $(k,m)$ & \shortstack{\% folds at $k{=}\MetaKMax$\\(TOD / HKNN)} & $w_T$ & $w_O$ & $w_D$\\
+\midrule
+\input{table_params}\\
+\bottomrule
+\end{tabular}
+\caption{Modal hyper-parameters over the \MetaFolds{} folds (ties towards the smallest values), the percentage of folds in which the chosen neighbourhood size is the largest in the grid, and the mean fitted weights of TOD on the standardised features $\log T_m$, $\log O_m$, $\log E$ (larger weight $=$ more influence; positive $=$ smaller value favours the class).}
+\label{tab:params}
+\end{table}
+
+\renewcommand{\bibfont}{\footnotesize}
+\setlength{\bibsep}{2.5pt}
+\bibliographystyle{plainnat}
+\bibliography{refs}
+\end{document}

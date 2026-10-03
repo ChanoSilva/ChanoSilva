@@ -1,0 +1,355 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+\IfFileExists{numbers.tex}{\input{numbers.tex}}{}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\Yh}{\widehat{Y}}
+\newcommand{\Hf}{H_f}
+\newcommand{\Tu}{T_u}
+\newcommand{\status}[1]{\textsf{\small [#1]}}
+\newcommand{\LN}{\mathrm{LN}}
+\newcommand{\SU}{\mathrm{SU}}
+
+\title{\textbf{Moment-Based Aggregation of Production Frontiers:}\\[2pt]
+\large Second-Order Corrections, Their Failure at Capacity Thresholds,\\ and What Can Be Certified for Comparisons\thanks{Research line SGE001, recorded as ``dynamic aggregation of production frontiers''. See the paragraph on scope.}}
+\author{Luciano Silva Alarco\\
+\small Pontificia Universidad Cat\'olica del Per\'u\\
+\small ORCID 0000-0002-3395-3129}
+\date{\small Working draft v0.5 (three internal review rounds applied) --- research line SGE001 --- 3 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+Production units share a concave frontier $f$ and differ in their inputs $x_i\in\R^d$. Aggregate output $Y=\sum_i f(x_i)$ is often replaced by the representative unit $Nf(\bar x)$ or by its second-order correction $N[f(\bar x)+\tfrac12\tr(\Hf(\bar x)\Sigma)]$; we bound the error of these approximations and test them by simulation. In the smooth regime, Taylor's formula gives exact remainders and computable bounds; the second order improves on the first by a factor growing at least like the inverse dispersion, and the improvement is certifiable from the input moments, their range and a derivative bound (log-normal inputs: $\sigma\le\EoneCertBoxSigmaCDLN$ with a third-order bound, $\sigma\le\SharpCertBoxSigmaCDLN$ with a fourth-order one proved here; improvement observed up to $\sigma=\EoneRatioGtOneSigmaCDLN$). At a capacity threshold $\min(f,c)$ the second-order error is $-N\Tu$ up to second-order terms, where $\Tu$, the one-sided mean distance of unit outputs to the capacity, is linear in the dispersion when units straddle the threshold: the second order then improves nothing, and populations with equal first three moments can have aggregates differing at first order. Simulation confirms the predicted exponents. In a two-level hierarchy, bottom-up aggregation confines this failure to straddling firms. A margin condition certifying the ordering of two aggregates covers a shrinking share of them and never exists at a crossing. Both criteria fixed in advance fail: a uniform fivefold error reduction (C1) fails for log-normal inputs beyond $\sigma=\EoneConeLargestCDLN$ and at crossings, also after a scalar recalibration; a fivefold reduction of rank reversals (C2) fails clearly in $\EfourFailClearCapped$ of $\EfourEligibleCapped$ eligible capacity cells. Nothing is claimed about real populations or policy.
+\end{abstract}
+
+\section{Introduction}\label{sec:intro}
+
+Aggregating a nonlinear relation over heterogeneous units is an old problem with two classical faces. One asks whether an aggregate relation \emph{exists} at all: for production functions the conditions are stringent \citep{nataf1948,fisher1969,felipefisher2003}, and for demand the representative-consumer conditions of \citet{gorman1953} are equally special. The other asks, granting that one will use an aggregate relation anyway, how large the \emph{aggregation bias} is and what it depends on \citep{theil1954,stoker1984}. Moment-based expansions belong to the second face: the aggregate of a nonlinear micro function is expanded around the mean of the explanatory variables, and higher moments of their cross-sectional distribution enter as corrections \citep{lewbel1992,vangarderen2000}. The zeroth term is the representative unit, the first correction is the Jensen gap \citep{jensen1906}, and the second-order approximation is the analogue of the second-order delta method \citep{oehlert1992}. A separate line, going back to \citet{houthakker1955}, obtains aggregate functional forms from the distribution of micro technologies; and the frontier literature \citep{farrell1957,aigner1977} describes units as lying on or below a common frontier, with idiosyncratic efficiency terms.
+
+The research line to which this draft belongs asked, in the words of its public record, whether higher moments and second-order approximations in hierarchical production frontiers reduce aggregation errors, and how those errors affect comparisons and decisions; its recorded findings were that the approximations improve in smooth regimes but may fail at threshold crossings, and that a later calibration did not meet a predefined criterion. No manuscript survives; this draft reconstructs the line from that record: a precise mathematical core (Section~\ref{sec:setting}), what can be proved about it (Section~\ref{sec:theory}), a controlled simulation with two predefined criteria (Section~\ref{sec:exp}) and a list of every claim with its status (Section~\ref{sec:claims}).
+
+\paragraph{Scope.} The frontier is a fixed, known, concave function; the inputs are drawn from stated distributions; nothing is estimated from data and nothing is claimed about any real sector or policy. The record calls the line ``dynamic''; this draft follows the error along a dispersion sweep and through the levels of a hierarchy, with no intertemporal model, so the title does not use the word. The record also speaks of ``hierarchical'' frontiers; we read this as two-level aggregation (units, firms, sector) under a common frontier (Lemma~\ref{lem:hier}, E3), not as frontiers that differ by level. Every measured number in the text is produced by the scripts of Appendix~\ref{app:repro} with a fixed seed and injected as a macro.
+
+\section{Setting and definitions}\label{sec:setting}
+
+Let $U\subseteq\R^d_{>0}$ be open and convex and $f\colon U\to\R$ a frontier, at least $C^2$ and, where stated, $C^3$ and concave. For a symmetric $k$-linear form $T$ write $\|T\|=\sup_{\|h\|=1}|T[h,\dots,h]|$ (Euclidean norm on $\R^d$), so that $|T[h,\dots,h]|\le\|T\|\,\|h\|^k$; for the Hessian this is the spectral norm, and for any $k$ the Frobenius norm of the coefficient array dominates $\|T\|$ by Cauchy--Schwarz. For an invertible linear map $S$ of $\R^d$ write $\|T\|_S=\|T[S\,\cdot,\dots,S\,\cdot]\|$, so that $\|T\|_I=\|T\|$ and, by homogeneity of degree $k$, $|T[h,\dots,h]|\le\|T\|_S\,\|S^{-1}h\|^k$.
+
+\begin{definition}[Population, moments]\label{def:pop}
+A population is a finite list $x_1,\dots,x_N\in U$. Its mean is $\bar x=\frac1N\sum_i x_i$ (in $U$ by convexity), its deviations are $h_i=x_i-\bar x$, and its central moments are
+\[
+\Sigma=\frac1N\sum_i h_ih_i^{\!\top},\quad \mu_3=\frac1N\sum_i h_i\otimes h_i\otimes h_i,\quad
+s^2=\tr\Sigma=\frac1N\sum_i\|h_i\|^2,\quad m_3=\frac1N\sum_i\|h_i\|^3 .
+\]
+\end{definition}
+
+\begin{definition}[Aggregate and moment approximations]\label{def:approx}
+The aggregate output is $Y=\sum_{i=1}^N f(x_i)$. The approximations of order $1$, $2$, $3$ are
+\[
+\Yh_1=Nf(\bar x),\qquad
+\Yh_2=\Yh_1+\tfrac{N}{2}\,\langle \Hf(\bar x),\Sigma\rangle,\qquad
+\Yh_3=\Yh_2+\tfrac{N}{6}\,\langle D^3\!f(\bar x),\mu_3\rangle ,
+\]
+where $\langle\cdot,\cdot\rangle$ is the entrywise inner product, so $\langle \Hf,\Sigma\rangle=\tr(\Hf\Sigma)$. The \emph{aggregation error of order $k$} is $E_k=Y-\Yh_k$ and the relative error is $e_k=E_k/Y$. We write $Q_2=\tfrac N2\tr(\Hf(\bar x)\Sigma)$ for the second-order term, so $E_1=E_2+Q_2$.
+\end{definition}
+
+$\Yh_1$ is the representative unit; $E_1/N$ is the Jensen gap of $f$ on the empirical distribution of inputs, non-positive for concave $f$ \citep{jensen1906}. The approximations use only the moments of the inputs up to the stated order and the derivatives of $f$ at the mean: this is what a statistician holding group means and covariances, but not the micro data, can compute.
+
+\begin{definition}[Hierarchy]\label{def:hier}
+Let the population be partitioned into groups (firms) $g=1,\dots,G$ of sizes $n_g$, with means $\bar x_g$ and covariances $\Sigma_g$. The between-group and mean within-group covariances are $\Sigma_B=\frac1N\sum_g n_g(\bar x_g-\bar x)(\bar x_g-\bar x)^{\!\top}$ and $\bar\Sigma_W=\frac1N\sum_g n_g\Sigma_g$. Besides the \emph{pooled} $\Yh_2$ of Definition~\ref{def:approx}, the \emph{bottom-up} estimator $\Yh_2^{\mathrm{BU}}=\sum_g n_g\big[f(\bar x_g)+\tfrac12\tr(\Hf(\bar x_g)\Sigma_g)\big]$ applies the second order inside each firm and sums exactly, and the \emph{top-down} estimator $\Yh_2^{\mathrm{TD}}=N\big[f(\bar x)+\tfrac12\tr(\Hf(\bar x)\Sigma_B)\big]+\tfrac N2\tr(\Hf(\bar x)\bar\Sigma_W)$ expands the sum of firm outputs to second order in the firm means and adds the mean within-firm correction \emph{evaluated at the sector mean}. So defined, it coincides with the pooled one (Lemma~\ref{lem:hier}(i)): there are only two distinct second-order estimators, pooled and bottom-up, and E3 compares them.
+\end{definition}
+
+\begin{definition}[Capacity frontier, crossing term]\label{def:cap}
+For $c>0$ the capacity frontier is $f_c=\min(f,c)$, concave whenever $f$ is, and $C^3$ away from the level set $\{f=c\}$. Its moment approximations are those of Definition~\ref{def:approx} with $f_c$ in place of $f$: when $f(\bar x)>c$ the frontier is constant near $\bar x$ and $\Hf[f_c](\bar x)=0$, and when $f(\bar x)<c$ it equals $\Hf(\bar x)$. At $f(\bar x)=c$ the Hessian of $f_c$ does not exist; ``second-order approximation'' there means, by convention, the one-sided derivatives of the ``below capacity'' branch (a convention about the estimator, not a property of $f_c$). Writing $u_i=f(x_i)$ for the uncapped individual outputs, $P_u=\sum_i(u_i-c)_+$, $Q_u=\sum_i(c-u_i)_+$, the \emph{crossing term} is
+\[
+\Tu=\frac1N\min(P_u,Q_u),
+\]
+the smaller of the mean output excess above capacity and the mean output shortfall below it. $\Tu=0$ exactly when all units lie on one side of the capacity.
+\end{definition}
+
+\section{Results}\label{sec:theory}
+
+Throughout, $M_k^{(i)}=\sup_{t\in[0,1]}\|D^k\!f(\bar x+th_i)\|$ is the supremum of the $k$-th derivative along the segment from $\bar x$ to $x_i$, and $M_k=\max_iM_k^{(i)}$, which is at most the supremum over the convex hull of the population.
+
+\subsection{Smooth regime}
+
+\begin{proposition}[Remainder identities and bounds]\label{prop:smooth}
+Let $f\in C^2(U)$ and let $x_1,\dots,x_N\in U$.
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item $E_1=\frac12\sum_i D^2\!f(\xi_i)[h_i,h_i]$ for some $\xi_i$ on the segment $[\bar x,x_i]$; hence $|E_1|\le\frac12\sum_iM_2^{(i)}\|h_i\|^2=:B_1\le\frac N2M_2s^2$, and $E_1\le0$ if $f$ is concave.
+\item $E_2=\sum_i\int_0^1(1-t)\,\big(D^2\!f(\bar x+th_i)-D^2\!f(\bar x)\big)[h_i,h_i]\,\dd t$; hence $|E_2|\le\frac12\sum_i\omega_i(\|h_i\|)\|h_i\|^2$, where $\omega_i(r)=\sup_{t\in[0,1]}\|D^2\!f(\bar x+th_i)-D^2\!f(\bar x)\|$ is a modulus of continuity of the Hessian along the segment.
+\item If $f\in C^3(U)$ then $E_2=\sum_i\int_0^1\frac{(1-t)^2}{2}\,D^3\!f(\bar x+th_i)[h_i,h_i,h_i]\,\dd t$ and
+$|E_2|\le\frac16\sum_iM_3^{(i)}\|h_i\|^3=:B_2\le\frac N6M_3m_3$.
+\item If moreover $D^2\!f\preceq-\lambda I$ on the convex hull of the population for some $\lambda>0$, then $|E_1|\ge\frac\lambda2Ns^2$ and
+$\frac{|E_2|}{|E_1|}\le\frac{M_3\,m_3}{3\lambda\,s^2}\le\frac{M_3\,\rho}{3\lambda}$, $\rho=\max_i\|h_i\|$.
+\item (Certificates; under the hypothesis of (c).) If $(k+1)B_2<|Q_2|$ for some $k\ge1$, then $|E_1|\ge|Q_2|-B_2>kB_2\ge k|E_2|$: $k=1$ certifies that the second order improves on the first, $k=5$ the fivefold improvement of criterion C1 (Section~\ref{sec:exp}). With the moment form $B_2\le\frac N6M_3m_3$, where $M_3$ bounds $\|D^3\!f\|$ on a known region containing the population (for instance the coordinate box of the input range), the certificate uses only $\bar x$, $\Sigma$, $m_3$ and that region: the \emph{moment-and-range certificate}. With the segmentwise $B_2$ it needs the individual inputs, though not $f$ at the units: the \emph{micro-data certificate}, a diagnostic, since whoever holds the inputs and $f$ can compute $Y$. As $B_2=O(\sigma^3)$ and $|Q_2|=\Theta(\sigma^2)$ under (d), both hold for small dispersion.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+Taylor's formula along the segment $t\mapsto\bar x+th_i$, which lies in $U$ \citep[Ch.~VIII]{dieudonne1960}, gives the Lagrange form of order two and the integral forms of orders two and three for $f(x_i)-f(\bar x)-Df(\bar x)[h_i]$. Summing over $i$, the linear terms vanish because $\sum_ih_i=0$ and the quadratic terms add up to $\frac N2\tr(\Hf(\bar x)\Sigma)=Q_2$; this gives (a) and (c), and (b) after writing $\frac12D^2\!f(\bar x)[h_i,h_i]=\int_0^1(1-t)D^2\!f(\bar x)[h_i,h_i]\,\dd t$. The bounds use $|T[h,\dots,h]|\le\|T\|\|h\|^k$, $\int_0^1(1-t)\,\dd t=\frac12$, $\int_0^1\frac{(1-t)^2}{2}\,\dd t=\frac16$ and $\|h_i\|^3\le\rho\|h_i\|^2$. Concavity gives $D^2\!f(\xi_i)[h_i,h_i]\le0$ in (a), and $D^2\!f\preceq-\lambda I$ gives $-D^2\!f(\xi_i)[h_i,h_i]\ge\lambda\|h_i\|^2$ in (d). For (e), $|E_1|=|E_2+Q_2|\ge|Q_2|-|E_2|$ and $|E_2|\le B_2$.
+\end{proof}
+
+\begin{remark}[Orders in the dispersion; constants]\label{rem:orders}
+Fix a centred configuration $z_1,\dots,z_N$ ($\sum z_i=0$) and let $x_i=\bar x+\sigma z_i$. Then $s^2=\sigma^2s_z^2$, $m_3=\sigma^3m_3^z$, and Proposition~\ref{prop:smooth} gives $|E_1|=\Theta(\sigma^2)$ under (d), $|E_2|=O(\sigma^3)$ and $|E_2|/|E_1|=O(\sigma)$: the improvement factor of the second order over the first grows at least like $1/\sigma$. If $D^3\!f$ is Lipschitz on the convex hull (for instance $f\in C^4$, as Cobb--Douglas and CES are), the identity in (c) gives $E_2=\frac{\sigma^3}{6}N\langle D^3\!f(\bar x),\mu_3^z\rangle+O(\sigma^4)$: for a configuration with vanishing third central moments $E_2=O(\sigma^4)$, the improvement factor grows like $\sigma^{-2}$ and $\Yh_3=\Yh_2$, and the third-order correction is useful only when the third central moments dominate the fourth-order remainder. For inputs $\bar x\odot\exp(\sigma z-\sigma^2/2)$ with Gaussian $z$ two facts follow. The \emph{population} third central moments are $O(\sigma^4)$ (the skewness of a log-normal variable is $\approx3\sigma$ for small $\sigma$), the same order as the neglected term, so no improvement of the third over the second order is predicted. But the configuration is a finite sample of $N$ units: its \emph{sample} third central moment is the population one plus a sampling fluctuation of order $\sigma^3N^{-1/2}$, which does not vanish at fixed $N$; hence at fixed $N$ and $\sigma\to0$ the exponent of $E_2$ in $\sigma$ is $3$, and $4$ is approached only for $\sigma\gg N^{-1/2}$. E1 measures both effects. (The log-normal moment orders are standard calculations, given without proof.) For Cobb--Douglas frontiers the suprema $M_k^{(i)}$ have closed-form upper bounds (Lemma~\ref{lem:cd4}).
+\end{remark}
+
+\begin{proposition}[Fourth-order certificate]\label{prop:sharp}
+Let $f\in C^4(U)$, $x_1,\dots,x_N\in U$, and let $C_3=\frac N6\langle D^3\!f(\bar x),\mu_3\rangle=\Yh_3-\Yh_2$, built from the \emph{signed} third central moment tensor. Fix an invertible linear map $S$ of $\R^d$ (below $S=I$ or $S=\operatorname{diag}(\bar x)$) and write $M_{k,S}^{(i)}=\sup_{t\in[0,1]}\|D^k\!f(\bar x+th_i)\|_S$, $m_k^S=\frac1N\sum_i\|S^{-1}h_i\|^k$, and $M_{k,S}$ for any number $\ge\max_iM_{k,S}^{(i)}$, for instance $\sup_R\|D^k\!f\|_S$ over a convex region $R\subseteq U$ containing the population.
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item $E_2=C_3+E_3$ with $E_3=Y-\Yh_3=\sum_i\int_0^1\frac{(1-t)^3}{6}\,D^4\!f(\bar x+th_i)[h_i,h_i,h_i,h_i]\,\dd t$.
+\item $|E_3|\le\frac1{24}\sum_iM_{4,S}^{(i)}\|S^{-1}h_i\|^4=:B_3\le\frac N{24}M_{4,S}\,m_4^S$, and likewise $|E_2|\le\frac16\sum_iM_{3,S}^{(i)}\|S^{-1}h_i\|^3=:B_2^S\le\frac N6M_{3,S}\,m_3^S$, where $B_2^I=B_2$ is the bound of Proposition~\ref{prop:smooth}(c). Hence $|E_2|\le\min\big(B_2^S,\,|C_3|+B_3\big)$.
+\item (Certificate.) $|E_1|\ge|Q_2+C_3|-B_3\ge|Q_2|-|C_3|-B_3$. If $(k+1)\big(|C_3|+B_3\big)<|Q_2|$ for some $k\ge1$, or more generally $|Q_2+C_3|-B_3>k\big(|C_3|+B_3\big)$, then $|E_1|>k\big(|C_3|+B_3\big)\ge k|E_2|$.
+\item (Comparisons.) $\big|(Y^A-Y^B)-(\Yh_3^A-\Yh_3^B)\big|\le B_3^A+B_3^B$ for two populations $A$, $B$; and if $|\Yh_2^A-\Yh_2^B|>\big(|C_3^A|+B_3^A\big)+\big(|C_3^B|+B_3^B\big)$, then $\Yh_2^A-\Yh_2^B$, $\Yh_3^A-\Yh_3^B$ and $Y^A-Y^B$ have the same sign.
+\end{enumerate}
+\end{proposition}
+
+With the moment form of (b) the certificate uses $\bar x$, $\Sigma$, the whole tensor $\mu_3$, $m_4^S$ and the region $R$ (\emph{fourth-order moment-and-range certificate}; unlike $m_3$, $m_4^S$ is a polynomial moment of the inputs); with the segmentwise $B_3$ it needs the individual inputs (\emph{micro-data certificate}). Proofs of Proposition~\ref{prop:sharp} and Lemma~\ref{lem:cd4} are in Appendix~\ref{app:proofs}.
+
+\begin{lemma}[Derivatives of a Cobb--Douglas frontier]\label{lem:cd4}
+Let $f(x)=A\prod_{m=1}^dx_m^{a_m}$ with $A>0$, $a_m>0$. For multiplicities $e=(e_1,\dots,e_d)$, $\sum_me_m=k$, $\partial^e\!f(x)=A\prod_m(a_m)_{e_m}\,x_m^{a_m-e_m}$ with the falling factorial $(a)_n=a(a-1)\cdots(a-n+1)$, $(a)_0=1$. On a box $[\ell,u]\subset\R^d_{>0}$, $|\partial^e\!f|$ is largest at the corner $c^e$ with $c^e_m=u_m$ if $a_m-e_m>0$ and $c^e_m=\ell_m$ if $a_m-e_m<0$ (either if $a_m=e_m$); when $0<a_m<1$ this is $u_m$ for $e_m=0$ and $\ell_m$ otherwise. For $S=\operatorname{diag}(s)$, $s>0$, $\sup_{[\ell,u]}\|D^k\!f\|_S\le\big(\sum_{j_1,\dots,j_k}(s^e|\partial^e\!f(c^e)|)^2\big)^{1/2}$, where $s^e=\prod_ms_m^{e_m}$ and $e$ are the multiplicities of $(j_1,\dots,j_k)$.
+\end{lemma}
+
+\begin{remark}[What changes in the order, and what does not]\label{rem:sharporders}
+With vanishing third central moments, $B_2=\Theta(\sigma^3)$ but $|E_2|$ and $|C_3|+B_3$ are $O(\sigma^4)$ (Remark~\ref{rem:orders}). For log-normal inputs, in the coordinates scaled by $\bar x$ and at leading order (population moments, derivatives at $\bar x$, the Frobenius bounds of Lemma~\ref{lem:cd4}; the sampling part of $C_3$, of relative order $\sigma/\sqrt N$, is negligible at the certified dispersions), $B_2^S/|Q_2|\approx\SharpAold\,\sigma$, $(|C_3|+B_3)/|Q_2|\approx\SharpAnew\,\sigma^2$ and $|E_2|/|Q_2|\approx\SharpAtrue\,\sigma^2$, so the certified dispersion scales like $1/(k+1)$ for the third-order certificate and like $1/\sqrt{k+1}$ for the fourth-order one: the gain is larger for $k=5$. These orders are heuristic; the certificate is exact.
+\end{remark}
+
+\subsection{Hierarchy}
+
+\begin{lemma}[Two levels]\label{lem:hier}
+With the notation of Definition~\ref{def:hier}:
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+\item $\Sigma=\bar\Sigma_W+\Sigma_B$ (law of total covariance), and consequently $\Yh_2^{\mathrm{TD}}=\Yh_2$.
+\item $Y-\Yh_2^{\mathrm{BU}}=\sum_gE_2^{(g)}$, the sum of the within-firm second-order errors, so $|Y-\Yh_2^{\mathrm{BU}}|\le\sum_gB_2^{(g)}$ with the firm-level bounds of Proposition~\ref{prop:smooth}(c), which involve only within-firm deviations.
+\item If $f$ is a polynomial of degree at most $2$ then $\Yh_2=\Yh_2^{\mathrm{BU}}=Y$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+(i) $h_i=(x_i-\bar x_g)+(\bar x_g-\bar x)$ for $i$ in group $g$ and the cross terms vanish on summing within the group; then $\Yh_2^{\mathrm{TD}}=N[f(\bar x)+\frac12\tr(\Hf(\bar x)(\Sigma_B+\bar\Sigma_W))]=\Yh_2$. (ii) is the definition of $\Yh_2^{\mathrm{BU}}$ with $Y=\sum_g\sum_{i\in g}f(x_i)$. (iii) The remainders in Proposition~\ref{prop:smooth}(c) vanish when $D^3\!f\equiv0$.
+\end{proof}
+
+The lemma is elementary; it says that hierarchy buys exactly one thing, evaluating $f$ and its Hessian at the firm means instead of the sector mean, whose price in the pooled error is the between-firm third-order term. Bottom-up aggregation isolates the error firm by firm; in particular (Corollary~\ref{cor:cross} below) only the firms whose units straddle a capacity contribute a first-order-in-dispersion error.
+
+\subsection{Threshold crossings}\label{sec:threshold}
+
+\begin{lemma}[Hinge identity]\label{lem:hinge}
+For reals $u_1,\dots,u_N$ with mean $\bar u$ and any $c$, with $P_u,Q_u$ as in Definition~\ref{def:cap}, $\sum_i(u_i-c)_+-N(\bar u-c)_+=\min(P_u,Q_u)$.
+\end{lemma}
+\begin{proof}
+$P_u-Q_u=\sum_i(u_i-c)=N(\bar u-c)$, so $N(\bar u-c)_+=(P_u-Q_u)_+$ and $P_u-(P_u-Q_u)_+=\min(P_u,Q_u)$.
+\end{proof}
+
+\begin{proposition}[Second-order error at a capacity]\label{prop:cap}
+Let $f\in C^3(U)$, $c>0$, and let $E_k(f)$, $E_k(f_c)$, $Q_2$, $B_1$, $B_2$ refer to the same population. Then
+\begin{equation}\label{eq:capid}
+E_2(f_c)=-N\Tu+E_2(f)+Q_2\,\mathbf 1\{f(\bar x)>c\}-N\big[(\bar u-c)_+-(f(\bar x)-c)_+\big],
+\end{equation}
+where $\bar u=\frac1N\sum_iu_i=Y(f)/N$. Consequently
+\begin{equation}\label{eq:capbound}
+\big|E_2(f_c)+N\Tu\big|\;\le\;B_2+B_1+|Q_2|\,\mathbf 1\{f(\bar x)>c\},
+\qquad E_1(f_c)=E_2(f_c)+Q_2\,\mathbf 1\{f(\bar x)\le c\}.
+\end{equation}
+\end{proposition}
+\begin{proof}
+$f_c=f-(f-c)_+$, so $Y(f_c)=Y(f)-P_u$. By Definition~\ref{def:cap}, $\Yh_2(f_c)=Nf(\bar x)-N(f(\bar x)-c)_++Q_2\mathbf 1\{f(\bar x)\le c\}$. Subtracting, $E_2(f_c)=[Y(f)-Nf(\bar x)-Q_2]+Q_2\mathbf 1\{f(\bar x)>c\}-[P_u-N(f(\bar x)-c)_+]$, and the first bracket is $E_2(f)$. By Lemma~\ref{lem:hinge}, $P_u-N(f(\bar x)-c)_+=\min(P_u,Q_u)+N[(\bar u-c)_+-(f(\bar x)-c)_+]$, which gives \eqref{eq:capid}. For \eqref{eq:capbound}: the hinge is $1$-Lipschitz, so the last term of \eqref{eq:capid} is at most $N|\bar u-f(\bar x)|=|E_1(f)|\le B_1$, and $|E_2(f)|\le B_2$ by Proposition~\ref{prop:smooth}(c). The relation between $E_1(f_c)$ and $E_2(f_c)$ is the definition of the second-order term of $f_c$.
+\end{proof}
+
+\begin{corollary}[Failure at a crossing]\label{cor:cross}
+Let $x_i=\bar x+\sigma z_i$ with a fixed centred configuration $(z_i)$, let $f(\bar x)=c$, $g=\nabla f(\bar x)$ and $\tau_z=\frac1{2N}\sum_i|g\cdot z_i|$. Then $|\Tu-\sigma\tau_z|\le\frac{M_2}{2}\sigma^2s_z^2$ and
+\[
+\big|E_2(f_c)+N\sigma\tau_z\big|\;\le\;N\Big[M_2\,\sigma^2s_z^2+\tfrac{M_3}{6}\,\sigma^3m_3^z\Big].
+\]
+If $\tau_z>0$ (some $z_i$ is not orthogonal to $g$, that is, the linearised outputs straddle the capacity), then as $\sigma\to0$: $E_2(f_c)=-N\sigma\tau_z(1+o(1))$, so the relative second-order error is of order $\sigma$; $|E_1(f_c)|/|E_2(f_c)|\to1$; and $|E_2(f_c)|/|E_2(f)|\ge 3\tau_z/(M_3m_3^z\sigma^2)\to\infty$.
+\end{corollary}
+\begin{proof}
+By Taylor's formula $u_i-c=\sigma\,g\cdot z_i+r_i$ with $|r_i|\le\frac{M_2}2\sigma^2\|z_i\|^2$. The hinge and $\min$ are $1$-Lipschitz in each argument, so $|P_u-\sigma\sum_i(g\cdot z_i)_+|$ and $|Q_u-\sigma\sum_i(g\cdot z_i)_-|$ are at most $\frac{M_2}2\sigma^2Ns_z^2$, and so is $|N\Tu-\sigma\min(\sum(g\cdot z_i)_+,\sum(g\cdot z_i)_-)|$. Since $\sum_ig\cdot z_i=0$, both sums equal $\frac12\sum_i|g\cdot z_i|=N\tau_z$. The displayed bound follows from \eqref{eq:capbound} with the indicator equal to $0$ (the convention at $f(\bar x)=c$), $B_1\le\frac N2M_2\sigma^2s_z^2$ and $B_2\le\frac N6M_3\sigma^3m_3^z$. The limits follow: $E_1(f_c)-E_2(f_c)=Q_2=O(N\sigma^2)$, and $|E_2(f)|\le\frac N6M_3\sigma^3m_3^z$ while $|E_2(f_c)|\ge N\sigma\tau_z/2$ for small $\sigma$.
+\end{proof}
+
+\begin{remark}[Hypotheses, shifted mean]\label{rem:hyp}
+(i) If the mean sits at output distance $\sigma b$ from the capacity, $f(\bar x)=c+\sigma b$, the same argument gives $\Tu=\sigma\tau_z(b)+O(\sigma^2)$ with $\tau_z(b)=\min\big(\frac1N\sum(g\cdot z_i+b)_+,\frac1N\sum(g\cdot z_i+b)_-\big)$, which is positive exactly when $-b$ lies strictly inside the range of the $g\cdot z_i$: the order-$\sigma$ error appears when, and only when, units lie on both sides of the capacity; when all units are on one side, $\Tu=0$ and Proposition~\ref{prop:smooth} applies to the smooth branch. (ii) The corollary applies verbatim to the symmetric design of Section~\ref{sec:exp} (antithetic pairs: the sample mean is exactly $\bar x$ and $z_i=\bar x\odot w_i$ is fixed along the sweep). It does not apply verbatim to the log-normal design, where the centred configuration $(x_i-\bar x)/\sigma$ depends on $\sigma$ and the sample mean satisfies $f(\bar x)-c=O(\sigma N^{-1/2})$, so that (i) with a random $b$ of order $N^{-1/2}$ is the applicable statement; E2 checks both.
+\end{remark}
+
+\begin{example}[Moments do not determine the aggregate at a crossing]\label{ex:moments}
+Take $d=1$, $f(x)=x$, $f_c=\min(x,c)$, and the two populations $\{c-\sigma,c-\sigma,c+\sigma,c+\sigma\}$ and $\{c-\sigma\sqrt2,c,c,c+\sigma\sqrt2\}$. Both have mean $c$, variance $\sigma^2$ and third central moment $0$ (they differ in the fourth, $\sigma^4$ against $2\sigma^4$), so every approximation built from $(\bar x,\Sigma,\mu_3)$ takes the same value on both; but their aggregates are $4c-2\sigma$ and $4c-\sqrt2\sigma$ ($Y=Nc-N\Tu$ here). Any estimator that depends on the population only through its first three moments has error at least $(1-\tfrac{\sqrt2}{2})\sigma$ on one of them: at a crossing the missing information is of first order in the dispersion, and no recalibration of a second-moment term can supply it uniformly. E5 below tests this on the simulated populations.
+\end{example}
+
+\subsection{Comparisons}
+
+\begin{proposition}[Margin condition]\label{prop:margin}
+Let $Y^A,Y^B$ be two aggregates with approximations $\Yh^A,\Yh^B$ and certified bounds $|Y^A-\Yh^A|\le B^A$, $|Y^B-\Yh^B|\le B^B$. If $|\Yh^A-\Yh^B|>B^A+B^B$ then $\operatorname{sign}(Y^A-Y^B)=\operatorname{sign}(\Yh^A-\Yh^B)$.
+\end{proposition}
+\begin{proof}
+$Y^A-Y^B=(\Yh^A-\Yh^B)+(E^A-E^B)$ and $|E^A-E^B|\le B^A+B^B<|\Yh^A-\Yh^B|$.
+\end{proof}
+
+In the smooth regime $B^A,B^B$ can be the bounds of Proposition~\ref{prop:smooth}(c) or~\ref{prop:sharp}(b): in moment form a comparison is then \emph{certified} from the moments, the input range and a derivative bound, in segmentwise form from the individual inputs. At a crossing the error is $-N\Tu$ up to smaller terms and $\Tu$ is not a function of the moments (Example~\ref{ex:moments}), so no certificate of this kind exists. A closed-form example shows that the condition is not idle.
+
+\begin{example}[A reversal corrected at second order]\label{ex:rev}
+$f(x)=\sqrt x$; sector $A$ has all units at $1$, sector $B$ half at $1+\delta+\sigma$ and half at $1+\delta-\sigma$. With $\delta=\EsixSqrtDelta$, $\sigma=\EsixSqrtSigma$: $Y^B/N=\EsixSqrtYB<1=Y^A/N$, while $\Yh_1^B/N=\sqrt{1+\delta}=\EsixSqrtYoneB>1$ (reversed) and $\Yh_2^B/N=\sqrt{1+\delta}-\tfrac18(1+\delta)^{-3/2}\sigma^2=\EsixSqrtYtwoB<1$ (correct).
+\end{example}
+
+\section{Experiments}\label{sec:exp}
+
+\paragraph{Protocol.} Two inputs (capital, labour) with sector mean $\bar x=(\EoneXbarK,\EoneXbarL)$. Two smooth frontiers: Cobb--Douglas $f=K^{0.3}L^{0.5}$ \citep{cobbdouglas1928} and CES $f=(0.4K^{-1}+0.6L^{-1})^{-0.8}$ \citep{acms1961}, both with returns to scale $0.8$ and hence strictly concave on $\R^2_{>0}$; their analytic gradient, Hessian and third-derivative tensor are checked against central differences (E0: worst relative deviation $\EzeroCDthird$ and $\EzeroCESthird$). Two input laws with correlation $\EoneCorr$ between the standard shocks: log-normal, $x=\bar x\odot\exp(\sigma z-\sigma^2/2)$ (LN, skewed), and symmetric uniform, $x=\bar x\odot(1+\sigma w)$ with $w$ uniform on $[-\sqrt3,\sqrt3]$ through a Gaussian copula and antithetic pairs $(w,-w)$, so that the sample mean is exactly $\bar x$ and all sample third central moments vanish exactly (SU). Shocks are drawn once per replication and reused across the dispersion sweep (common random numbers). Errors are reported as medians over replications of $|e_k|$, with percentile bootstrap intervals over replications in \texttt{results/tables.md}; ratios of errors are the minimum over replications, the conservative choice for a uniform criterion. Bounds are computed for the Cobb--Douglas frontier (for CES see the Limitations), in segmentwise (micro-data) and in moment-and-range form (Proposition~\ref{prop:smooth}(e), Appendix~\ref{app:repro}).
+
+\paragraph{Predefined criteria.} \emph{C1 (certified improvement)}: for a given frontier and input law, the minimum over replications of $|E_1|/|E_2|$ is at least $5$ at every $\sigma$ of the sweep (log-spaced in $[0.01,1]$ for LN and in $[0.01,0.5]$ for SU). \emph{C2 (decisions)}: in every cell of the decision experiment in which the first-order reversal rate is at least $2\%$, the second-order reversal rate is at most one fifth of it. Both criteria were written into the script before the first run (v0.1); no dated record of that version exists, so from v0.2 on the script's SHA-256 (\MetaScriptSha) and the run date (\MetaDate) are stored with the results.
+
+\subsection{E1: dispersion sweep on smooth frontiers}
+
+$N=\EoneN$ units, $\EoneReps$ replications. Figure~\ref{fig:sweep}; the errors, ratios and bounds at every dispersion of the sweep, for both frontiers and with bootstrap intervals, are in \texttt{results/tables.md}. The small-dispersion exponents (least squares on the median curves for $\sigma\le0.05$; bootstrap standard errors over replications in parentheses when they exceed $0.005$) are: order~1, $\EoneSlopeOneCDLN$ (CD--LN), $\EoneSlopeOneCDSU$ (CD--SU), $\EoneSlopeOneCESLN$ and $\EoneSlopeOneCESSU$ (CES); order~2, $\EoneSlopeTwoCDLN$ ($\EoneSlopeTwoSeCDLN$), $\EoneSlopeTwoCDSU$, $\EoneSlopeTwoCESLN$ ($\EoneSlopeTwoSeCESLN$), $\EoneSlopeTwoCESSU$; order~3, $\EoneSlopeThreeCDLN$, $\EoneSlopeThreeCDSU$, $\EoneSlopeThreeCESLN$, $\EoneSlopeThreeCESSU$. These are the exponents of Remark~\ref{rem:orders}: $2$ for the first order, $4$ for the second order on symmetric inputs and for the third order on both laws; on log-normal inputs the second-order exponent lies between $3$ and $4$, the finite-$N$ effect of that remark ($\sigma\lesssim N^{-1/2}$ is inside the fitting window at $N=\EoneN$). A dedicated run (E1c: Cobb--Douglas, LN, \EonecReps{} replications for each $N\in\{\EonecNs\}$, bootstrap standard errors) gives second-order exponents $\EonecSlopeTwoNSmall$ ($\EonecSlopeTwoSeNSmall$), $\EonecSlopeTwoNMid$ ($\EonecSlopeTwoSeNMid$), $\EonecSlopeTwoNLarge$ ($\EonecSlopeTwoSeNLarge$) and $\EonecSlopeTwoNHuge$ ($\EonecSlopeTwoSeNHuge$), and third-order exponents $\EonecSlopeThreeNSmall$, $\EonecSlopeThreeNMid$, $\EonecSlopeThreeNLarge$, $\EonecSlopeThreeNHuge$: the third order removes the sample third moment exactly, whatever $N$. The median third-moment term $|E_2-E_3|/Y$ at $\sigma=0.01$ ($\EonecThirdTermNSmall$, $\EonecThirdTermNMid$, $\EonecThirdTermNLarge$, $\EonecThirdTermNHuge$) has a part that decreases with $N$ on top of a floor set by the population skewness, as Remark~\ref{rem:orders} says.
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.64\linewidth]{../figures/dispersion_sweep.pdf}
+\caption{E1, Cobb--Douglas frontier (the CES curves are the same up to constants). Median relative aggregation error against dispersion for the three orders and the certified bound $B_2/Y$ on the second-order error. Slopes $2$, $4$ ($3$--$4$ on skewed inputs at this $N$) and $4$.}
+\label{fig:sweep}
+\end{figure}
+
+\emph{Criterion C1.} On symmetric inputs C1 holds on the whole sweep for both frontiers (minimum ratios $\EoneRtoAtMaxCDSU$ and $\EoneRtoAtMaxCESSU$ at $\sigma=\EoneSigmaMaxCDSU$). On log-normal inputs it holds at $\sigma=\EoneConeLargestCDLN$ and fails at the next grid point, $\sigma=\EoneConeFirstFailCDLN$ (both frontiers); at $\sigma=\EoneSigmaMaxCDLN$ the minimum ratio is $\EoneRtoAtMaxCDLN$ (CD) and $\EoneRtoAtMaxCESLN$ (CES), that is, the second-order approximation is then \emph{worse} than the representative unit.
+
+\emph{Third order.} On log-normal inputs the median ratio $|E_2|/|E_3|$ is below $1$ in $\EoneRttCellsCDLN$ of $\EoneCellsCDLN$ cells for Cobb--Douglas and $\EoneRttCellsCESLN$ of $\EoneCellsCESLN$ for CES: adding the third moment does not improve the aggregate, as Remark~\ref{rem:orders} anticipates, and at large dispersion it degrades it substantially (minimum ratio $\EoneRttMinCDLN$). On symmetric inputs $\Yh_3=\Yh_2$ exactly.
+
+\emph{Bounds and certificates.} The segmentwise bound $B_2$ holds in every replication and cell of both input laws (checks: \EoneBoundHoldsCDLN, \EoneBoundHoldsCDSU), as does the moment-and-range bound $\frac N6M_3m_3$ with $M_3$ taken over the coordinate box of the population, which is larger by a factor that reaches $\EoneBoxOverSegCDLN$ at the largest dispersion. Both are conservative: the largest observed $|E_2|/B_2$ is $\EoneEtwoOverBtwoMaxCDLN$ (LN) and $\EoneEtwoOverBtwoMaxCDSU$ (SU) (see the Limitations). The certificate $2B_2<|Q_2|$ of Proposition~\ref{prop:smooth}(e) holds in every replication for $\sigma\le\EoneCertBoxSigmaCDLN$ (LN) and $\sigma\le\EoneCertBoxSigmaCDSU$ (SU) in its moment-and-range form, and for $\sigma\le\EoneCertSigmaCDLN$ and $\sigma\le\EoneCertSigmaCDSU$ in its micro-data form; the fivefold improvement of C1 ($6B_2<|Q_2|$) only for $\sigma\le\EoneCertConeBoxSigmaCDLN$ and $\EoneCertConeBoxSigmaCDSU$ (micro data: $\EoneCertConeSigmaCDLN$, $\EoneCertConeSigmaCDSU$). The improvement certified, $|E_2|<|E_1|$, is observed in every replication up to $\sigma=\EoneRatioGtOneSigmaCDLN$ (LN, both frontiers) and on the whole SU sweep, the fivefold one up to $\EoneConeLargestCDLN$ (LN).
+
+\emph{Fourth-order certificate.} The bounds $|E_3|\le B_3$ and $|E_2|\le|C_3|+B_3$ of Proposition~\ref{prop:sharp} hold in every replication and cell of both laws and both frontiers (all hold: \SharpBoundsHold), and even in moment-and-range form $|E_2|/(|C_3|+B_3)$ reaches $\SharpEtwoOverBMaxCDLN$ (LN) and $\SharpEtwoOverBMaxCDSU$ (SU), against at most $\EoneEtwoOverBtwoMaxCDLN$ and $\EoneEtwoOverBtwoMaxCDSU$ for the micro-data $B_2$. From moments and range and in the same Euclidean norm, $2(|C_3|+B_3)<|Q_2|$ holds in every replication for $\sigma\le\SharpCertBoxSigmaCDLN$ (LN) and $\SharpCertBoxSigmaCDSU$ (SU), and the fivefold improvement is certified up to $\SharpCertConeBoxSigmaCDLN$ and $\SharpCertConeBoxSigmaCDSU$. A change of norm also helps, and we keep the two gains apart: with $S=\operatorname{diag}(\bar x)$ the third-order certificate with $B_2^S$ (Proposition~\ref{prop:sharp}(b)) already reaches $\OldCertBoxScSigmaCDLN$ ($k=1$) and $\OldCertConeBoxScSigmaCDLN$ ($k=5$) on LN inputs, and at that norm the fourth order takes it to $\SharpCertBoxScSigmaCDLN$ and $\SharpCertConeBoxScSigmaCDLN$. The micro-data versions (in \path{theory/sharp_certificate_results.json}) reach one or two grid points further. These dispersions are grid points (adjacent ones differ by a factor $10^{1/8}$ for LN and $50^{1/14}$ for SU, about $1.33$), so each gain is resolved to one step. The signed form of Proposition~\ref{prop:sharp}(c) certifies the same dispersions (all variants: \SharpSignedSame; on SU inputs $C_3=0$). As Remark~\ref{rem:sharporders} predicts, the gain is larger for $k=5$, but the certified range stays far below the observed one.
+
+\subsection{E2: capacity thresholds}
+
+Cobb--Douglas frontier, $N=\EtwoN$, $\EtwoReps$ replications, both input laws, capacity $c=f(\bar x)/(1+\delta)$ with $\delta\in\{\EtwoDeltas\}$ (negative: the representative unit is below capacity) and $\sigma$ from $\EtwoSigmaMin$ to $1$ ($0.5$ for SU). Figure~\ref{fig:threshold} (top) and Table~\ref{tab:e2}; the full grid is in \texttt{results/tables.md}.
+
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lrrrrrrrrrr}
+\toprule
+law & $\sigma$ & $|e_1|$ & $|e_2|$ & $|e_2|$ (smooth) & $\min\frac{|E_1|}{|E_2|}$ & below branch & above (\%) & $\frac{-E_2}{N\Tu}$ & $\frac{\Tu}{\sigma\tau_z}$ & $\bigl|\frac{\Tu}{\sigma\tau_z(b)}-1\bigr|$\\
+\midrule
+\input{table_e2.tex}\\
+\bottomrule
+\end{tabular}
+\caption{E2 at $\delta=0$ (mean output on the capacity). ``Smooth'': same population, uncapped frontier; improvement ratio: minimum over all replications and over those whose sample mean falls below the capacity (``below branch''); ``above'': percentage of replications whose sample mean falls above it (SU: below branch by convention); last three columns: medians over replications of $-E_2/(N\Tu)$ (Proposition~\ref{prop:cap}), of $\Tu/(\sigma\tau_z)$ (Corollary~\ref{cor:cross}) and of the absolute deviation from $1$ of the shifted ratio of Remark~\ref{rem:hyp}(i).}
+\label{tab:e2}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.64\linewidth]{../figures/threshold_hierarchy.pdf}
+\caption{Top (E2, log-normal inputs): second-order relative error against dispersion for the capped frontier at four threshold proximities and for the uncapped frontier (left); the ratio $-E_2/(N\Tu)$, equal to $1+O(\sigma)$ by Proposition~\ref{prop:cap} (right; one $\delta=-0.30$ point, ratio $\EtwoRatioClipped$, is off the axis). Bottom (E3): pooled (solid) and bottom-up (dotted) second-order errors against within-firm dispersion, one shade per between-firm dispersion, for the smooth frontier (left) and with a capacity at the sector mean output (right).}
+\label{fig:threshold}
+\end{figure}
+
+With the mean on the capacity ($\delta=0$) the small-dispersion exponent of the second-order error is $\EtwoSlopeCappedLN$ (LN; bootstrap s.e.\ $\EtwoSlopeCappedSeLN$) and $\EtwoSlopeCappedSU$ (SU), against $\EtwoSlopeSmoothLN$ ($\EtwoSlopeSmoothSeLN$) and $\EtwoSlopeSmoothSU$ for the same populations on the uncapped frontier: the error is linear in the dispersion, as Corollary~\ref{cor:cross} states, and at $\sigma=\EtwoSigmaMin$ it is $\EtwoAmplification$ times the uncapped one (LN). The constant of the corollary is checked on the symmetric design, to which it applies verbatim: the median of $\Tu/(\sigma\tau_z)$ is $\EtwoTauSU$ at $\sigma=\EtwoSigmaMin$ (bootstrap interval $\EtwoTauSUci$), $\EtwoTauSUPointOne$ at $\sigma=0.1$ and $\EtwoTauSUPointThree$ at $\sigma=0.316$, a deviation linear in $\sigma$. On the log-normal design the sample mean is off the capacity ($|f(\bar x)-c|/c$ up to $\EtwoFxbarMinusCSmallLN$ at $\sigma=0.01$) and the shifted ratio $\Tu/(\sigma\tau_z(b))$ of Remark~\ref{rem:hyp}(i) applies: at $\sigma=0.01$ it lies in $[\EtwoTaubLNMin,\EtwoTaubLNMax]$ in every replication, with the sign of the deviation set by the side of the capacity on which the sample mean falls ($P_u<Q_u$ in $\EtwoTaubLNPQ\%$ of the replications, so the median falls between two groups and says nothing), and its median absolute deviation from $1$ is $\EtwoTaubLNAbsDev$, the same $O(\sigma)$ deviation as on symmetric inputs ($\EtwoTauSUAbsDev$). Identity \eqref{eq:capid} holds to a relative $\EtwoIdentityGap$ in all $\EtwoCells$ cells (a check of the code), so $-E_2/(N\Tu)$ is not an independent test of the constant (it equals $1-E_2(f)/(N\Tu)$ in the below branch and $1$ in the above branch with $\bar u>c$); the two-sided bound \eqref{eq:capbound} holds in \EtwoTwoSided{} cells because it reduces to $B_1\ge|E_1(f)|$ and $B_2\ge|E_2(f)|$, and its lower-bound form is informative where $N\Tu$ exceeds the smooth bounds ($\sigma\le\EtwoLowerSigmaLN$ at $\delta=0$, LN; $\EtwoLowerInformative$ of the $\EtwoCells$ cells).
+
+At $\delta=0$ the LN sample mean falls above the capacity in $\EtwoFracAboveLNmin$--$\EtwoFracAboveLNmax\%$ of the replications, where $\Yh_2=\Yh_1$ by construction and the improvement ratio is exactly $1$; SU is fixed to the below branch by the convention of Definition~\ref{def:cap}. The informative below-branch ratio is $\EtwoRtoBelowLN$ (LN) and $\EtwoRtoBelowSU$ (SU) at $\sigma=\EtwoSigmaMin$ and grows slowly with $\sigma$: the second order buys nothing at a crossing, in either branch. Away from the capacity ($\delta=-0.3$) the behaviour is that of the smooth frontier (minimum improvement ratio $\EtwoRtoFarSmall$ for $\sigma\le0.05$) until the upper tail of the population reaches the capacity; at $\delta=-0.03$ the switch occurs inside the fitting window and gives the transitional slope $\EtwoSlopeTransition$ ($\EtwoSlopeTransitionSe$) of Figure~\ref{fig:threshold}. Units lie on both sides of the capacity in $\EtwoCrossingCells$ of the $\EtwoCells$ cells.
+
+\subsection{E3: two-level hierarchy}
+
+$G=\EthreeG$ firms of $n=\Ethreen$ units ($N=\EthreeN$), firm means log-normal around the sector mean with between-firm dispersion $\sigma_B$, units log-normal around their firm mean with within-firm dispersion $\sigma_W$, both in $\{0.05,0.1,0.2,0.4\}$, $\EthreeReps$ replications; smooth Cobb--Douglas frontier and the same frontier capped at the sector mean output. Figure~\ref{fig:threshold} (bottom); all cells, with bootstrap intervals, are in \texttt{results/tables.md}. The identity $\Yh_2^{\mathrm{TD}}=\Yh_2$ of Lemma~\ref{lem:hier}(i) holds to a relative $\EthreeLemmaGap$ (floating point). On the smooth frontier the bottom-up estimator is better in $\EthreeBetterCells$ of $\EthreeCells$ cells, by a median per-replication factor from $\EthreeGainMin$ (small $\sigma_B$, large $\sigma_W$) to $\EthreeGainMax$ (large $\sigma_B$, small $\sigma_W$); the bottom-up error depends essentially on $\sigma_W$ only, by Lemma~\ref{lem:hier}(ii) and the homogeneity of the Cobb--Douglas frontier under multiplicative shocks ($f(\bar x_g\odot v)=f(\bar x_g)f(v)$, so a firm's relative error does not depend on its mean), and the bound checks of Lemma~\ref{lem:hier}(ii) and Proposition~\ref{prop:smooth}(c) pass in every replication (all hold: \EthreeBoundsHold). With the capacity, $\EthreeStraddleMin$--$\EthreeStraddleMax\%$ of the firms straddle it; the bottom-up error is $\EthreeCappedRatioMin$--$\EthreeCappedRatioMax$ times the pooled one, and the firms that do not straddle contribute at most a fraction $\EthreeNonStraddleShare$ of the bottom-up error: the hierarchy localises the failure but does not remove it, since inside a straddling firm Corollary~\ref{cor:cross} applies.
+
+\subsection{E4: rank reversals between two sectors}
+
+Two sectors of $N=\EfourN$ units each. Sector $A$ has mean $\bar x$ and dispersion $\sigma$; sector $B$ has mean $\bar x(1+\gamma)^{1/0.8}$, so that $f(\bar x_B)=(1+\gamma)f(\bar x_A)$ with $\gamma$ uniform on $\pm\EfourGammaMax\%$, and dispersion $\sigma/2$. Inputs log-normal; $\EfourTrials$ trials per cell; $\sigma\in\{\EfourSigmaMin,\dots,\EfourSigmaMax\}$; capacity at $+50,+20,+10,+5,+0\%$ of $f(\bar x_A)$ or absent. A trial is a reversal at order $k$ when $\operatorname{sign}(\Yh_k^A-\Yh_k^B)\ne\operatorname{sign}(Y^A-Y^B)$. In the smooth cells a comparison is \emph{certified} when the margin condition of Proposition~\ref{prop:margin} holds with the bounds $B_2$ of the two samples, in micro-data and in moment-and-range form. Table~\ref{tab:e4}, with Wilson 95\% intervals; the other capacity positions are in \texttt{results/tables.md}.
+
+\begin{table}[t]
+\centering\scriptsize\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{rlllrrrll}
+\toprule
+& \multicolumn{6}{c}{no capacity} & \multicolumn{2}{c}{capacity $+0\%$}\\
+\cmidrule(lr){2-7}\cmidrule(lr){8-9}
+$\sigma$ & rev.~1 & rev.~2 & rev.~3 & cert.\ (micro) & cert.\ (mom.) & cert.\ rev. & rev.~1 & rev.~2\\
+\midrule
+\input{table_e4.tex}\\
+\bottomrule
+\end{tabular}
+\caption{E4. Rank-reversal rates in percent at orders $1$--$3$ over \EfourTrials{} trials per cell, with Wilson 95\% intervals for the rates that enter C2; ``cert.'' is the percentage of trials satisfying the margin condition with second-order bounds in micro-data and in moment-and-range form, and ``cert.\ rev.'' the number of reversals among the former (the latter are a subset). Order 3 with the capacity and the other capacity positions are in \texttt{results/tables.md}.}
+\label{tab:e4}
+\end{table}
+
+Without capacity the second order removes almost all reversals: the first-order rate reaches $\EfourSmoothRevOneMax\%$ and the second-order rate never exceeds $\EfourSmoothRevTwoMax\%$. Among the certified comparisons there were $\EfourCertifiedReversals$ reversals at order~2 (and $\EfourCertifiedOneReversals$ among comparisons certified with first-order bounds), as Proposition~\ref{prop:margin} guarantees; but the certified share shrinks with the dispersion (Table~\ref{tab:e4}): at $\sigma=0.2$ it is $\EfourCertFracPointTwo\%$ with the micro-data bound and $\EfourCertBoxFracPointTwo\%$ with the moment-and-range bound, the one available without the micro data. With the fourth-order bounds in the margin condition (Proposition~\ref{prop:sharp}(d)) and $S=\operatorname{diag}(\bar x)$ the certified share at $\sigma=0.2$ becomes $\SharpEfourScFracPointTwo\%$ (micro data) and $\SharpEfourBoxScFracPointTwo\%$ (moments and range), against $\OldEfourScFracPointTwo\%$ and $\OldEfourBoxScFracPointTwo\%$ with $B_2^S$; at $\sigma=0.4$ (micro data) the third-order bound certifies more ($\OldEfourScFracPointFour\%$ against $\SharpEfourScFracPointFour\%$), and the smaller bound $\min(B_2^S,|C_3|+B_3)$ of Proposition~\ref{prop:sharp}(b), used in Proposition~\ref{prop:margin}, certifies $\MinEfourScFracPointFour\%$ ($\MinEfourScFracPointTwo\%$ at $\sigma=0.2$); none of the comparisons certified in any of these forms is a reversal ($\MinEfourCertReversals$ in all). The third order is harmful at large dispersion: at $\sigma=\EfourSigmaMax$ its reversal rate is $\EfourRevThreeLargeSigma\%$, against $\EfourRevOneLargeSigma\%$ for the first and $\EfourRevTwoLargeSigma\%$ for the second order, because the third central moments of log-normal inputs over-correct. With the capacity at the mean output of $A$ the reversal rates are $\EfourCapZeroRevOneSmall\%$ (order~1) and $\EfourCapZeroRevTwoSmall\%$ (order~2) already at $\sigma=\EfourSigmaMin$, and the second-order rate stays between $\EfourCapRevTwoMin\%$ and $\EfourCapRevTwoMax\%$.
+
+\emph{Criterion C2.} Of the $\EfourEligible$ cells with a first-order reversal rate of at least $2\%$ ($\EfourEligibleSmooth$ without capacity, $\EfourEligibleCapped$ of the $\EfourCappedCells$ with it), $\EfourFailing$ fail C2 on the point estimates, all with a capacity. With the Wilson intervals (a cell fails clearly when the lower limit of the second-order rate exceeds one fifth of the upper limit of the first-order rate, passes clearly in the mirror case, and is borderline otherwise), C2 fails clearly in $\EfourFailClearCapped$ capacity cells, is borderline in $\EfourBorderline$ cells (\EfourBorderlineCellsText; in the smooth one the rates are $\EfourSmoothRevOnePointFour\%$ $\EfourSmoothRevOnePointFourCi$ and $\EfourSmoothRevTwoPointFour\%$ $\EfourSmoothRevTwoPointFourCi$) and passes clearly in $\EfourPassClearSmooth$ smooth and $\EfourPassClearCapped$ capacity cells. In the capacity cells that pass (\EfourPassingCellsText) the sample mean of $A$ stays below the capacity in at least $\EfourPassingMeanBelowMin\%$ of the trials, so the second order is right for reasons unrelated to the crossing. C2 does not hold.
+
+\subsection{E5: a scalar recalibration}
+
+The record of the research line mentions a calibration that failed its criterion; the original procedure is not documented, so we test the simplest one. The second-order term is rescaled, $\Yh_\lambda=\Yh_1+\lambda Q_2$, with $\lambda$ fitted by least squares on a training design (Cobb--Douglas, LN, $N=\EfiveN$, $\EfiveReps$ replications, $\sigma\in\{\EfiveTrainSigmas\}$, four regimes: no capacity, and $f(\bar x)/c-1\in\{-0.1,0,+0.1\}$), either globally or separately by regime, and evaluated on new seeds at off-grid dispersions $\sigma\in\{\EfiveTestSigmas\}$ for both input laws; the criterion is C1 on the test grid. The fitted values are $\lambda=\EfiveLambdaGlobal$ (global) and $\EfiveLambdaSmooth$, $\EfiveLambdaBelow$, $\EfiveLambdaAt$ for the smooth, below and at-capacity regimes; above capacity $Q_2\equiv0$, no $\lambda$ exists and there is nothing to recalibrate, so that regime is reported as not applicable and excluded from the verdict. The minima of $|E_1|/|Y-\Yh_\lambda|$ over test dispersions and replications, by regime and law, are in \texttt{results/tables.md} (E5 summary).
+
+
+No variant meets C1 on the smooth, below and at-capacity regimes (order 2: \EfiveOtwoConeExclAbove; global: \EfiveGlobConeExclAbove; by regime: \EfiveRegConeExclAbove), but the failures have different causes. In the smooth regime the regime-specific factor meets C1 for $\sigma\le\EfiveTestSigmaSecond$ (minimum ratio $\EfiveRegLNSmoothMinExclMax$, LN) and fails only at $\sigma=\EfiveTestSigmaMax$ ($\EfiveRegLNSmoothAtMax$), beyond the range where even the plain second order meets it (E1; here $\EfiveOtwoLNSmooth$); the global factor is worse than the representative unit there (minimum ratio $\EfiveGlobLNSmooth$), because a factor fitted to crossing cells destroys the smooth-regime accuracy. Below capacity, at dispersions where no unit crosses, the ratio is $1/(\lambda-1)$ by construction ($\EfiveInvLambdaGlobal$ global, $\EfiveInvLambdaBelow$ by regime), because regimes are defined by the position of the mean and not by whether units cross; where units do cross, the plain second order gains at most a factor $\EfiveOtwoLNBelowMaxExclSmall$ (LN), and the regime factor meets C1 at $\sigma\in\{\EfiveRegLNBelowMidSigmas\}$ (ratios $\EfiveRegLNBelowMid$) but not at $\sigma=\EfiveTestSigmaMax$ ($\EfiveRegLNBelowAtMax$). The substantive failure is at the capacity: the below-branch ratios are $\EfiveOtwoLNAtBelow$, $\EfiveGlobLNAtBelow$ and $\EfiveRegLNAtBelow$ (LN), (SU: $\EfiveOtwoSUAtBelow$, $\EfiveGlobSUAtBelow$, $\EfiveRegSUAtBelow$), so every variant is as good as the representative unit and no better, the mechanism of Example~\ref{ex:moments}: the error to be removed scales as $\sigma$, the only available regressor as $\sigma^2$, and no constant reconciles them across dispersions.
+
+\section{What can be claimed}\label{sec:claims}
+
+\begin{table}[t]
+\centering\scriptsize
+\begin{tabular}{p{0.67\linewidth}p{0.27\linewidth}}
+\toprule
+claim & status\\
+\midrule
+First-order error is $N$ times the Jensen gap, non-positive for concave $f$ & classical\\
+Remainder identities, bounds $B_1$, $B_2$, certificates $(k+1)B_2<|Q_2|$ (Prop.~\ref{prop:smooth}); bounds hold in every simulated population; certificate ($k=1$, LN) up to $\sigma=\EoneCertBoxSigmaCDLN$ (moments and range), $\EoneCertSigmaCDLN$ (micro data) (E1) & classical (Taylor), assembled here; verified\\
+Fourth-order certificate and margin, scaled bound $B_2^S$ (Prop.~\ref{prop:sharp}), Cobb--Douglas derivative bounds (Lem.~\ref{lem:cd4}); bounds hold in every simulated population; certificate ($k=1$, LN) up to $\sigma=\SharpCertBoxSigmaCDLN$ (moments and range), $\SharpCertSigmaCDLN$ (micro data) (E1, E4); orders $\sigma$ vs.\ $\sigma^2$ (Rem.~\ref{rem:sharporders}) & proved here; checked by an independent internal referee (round 3); orders heuristic; verified\\
+CES suprema by interval enclosure; CES certificate up to $\sigma=\SharpCESNewCertBoxSigmaLN$ ($k=1$, LN) & computational; rounding not directed\\
+Exponents $2$ / $4$ / $4$ on symmetric inputs; for the second order on log-normal inputs between $3$ and $4$, from $\EonecSlopeTwoNSmall$ ($N=\EonecNSmall$) to $\EonecSlopeTwoNHuge$ ($N=\EonecNHuge$) (Rem.~\ref{rem:orders}, E1, E1c) & consequence of Prop.~\ref{prop:smooth}; verified\\
+Third order does not improve on the second for log-normal inputs (Rem.~\ref{rem:orders}, E1) & heuristic; verified\\
+Top-down equals pooled second order (Def.~\ref{def:hier}); bottom-up error is the sum of within-firm errors, gain $\EthreeGainMin$--$\EthreeGainMax$ (Lem.~\ref{lem:hier}, E3) & elementary; verified\\
+Hinge identity (Lem.~\ref{lem:hinge}); $E_2(f_c)=-N\Tu+O(\text{smooth terms})$ (Prop.~\ref{prop:cap}); identity checked to $\EtwoIdentityGap$ (E2) & elementary / proved here; verified\\
+At a crossing the error is $\Theta(\sigma)$, $|E_1|/|E_2|\to1$, $\Tu=\sigma\tau_z+O(\sigma^2)$ (Cor.~\ref{cor:cross}); slope $\EtwoSlopeCappedSU$, $\Tu/(\sigma\tau_z)=\EtwoTauSU$ at $\sigma=\EtwoSigmaMin$ (E2, SU) & proved here; verified\\
+Populations with equal first three moments and aggregates differing at order $\sigma$ (Ex.~\ref{ex:moments}) & proved here\\
+Margin condition preserves the ordering (Prop.~\ref{prop:margin}); $\EfourCertifiedReversals$ reversals among certified pairs, whose share shrinks with $\sigma$ (E4) & elementary; verified\\
+Covariance floor $O(\sigma/\sqrt N)$ with independent efficiencies; dominates up to $\sigma=\EonebSigmaCov$ (Limitations, E1b) & elementary; verified\\
+C1 (fivefold error reduction) holds on the SU sweep, fails on the LN sweep beyond $\sigma=\EoneConeLargestCDLN$, at crossings and after a scalar recalibration of $Q_2$ (E1, E2, E5); C2 (fivefold reduction of rank reversals) fails clearly in $\EfourFailClearCapped$ of $\EfourEligibleCapped$ eligible capacity cells, $\EfourBorderline$ cells borderline (E4) & verified\\
+Statements about real sectors, estimated frontiers or policy & not addressed\\
+\bottomrule
+\end{tabular}
+\caption{Claims and their status. ``Verified'' means reproduced by the scripts of Appendix~\ref{app:repro} with the fixed seed; it is not a proof. The original content of the draft is the combination Prop.~\ref{prop:cap}, Cor.~\ref{cor:cross}, Ex.~\ref{ex:moments}, the experiments and, since v0.4, Prop.~\ref{prop:sharp} with Lem.~\ref{lem:cd4} (refereed in round 3).}
+\label{tab:claims}
+\end{table}
+
+\paragraph{Limitations.} The frontier is known exactly; estimation error in $f$ or in the moments is not modelled, and would add to every error reported. The derivative suprema have closed-form upper bounds for Cobb--Douglas (Lemma~\ref{lem:cd4}); for CES they are enclosed by interval evaluation of the Fa\`a di Bruno formula (Appendix~\ref{app:repro}; within a factor $\SharpCESTightSmall$ of a grid maximum on the thin boxes of $\sigma=0.01$, $\SharpCESTightLarge$ on the wide ones of $\sigma=0.1$), which gives a first CES certificate ($k=1$, LN, moments and range: $\sigma\le\SharpCESCertBoxSigmaLN$ at third order, $\SharpCESNewCertBoxSigmaLN$ at fourth), with rounding covered by generous margins, not directed rounding: not a computer-assisted proof. This range is limited by the looseness of the enclosure, not by Proposition~\ref{prop:sharp}: with grid maxima in place of the enclosures (an estimate, not a bound; Appendix~\ref{app:repro}) the same certificates would reach $\sigma=\CesGridOldCertBoxSigmaLN$ and $\CesGridCertBoxSigmaLN$. The third-order bounds exceed the actual error by a factor of at least $\EoneLooseMin$ in every replication and of up to $\EoneLooseMax$ in median, because they use absolute third moments where the actual error cancels; the fourth-order form removes that cause. What remains is the norm inequality and the derivative suprema over the input range, on which all constants depend (so that the relative bounds, including those of Corollary~\ref{cor:cross}, are uniform in $N$ only if these suprema are): for log-normal inputs the range grows like $\bar x\odot e^{\pm\sigma z_{\max}}$ with $z_{\max}\approx\sqrt{2\log N}$, and $\|D^k\!f\|$ grows at its lower corner roughly like $e^{(k-a_m)\sigma z_{\max}}$, faster for $k=4$, so that $B_2^S$ becomes the smaller bound at large dispersion (hence the minimum in Proposition~\ref{prop:sharp}(b)). With independent idiosyncratic efficiencies $\theta_i$ \citep{farrell1957} the observed aggregate $\sum_i\theta_if(x_i)$ differs from $\bar\theta\Yh_k$ by $\bar\theta E_k$ plus $\sum_i(\theta_i-\bar\theta)(f(x_i)-\bar u)$, a covariance term of relative order $\sigma/\sqrt N$ that no moment correction removes; with $\theta_i\sim U(0.5,1)$ it dominates the second-order remainder up to $\sigma=\EonebSigmaCov$ at $N=\EonebN$ (E1b, \texttt{results/tables.md}). Two input laws and two frontiers are a controlled design, not a survey of shapes; the crossing analysis covers the capacity kink $\min(f,c)$ and, by the same proof, any frontier with a first-derivative jump along a hypersurface, but not regime switches that also change the level. The hierarchy has two levels; deeper hierarchies compose Lemma~\ref{lem:hier}. The decision experiment uses one margin distribution ($\pm\EfourGammaMax\%$), one dispersion ratio between sectors and $\EfourTrials$ trials per cell, which leaves $\EfourBorderline$ of its $\EfourEligible$ eligible cells undecided.
+
+\paragraph{Next steps.} (a) \emph{Done in part} (v0.4, Proposition~\ref{prop:sharp}). Open: a region tighter than the coordinate box still known from moments (or a separate bound for the few extreme units); a fifth-order version with the signed fourth-moment tensor; an optimised $S$ (only $I$ and $\operatorname{diag}(\bar x)$ were tried); CES enclosures with directed rounding and finer subdivision. (b) The crossing term $\Tu$ is the Jensen gap of the hinge; estimating it from a parametric family fitted to $(\bar x,\Sigma)$ is exact within the family and should be tested out of family, with Example~\ref{ex:moments} as the worst case. (c) Efficiency terms correlated with inputs, where the covariance term acquires a mean that the moment expansion must model. (d) The dynamic element the line's name promises: a trajectory $\sigma_t$ or $\bar x_t$ approaching the capacity, for which Proposition~\ref{prop:cap} and Remark~\ref{rem:hyp}(i) already give $E_2(t)$ and the regime switch.
+
+\appendix
+\section{Proofs of Proposition~\ref{prop:sharp} and Lemma~\ref{lem:cd4}}\label{app:proofs}
+\begin{proof}[Proof of Proposition~\ref{prop:sharp}]
+As in Proposition~\ref{prop:smooth}, $\varphi_i(t)=f(\bar x+th_i)$ is $C^4$ on $[0,1]$ with $\varphi_i^{(r)}(t)=D^r\!f(\bar x+th_i)[h_i,\dots,h_i]$, and Taylor's formula with integral remainder gives $\varphi_i(1)=\sum_{r=0}^3\varphi_i^{(r)}(0)/r!+\int_0^1\frac{(1-t)^3}{3!}\varphi_i^{(4)}(t)\,\dd t$. Summing over $i$, the terms $r=1$ cancel ($\sum_ih_i=0$), the terms $r=2$ give $Q_2$ and the terms $r=3$ give $\frac16\langle D^3\!f(\bar x),\sum_ih_i^{\otimes3}\rangle=C_3$; as $\Yh_3=Nf(\bar x)+Q_2+C_3$, this is (a). (b): with $v_i=S^{-1}h_i$, $|D^k\!f(y)[h_i,\dots,h_i]|=|D^k\!f(y)[Sv_i,\dots,Sv_i]|\le\|D^k\!f(y)\|_S\|v_i\|^k$; with $k=4$ and $\int_0^1\frac{(1-t)^3}{6}\dd t=\frac1{24}$ in (a) this gives $B_3$, and likewise with $k=3$ and $\int_0^1\frac{(1-t)^2}{2}\dd t=\frac16$ in the identity of Proposition~\ref{prop:smooth}(c) it gives $B_2^S$; a convex $R$ containing the population contains $\bar x$ and every segment $[\bar x,x_i]$. (c): $E_1=Q_2+C_3+E_3$, so $|E_1|\ge|Q_2+C_3|-B_3\ge|Q_2|-|C_3|-B_3>k(|C_3|+B_3)\ge k|E_2|$. (d): $Y^A-Y^B=(\Yh_3^A-\Yh_3^B)+E_3^A-E_3^B$ by (a), and $|(\Yh_3^A-\Yh_3^B)-(\Yh_2^A-\Yh_2^B)|=|C_3^A-C_3^B|\le|C_3^A|+|C_3^B|$, so the hypothesis gives $|\Yh_3^A-\Yh_3^B|>B_3^A+B_3^B$ with the sign of $\Yh_2^A-\Yh_2^B$, which then fixes the sign of $Y^A-Y^B$.
+\end{proof}
+\begin{proof}[Proof of Lemma~\ref{lem:cd4}]
+$\partial^e\!f=A\prod_m\partial_m^{e_m}x_m^{a_m}$ and $\partial^nx^a=(a)_nx^{a-n}$; in each coordinate the entry is a constant times $x_m^{a_m-e_m}$, increasing, decreasing or constant as $a_m-e_m$ is positive, negative or zero, which gives the corner; if $0<a_m<1$, $a_m-e_m$ is positive for $e_m=0$ and negative for $e_m\ge1$. Finally $D^k\!f(y)[Sv,\dots,Sv]=\sum_{j_1,\dots,j_k}s^e\,\partial^e\!f(y)\,v_{j_1}\cdots v_{j_k}$ is at most the Frobenius norm of the array $(s^e\partial^e\!f(y))$ times $\|v\|^k$ by Cauchy--Schwarz, and each entry is bounded by its value at its own corner.
+\end{proof}
+
+\section{Reproducibility}\label{app:repro}
+{\sloppy The directory contains \path{experiments/frontier_aggregation.py} (E0--E6, flag \texttt{--fast} for a reduced run; one random generator per experiment spawned from the master seed \MetaSeed; script hash \MetaScriptSha) and \path{experiments/make_numbers.py}, which converts \path{results/results.json} and the frozen files below into the macros and table bodies used by this document, so that every measured number in the text is generated (the numbers typed in the text are design parameters and closed-form constants). The scripts use Python with NumPy \citep{harris2020} and SciPy \citep{virtanen2020}; versions, run times and full hashes are in \path{README.md}. Bounds use Lemma~\ref{lem:cd4}, segmentwise (micro data: the box spanned by $\bar x$ and $x_i$, which contains the segment $[\bar x,x_i]$, gives $M_k^{(i)}$) or on the coordinate box of the population (moments and range). \path{theory/check_sharp_certificate.py} reproduces the draws of E1 and E4, computes the fourth-order bounds ($S=I$ and $\operatorname{diag}(\bar x)$) and, for CES, takes the smaller of a naive interval enclosure and a centred form of each Fa\`a di Bruno entry on a $4\times4$ subdivision of the box; its output \path{theory/sharp_certificate_results.json} (SHA-256 prefix \SharpJsonSha, script \SharpScriptSha) is frozen in \path{results/sharp_certificate.sha256}. \path{experiments/e4_min_bound.py} (E4 with the smaller bound) and \path{experiments/ces_grid_estimate.py} (CES suprema estimated by their maxima on a $33\times33$ geometric grid of the box: an estimate, not a bound) reuse those draws and functions; their outputs (SHA-256 prefixes \MinEfourJsonSha{} and \CesGridJsonSha) are frozen in \path{results/round3_checks.sha256}; \path{make_numbers.py} checks every frozen hash. E1c: $60$ replications for each $N$. Input laws: correlated standard shocks $z$ (Cholesky); SU uses $w=\sqrt3(2\Phi(z)-1)$ on half the sample and $-w$ on the other half. E3: firm means $\bar x\odot\exp(\sigma_B\zeta-\sigma_B^2/2)$, units $\bar x_g\odot\exp(\sigma_Wz-\sigma_W^2/2)$. E4: capacity $c=f(\bar x_A)(1+p)$; Wilson intervals with $z=1.96$. E5: $\lambda=\sum E_1Q_2/\sum Q_2^2$ over the training cells, globally or within each regime; evaluation on fresh shocks. Uncertainty: percentile bootstrap over replications ($1000$ resamples) for medians, and over replications with refitting ($500$ resamples) for exponents (E1, E1c, E2); one bootstrap generator per experiment.\par}
+
+\providecommand{\bibfont}{}\renewcommand{\bibfont}{\footnotesize}\setlength{\bibsep}{0pt plus 0.5pt}
+\bibliographystyle{plainnat}
+\bibliography{refs}
+\end{document}

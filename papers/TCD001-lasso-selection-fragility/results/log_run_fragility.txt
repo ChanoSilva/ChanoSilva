@@ -1,0 +1,10 @@
+family A n=8: 60 instances, f_any_signed(C) mean 1.32, P(f=1)=0.72, elapsed 3s
+family A n=10: 60 instances, f_any_signed(C) mean 1.67, P(f=1)=0.57, elapsed 7s
+family A n=12: 60 instances, f_any_signed(C) mean 1.88, P(f=1)=0.42, elapsed 14s
+family A n=14: 60 instances, f_any_signed(C) mean 2.07, P(f=1)=0.38, elapsed 25s
+family B n=8: 60 instances, f_any_signed(C) mean 1.12, P(f=1)=0.90, elapsed 29s
+family B n=10: 60 instances, f_any_signed(C) mean 1.30, P(f=1)=0.95, elapsed 33s
+family B n=12: 60 instances, f_any_signed(C) mean 1.10, P(f=1)=0.90, elapsed 39s
+family B n=14: 60 instances, f_any_signed(C) mean 1.07, P(f=1)=0.93, elapsed 50s
+KKT guard: {'calls': 117708, 'fallbacks': 0, 'fallbacks_tie_at_entry': 0, 'fallbacks_full_rank': 0, 'max_active_rel': np.float64(7.60312622724061e-15), 'max_inactive_rel': 0.0, 'max_active_rel_rejected': 0.0, 'max_active_rel_fallback': 0.0, 'max_inactive_rel_fallback': 0.0}
+done in 49.760624170303345 s

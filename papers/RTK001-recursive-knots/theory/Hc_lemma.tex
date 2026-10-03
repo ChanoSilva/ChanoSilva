@@ -1,0 +1,155 @@
+% NOTE (03/10/2026, author response to review round 1): this file is the version handed over by the theory
+% session.  The text integrated in manuscript/main.tex (Lemma lem:Hc1, Props. prop:Hccurv/prop:Hcsame, Theorem
+% thm:Hc, Remark rem:Hcfalse) differs in three points: the strand index k is defined relative to the shorter base
+% arc (in arclength), not to |s| <= pi in parameter; P_0 uses |sin(u/2)| with the infimum over the whole range of u;
+% and Step 4 (an analytic proof of c_1(1/2, 2/3) >= 1/2) was added.  Numbers are now macros from numbers.tex.
+% Hc_lemma.tex -- statement and proof of what is proved about Hypothesis (H_c) for p = 2.
+% Ready to paste into manuscript/main.tex after Proposition~\ref{prop:partial} (uses the macros
+% \thick, \minRad, \dcsd, \status and the theorem environments of main.tex; labels lem:Hc1, prop:Hccurv,
+% prop:Hcsame, thm:Hc, rem:Hcfalse). Full derivation and all numerical checks: theory/Hc_derivation.md,
+% theory/check_Hc.py, theory/check_Hc_output.txt.
+
+\paragraph{Notation for the local case.} Let $K=K_{d-1}$ be parametrised with period $2\pi$ and speed
+$v=|K'|\in[v_{\min},v_{\max}]$, let $(T,N_0,B_0)$ be its (non-periodic) Bishop frame and $\alpha$ its holonomy,
+and set
+\[
+m:=\frac qp-\frac{\alpha}{2\pi},\qquad h_{\min}:=\frac{v_{\min}}{m},\qquad
+\Theta_{\min}:=\frac{h_{\min}}{\tau},\qquad \zeta_{\min}:=\frac{(1-f)\,h_{\min}}{r},\qquad f=\frac r\tau\le\frac12 .
+\]
+In the parallel frame the strand of \eqref{eq:Kd} turns at the constant rate $m$ ($\psi=\theta+\omega=mt+\varphi$),
+so $h=v/m$ is the pitch parameter of the manuscript ($|K'|p/q$ when $\alpha=0$) and $\Theta_{\min}$ is the
+smallest pitch measured in units of the base thickness. For two points $X_i=K(t_i)+rU_i$ of $K_d$ with
+$t_1\not\equiv t_2 \pmod{2\pi}$ let $\sigma$ be the length of the shorter base arc, $\delta=\sigma/\tau$,
+$s\in(-\pi,\pi]$ the base-parameter difference along that arc and $u=m|s|$ the relative turning of the strands.
+With $\ell_0(\delta)=2\tau\sin(\delta/2)$, $E(\delta)=\tau(1-\cos\delta)$ for $\delta\le\pi/2$ and
+$E(\delta)=\tau(1+\delta-\pi/2)$ for $\delta>\pi/2$, $\beta(\delta)=\delta^2/(4\sin(\delta/2))$, define the
+explicit functions
+\begin{equation}\label{eq:HcLP}
+\Lambda(\delta)=\ell_0-\frac{2rE}{\ell_0},\qquad
+P_1(\delta)=\Bigl[\,2\cos\!\Bigl(\frac{\delta}{2\Theta_{\min}}\Bigr)\sqrt{1-\beta(\delta)^2}-\frac{\delta^2}{3}\Bigr]_+
+\ (\,:=0\text{ if }\delta>\pi\Theta_{\min}),
+\end{equation}
+\begin{equation}\label{eq:Hcc1}
+c_1(f,\Theta_{\min}):=\frac1{2r}\,\inf_{0<\delta<\pi}\ \max\Bigl\{\sqrt{\Lambda(\delta)_+^2+r^2P_1(\delta)^2},\ \ell_0(\delta)-2r\Bigr\}.
+\end{equation}
+All lengths in \eqref{eq:Hcc1} scale with $r$, so $c_1$ depends only on $(f,\Theta_{\min})$; it is non-increasing in
+$f$ and non-decreasing in $\Theta_{\min}$, and $c_1(\tfrac12,\tfrac23)=0.6117$ (one-variable infimum evaluated on a
+grid of $2\cdot10^4$ points with a Lipschitz correction; \texttt{theory/check\_Hc.py}).
+
+\begin{lemma}[antipodal strands, $p=2$]\label{lem:Hc1}\status{proved here}
+Let $p=2$, $q$ odd, $r\le\tau/2$. Any two points of $K_d$ lying on different strands, i.e.\ with
+$t_1-t_2\equiv s+2\pi\pmod{4\pi}$, $s\in(-\pi,\pi]$, satisfy
+\[
+|K_d(t_1)-K_d(t_2)|\ \ge\ \min\bigl(2(\tau-r),\ 2\,c_1(f,\Theta_{\min})\,r\bigr).
+\]
+In particular, if $\Theta_{\min}\ge\tfrac23$ then the right-hand side is at least $\min(2(\tau-r),\,1.223\,r)$, so
+$c=1/2$ holds for all such pairs. For the default family $(p,q)=(2,3)$ with $f\le1/2$ one has
+$\Theta_{\min}\ge\tfrac23$ at every depth.
+\end{lemma}
+\begin{proof}
+\emph{Step 1 (chord of a thick curve).} Let $x=K(0)$ and $g(\sigma)=|K(\sigma)-x|$ in arclength. A local minimum
+$y$ of $g$ has $(y-x)\perp T(y)$, hence $\rho_{pt}(y,x)=|x-y|/2\ge\tau$, so $|x-y|\ge2\tau$. Consequently
+$\{g<2\tau\}$ consists of an initial and a final interval on which $g$ is monotone, and on them
+$g'=\cos\angle(T,K-x)\ge\sqrt{1-g^2/4\tau^2}$ (from $\rho_{pt}(K(\sigma),x)\ge\tau$), which integrates to
+$g(\sigma)\ge2\tau\sin(\sigma/2\tau)$ and shows that these intervals have length $\le\pi\tau$. Hence for base points
+with shorter arc $\sigma=\tau\delta$: either $\delta\ge\pi$ and $|x-y|\ge2\tau$ (then Proposition~\ref{prop:partial}(b)
+gives $|X_2-X_1|\ge2(\tau-r)$), or $\delta<\pi$ and $\ell:=|x-y|\ge\ell_0(\delta)$.
+
+\emph{Step 2 (elementary estimates, $\delta<\pi$).} Let $e=(y-x)/\ell$ and $\bar T=\sigma^{-1}\int vT\,dt$, so
+$e=\bar T/|\bar T|$, $|\bar T|=\ell/\sigma$. Since $|dT/d\sigma|=\kappa\le1/\tau$: (E2) $|\bar T-T(x)|\le\delta/2$;
+(E3) for $w\perp T(x)$, $|w\cdot e|\le|w|\beta(\delta)$; (E4) for unit $w\perp T(x)$ (or $\perp T(y)$),
+$|w\cdot(y-x)|\le E(\delta)$; (E5) if $\tilde U_2$ denotes the vector with the same parallel-frame angle as $U_2$ but
+in the normal plane at $x$, then $U_2-\tilde U_2=-\int\kappa_\perp vT\,dt$ with $|\kappa_\perp|\le\kappa$, so
+$|U_2-\tilde U_2|\le\delta$ and its component orthogonal to $e$ is at most $\delta^2/3$ (because
+$\operatorname{dist}(T(t),\mathbb Re)\le|T(t)-\bar T|\le(\sigma_t^2+(\sigma-\sigma_t)^2)/(2\sigma\tau)$);
+(E6) $\tilde U_2-U_1$ lies in the normal plane at $x$ and has length $2|\sin(\Delta\psi/2)|$, where
+$\Delta\psi=ms+2\pi qk/p$ is the relative angle of the strands after parallel transport along the short arc
+(the holonomy terms cancel), i.e.\ $|\sin(\Delta\psi/2)|=|\cos(u/2)|$ for different strands when $p=2$.
+
+\emph{Step 3 (decomposition).} Write $X_2-X_1=(y-x)+r(U_2-U_1)=Ae+Q$ with $Q\perp e$. By (E4),
+$A=\ell+r(U_2-U_1)\cdot e\ge\ell-2rE/\ell\ge\Lambda(\delta)$, since $\ell\mapsto\ell-2rE/\ell$ is increasing and
+$\ell\ge\ell_0$. By (E3), (E5), (E6), $|Q|=r|(U_2-U_1)_{\perp e}|\ge r\bigl[2|\cos(u/2)|\sqrt{1-\beta^2}-\delta^2/3\bigr]_+$.
+Finally $u=m|s|\le m\sigma/v_{\min}=\delta/\Theta_{\min}$ and $|\cos(u/2)|$ is decreasing on $[0,\pi]$, so
+$|\cos(u/2)|\ge\cos(\delta/2\Theta_{\min})$ when $\delta\le\pi\Theta_{\min}$; together with the trivial bound
+$|X_2-X_1|\ge\ell-2r\ge\ell_0-2r$ this gives $|X_2-X_1|\ge2c_1(f,\Theta_{\min})r$ for every pair with $\delta<\pi$.
+
+\emph{Step 4 (the family).} $\Theta_{\min}=v_{\min}/(m\tau)$. The antipodal pair in one normal disc is doubly critical
+at distance $2r$ (by \eqref{eq:deriv}, $K_d'\perp U$), so $\thick(K_d)\le r_d$ and $\tau_{d-1}\le2^{-(d-1)}$.
+After the reparametrisation $t\mapsto t/p$, \eqref{eq:deriv} gives $v_d\ge p(1-f)v_{d-1,\min}\ge v_{d-1,\min}$,
+so $v_{\min}\ge1$ at every depth; and $m\le q/p+1/2=2$. Hence $\Theta_{\min}\ge2^{d-2}\ge1$ for $d\ge2$, while for
+$d=1$ ($\alpha=0$, $m=3/2$, $v=\tau=1$) $\Theta_{\min}=2/3$. Monotonicity of $c_1$ gives
+$c_1\ge c_1(\tfrac12,\tfrac23)=0.6117$.
+\end{proof}
+
+\begin{proposition}[curvature of $K_d$]\label{prop:Hccurv}\status{proved here, under $(\mathrm H_3)$}
+Assume in addition $(\mathrm H_3)$: $\sup|v'|\le V_1$ and $\sup\sqrt{\kappa_1'^2+\kappa_2'^2}\le K_1$ for $K$
+(derivatives in $t$, parallel-frame curvatures). Then, with $g(\zeta)=\zeta(\zeta^2+2)/(\zeta^2+1)^{3/2}$,
+$G(\zeta_{\min})=\sup_{\zeta\ge\zeta_{\min}}g\le g(\sqrt2)=1.0887$,
+\begin{equation}\label{eq:Hckappa}
+\kappa_{K_d}\ \le\ \bar\kappa_d:=\frac{G(\zeta_{\min})}{\tau-r}+\frac1{r(1+\zeta_{\min}^2)}
++\frac{rm\,[V_1(1+f)+r\,v_{\max}K_1]}{\bigl(v_{\min}^2(1-f)^2+r^2m^2\bigr)^{3/2}},
+\qquad \minRad(K_d)\ge1/\bar\kappa_d .
+\end{equation}
+\end{proposition}
+\begin{proof}
+Let $U=\cos\psi N_0+\sin\psi B_0$, $W=T\times U$, $\kappa_\perp=\kappa_1\cos\psi+\kappa_2\sin\psi$,
+$\kappa_W=-\kappa_1\sin\psi+\kappa_2\cos\psi$ ($\kappa_\perp^2+\kappa_W^2=\kappa^2$), $x=r\kappa_\perp\in[-f,f]$.
+Differentiating \eqref{eq:deriv} with $U'=mW-\kappa_\perp vT$, $W'=-mU-\kappa_WvT$, $T'=v(\kappa_\perp U+\kappa_WW)$:
+\[
+K_d'=c_TT+c_WW,\quad K_d''=aT+b_UU+b_WW,\qquad
+c_T=v(1-x),\ c_W=rm,\ b_U=v^2(1-x)\kappa_\perp-rm^2,\ b_W=v^2(1-x)\kappa_W,
+\]
+$a=a_0-2rvm\kappa_W$, $a_0=v'(1-x)-rv(\kappa_1'\cos\psi+\kappa_2'\sin\psi)$. Since $(T,U,W)$ is orthonormal and
+right-handed, $|K_d'\times K_d''|^2=b_U^2|K_d'|^2+(c_Wa-c_Tb_W)^2$. Put $A=v^2(1-x)^2$, $B=r^2m^2$, so
+$|K_d'|^2=A+B$ and $c_Wa-c_Tb_W=rma_0-\kappa_Wv(A+2B)$. By Minkowski,
+$\kappa_{K_d}\le\sqrt{v^4(1-x)^2\kappa_\perp^2(A+B)+\kappa_W^2v^2(A+2B)^2}/(A+B)^{3/2}
++\bigl(rm^2(A+B)^{1/2}+rm|a_0|\bigr)/(A+B)^{3/2}$. In the first term
+$A(A+B)\le(A+2B)^2$ and $\kappa_\perp^2+\kappa_W^2=\kappa^2$ give $\le v\kappa(A+2B)/(A+B)^{3/2}$, which is
+decreasing in $A\ge v^2(1-f)^2$; substituting $A=v^2(1-f)^2$ and $\zeta=v(1-f)/(rm)$ yields
+$\kappa\,g(\zeta)/(1-f)\le G(\zeta_{\min})/(\tau(1-f))$. The second term is at most
+$1/(r(1+\zeta_{\min}^2))+rm\,[V_1(1+f)+rv_{\max}K_1]/(v_{\min}^2(1-f)^2+r^2m^2)^{3/2}$.
+\end{proof}
+
+\begin{proposition}[same strand, $p=2$]\label{prop:Hcsame}\status{proved here, under $(\mathrm H_3)$}
+Under the hypotheses of Proposition~\ref{prop:Hccurv}, every doubly critical pair of $K_d$ on the same strand
+($t_1-t_2\equiv s\pmod{4\pi}$, $s\in(-\pi,\pi]$) satisfies $|X_2-X_1|\ge\min(2(\tau-r),2c_0r)$, where
+\[
+c_0:=\frac1{2r}\inf\Bigl\{\max\bigl(\sqrt{\Lambda_+^2+r^2P_0^2},\,\ell_0-2r\bigr):\ 0<\delta<\pi,\
+\tfrac{\delta}{\Theta_{\max}}\le u\le\tfrac{\delta}{\Theta_{\min}},\ u\ge ms_0\Bigr\},\qquad
+P_0=\Bigl[2\sin\tfrac u2\sqrt{1-\beta^2}-\tfrac{\delta^2}3\Bigr]_+,
+\]
+$\Theta_{\max}=h_{\max}/\tau$ and $s_0=\pi/(\bar\kappa_dV_d)$, $V_d=v_{\max}(1+f)+rm$.
+\end{proposition}
+\begin{proof}
+For a doubly critical pair, $0=(X_2-X_1)\cdot T_d(X_1)=\int_0^{\sigma_d}T_d\cdot T_d(X_1)\,d\sigma
+\ge\int_0^{\sigma_d}\cos(\bar\kappa_d\sigma)\,d\sigma=\sin(\bar\kappa_d\sigma_d)/\bar\kappa_d$, which is positive
+unless the $K_d$-arclength satisfies $\sigma_d\ge\pi/\bar\kappa_d$; since $|K_d'|\le V_d$, the base-parameter
+separation is $|s|\ge s_0$ and $u\ge ms_0$. For same-strand pairs $\Delta\psi=u$ in Step~2 of Lemma~\ref{lem:Hc1},
+and Step~3 gives the bound with $|\sin(u/2)|$ in place of $|\cos(u/2)|$; here the lower bound $u\ge\delta/\Theta_{\max}$
+is needed because $P_0$ is increasing in $u$.
+\end{proof}
+
+\begin{theorem}[what is proved of $(\mathrm H_c)$ for $p=2$]\label{thm:Hc}\status{partially proved}
+Let $p=2$, $f=r/\tau\le1/2$ and assume $(\mathrm H_3)$. Then
+\[
+\thick(K_d)\ \ge\ \min\bigl(\tau-r,\ c\,r\bigr),\qquad c=\min\Bigl(c_1(f,\Theta_{\min}),\ c_0,\ \frac1{r\bar\kappa_d}\Bigr),
+\]
+by \eqref{eq:lsdr} and Lemma~\ref{lem:Hc1}, Propositions~\ref{prop:Hccurv} and \ref{prop:Hcsame}. The first constant
+is unconditional and satisfies $c_1\ge0.6117>1/2$ whenever $\Theta_{\min}\ge2/3$, in particular throughout the default
+family $(2,3)$ with $f\le1/2$. On the polygons of Section~\ref{sec:exp} (with $V_1$, $K_1$ measured on the base
+polygon) the three constants are: $f=0.25$: $c_1=1.00$, $c_0\ge1.33$, $1/(r\bar\kappa_d)\ge1.79$ at $d=1,2,3$;
+$f=0.35$: $c_1\ge0.96$, $c_0\ge0.65$, $1/(r\bar\kappa_d)\ge1.01$; $f=0.5$: $c_1=0.61,0.70,0.71$,
+$c_0=0.32,0.13,0.16$, $1/(r\bar\kappa_d)=0.56,0.48,0.85$. Hence $(\mathrm H_c)$ with $c=1/2$ is proved (under
+$(\mathrm H_3)$) for $f\le0.35$ in all three levels, and for $f=1/2$ only for pairs on different strands; the
+same-strand case and the curvature at $f=1/2$ are proved with the smaller constants listed.
+\end{theorem}
+
+\begin{remark}[$(\mathrm H_c)$ needs a hypothesis on $K'''$]\label{rem:Hcfalse}\status{proved here}
+No constant $c>0$ depending only on $(p,q,f)$ makes \eqref{eq:rho} true for every base $K$ with $\thick(K)=\tau$,
+even for smooth $K$: if the curvature of $K$ rises from $0$ to $1/\tau$ over an arc of length $\varepsilon$ (a
+smoothed junction between a segment and a circle of radius $\tau$, whose thickness tends to $\tau$), then by
+\eqref{eq:deriv} the tangent direction of the inner strand of $K_d$ turns from $vT+rmW$ to $v(1-f)T+rmW$ over the same
+arc, so $\kappa_{K_d}\gtrsim rv\kappa'/|K_d'|^2\to\infty$ and $\thick(K_d)\to0$. The term in \eqref{eq:Hckappa}
+involving $V_1$, $K_1$ is therefore unavoidable; for the recursive family it is damped by the factor
+$rm/|K_d'|\approx r/h$, but its uniformity in $d$ is not established here.
+\end{remark}

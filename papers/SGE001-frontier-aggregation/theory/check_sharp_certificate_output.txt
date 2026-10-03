@@ -1,0 +1,180 @@
+====================================================================================================
+1. Derivative checks
+   CD_D3_closed_vs_code             3.844e-16
+   CD_D4_vs_FD                      2.992e-10
+   CD_box_vs_code_M2                0.000e+00
+   CD_box_vs_code_M3                0.000e+00
+   CES_D2_generic_vs_code           1.355e-15
+   CES_D3_generic_vs_code           5.057e-14
+   CES_D4_vs_FD                     7.298e-08
+   CES_enclosure_violations         0
+   CD_box_violations                0
+====================================================================================================
+2. E1 reproduction (N = 2000, 20 replications, generator 'E1' of SeedSequence(SEED).spawn(12)) 
+----------------------------------------------------------------------------------------------------
+E1 CD-LN: grid of 17 dispersions; reproduction: max rel. diff of min|E1|/|E2| vs results.json 0.0e+00; of B2 (segment) 4.4e-16, of B2box 3.3e-16; certificate flags identical: 1
+   identity E2 = C3 + E3: max |E2 - C3 - E3| / Y = 3.1e-15
+   observed (every replication): |E1|/|E2| > 1 up to sigma = 0.7499;  >= 5 up to 0.4217
+   variant                                       bound holds  max|E2|/B  max|E3|/B3  sig* k=1  sig* k=5 signed k=1 signed k=5
+   old moment-and-range (euclid., manuscript)              1   6.14e-03           -    0.0422    0.0178          -          -
+   old micro-data (euclid., manuscript)                    1   1.79e-02           -    0.0562    0.0178          -          -
+   old moment-and-range (scaled by xbar)                   1   1.77e-02           -    0.0750    0.0316          -          -
+   old micro-data (scaled by xbar)                         1   4.62e-02           -    0.1334    0.0562          -          -
+   NEW moment-and-range (euclid.)                          1   1.75e-01    5.56e-02    0.0750    0.0562     0.0750     0.0562
+   NEW micro-data (euclid.)                                1   1.90e-01    6.11e-02    0.1000    0.0750     0.1000     0.0750
+   NEW moment-and-range (scaled by xbar)                   1   5.56e-01    2.58e-01    0.1000    0.0750     0.1000     0.0750
+   NEW micro-data (scaled by xbar)                         1   5.85e-01    2.88e-01    0.1778    0.1334     0.1778     0.1334
+   per-cell share of replications certified (k = 1), main variants:
+     sigma   min r21  old box  old seg  new box  new seg new box_s new seg_s  |C3|/|Q2| B3box_s/|Q2| B2box_s/|Q2|
+    0.0100   2366.88     1.00     1.00     1.00     1.00      1.00      1.00   1.65e-04     3.93e-04     2.64e-02
+    0.0133   1682.24     1.00     1.00     1.00     1.00      1.00      1.00   2.26e-04     7.32e-04     3.65e-02
+    0.0178   1179.34     1.00     1.00     1.00     1.00      1.00      1.00   3.63e-04     1.39e-03     5.09e-02
+    0.0237    813.66     1.00     1.00     1.00     1.00      1.00      1.00   7.17e-04     2.67e-03     7.22e-02
+    0.0316    551.31     1.00     1.00     1.00     1.00      1.00      1.00   1.37e-03     5.30e-03     1.04e-01
+    0.0422    366.24     1.00     1.00     1.00     1.00      1.00      1.00   2.55e-03     1.10e-02     1.55e-01
+    0.0562    238.29     0.00     1.00     1.00     1.00      1.00      1.00   4.72e-03     2.39e-02     2.40e-01
+    0.0750    151.80     0.00     0.00     1.00     1.00      1.00      1.00   8.65e-03     5.60e-02     3.90e-01
+    0.1000     94.72     0.00     0.00     0.00     1.00      1.00      1.00   1.60e-02     1.44e-01     6.75e-01
+    0.1334     57.95     0.00     0.00     0.00     0.80      0.70      1.00   2.88e-02     4.33e-01     1.30e+00
+    0.1778     34.63     0.00     0.00     0.00     0.00      0.00      1.00   5.21e-02     1.63e+00     2.90e+00
+    0.2371     20.00     0.00     0.00     0.00     0.00      0.00      0.00   9.54e-02     8.09e+00     7.89e+00
+    0.3162     11.28     0.00     0.00     0.00     0.00      0.00      0.00   1.74e-01     6.03e+01     2.81e+01
+    0.4217      5.88     0.00     0.00     0.00     0.00      0.00      0.00   3.32e-01     8.09e+02     1.46e+02
+    0.5623      2.80     0.00     0.00     0.00     0.00      0.00      0.00   6.50e-01     2.36e+04     1.34e+03
+    0.7499      1.10     0.00     0.00     0.00     0.00      0.00      0.00   1.39e+00     2.13e+06     2.67e+04
+    1.0000      0.31     0.00     0.00     0.00     0.00      0.00      0.00   3.32e+00     9.13e+08     1.63e+06
+   reference results.json: sigma_largest_cert_box = 0.0422, cert_observable = 0.0562, c1_box = 0.0178, c1 = 0.0178
+----------------------------------------------------------------------------------------------------
+E1 CD-SU: grid of 15 dispersions; reproduction: max rel. diff of min|E1|/|E2| vs results.json 0.0e+00; of B2 (segment) 4.4e-16, of B2box 3.3e-16; certificate flags identical: 1
+   identity E2 = C3 + E3: max |E2 - C3 - E3| / Y = 8.6e-17
+   observed (every replication): |E1|/|E2| > 1 up to sigma = 0.5000;  >= 5 up to 0.5000
+   variant                                       bound holds  max|E2|/B  max|E3|/B3  sig* k=1  sig* k=5 signed k=1 signed k=5
+   old moment-and-range (euclid., manuscript)              1   7.06e-03           -    0.0535    0.0231          -          -
+   old micro-data (euclid., manuscript)                    1   1.63e-02           -    0.0707    0.0231          -          -
+   old moment-and-range (scaled by xbar)                   1   1.93e-02           -    0.0935    0.0535          -          -
+   old micro-data (scaled by xbar)                         1   3.94e-02           -    0.1635    0.0707          -          -
+   NEW moment-and-range (euclid.)                          1   5.40e-02    5.40e-02    0.1237    0.0707     0.1237     0.0707
+   NEW micro-data (euclid.)                                1   5.65e-02    5.65e-02    0.1635    0.0935     0.1635     0.0935
+   NEW moment-and-range (scaled by xbar)                   1   2.46e-01    2.46e-01    0.1635    0.1237     0.1635     0.1237
+   NEW micro-data (scaled by xbar)                         1   2.57e-01    2.57e-01    0.2162    0.1635     0.2162     0.1635
+   per-cell share of replications certified (k = 1), main variants:
+     sigma   min r21  old box  old seg  new box  new seg new box_s new seg_s  |C3|/|Q2| B3box_s/|Q2| B2box_s/|Q2|
+    0.0100  18407.56     1.00     1.00     1.00     1.00      1.00      1.00   5.55e-16     2.35e-04     2.07e-02
+    0.0132  10526.06     1.00     1.00     1.00     1.00      1.00      1.00   7.63e-16     4.19e-04     2.78e-02
+    0.0175   6018.94     1.00     1.00     1.00     1.00      1.00      1.00   6.89e-16     7.56e-04     3.76e-02
+    0.0231   3441.50     1.00     1.00     1.00     1.00      1.00      1.00   6.85e-16     1.37e-03     5.11e-02
+    0.0306   1967.56     1.00     1.00     1.00     1.00      1.00      1.00   7.58e-16     2.53e-03     7.03e-02
+    0.0404   1124.68     1.00     1.00     1.00     1.00      1.00      1.00   4.65e-16     4.76e-03     9.78e-02
+    0.0535    642.66     1.00     1.00     1.00     1.00      1.00      1.00   7.25e-16     9.15e-03     1.39e-01
+    0.0707    367.02     0.00     1.00     1.00     1.00      1.00      1.00   4.08e-16     1.82e-02     2.02e-01
+    0.0935    209.38     0.00     0.00     1.00     1.00      1.00      1.00   1.11e-15     3.80e-02     3.03e-01
+    0.1237    119.23     0.00     0.00     1.00     1.00      1.00      1.00   6.12e-16     8.50e-02     4.80e-01
+    0.1635     67.68     0.00     0.00     0.00     1.00      1.00      1.00   5.33e-16     2.11e-01     8.19e-01
+    0.2162     38.18     0.00     0.00     0.00     0.00      0.00      1.00   6.77e-16     6.18e-01     1.58e+00
+    0.2859     21.29     0.00     0.00     0.00     0.00      0.00      0.00   6.84e-16     2.42e+00     3.74e+00
+    0.3781     11.57     0.00     0.00     0.00     0.00      0.00      0.00   9.85e-16     1.74e+01     1.38e+01
+    0.5000      5.87     0.00     0.00     0.00     0.00      0.00      0.00   8.32e-16     9.73e+02     2.26e+02
+   reference results.json: sigma_largest_cert_box = 0.0535, cert_observable = 0.0707, c1_box = 0.0231, c1 = 0.0231
+----------------------------------------------------------------------------------------------------
+E1 CES-LN: grid of 17 dispersions; reproduction: max rel. diff of min|E1|/|E2| vs results.json 0.0e+00
+   identity E2 = C3 + E3: max |E2 - C3 - E3| / Y = 3.6e-16
+   observed (every replication): |E1|/|E2| > 1 up to sigma = 0.7499;  >= 5 up to 0.4217
+   variant                                       bound holds  max|E2|/B  max|E3|/B3  sig* k=1  sig* k=5 signed k=1 signed k=5
+   old moment-and-range (euclid., manuscript)              1   8.62e-03           -    0.0237    0.0133          -          -
+   old micro-data (euclid., manuscript)                    1   9.42e-03           -    0.0316    0.0178          -          -
+   old moment-and-range (scaled by xbar)                   1   1.81e-02           -    0.0422    0.0237          -          -
+   old micro-data (scaled by xbar)                         1   1.97e-02           -    0.0422    0.0316          -          -
+   NEW moment-and-range (euclid.)                          1   2.60e-01    6.22e-02    0.0316    0.0316     0.0316     0.0316
+   NEW micro-data (euclid.)                                1   2.92e-01    7.07e-02    0.0422    0.0316     0.0422     0.0316
+   NEW moment-and-range (scaled by xbar)                   1   5.73e-01    1.82e-01    0.0562    0.0422     0.0562     0.0422
+   NEW micro-data (scaled by xbar)                         1   5.99e-01    1.99e-01    0.0750    0.0562     0.0750     0.0562
+   per-cell share of replications certified (k = 1), main variants:
+     sigma   min r21  old box  old seg  new box  new seg new box_s new seg_s  |C3|/|Q2| B3box_s/|Q2| B2box_s/|Q2|
+    0.0100   1558.24     1.00     1.00     1.00     1.00      1.00      1.00   2.85e-04     6.11e-04     3.63e-02
+    0.0133   1214.34     1.00     1.00     1.00     1.00      1.00      1.00   3.59e-04     1.23e-03     5.13e-02
+    0.0178    859.21     1.00     1.00     1.00     1.00      1.00      1.00   5.86e-04     2.67e-03     7.48e-02
+    0.0237    599.13     1.00     1.00     1.00     1.00      1.00      1.00   9.60e-04     6.68e-03     1.15e-01
+    0.0316    410.77     0.45     1.00     1.00     1.00      1.00      1.00   1.73e-03     1.89e-02     1.89e-01
+    0.0422    276.34     0.00     0.00     0.85     1.00      1.00      1.00   3.11e-03     6.05e-02     3.46e-01
+    0.0562    182.11     0.00     0.00     0.00     0.05      1.00      1.00   5.54e-03     2.18e-01     7.36e-01
+    0.0750    117.45     0.00     0.00     0.00     0.00      0.00      1.00   9.88e-03     8.71e-01     1.81e+00
+    0.1000     74.10     0.00     0.00     0.00     0.00      0.00      0.00   1.76e-02     3.91e+00     5.15e+00
+    0.1334     45.74     0.00     0.00     0.00     0.00      0.00      0.00   3.11e-02     1.54e+01     1.52e+01
+    0.1778     27.63     0.00     0.00     0.00     0.00      0.00      0.00   5.56e-02     7.56e+01     4.48e+01
+    0.2371     16.33     0.00     0.00     0.00     0.00      0.00      0.00   1.02e-01     5.19e+02     1.67e+02
+    0.3162      9.43     0.00     0.00     0.00     0.00      0.00      0.00   1.88e-01     6.03e+03     8.76e+02
+    0.4217      5.30     0.00     0.00     0.00     0.00      0.00      0.00   3.62e-01     1.43e+05     7.27e+03
+    0.5623      2.83     0.00     0.00     0.00     0.00      0.00      0.00   7.35e-01     8.47e+06     1.21e+05
+    0.7499      1.29     0.00     0.00     0.00     0.00      0.00      0.00   1.62e+00     2.05e+09     5.14e+06
+    1.0000      0.48     0.00     0.00     0.00     0.00      0.00      0.00   4.18e+00     3.21e+12     7.49e+08
+----------------------------------------------------------------------------------------------------
+E1 CES-SU: grid of 15 dispersions; reproduction: max rel. diff of min|E1|/|E2| vs results.json 0.0e+00
+   identity E2 = C3 + E3: max |E2 - C3 - E3| / Y = 8.9e-17
+   observed (every replication): |E1|/|E2| > 1 up to sigma = 0.5000;  >= 5 up to 0.5000
+   variant                                       bound holds  max|E2|/B  max|E3|/B3  sig* k=1  sig* k=5 signed k=1 signed k=5
+   old moment-and-range (euclid., manuscript)              1   2.97e-03           -    0.0404    0.0231          -          -
+   old micro-data (euclid., manuscript)                    1   2.66e-03           -    0.0404    0.0175          -          -
+   old moment-and-range (scaled by xbar)                   1   7.61e-03           -    0.0707    0.0306          -          -
+   old micro-data (scaled by xbar)                         1   7.05e-03           -    0.0535    0.0306          -          -
+   NEW moment-and-range (euclid.)                          1   7.78e-02    7.78e-02    0.0535    0.0535     0.0535     0.0535
+   NEW micro-data (euclid.)                                1   7.26e-02    7.26e-02    0.0535    0.0404     0.0535     0.0404
+   NEW moment-and-range (scaled by xbar)                   1   1.80e-01    1.80e-01    0.0935    0.0707     0.0935     0.0707
+   NEW micro-data (scaled by xbar)                         1   1.83e-01    1.83e-01    0.0935    0.0707     0.0935     0.0707
+   per-cell share of replications certified (k = 1), main variants:
+     sigma   min r21  old box  old seg  new box  new seg new box_s new seg_s  |C3|/|Q2| B3box_s/|Q2| B2box_s/|Q2|
+    0.0100  17189.63     1.00     1.00     1.00     1.00      1.00      1.00   6.11e-16     3.43e-04     2.81e-02
+    0.0132   9829.66     1.00     1.00     1.00     1.00      1.00      1.00   8.31e-16     6.24e-04     3.80e-02
+    0.0175   5620.80     1.00     1.00     1.00     1.00      1.00      1.00   8.80e-16     1.16e-03     5.19e-02
+    0.0231   3213.92     1.00     1.00     1.00     1.00      1.00      1.00   6.01e-16     2.24e-03     7.20e-02
+    0.0306   1837.52     1.00     1.00     1.00     1.00      1.00      1.00   8.01e-16     4.60e-03     1.02e-01
+    0.0404   1050.41     1.00     1.00     1.00     1.00      1.00      1.00   5.99e-16     1.04e-02     1.50e-01
+    0.0535    600.29     0.00     0.00     1.00     1.00      1.00      1.00   7.79e-16     2.66e-02     2.34e-01
+    0.0707    342.89     0.00     0.00     0.95     0.00      1.00      1.00   5.58e-16     7.84e-02     4.01e-01
+    0.0935    195.68     0.00     0.00     0.00     0.00      1.00      1.00   8.19e-16     2.62e-01     7.77e-01
+    0.1237    111.50     0.00     0.00     0.00     0.00      0.00      0.00   7.74e-16     9.86e-01     1.76e+00
+    0.1635     63.36     0.00     0.00     0.00     0.00      0.00      0.00   4.64e-16     4.30e+00     4.76e+00
+    0.2162     35.82     0.00     0.00     0.00     0.00      0.00      0.00   8.23e-16     1.94e+01     1.58e+01
+    0.2859     20.05     0.00     0.00     0.00     0.00      0.00      0.00   8.67e-16     1.05e+02     5.09e+01
+    0.3781     10.99     0.00     0.00     0.00     0.00      0.00      0.00   8.87e-16     1.16e+03     2.79e+02
+    0.5000      5.64     0.00     0.00     0.00     0.00      0.00      0.00   6.39e-16     1.57e+05     9.90e+03
+====================================================================================================
+3. Leading-order prediction, log-normal inputs, coordinates scaled by xbar (population moments, no range inflation)
+   q = -0.3100, c3 = 1.5210, e4 = -3.4857, ||kappa3||_F = 0.5639, ||kappa4||_F = 1.4151, E||z||^3 = 3.9444, E||z||^4 = 9.0
+   old  B2/|Q2|        ~ 2.392 sigma      -> sigma*(k=1) = 0.209, sigma*(k=5) = 0.070
+   new (|C3|+B3)/|Q2|  ~ 5.059 sigma^2    -> sigma*(k=1) = 0.314, sigma*(k=5) = 0.182
+   true |E2|/|Q2|      ~ 0.698 sigma^2    -> ratio > k+1 ... up to sigma = 0.846 (k=1), 0.488 (k=5)
+   (no range inflation: the measured certificates are smaller because M3, M4 are taken over the box of the sample)
+   Range-aware prediction (scaled coordinates; population moments; box from the median range, z_max = 3.755 for LN,
+   the support 1 +- sqrt(3) sigma for SU), compared with the measured moment-and-range certificates (scaled), grid-limited:
+   LN k=1: predicted old 0.082, new 0.130;  measured (scaled, moment-and-range) old 0.0750, new 0.1000
+   LN k=5: predicted old 0.042, new 0.098;  measured (scaled, moment-and-range) old 0.0316, new 0.0750
+   SU k=1: predicted old 0.124, new 0.204;  measured (scaled, moment-and-range) old 0.0935, new 0.1635
+   SU k=5: predicted old 0.060, new 0.150;  measured (scaled, moment-and-range) old 0.0535, new 0.1237
+====================================================================================================
+4. E4, cells without capacity (N = 500 per sector, all 1000 trials, generator 'E4', same draws as the reference run)
+    sigma  old seg  old box old seg_s old box_s |  new seg  new box new seg_s new box_s | int seg_s int box_s  int box |   rev2 cert.rev
+     0.02   100.0%   100.0%    100.0%    100.0% |   100.0%   100.0%    100.0%    100.0% |    100.0%    100.0%   100.0% |   0.0%        0
+     0.05    99.7%    99.6%     99.9%     99.9% |   100.0%   100.0%    100.0%    100.0% |    100.0%    100.0%   100.0% |   0.0%        0
+     0.10    97.0%    94.4%     99.1%     97.9% |    99.3%    98.0%     99.9%     99.6% |    100.0%     99.6%    98.0% |   0.0%        0
+     0.20    70.9%     6.5%     90.0%     56.7% |    83.0%    11.5%     95.7%     71.6% |     96.2%     72.5%    11.8% |   0.2%        0
+     0.40     0.0%     0.0%      3.4%      0.0% |     0.0%     0.0%      1.2%      0.0% |      1.2%      0.0%     0.0% |   2.4%        0
+     0.80     0.0%     0.0%      0.0%      0.0% |     0.0%     0.0%      0.0%      0.0% |      0.0%      0.0%     0.0% |   2.8%        0
+   old/new: margin condition |Yhat2^A - Yhat2^B| > B^A + B^B with B = B2 (old) or |C3| + B3 (new);
+   int: |Yhat3^A - Yhat3^B| > B3^A + B3^B and sign agrees with the second-order difference (certifies the second-order ordering);
+   cert.rev = reversals among all certified comparisons of the new variants (must be 0).
+====================================================================================================
+5. CES: enclosure of sup ||D^3 f||, sup ||D^4 f|| on boxes (Faa di Bruno + monotone factors; 4 x 4 subdivision for
+   the coordinate box of the population, none for the segment boxes; naive interval and centred form, the smaller);
+   certificates on E1 printed in section 2.
+   CES-LN: median scaled M3 over the box at the smallest / largest sigma: 1.4311 / 96531037.4365; M4: 4.1953 / 145456365109.1385
+   CES-SU: median scaled M3 over the box at the smallest / largest sigma: 1.3268 / 9361.2806; M4: 3.6426 / 674089.4287
+   CES-LN sigma = 0.01: enclosure of sup ||D^3 f|| (scaled) / grid max of the Frobenius norm = 1.071
+   CES-LN sigma = 0.01: enclosure of sup ||D^4 f|| (scaled) / grid max of the Frobenius norm = 1.159
+   CES-LN sigma = 0.1: enclosure of sup ||D^3 f|| (scaled) / grid max of the Frobenius norm = 8.777
+   CES-LN sigma = 0.1: enclosure of sup ||D^4 f|| (scaled) / grid max of the Frobenius norm = 29.931
+   CES-SU sigma = 0.01: enclosure of sup ||D^3 f|| (scaled) / grid max of the Frobenius norm = 1.023
+   CES-SU sigma = 0.01: enclosure of sup ||D^4 f|| (scaled) / grid max of the Frobenius norm = 1.037
+   CES-SU sigma = 0.1: enclosure of sup ||D^3 f|| (scaled) / grid max of the Frobenius norm = 2.187
+   CES-SU sigma = 0.1: enclosure of sup ||D^4 f|| (scaled) / grid max of the Frobenius norm = 5.848
+====================================================================================================
+CPU time 258.8 s, wall 265.4 s (interpreter start-up excluded).

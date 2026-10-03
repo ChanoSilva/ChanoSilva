@@ -1,0 +1,64 @@
+TCD001 -- check_strong.py (seed 20261003)
+Reduction: X3C (q, triples C_1..C_m) -> Lasso with p = 3q+1, n = m+3q, rule C, target enter(0)
+triple rows (rho/q ; 1 on C_i ; y=1), anchor rows (kappa*u/(3q) ; u at e ; y=S/u),
+u = 3m, S = m, mu = S+1, eta = kappa-rho = 1/2, theta = 1/(24q), rho = 1-(eta*S-theta)/mu; data scaled to integers
+
+  q=2 m=3 {012,123,345}: X3C=YES witness=yes f_enter=1 | n=9 p=7 subsets=510 entries=1 char_fail=0 uncert=0 (with entry 0) ties=301 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=3456 max|y|=3 mu=4608
+  q=2 m=4 {015,045,145,234}: X3C=YES witness=yes f_enter=2 | n=10 p=7 subsets=1022 entries=1 char_fail=0 uncert=0 (with entry 0) ties=491 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=1152 max|y|=3 mu=1440
+  q=2 m=4 {023,034,145,235}: X3C=YES witness=yes f_enter=2 | n=10 p=7 subsets=1022 entries=1 char_fail=0 uncert=0 (with entry 0) ties=499 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=1152 max|y|=3 mu=1440
+  q=2 m=5 {023,025,045,123,135}: X3C=YES witness=yes f_enter=3 | n=11 p=7 subsets=2046 entries=1 char_fail=0 uncert=0 (with entry 0) ties=784 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=8640 max|y|=3 mu=10368
+  q=2 m=6 {015,023,025,045,234,245}: X3C=YES witness=yes f_enter=4 | n=12 p=7 subsets=4094 entries=1 char_fail=0 uncert=0 (with entry 0) ties=1211 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=12096 max|y|=3 mu=14112
+  q=2 m=4 {013,015,234,235}: X3C=YES witness=yes f_enter=2 | n=10 p=7 subsets=1022 entries=1 char_fail=0 uncert=0 (with entry 0) ties=501 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=1152 max|y|=3 mu=1440
+  q=2 m=4 {013,014,145,235}: X3C=YES witness=yes f_enter=2 | n=10 p=7 subsets=1022 entries=1 char_fail=0 uncert=0 (with entry 0) ties=499 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=1152 max|y|=3 mu=1440
+  q=2 m=6 {034,045,123,145,234,245}: X3C=YES witness=yes f_enter=4 | n=12 p=7 subsets=4094 entries=1 char_fail=0 uncert=0 (with entry 0) ties=1273 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=12096 max|y|=3 mu=14112
+  q=2 m=4 {025,034,134,145}: X3C=YES witness=yes f_enter=2 | n=10 p=7 subsets=1022 entries=1 char_fail=0 uncert=0 (with entry 0) ties=499 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=1152 max|y|=3 mu=1440
+  q=2 m=5 {024,025,034,045,123}: X3C=YES witness=yes f_enter=3 | n=11 p=7 subsets=2046 entries=1 char_fail=0 uncert=0 (with entry 0) ties=782 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=8640 max|y|=3 mu=10368
+  q=2 m=4 {014,023,123,145}: X3C=YES witness=yes f_enter=2 | n=10 p=7 subsets=1022 entries=1 char_fail=0 uncert=0 (with entry 0) ties=501 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=1152 max|y|=3 mu=1440
+  q=2 m=6 {034,124,125,145,235,345}: X3C=YES witness=yes f_enter=4 | n=12 p=7 subsets=4094 entries=1 char_fail=0 uncert=0 (with entry 0) ties=1233 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=12096 max|y|=3 mu=14112
+  q=2 m=6 {024,124,134,135,145,245}: X3C=YES witness=yes f_enter=4 | n=12 p=7 subsets=4094 entries=1 char_fail=0 uncert=0 (with entry 0) ties=1223 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=12096 max|y|=3 mu=14112
+  q=2 m=6 {024,035,123,125,134,135}: X3C=YES witness=yes f_enter=4 | n=12 p=7 subsets=4094 entries=1 char_fail=0 uncert=0 (with entry 0) ties=1272 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=12096 max|y|=3 mu=14112
+  q=2 m=4 {014,015,023,145}: X3C=YES witness=yes f_enter=2 | n=10 p=7 subsets=1022 entries=1 char_fail=0 uncert=0 (with entry 0) ties=491 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=1152 max|y|=3 mu=1440
+  q=2 m=5 {012,024,025,045,123}: X3C=YES witness=yes f_enter=3 | n=11 p=7 subsets=2046 entries=1 char_fail=0 uncert=0 (with entry 0) ties=775 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=8640 max|y|=3 mu=10368
+  q=2 m=4 {013,024,124,245}: X3C=YES witness=yes f_enter=2 | n=10 p=7 subsets=1022 entries=1 char_fail=0 uncert=0 (with entry 0) ties=477 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=1152 max|y|=3 mu=1440
+  q=2 m=4 {012,025,124,345}: X3C=YES witness=yes f_enter=2 | n=10 p=7 subsets=1022 entries=1 char_fail=0 uncert=0 (with entry 0) ties=499 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=1152 max|y|=3 mu=1440
+  q=2 m=6 {012,013,025,045,145,234}: X3C=NO  witness=no  f_enter=None | n=12 p=7 subsets=4094 entries=0 char_fail=0 uncert=0 (with entry 0) ties=1224 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=12096 max|y|=3 mu=14112
+  q=2 m=3 {013,023,234}: X3C=NO  witness=no  f_enter=None | n=9 p=7 subsets=510 entries=0 char_fail=0 uncert=0 (with entry 0) ties=236 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=3456 max|y|=3 mu=4608
+  q=2 m=5 {013,024,035,123,345}: X3C=NO  witness=no  f_enter=None | n=11 p=7 subsets=2046 entries=0 char_fail=0 uncert=0 (with entry 0) ties=766 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=8640 max|y|=3 mu=10368
+  q=2 m=3 {123,124,135}: X3C=NO  witness=no  f_enter=None | n=9 p=7 subsets=510 entries=0 char_fail=0 uncert=0 (with entry 0) ties=236 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=3456 max|y|=3 mu=4608
+  q=2 m=3 {014,025,123}: X3C=NO  witness=no  f_enter=None | n=9 p=7 subsets=510 entries=0 char_fail=0 uncert=0 (with entry 0) ties=277 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=3456 max|y|=3 mu=4608
+  q=2 m=3 {024,134,234}: X3C=NO  witness=no  f_enter=None | n=9 p=7 subsets=510 entries=0 char_fail=0 uncert=0 (with entry 0) ties=236 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=3456 max|y|=3 mu=4608
+  q=2 m=3 {012,034,045}: X3C=NO  witness=no  f_enter=None | n=9 p=7 subsets=510 entries=0 char_fail=0 uncert=0 (with entry 0) ties=267 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=3456 max|y|=3 mu=4608
+  q=2 m=6 {012,014,024,035,123,234}: X3C=NO  witness=no  f_enter=None | n=12 p=7 subsets=4094 entries=0 char_fail=0 uncert=0 (with entry 0) ties=1182 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=12096 max|y|=3 mu=14112
+  q=2 m=4 {015,035,135,145}: X3C=NO  witness=no  f_enter=None | n=10 p=7 subsets=1022 entries=0 char_fail=0 uncert=0 (with entry 0) ties=364 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=1152 max|y|=3 mu=1440
+  q=2 m=3 {134,234,235}: X3C=NO  witness=no  f_enter=None | n=9 p=7 subsets=510 entries=0 char_fail=0 uncert=0 (with entry 0) ties=236 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=3456 max|y|=3 mu=4608
+  q=2 m=3 {014,023,024}: X3C=NO  witness=no  f_enter=None | n=9 p=7 subsets=510 entries=0 char_fail=0 uncert=0 (with entry 0) ties=236 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=3456 max|y|=3 mu=4608
+  q=2 m=6 {013,025,034,123,145,345}: X3C=NO  witness=no  f_enter=None | n=12 p=7 subsets=4094 entries=0 char_fail=0 uncert=0 (with entry 0) ties=1224 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=12096 max|y|=3 mu=14112
+  q=2 m=3 {012,025,123}: X3C=NO  witness=no  f_enter=None | n=9 p=7 subsets=510 entries=0 char_fail=0 uncert=0 (with entry 0) ties=236 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=3456 max|y|=3 mu=4608
+  q=2 m=5 {012,013,025,034,135}: X3C=NO  witness=no  f_enter=None | n=11 p=7 subsets=2046 entries=0 char_fail=0 uncert=0 (with entry 0) ties=735 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=8640 max|y|=3 mu=10368
+  q=2 m=3 {034,045,234}: X3C=NO  witness=no  f_enter=None | n=9 p=7 subsets=510 entries=0 char_fail=0 uncert=0 (with entry 0) ties=236 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=3456 max|y|=3 mu=4608
+  q=2 m=4 {012,015,125,235}: X3C=NO  witness=no  f_enter=None | n=10 p=7 subsets=1022 entries=0 char_fail=0 uncert=0 (with entry 0) ties=376 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=1152 max|y|=3 mu=1440
+  q=2 m=5 {012,015,124,125,245}: X3C=NO  witness=no  f_enter=None | n=11 p=7 subsets=2046 entries=0 char_fail=0 uncert=0 (with entry 0) ties=586 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=8640 max|y|=3 mu=10368
+  q=2 m=5 {013,045,125,135,234}: X3C=NO  witness=no  f_enter=None | n=11 p=7 subsets=2046 entries=0 char_fail=0 uncert=0 (with entry 0) ties=767 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=8640 max|y|=3 mu=10368
+  q=2 m=4 {012,234,045,135}: X3C=NO  witness=no  f_enter=None | n=10 p=7 subsets=1022 entries=0 char_fail=0 uncert=0 (with entry 0) ties=480 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=1152 max|y|=3 mu=1440
+  q=2 m=4 {012,034,135,345}: X3C=YES witness=yes f_enter=2 | n=10 p=7 subsets=1022 entries=1 char_fail=0 uncert=0 (with entry 0) ties=499 inter_fail=0 neg_coef=0 D_ok=True | lib 0/40 | max|X|=1152 max|y|=3 mu=1440
+  q=3 m=4 {012,345,678,036}: X3C=YES witness=yes f_enter=1 | n=13 p=10 subsets=8190 entries=1 char_fail=0 uncert=0 (with entry 0) ties=5869 inter_fail=0 neg_coef=0 D_ok=True | lib 0/20 | max|X|=12960 max|y|=3 mu=16200
+  q=3 m=4 {012,234,567,678}: X3C=NO  witness=no  f_enter=None | n=13 p=10 subsets=8190 entries=0 char_fail=0 uncert=0 (with entry 0) ties=6311 inter_fail=0 neg_coef=0 D_ok=True | lib 0/20 | max|X|=12960 max|y|=3 mu=16200
+
+SUMMARY: 40 X3C instances (20 YES, 20 NO), rule C.
+  equivalence (witness exists <=> X3C YES): 40/40
+  set-by-set characterisation failures: 0 over 81840 subsets D\R
+  full data: target inactive and minimiser unique on 40/40
+  uniqueness not certified by rank(X_E) on 0 subsets, of which with the target in the found minimiser: 0
+  KKT ties (|c_j| = mu with beta_j = 0) on 35890 subsets (expected: an anchored absorber covered once by the kept triples sits exactly at |c_e| = mu)
+  intermediate claims (problem without target: support = anchored e with cov_e >= 2, |X_0'r| > mu iff predicted): 0 failures; negative coefficients: 0
+  library cross-check (lasso_lars with KKT guard, float): 0 support disagreements in 1560 fits
+  largest integer in the data over all instances: 12960
+  exact solves 165280, enumeration fallbacks 0
+
+NEGATIVE CONTROLS (each violates a condition of the proof; a failure must be detected):
+  theta = 1/q (> eta/(6q)): equivalence failures 1/10, characterisation failures 212, intermediate failures 212 -> DETECTED
+  theta = -1/(24q) (no margin): equivalence failures 9/10, characterisation failures 9, intermediate failures 9 -> DETECTED
+  S = 0 (no offset): equivalence failures 1/10, characterisation failures 595, intermediate failures 10879 -> DETECTED
+  u = 1 (no anchor dominance): equivalence failures 0/10, characterisation failures 0, intermediate failures 1658 -> DETECTED
+
+lasso_lars KKT guard (all fits of this script, including the controls): 1560 calls, 340 coordinate-descent fallbacks

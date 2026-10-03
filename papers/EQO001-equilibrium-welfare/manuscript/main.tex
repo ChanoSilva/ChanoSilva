@@ -1,0 +1,485 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage[numbers,sort&compress]{natbib}
+\setlength{\bibsep}{3pt plus 1pt}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{multicol}
+\captionsetup{font=small,labelfont=bf}
+\renewcommand{\topfraction}{0.9}\renewcommand{\bottomfraction}{0.7}
+\renewcommand{\textfraction}{0.07}\renewcommand{\floatpagefraction}{0.85}
+
+\IfFileExists{numbers.tex}{\input{numbers.tex}}{}
+\providecommand{\HasWitness}{0}
+\providecommand{\HasNP}{0}
+\providecommand{\HasCommodity}{0}
+\providecommand{\HasHardness}{0}
+\providecommand{\HasThree}{0}
+\providecommand{\HasRouting}{0}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{question}[theorem]{Open question}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\SOL}{\mathrm{SOL}}
+\newcommand{\VI}{\mathrm{VI}}
+\newcommand{\NC}{N}
+\newcommand{\cone}{\operatorname{cone}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\ip}[2]{\langle #1,\,#2\rangle}
+\newcommand{\status}[1]{\textsf{\small [#1]}}
+\newcommand{\Lam}{\Lambda}
+\newcommand{\Lone}{\Lambda_{1}}
+
+\title{\textbf{Equilibrium Operators, Variational Inequalities and Welfare:}\\[2pt]
+\large What Is and Is Not a Theorem}
+\author{Luciano Silva Alarco\\
+\small Pontificia Universidad Cat\'olica del Per\'u\\
+\small ORCID 0000-0002-3395-3129}
+\date{\small Working draft v0.5 --- research line EQO001 --- 3 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+Research line EQO001 asked whether a formal relationship between equilibrium operators, variational inequalities and welfare criteria could yield results beyond the existing ones; its public record calls the formulation reviewed a combination of known components without an independent theorem. This note records that assessment. With equilibria the solutions of $\VI(F,K)$ on a closed convex set $K$ and welfare a $C^1$ functional on $K$, we prove the classical facts on which any such relationship rests: potentials, monotonicity, the equilibrium--welfare gap (Pigou, $4/3$) and the first-order coincidence whose repair is marginal-cost pricing. The one small addition concerns the cone $\Lam(x^*)$ of welfare weights for which a Nash equilibrium maximises $\sum_i\lambda_iu_i$: a closed convex cone inside a first-order cone $\Lone(x^*)$ built from $F(x^*)$, the normal cone and the marginal externalities, with equality under joint concavity; $(F,K)$ does not determine it. Exact examples show that $\Lam(x^*)$ need not be polyhedral (three players; three commodities with affine costs) and that $\Lam\ne\Lone$ for two commodities. Deciding $\lambda\in\Lam(x^*)$ is co-NP-complete when the number of players is part of the input, even for strongly monotone quadratic games (a standard reduction from box-constrained quadratic programming). We prove that the same holds for the per-commodity costs of multi-commodity Wardrop routing with affine costs, with explicit path sets or all paths of an acyclic network, when the number of commodities is part of the input, even with a unique equilibrium and a unit weight vector, and we identify two polynomial cases. Numerical checks on \RndTotalInst{} random monotone games confirm equality in every tested direction of every concave instance, and brute-force checks on small graphs confirm both reductions. No new equilibrium concept is offered.
+\end{abstract}
+
+\section{Introduction}\label{sec:intro}
+
+The variational-inequality formulation of equilibrium is one of the unifying ideas of applied mathematics: a Wardrop traffic equilibrium~\citep{wardrop1952}, a Nash equilibrium of a concave game~\citep{nash1951,rosen1965} and a Walrasian or spatial price equilibrium can all be written as: find $x^*$ in a closed convex set $K$ with $\ip{F(x^*)}{x-x^*}\ge 0$ for all $x\in K$~\citep{hartmanStampacchia1966,kinderlehrer1980,dafermos1980,harkerPang1990,nagurney1993,facchineiPang2003}. Welfare is an optimisation problem over the same $K$, and the temptation that motivated research line EQO001 is obvious: to look for a ``formal relationship'' between the inequality and the optimisation problem from which welfare statements about equilibria would follow.
+
+The public record of the line is candid: the formulation reviewed combined known components without establishing an independent theorem, and the line was paused. This note discharges the line's objective in the only way that seems honest to us: by writing down, with complete proofs where they are short, what is a theorem in this area, what is a definition in disguise, and what remains open. We add one small result on the set of welfare weights that make a given equilibrium optimal; Remark~\ref{rem:novelty} states which parts of it are standard and which are, as far as we could check, only repackaged here.
+
+\paragraph{Contributions and scope.} Section~\ref{sec:setting} fixes the setting; Section~\ref{sec:classical} proves the classical results; Section~\ref{sec:when} gives the first-order characterisation of welfare-optimal equilibria and marginal-cost pricing; Section~\ref{sec:cone} contains the welfare-weight cone (Theorem~\ref{thm:cone}), the impossibility statement (Proposition~\ref{prop:notdet}), five exact examples, three of them negative (Examples~\ref{ex:nonpoly},~\ref{ex:routing},~\ref{ex:three}), and the complexity of deciding membership, for games (Proposition~\ref{prop:hard}, a standard reduction) and for multi-commodity routing (Theorem~\ref{thm:routinghard}, with two tractable cases in Proposition~\ref{prop:routingeasy}); Sections~\ref{sec:exp}--\ref{sec:limits} report the numerical checks, what can be claimed, limitations and the open questions. The longer proofs are in Appendix~\ref{app:routing}. Everything is finite-dimensional and deterministic; every number in the text is produced by the scripts of Appendix~\ref{app:repro} with fixed seeds.
+
+\section{Setting}\label{sec:setting}
+
+Throughout, $K\subseteq\R^n$ is a nonempty closed convex set, $U\supseteq K$ an open set and $F\colon U\to\R^n$ a continuous map, the \emph{equilibrium operator}. We write $\ip{\cdot}{\cdot}$ for the Euclidean inner product.
+
+\begin{definition}[Variational inequality, normal cone]\label{def:vi}
+$\VI(F,K)$ is the problem of finding $x^*\in K$ such that $\ip{F(x^*)}{x-x^*}\ge 0$ for all $x\in K$; its solution set is $\SOL(F,K)$. The \emph{normal cone} of $K$ at $x\in K$ is $\NC_K(x)=\{v\in\R^n:\ip{v}{y-x}\le 0\ \forall y\in K\}$, a closed convex cone, equal to $\{0\}$ when $x$ is an interior point. By definition,
+\begin{equation}\label{eq:vi-normal}
+x^*\in\SOL(F,K)\iff -F(x^*)\in\NC_K(x^*).
+\end{equation}
+\end{definition}
+
+\begin{definition}[Monotonicity]
+$F$ is \emph{monotone} on $K$ if $\ip{F(x)-F(y)}{x-y}\ge 0$ for all $x,y\in K$; \emph{strictly monotone} if the inequality is strict for $x\ne y$; \emph{$\mu$-strongly monotone} if $\ip{F(x)-F(y)}{x-y}\ge\mu\|x-y\|^2$ with $\mu>0$; and \emph{$L$-Lipschitz} if $\|F(x)-F(y)\|\le L\|x-y\|$.
+\end{definition}
+
+\begin{definition}[Game]\label{def:game}
+A \emph{game} has $N$ players, strategy sets $K_i\subseteq\R^{n_i}$ closed and convex, $K=K_1\times\cdots\times K_N$, and payoffs $u_i\colon U\to\R$ of class $C^1$ on an open $U\supseteq K$, with $u_i(\cdot,x_{-i})$ concave on $K_i$ for every $x_{-i}$. A \emph{Nash equilibrium} is $x^*\in K$ with $u_i(x^*)\ge u_i(y_i,x^*_{-i})$ for all $i$ and $y_i\in K_i$. The \emph{pseudo-gradient} (equilibrium operator) is $F(x)=\big(-\nabla_{x_1}u_1(x),\dots,-\nabla_{x_N}u_N(x)\big)$, where $\nabla_{x_i}$ is the gradient with respect to player $i$'s own variables. The \emph{marginal externality} of player $j$ on player $i\ne j$ at $x$ is $\nabla_{x_j}u_i(x)\in\R^{n_j}$.
+\end{definition}
+
+\begin{lemma}[Nash equilibria are VI solutions]\label{lem:nash}
+In the setting of Definition~\ref{def:game}, $x^*$ is a Nash equilibrium if and only if $x^*\in\SOL(F,K)$. \status{classical, \citealp{rosen1965}; \citealp{facchineiPang2003}}
+\end{lemma}
+\begin{proof}
+For a concave differentiable function $\phi$ on a convex set $C$, $z$ maximises $\phi$ over $C$ iff $\ip{\nabla\phi(z)}{y-z}\le 0$ for all $y\in C$: necessity because $t\mapsto\phi(z+t(y-z))$ is defined on $[0,1]$ and has right derivative $\ip{\nabla\phi(z)}{y-z}$ at $0$, which must be $\le 0$; sufficiency because $\phi(y)\le\phi(z)+\ip{\nabla\phi(z)}{y-z}$. Apply this to $\phi=u_i(\cdot,x^*_{-i})$ on $K_i$: $x^*$ is Nash iff $\ip{-F_i(x^*)}{y_i-x_i^*}\le 0$ for all $i$ and $y_i\in K_i$. Summing over $i$ gives $\ip{F(x^*)}{y-x^*}\ge 0$ for every $y\in K$; conversely, choosing $y=(y_i,x^*_{-i})$ in the VI recovers the $i$-th inequality.
+\end{proof}
+
+\begin{definition}[Nonatomic routing]\label{def:wardrop}
+A network has edges $E$, commodities $k=1,\dots,m$ with demands $d_k>0$ and path sets $P_k$, $P=\bigsqcup_k P_k$. A path flow $f\in\R^P_+$ is feasible if $\sum_{p\in P_k}f_p=d_k$ for each $k$; $K$ is the set of feasible flows, a product of scaled simplices. Edge flows are $f_e=\sum_{p\ni e}f_p$, edge costs $c_e\colon\R_+\to\R_+$ are continuous and nondecreasing, path costs are $c_p(f)=\sum_{e\in p}c_e(f_e)$, and the equilibrium operator is $F(f)=(c_p(f))_{p\in P}$. A \emph{Wardrop equilibrium} is a feasible $f^*$ such that, for every $k$ and $p,q\in P_k$ with $f^*_p>0$, $c_p(f^*)\le c_q(f^*)$. The \emph{social cost} is $C(f)=\sum_{p}f_pc_p(f)=\sum_e f_ec_e(f_e)$, and welfare is $W=-C$.
+\end{definition}
+
+\begin{lemma}[Normal cone of a face of a simplex]\label{lem:simplex}
+Let $\Delta=\{x\in\R^P_+:\sum_{p\in P_k}x_p=d_k,\ k=1,\dots,m\}$ and $x\in\Delta$ with support $S=\{p:x_p>0\}$. Then
+\[
+\NC_\Delta(x)=\{v: \exists\,\gamma\in\R^m \text{ with } v_p=\gamma_k \text{ for } p\in S\cap P_k,\ v_p\le\gamma_k \text{ for } p\in P_k\setminus S\}.
+\]
+\end{lemma}
+This is the polar of the tangent cone $\{h:\sum_{p\in P_k}h_p=0\ \forall k,\ h_p\ge0\ (p\notin S)\}$, computed by Farkas' lemma~\citep{rockafellar1970}.
+
+\begin{lemma}[Wardrop equilibria are VI solutions]\label{lem:wardrop}
+$f^*$ is a Wardrop equilibrium iff $f^*\in\SOL(F,K)$ with $F=(c_p)_p$. \status{classical, \citealp{smith1979}; \citealp{dafermos1980}}
+\end{lemma}
+\begin{proof}
+By \eqref{eq:vi-normal} and Lemma~\ref{lem:simplex}, $f^*\in\SOL(F,K)$ iff for each $k$ there is $\gamma_k$ with $c_p(f^*)=-\gamma_k$ on used paths of $P_k$ and $c_p(f^*)\ge-\gamma_k$ on unused ones, which is Wardrop's condition.
+\end{proof}
+
+\begin{definition}[Welfare functionals]
+A \emph{welfare functional} is a $C^1$ function $W\colon U\to\R$ to be maximised over $K$. For a game, the \emph{weighted welfare} with weights $\lambda\in\R^N_+$ is $W_\lambda=\sum_i\lambda_iu_i$; $\lambda=\mathbf 1$ is the utilitarian criterion. For routing, $W=-C$.
+\end{definition}
+
+\section{The classical results, with proofs}\label{sec:classical}
+
+\subsection{Potentials}
+
+A $C^1$ field $F$ with symmetric Jacobian on an open convex $U$ is a gradient (Poincar\'e's lemma): $P(x)=\int_0^1\ip{F(x_0+t(x-x_0))}{x-x_0}\,\dd t$ satisfies $\partial_iP(x)=\int_0^1\frac{\dd}{\dd t}\big[tF_i(x_0+t(x-x_0))\big]\dd t=F_i(x)$, by differentiation under the integral and $\partial_jF_i=\partial_iF_j$.
+
+\begin{theorem}[Equilibria of gradient operators]\label{thm:potential}
+Suppose $F=\nabla P$ on $U\supseteq K$ with $P\in C^1(U)$. Then
+\[
+\SOL(F,K)=\{x\in K:\ip{\nabla P(x)}{y-x}\ge 0\ \forall y\in K\},
+\]
+the set of stationary points of $P$ over $K$; it contains $\arg\min_KP$, and equals it when $P$ is convex on $K$. If $P$ is strictly convex, $\SOL(F,K)$ has at most one point. \status{classical: \citealp{beckmann1956} for routing, \citealp{mondererShapley1996} for potential games; proved here}
+\end{theorem}
+\begin{proof}
+The first identity is Definition~\ref{def:vi} with $F=\nabla P$. If $x$ minimises $P$ over $K$ then, as in the proof of Lemma~\ref{lem:nash}, the right derivative of $t\mapsto P(x+t(y-x))$ at $0$ is nonnegative, which is the stationarity inequality. If $P$ is convex and $x$ is stationary, $P(y)\ge P(x)+\ip{\nabla P(x)}{y-x}\ge P(x)$ for all $y\in K$. If $P$ is strictly convex its minimiser over the convex set $K$ is unique.
+\end{proof}
+
+\begin{remark}[The three classical instances]\label{rem:instances}
+(a) \emph{Routing}~\citep{beckmann1956}. For continuous $c_e$, $P(f)=\sum_e\int_0^{f_e}c_e(s)\,\dd s$ is $C^1$ with $\partial P/\partial f_p=\sum_{e\in p}c_e(f_e)=c_p(f)$ (fundamental theorem of calculus), convex when the $c_e$ are nondecreasing; Wardrop equilibria minimise $P$, with unique edge flows when all $c_e$ are strictly increasing. $P\ne C$: the potential integrates the cost, the social cost multiplies it (Section~\ref{sec:classical}.3).
+(b) \emph{Concave games}~\citep{rosen1965}. Lemma~\ref{lem:nash} and Theorem~\ref{thm:mono}(a) give uniqueness under Rosen's diagonal strict concavity, which for unit weights is strict monotonicity of the pseudo-gradient.
+(c) \emph{Potential games}~\citep{mondererShapley1996}. A $C^1$ game has exact potential $\Pi$ iff $F=-\nabla\Pi$; its equilibria are the stationary points of $-\Pi$ over $K$. The potential is bookkeeping, not welfare (Example~\ref{ex:cournot}(i)).
+\end{remark}
+
+\subsection{Monotonicity: uniqueness, existence and a solver}
+
+\begin{lemma}[Projection]\label{lem:proj}
+Let $\Pi_K$ be the Euclidean projection onto $K$. Then $z=\Pi_K(y)$ iff $z\in K$ and $\ip{y-z}{x-z}\le 0$ for all $x\in K$; $\Pi_K$ is nonexpansive; and for every $\gamma>0$, $x\in\SOL(F,K)$ iff $x=\Pi_K(x-\gamma F(x))$. \status{classical, \citealp[Chapter~I]{kinderlehrer1980}}
+\end{lemma}
+\begin{theorem}[Monotone operators]\label{thm:mono}
+(a) If $F$ is strictly monotone on $K$, $\SOL(F,K)$ has at most one point. (b) If $F$ is $\mu$-strongly monotone and $L$-Lipschitz on $K$, $\SOL(F,K)$ is a singleton $\{x^*\}$, and for $0<\gamma<2\mu/L^2$ the iteration $x_{t+1}=\Pi_K(x_t-\gamma F(x_t))$ satisfies $\|x_{t+1}-x^*\|\le q\|x_t-x^*\|$ with $q=\sqrt{1-2\gamma\mu+\gamma^2L^2}<1$; for $\gamma=\mu/L^2$, $q=\sqrt{1-\mu^2/L^2}$. \status{classical, \citealp{kinderlehrer1980,facchineiPang2003}; proved here}
+\end{theorem}
+\begin{proof}
+(a) If $x,y\in\SOL(F,K)$ then $\ip{F(x)}{y-x}\ge 0$ and $\ip{F(y)}{x-y}\ge 0$; adding, $\ip{F(x)-F(y)}{x-y}\le 0$, so $x=y$ by strict monotonicity. (b) Let $T(x)=\Pi_K(x-\gamma F(x))$. By nonexpansiveness,
+$\|Tx-Ty\|^2\le\|(x-y)-\gamma(F(x)-F(y))\|^2=\|x-y\|^2-2\gamma\ip{F(x)-F(y)}{x-y}+\gamma^2\|F(x)-F(y)\|^2\le q^2\|x-y\|^2$,
+and $q<1$ iff $\gamma<2\mu/L^2$. Banach's fixed-point theorem on the complete set $K$ gives a unique fixed point, which is the unique VI solution by Lemma~\ref{lem:proj}, and the contraction estimate is the stated rate.
+\end{proof}
+
+\begin{remark}\label{rem:hs}
+For merely continuous $F$ on compact convex $K$, existence is the Hartman--Stampacchia theorem (\citealp[Lemma~3.1]{hartmanStampacchia1966}), obtained from Brouwer's theorem applied to $T$; we do not reproduce it. All solvers in Section~\ref{sec:exp} are the iteration of Theorem~\ref{thm:mono}(b) with $\gamma=\mu/L^2$, so each computed equilibrium comes with a uniqueness proof and a residual certificate; the exception is Example~\ref{ex:nonpoly} (E2c), where $F$ is constant, $\gamma=1$ is used and uniqueness follows from dominance.
+\end{remark}
+
+\subsection{Equilibrium is not welfare: Pigou and the price of anarchy}
+
+\begin{example}[Pigou]\label{ex:pigou}
+Two parallel links, unit demand, $c_1\equiv 1$ and $c_2(x)=x^d$, $d\ge 1$~\citep{pigou1920}. Every user on link 2 pays $1\le c_1$, so $f^*=(0,1)$ is a Wardrop equilibrium with $C(f^*)=1$, and it is the only one: a feasible flow with $f_1>0$ has $f_2<1$, so its users on link 1 pay $1>f_2^d$. The social cost of $(1-x,x)$ is $1-x+x^{d+1}$, minimised at $x=(d+1)^{-1/d}$ with value $1-\tfrac{d}{d+1}(d+1)^{-1/d}$. For $d=1$ the optimum is $(\tfrac12,\tfrac12)$ with cost $\tfrac34$ and ratio $\tfrac43$; the ratio tends to infinity with $d$, since $(d+1)^{-1/d}\to 1$. The computed values are in \path{results/tables_traffic.md}.
+\end{example}
+
+\begin{theorem}[Price of anarchy for affine costs]\label{thm:poa}
+If every $c_e(x)=a_ex+b_e$ with $a_e,b_e\ge 0$, then for every Wardrop equilibrium $f$ and every feasible $f'$, $C(f)\le\tfrac43C(f')$. The constant is attained in Example~\ref{ex:pigou} with $d=1$. \status{classical, \citealp{roughgardenTardos2002}, see also \citealp{roughgarden2005}; the proof below follows \citealp{correa2004}}
+\end{theorem}
+\begin{proof}
+By Lemma~\ref{lem:wardrop}, $\sum_pc_p(f)(f'_p-f_p)\ge 0$; regrouping by edges, $C(f)=\sum_ec_e(f_e)f_e\le\sum_ec_e(f_e)f'_e$. For each edge,
+$c_e(f_e)f'_e=c_e(f'_e)f'_e+a_e(f_e-f'_e)f'_e\le c_e(f'_e)f'_e+\tfrac14a_ef_e^2\le c_e(f'_e)f'_e+\tfrac14c_e(f_e)f_e$,
+since $y\mapsto a_e(f_e-y)y$ is maximised at $y=f_e/2$ and $a_ef_e^2\le(a_ef_e+b_e)f_e$. Summing, $C(f)\le C(f')+\tfrac14C(f)$.
+\end{proof}
+
+\section{When an equilibrium is a welfare maximiser}\label{sec:when}
+
+\begin{proposition}[Necessary and sufficient first-order conditions]\label{prop:nec}
+Let $x^*\in\SOL(F,K)$ and let $W$ be differentiable at $x^*$.
+\begin{enumerate}[leftmargin=2em,label=(\alph*)]
+\item If $x^*\in\arg\max_KW$ then $\nabla W(x^*)\in\NC_K(x^*)$ and $-F(x^*)\in\NC_K(x^*)$. If $W$ is concave on $K$, the converse holds: $x^*\in\arg\max_KW$ iff $\nabla W(x^*)\in\NC_K(x^*)$.
+\item If $x^*$ is an interior point of $K$, (a) forces $F(x^*)=0=\nabla W(x^*)$. If $\NC_K(x^*)=\R_+\nu$ is a ray and $F(x^*)\ne 0$, (a) forces $\nabla W(x^*)=-\theta F(x^*)$ for some $\theta\ge 0$.
+\item (Simplices.) If $K$ is a product of simplices (Lemma~\ref{lem:simplex}), both $F(x^*)$ and $\nabla W(x^*)$ are constant on the support of $x^*$ within each commodity (hence parallel there when both are non-zero), and each satisfies Wardrop's principle with respect to its own coordinates. On $K=\{x\ge0:Ax=b\}$ the same holds with ``constant on the support'' replaced by ``equal on the support to an element of the row space of $A$''.
+\item If $F$ is strictly monotone, $W$ is strictly concave and both $\SOL(F,K)$ and $\arg\max_KW$ are nonempty, then $\SOL(F,K)=\arg\max_KW$ iff the unique equilibrium satisfies $\nabla W(x^*)\in\NC_K(x^*)$; otherwise the two sets are disjoint.
+\end{enumerate}
+\status{proved here; elementary}
+\end{proposition}
+\begin{proof}
+(a) The first-order necessary condition for a maximum of a differentiable function over a convex set (proof of Lemma~\ref{lem:nash}) is $\ip{\nabla W(x^*)}{y-x^*}\le 0$ for all $y\in K$, i.e. $\nabla W(x^*)\in\NC_K(x^*)$; the second membership is \eqref{eq:vi-normal}; sufficiency under concavity is the same argument as in Theorem~\ref{thm:potential}. (b) For interior $x^*$, $\NC_K(x^*)=\{0\}$. If $\NC_K(x^*)=\R_+\nu$, write $-F(x^*)=\alpha\nu$ and $\nabla W(x^*)=\beta\nu$ with $\alpha,\beta\ge 0$; $F(x^*)\ne 0$ gives $\alpha>0$ and $\theta=\beta/\alpha$. (c) Lemma~\ref{lem:simplex} applied to $-F(x^*)$ and to $\nabla W(x^*)$; for $\{x\ge0:Ax=b\}$ the polar of the tangent cone is $\{A^{\!\top}w-v:v\ge0,\ v_S=0\}$ by Farkas' lemma. (d) Both sets are singletons by Theorem~\ref{thm:mono}(a) and strict concavity; apply (a).
+\end{proof}
+
+Proposition~\ref{prop:nec} is a statement about first-order conditions and nothing more: it says that an equilibrium can be a welfare optimum only if the two problems happen to share their KKT point, and it gives no mechanism producing that coincidence. The one mechanism that always works is to change the operator.
+
+\begin{corollary}[Marginal-cost pricing and the toll set]\label{cor:toll}
+Let $C\in C^1(U)$ be a cost to be minimised over $K$ and define the \emph{toll field} $\tau=\nabla C-F$. Then
+\[
+\SOL(F+\tau,K)=\{x\in K:-\nabla C(x)\in\NC_K(x)\}\supseteq\arg\min_KC,
+\]
+with equality when $C$ is convex on $K$, and at most one point when $C$ is strictly convex; the tolled operator is a gradient field with potential $C$. For separable routing costs with $c_e\in C^1$, $\tau_p(f)=\sum_{e\in p}f_ec_e'(f_e)$, the Pigou--Knight--Beckmann marginal-cost toll. More generally, for a target $\bar x\in K$ the set of constant toll vectors $t\in\R^n$ with $\bar x\in\SOL(F+t,K)$ is the translated cone $-F(\bar x)-\NC_K(\bar x)$, polyhedral when $K$ is; choosing in it the toll closest to a reference vector is an inverse optimisation problem in the sense of \citet{ahujaOrlin2001}, and for routing it is the toll-set description of \citet{hearnRamana1998}. \status{classical, \citealp{pigou1920,knight1924,beckmann1956,hearnRamana1998}; proved here}
+\end{corollary}
+\begin{proof}
+$F+\tau=\nabla C$, so the first statement is Theorem~\ref{thm:potential} with $P=C$. For routing, $\partial C/\partial f_p=\sum_{e\in p}\big(c_e(f_e)+f_ec_e'(f_e)\big)$, whence $\tau_p$. Finally $\bar x\in\SOL(F+t,K)$ iff $-F(\bar x)-t\in\NC_K(\bar x)$ by \eqref{eq:vi-normal}.
+\end{proof}
+
+\section{The cone of welfare weights}\label{sec:cone}
+
+Fix a game as in Definition~\ref{def:game} and a Nash equilibrium $x^*$. Write $u=(u_1,\dots,u_N)\colon K\to\R^N$ and $G(x^*)=Du(x^*)\in\R^{N\times n}$ for the Jacobian of the payoff vector, whose $i$-th row is $\nabla u_i(x^*)^{\!\top}$ (all variables, own and others'). Define
+\[
+\Lam(x^*)=\{\lambda\in\R^N_+: x^*\in\arg\max_KW_\lambda\},\qquad
+\Lone(x^*)=\{\lambda\in\R^N_+: G(x^*)^{\!\top}\lambda\in\NC_K(x^*)\}.
+\]
+For a set $D\subseteq\R^N$, $D^\circ=\{\lambda:\ip{\lambda}{d}\le 0\ \forall d\in D\}$ is its polar cone.
+
+\begin{theorem}[Welfare-weight cone]\label{thm:cone}
+\begin{enumerate}[leftmargin=2em,label=(\alph*)]
+\item $\Lam(x^*)=\R^N_+\cap\{u(x)-u(x^*):x\in K\}^\circ$. In particular $\Lam(x^*)$ is a closed convex cone.
+\item $\Lam(x^*)\subseteq\Lone(x^*)$, and $\Lone(x^*)$ is a closed convex cone, polyhedral whenever $K$ is polyhedral.
+\item If every $u_i$ is concave on $K$ (jointly in all variables), then $\Lam(x^*)=\Lone(x^*)$. More generally, equality holds whenever $W_\lambda$ is concave on $K$ for every $\lambda\in\Lone(x^*)$.
+\item (Block form.) $\lambda\in\Lone(x^*)$ iff for every player $j$
+\begin{equation}\label{eq:block}
+-\lambda_jF_j(x^*)+\sum_{i\ne j}\lambda_i\nabla_{x_j}u_i(x^*)\in\NC_{K_j}(x_j^*).
+\end{equation}
+Since $-F_j(x^*)\in\NC_{K_j}(x_j^*)$ already, a sufficient condition is that the $\lambda$-weighted externality $\sum_{i\ne j}\lambda_i\nabla_{x_j}u_i(x^*)$ lies in $\NC_{K_j}(x_j^*)$ for every $j$; when $x_j^*$ is interior to $K_j$, \eqref{eq:block} says exactly that this weighted externality vanishes.
+\item $\Lam(x^*)\ne\{0\}$ implies that $x^*$ is weakly Pareto efficient in $K$ (no $x\in K$ with $u_i(x)>u_i(x^*)$ for all $i$); under the concavity of (c), the converse holds. Without any concavity, if $x^*$ is locally weakly Pareto efficient then $\Lone(x^*)\ne\{0\}$.
+\end{enumerate}
+\status{proved here; (a) and (e) are the standard scalarisation argument of multi-objective optimisation \citep{geoffrion1968,ehrgott2005}, and $\Lam(x^*)$ is the cell at $u(x^*)$ of the weight-set decomposition studied for linear problems by \citet{bensonSun2000}}
+\end{theorem}
+\begin{proof}
+(a) $\lambda\in\Lam(x^*)$ iff $\lambda\ge 0$ and $\ip{\lambda}{u(x)-u(x^*)}\le 0$ for all $x\in K$, which is the stated intersection; polar cones and the orthant are closed convex cones.
+(b) If $x^*$ maximises the differentiable $W_\lambda$ over $K$, the first-order condition gives $\nabla W_\lambda(x^*)=\sum_i\lambda_i\nabla u_i(x^*)=G(x^*)^{\!\top}\lambda\in\NC_K(x^*)$. $\Lone(x^*)$ is the preimage of the closed convex cone $\NC_K(x^*)$ under a linear map, intersected with $\R^N_+$; when $K$ is polyhedral so is $\NC_K(x^*)$, hence so is $\Lone(x^*)$.
+(c) For $\lambda\ge 0$, $W_\lambda$ is concave when the $u_i$ are, and the first-order condition is then sufficient (Proposition~\ref{prop:nec}(a)); the general statement is the same argument.
+(d) For a product set, $v\in\NC_K(x^*)$ iff $v_j\in\NC_{K_j}(x_j^*)$ for each $j$: taking $y\in K$ that differs from $x^*$ in block $j$ only shows necessity, and summing the block inequalities shows sufficiency. Block $j$ of $G(x^*)^{\!\top}\lambda$ is $\sum_i\lambda_i\nabla_{x_j}u_i(x^*)=\lambda_j\nabla_{x_j}u_j(x^*)+\sum_{i\ne j}\lambda_i\nabla_{x_j}u_i(x^*)$ and $\nabla_{x_j}u_j(x^*)=-F_j(x^*)$. The sufficient condition follows because $\NC_{K_j}(x_j^*)$ is a convex cone containing $-F_j(x^*)$ by Lemma~\ref{lem:nash}; for interior $x_j^*$, $\NC_{K_j}(x_j^*)=\{0\}$ forces $F_j(x^*)=0$ and then \eqref{eq:block} reads $\sum_{i\ne j}\lambda_i\nabla_{x_j}u_i(x^*)=0$.
+(e) If $\lambda\in\Lam(x^*)\setminus\{0\}$ and $u(x)>u(x^*)$ componentwise, then $\ip{\lambda}{u(x)}>\ip{\lambda}{u(x^*)}$, a contradiction. Conversely, under concavity the set $A=u(K)-\R^N_+$ is convex; weak efficiency means $u(x^*)+\varepsilon\mathbf 1\notin A$ for every $\varepsilon>0$, so $u(x^*)$ is a boundary point of $A$ and a supporting hyperplane gives $\lambda\ne 0$ with $\ip{\lambda}{a}\le\ip{\lambda}{u(x^*)}$ for all $a\in A$; since $u(x^*)-\R^N_+\subseteq A$, $\lambda\ge 0$, and $a=u(x)$ gives $\lambda\in\Lam(x^*)$. Finally, if $\Lone(x^*)=\{0\}$, the convex cone $\{sG(x^*)(x-x^*):x\in K,\ s\ge0\}$ meets the open orthant: otherwise a separating hyperplane (the Gordan--Motzkin alternative) gives $\lambda\ge0$, $\lambda\ne0$, with $\ip{\lambda}{G(x^*)(x-x^*)}\le0$ on $K$, i.e.\ $\lambda\in\Lone(x^*)$; and $G(x^*)(x-x^*)>0$ gives $u(x^*+\tau(x-x^*))>u(x^*)$ for small $\tau>0$.
+\end{proof}
+
+\begin{remark}[What is standard and what is not]\label{rem:novelty}
+The scalarisation in (a) and (e) is textbook, and the set of weights under which a given point maximises the weighted sum is a standard object of multi-objective optimisation (the weight-set decomposition, polyhedral in the linear case \citep{bensonSun2000}); Proposition~\ref{prop:notdet} repackages the Nikaid\^o--Isoda gap function and is an instance of best-response equivalence \citep{morrisUi2004}, and Proposition~\ref{prop:hard} is a standard reduction (see its status). What we did not find in the literature we consulted, and claim only as packaging, is the reading of \eqref{eq:block}: the cone is cut out by the equilibrium face (through $\NC_{K_j}(x_j^*)$ and $F_j(x^*)$, both determined by $(F,K)$) and by the marginal externalities $\nabla_{x_j}u_i(x^*)$, which are \emph{not}. We did not find Theorem~\ref{thm:routinghard} in the work we consulted on the complexity of multiclass and multi-commodity equilibria, on toll design \citep{hearnRamana1998} and on Stackelberg routing; its reduction has to respect the special form of the per-commodity routing costs, to which Proposition~\ref{prop:hard} does not apply.
+\end{remark}
+
+\begin{proposition}[$(F,K)$ does not determine welfare]\label{prop:notdet}
+Let the $u_i$ be continuous on $K=\prod K_i$ with $K_i$ compact, and let $x^*$ be a Nash equilibrium. Define $v_i(x_{-i})=\max_{y_i\in K_i}u_i(y_i,x_{-i})$ and $u_i'=u_i-v_i$. Then the game $(u_i')$ has the same best-response correspondences and the same Nash equilibria as $(u_i)$; wherever $\nabla_{x_i}u_i$ exists, $\nabla_{x_i}u_i'=\nabla_{x_i}u_i$, so the two games have the same equilibrium operator; and $x^*$ maximises every $W'_\lambda=\sum_i\lambda_iu_i'$, $\lambda\in\R^N_+$, over $K$: $\Lam'(x^*)=\R^N_+$. Consequently welfare optimality of an equilibrium is not a property of $(F,K)$: every pair $(F,K)$ that arises from a game is compatible with $\Lam(x^*)=\R^N_+$; if $N\ge2$ and some $K_{-i}$ is not a singleton, it is also compatible with $e_i\notin\Lam(x^*)$ (and the pair of Example~\ref{ex:cournot}(i) with $\Lam(x^*)=\{0\}$). \status{proved here; $\sum_i(v_i-u_i)$ is the Nikaid\^o--Isoda gap function~\citep{nikaidoIsoda1955}, and $u\mapsto u'$ a best-response equivalence~\citep{morrisUi2004}}
+\end{proposition}
+\begin{proof}
+$v_i$ does not depend on $x_i$, so subtracting it changes neither $\arg\max_{y_i}u_i(y_i,x_{-i})$ nor $\nabla_{x_i}u_i$. By construction $u_i'\le 0$ on $K$, and $u_i'(x^*)=0$ because $x_i^*$ is a best response to $x^*_{-i}$; hence $W'_\lambda\le 0=W'_\lambda(x^*)$ for every $\lambda\ge 0$. For the second claim, add to $u_i$ the term $c\ip{d}{x_{-i}-x^*_{-i}}$, with $d$ such that $\delta=\ip{d}{x_{-i}-x^*_{-i}}>0$ for some $x_{-i}\in K_{-i}$: neither $F$ nor the equilibria change, the game stays in the class of Definition~\ref{def:game}, and $x=(x_i^*,x_{-i})$ beats $x^*$ for $W_{e_i}$ once $c\delta>u_i(x^*)-u_i(x)$.
+\end{proof}
+
+The modified game need not be $C^1$, so $\Lam'(x^*)$ is understood in the exact sense of Theorem~\ref{thm:cone}(a). When best responses are unique, Danskin's theorem~\citep{danskin1966} gives $v_i\in C^1$ with $\nabla v_i(x_{-i})=\nabla_{x_{-i}}u_i(b_i(x_{-i}),x_{-i})$; the modified game is then in the class of Definition~\ref{def:game} and has \emph{zero marginal externalities at $x^*$}, so $\Lone'(x^*)=\R^N_+$ by Theorem~\ref{thm:cone}(d), the first-order reason for the proposition.
+
+\begin{example}[Two players, exact cone]\label{ex:wedge}
+Let $K=[0,1]^2$, $\alpha>1$, $\beta_1,\beta_2\ge 0$, and
+\[
+u_1(x)=\alpha x_1-\tfrac12x_1^2-\beta_1x_2,\qquad u_2(x)=\alpha x_2-\tfrac12x_2^2-\beta_2x_1 .
+\]
+Each player's action harms the other linearly. The equilibrium operator is $F(x)=(x_1-\alpha,x_2-\alpha)$, with Jacobian $I$, so $F$ is $1$-strongly monotone and $1$-Lipschitz and does not depend on $\beta$; the unique equilibrium is $x^*=(1,1)$, at which $\NC_K(x^*)=\R^2_+$ and $F(x^*)=(1-\alpha)\mathbf 1$. Here $G(x^*)=\begin{psmallmatrix}\alpha-1&-\beta_1\\-\beta_2&\alpha-1\end{psmallmatrix}$, so by \eqref{eq:block}
+\[
+\Lone(x^*)=\{\lambda\ge 0:\ (\alpha-1)\lambda_1\ge\beta_2\lambda_2,\ (\alpha-1)\lambda_2\ge\beta_1\lambda_1\}.
+\]
+Both payoffs are jointly concave (Hessians $-\operatorname{diag}(1,0)$ and $-\operatorname{diag}(0,1)$), so $\Lam(x^*)=\Lone(x^*)$ by Theorem~\ref{thm:cone}(c). Thus the cone is a wedge, non-trivial iff $\beta_1\beta_2\le(\alpha-1)^2$ and two-dimensional iff the inequality is strict; for $\alpha=2$, $\beta_1=\beta_2=\tfrac12$ it is $\{\tfrac12\lambda_2\le\lambda_1\le2\lambda_2\}$: the corner equilibrium is welfare-optimal exactly when neither player is weighted more than twice the other. Games with different $\beta$ have the same $F$ and different cones: Proposition~\ref{prop:notdet} in miniature.
+\end{example}
+
+\begin{example}[Cournot duopoly]\label{ex:cournot}
+Let $u_i(q)=q_i(a-q_1-q_2)$ on $K=[0,1]^2$: each $u_i$ is concave in $q_i$ and $F(q)=(2q_1+q_2-a,\ q_1+2q_2-a)$ is strongly monotone. (i) For $a=1$ the equilibrium $q^*=(\tfrac13,\tfrac13)$ is interior and $\partial u_1/\partial q_2=-q_1^*\ne0$, so $\Lam(q^*)=\{0\}$ by Theorem~\ref{thm:cone}(d); with (e), this is the first-order mechanism behind the inefficiency theorem of \citet{dubey1986} for interior equilibria. Collusion at $(\tfrac14,\tfrac14)$ gives each firm $\tfrac18>\tfrac19$. The exact potential $\Pi(q)=a(q_1+q_2)-q_1^2-q_2^2-q_1q_2$ is maximised at the equilibrium: a potential is not a welfare functional. (ii) For $a=4$ the equilibrium is the corner $(1,1)$ and \eqref{eq:block} gives $\Lone(q^*)=\{\lambda_1=\lambda_2\ge0\}$; the payoffs are not jointly concave, but $W_{(1,1)}=(q_1+q_2)(4-q_1-q_2)$ is, so $\Lam(q^*)=\Lone(q^*)$: concavity is sufficient, not necessary.
+\end{example}
+
+\begin{example}[Three players: a non-polyhedral cone]\label{ex:nonpoly}
+Let $K=[0,1]^3$ and
+\[
+u_1=x_1,\qquad u_2=x_2,\qquad u_3=x_3-\tfrac12x_1^2+\tfrac14x_1+\tfrac12x_1x_2-\tfrac12x_2 .
+\]
+Each payoff is linear, hence concave, in the player's own variable, so the game is in the class of Definition~\ref{def:game}; $F\equiv(-1,-1,-1)$, $x^*=(1,1,1)$ is the unique Nash equilibrium and $\NC_K(x^*)=\R^3_+$. Since $\nabla u_3(x^*)=(-\tfrac14,0,1)$, $G(x^*)^{\!\top}\lambda=(\lambda_1-\tfrac14\lambda_3,\lambda_2,\lambda_3)$ and $\Lone(x^*)=\{\lambda\ge 0:\lambda_1\ge\tfrac14\lambda_3\}$. We compute $\Lam(x^*)$ exactly. On $\{\lambda_3=0\}$, $W_\lambda=\lambda_1x_1+\lambda_2x_2$ is maximised at $x^*$, so $\R^2_+\times\{0\}\subseteq\Lam(x^*)$; as $\Lam(x^*)$ is a cone it suffices to fix $\lambda_3=1$. Then $W_\lambda$ is increasing in $x_3$, so $x_3=1$, and affine in $x_2$, so the maximum over $x_2$ is attained at $x_2\in\{0,1\}$. For $x_2=1$, $W_\lambda=\tfrac12+\lambda_2+(\lambda_1+\tfrac34)x_1-\tfrac12x_1^2$ is maximised on $[0,1]$ at $x_1=1$ iff $\lambda_1\ge\tfrac14$, with value $W_\lambda(x^*)=\lambda_1+\lambda_2+\tfrac34$. For $x_2=0$, $W_\lambda=1+(\lambda_1+\tfrac14)x_1-\tfrac12x_1^2$ has maximum $1+\tfrac12(\lambda_1+\tfrac14)^2$ if $\lambda_1\le\tfrac34$ (at $x_1=\lambda_1+\tfrac14$) and $\lambda_1+\tfrac34\le W_\lambda(x^*)$ otherwise. Hence $\lambda\in\Lam(x^*)$ iff $\lambda_1\ge\tfrac14$ and $\lambda_1+\lambda_2+\tfrac34\ge1+\tfrac12(\lambda_1+\tfrac14)^2$, i.e.
+\[
+\Lam(x^*)\cap\{\lambda_3=1\}=\big\{\lambda_1\ge\tfrac14,\ \lambda_2\ge\tfrac12\big(\tfrac34-\lambda_1\big)_+^2\big\}.
+\]
+Its boundary contains the parabolic arc $\lambda_2=\tfrac12(\tfrac34-\lambda_1)^2$, $\tfrac14\le\lambda_1\le\tfrac34$, which no finite union of segments contains (a line meets a parabola in at most two points); since the slice of a polyhedral cone by a hyperplane is a polyhedron, $\Lam(x^*)$ \emph{is not polyhedral}, and $\Lam(x^*)\subsetneq\Lone(x^*)$ with a curved boundary. For instance $\lambda=(0.3,0,1)\in\Lone\setminus\Lam$: the point $(0.55,0,1)$ improves $W_\lambda$ by $0.10125$. The degeneracy $F\equiv$ const is inessential. Subtract $\tfrac\varepsilon2x_i^2$ from each $u_i$, $0<\varepsilon<1$: $F(x)=\varepsilon x-\mathbf 1$ is $\varepsilon$-strongly monotone, $x^*$ is unchanged, $\Lone\cap\{\lambda_3=1\}=\{\lambda_1\ge\frac1{4(1-\varepsilon)}\}$, and for $\frac1{4(1-\varepsilon)}\le\lambda_1\le\frac3{4(1-\varepsilon)}$ a point of the slice $\lambda_3=1$ lies in $\Lam(x^*)$ iff
+\[
+\lambda_2\ge\varphi(\lambda_1)=\frac{(\lambda_1+\frac14)^2/(2(1+\varepsilon\lambda_1))+\frac14}{1-\varepsilon/2}-\lambda_1,\qquad \varphi''(\lambda_1)=\frac{(1-\varepsilon/4)^2}{(1-\varepsilon/2)(1+\varepsilon\lambda_1)^3}>0,
+\]
+which reduces to the parabola for $\varepsilon=0$; $\varphi$ decreases to $\varphi(\frac{3}{4(1-\varepsilon)})=0$ with zero slope, so the boundary is tangent to the axis as for $\varepsilon=0$, and $\Lam(x^*)$ is not polyhedral for a strongly monotone $F$ either (proof in Appendix~\ref{app:routing}). \status{proved here; verified in E2c}
+\end{example}
+
+\begin{example}[Two commodities: $\Lam\ne\Lone$ in routing]\label{ex:routing}
+Theorem~\ref{thm:cone}(a),(b) use neither the Nash property nor the product structure: they hold for any finite family of $C^1$ functions $u_k$ on $K$ and any $x^*\in K$. Apply them to the costs $C_k(f)=\sum_{p\in P_k}f_pc_p(f)$ of the commodities, $u_k=-C_k$, at a Wardrop equilibrium $f^*$. Two commodities with unit demands: commodity 1 chooses between a private edge of cost $f+2$ and a shared edge of cost $f$, commodity 2 between a private edge of cost $f/4$ and the same shared edge. With $y=(f_B,f_D)\in[0,1]^2$ the flows on the shared edge (path flows are determined by them),
+\[
+C_1(y)=(1-f_B)(3-f_B)+f_B(f_B+f_D),\qquad C_2(y)=\tfrac14(1-f_D)^2+f_D(f_B+f_D),
+\]
+both with indefinite Hessians, so (c) is unavailable. The equilibrium is $f^*=(1,0)$ (shared cost $1\le 2$ for commodity 1, private cost $\tfrac14\le 1$ for commodity 2), unique because the reduced operator $y\mapsto(c_B-c_A,\,c_D-c_C)$ has Jacobian $\begin{psmallmatrix}2&1\\1&5/4\end{psmallmatrix}\succ 0$. In the coordinates $y$ (the cones are invariant under this affine reparametrisation of $K$), $\NC(f^*)=\R_+\times\R_-$, $\nabla C_1(f^*)=(0,1)$ and $\nabla C_2(f^*)=(0,\tfrac12)$, so $\Lone(f^*)=\R^2_+$. Moreover (Appendix~\ref{app:routing})
+\[
+\Lam(f^*)=\{\lambda\ge 0:\lambda_2\le 40\lambda_1\}\subsetneq\Lone(f^*)=\R^2_+ .
+\]
+For $\lambda=(0,1)$, $y=(0,\tfrac15)$ lowers $C_2$ from $\tfrac14$ to $\tfrac15$ (while $C_1$ rises from $1$ to $3$). \status{proved here; verified in E5}
+\end{example}
+
+\begin{example}[Three commodities: a non-polyhedral commodity cone]\label{ex:three}
+Three commodities with unit demand; commodity $k$ chooses between a private edge and one shared edge of cost $f$; the private costs are $f/4$, $f/4$ and the constant $2$. With $y\in[0,1]^3$ the flows on the shared edge and $S=y_1+y_2+y_3$,
+\[
+C_k(y)=\tfrac14(1-y_k)^2+y_kS\quad(k=1,2),\qquad C_3(y)=2(1-y_3)+y_3S .
+\]
+The Wardrop equilibrium is $y^*=(0,0,1)$ (shared cost $1\le2$ for commodity 3, private cost $\tfrac14\le1$ for commodities 1, 2), unique because the reduced operator $y\mapsto(S-\tfrac14(1-y_1),S-\tfrac14(1-y_2),S-2)$ has Jacobian $\operatorname{diag}(\tfrac14,\tfrac14,0)+\mathbf 1\mathbf 1^{\!\top}\succ0$. At $y^*$, in reduced coordinates, $\NC=\R_-\times\R_-\times\R_+$, $\nabla C_1=(\tfrac12,0,0)$, $\nabla C_2=(0,\tfrac12,0)$ and $\nabla C_3=(1,1,0)$, so $\Lone(y^*)=\R^3_+$. We claim
+\[
+\Lam(y^*)=\{\lambda\ge0:\lambda_3+m(\lambda_1,\lambda_2)\ge0\},\qquad m=\min_{[0,1]^2}P,
+\]
+$P(u,w)=\tfrac{\lambda_1}4(u^2-2u)+\tfrac{\lambda_2}4(w^2-2w)+(u+w)(\lambda_1u+\lambda_2w)$ (proof in Appendix~\ref{app:routing}). On the slice $\lambda_2=1$, for $\tfrac23<\lambda_1<\tfrac32$, $P$ is strictly convex with minimiser $\big(3\lambda_1-2,\ \lambda_1(3-2\lambda_1)\big)/\big((4-\lambda_1)(4\lambda_1-1)\big)$ in the open square, and $m=-\lambda_1(\lambda_1+1)/\big(4(4-\lambda_1)(4\lambda_1-1)\big)$. So the boundary of $\Lam(y^*)\cap\{\lambda_2=1\}$ over that interval is the graph of the rational, non-affine function $\psi(\lambda_1)=\lambda_1(\lambda_1+1)/\big(4(4-\lambda_1)(4\lambda_1-1)\big)$: $\Lam(y^*)$ \emph{is not polyhedral}, and $\Lam\subsetneq\Lone=\R^3_+$. (Outside $(\tfrac23,\tfrac32)$ the minimiser of $P$ lies on an edge and the boundary is linear, $\lambda_3=\tfrac1{20}$ for $\lambda_1\le\tfrac23$ and $\lambda_3=\lambda_1/20$ for $\lambda_1\ge\tfrac32$; checked numerically, not used.) For instance $\psi(1)=\tfrac1{18}$, and for $\lambda=(1,1,\tfrac1{20})$ the flow $y=(\tfrac19,\tfrac19,0)$ lowers $\Phi_\lambda$ by $\tfrac1{180}$. \status{proved here; verified in E7}
+\end{example}
+
+\begin{proposition}[Deciding membership is co-NP-complete]\label{prop:hard}
+For games whose players have actions in boxes and quadratic payoffs with rational coefficients, given with a rational Nash equilibrium $x^*$ (and, for the first problem, a rational $\lambda\ge0$), deciding whether $\lambda\in\Lam(x^*)$ is co-NP-complete, and so is deciding whether $\Lam(x^*)=\Lone(x^*)$, when the number of variables (players, or the dimension of their actions) is part of the input. Hardness holds with scalar actions in $[0,1]$, and also with $N=2$; and with $F$ strongly monotone and independent of the instance, $x^*$ a vertex in strictly dominant strategies, $\Lone(x^*)=\R^N_+$ and, for membership, $\lambda$ a unit vector. \status{proved here; in substance the standard MAX-CUT encoding of box-constrained quadratic programming, transported to games by Proposition~\ref{prop:notdet} (the equilibrium operator of the reduction does not depend on the instance); proof in Appendix~\ref{app:routing}; checked in E6}
+\end{proposition}
+\noindent The hardness lives entirely in the externalities, as Proposition~\ref{prop:notdet} predicts. With $N=2$, $\Lam(x^*)$ is polyhedral and membership is still hard, while Example~\ref{ex:nonpoly} is non-polyhedral with $N=3$ fixed and decidable in constant time: hardness and non-polyhedrality are independent phenomena.
+
+\begin{remark}[Descriptions of $\Lam(x^*)$]\label{rem:q1}
+For polynomial payoffs on a polyhedral $K$, $\Lam(x^*)$ is semialgebraic (Tarski--Seidenberg, \citealp{bochnakCosteRoy1998}), polyhedral for $N=2$ (as is every closed convex cone of $\R^2$) and not in general for $N\ge3$ (Example~\ref{ex:nonpoly}). By Proposition~\ref{prop:hard}, unless P $=$ NP there is no explicit description of $\Lam(x^*)$ by polynomially many polynomial inequalities of polynomial size computable in polynomial time, so a characterisation ``in terms of the active-face pattern and the Hessians'' has no efficiently checkable answer in that generality. With scalar actions and $N$ fixed, membership is polynomial ($3^N$ faces); supermodular $W_\lambda$ (as in Example~\ref{ex:nonpoly}) is a candidate tractable subclass that we do not study.
+\end{remark}
+
+\subsection*{Routing: the commodity cone is hard as well}
+
+Throughout this subsection the network is as in Definition~\ref{def:wardrop}, with affine costs $c_e(x)=a_ex+b_e$, $a_e,b_e\ge0$ rational, and the path sets $P_k$ listed explicitly as part of the input (each path a set of edges). As in Example~\ref{ex:routing}, $C_k(f)=\sum_{p\in P_k}f_pc_p(f)=\sum_ec_e(f_e)f^k_e$, where $f^k_e$ is the flow of commodity $k$ on $e$; $\Lam(f^*)$ and $\Lone(f^*)$ are defined with $u_k=-C_k$, and we write $\Phi_\lambda=\sum_k\lambda_kC_k$, so that $\lambda\in\Lam(f^*)$ iff $f^*\in\arg\min_K\Phi_\lambda$. With $g_e=\sum_k\lambda_kf^k_e$ the $\lambda$-weighted flow on $e$,
+\begin{equation}\label{eq:phiroute}
+\Phi_\lambda(f)=\sum_e(a_ef_e+b_e)\,g_e .
+\end{equation}
+
+\begin{lemma}[Zero-weight commodities enter affinely]\label{lem:concave}
+Let $Q=\{k:\lambda_k>0\}$ and $R$ its complement. For fixed flows of the commodities in $Q$, $\Phi_\lambda$ is affine in the flows of the commodities in $R$, jointly; hence $f^R\mapsto\min_{f^Q}\Phi_\lambda(f^Q,f^R)$ is concave and $\Phi_\lambda$ has a minimiser over $K$ in which every commodity of $R$ uses a single path. If moreover $\lambda=\mu\mathbf 1_Q$ for some $\mu>0$, then $\Phi_\lambda$ is convex in $f^Q$ for fixed $f^R$, so $\min_K\Phi_\lambda$ is the minimum, over the pure profiles of the commodities of $R$ that share an edge with a path of $Q$, of a convex quadratic programme. \status{proved here, Appendix~\ref{app:routing}; elementary}
+\end{lemma}
+The lemma says where non-convexity can come from: a commodity of weight zero is never penalised for the congestion it causes, and its route choice is a vertex choice. The reduction below exploits exactly this, with one weighted commodity and many weightless ones.
+
+\begin{theorem}[Membership in the commodity cone is co-NP-complete]\label{thm:routinghard}
+Given a network as above, a rational Wardrop equilibrium $f^*$ in path flows (a property checked in polynomial time, the paths being listed) and a rational $\lambda\ge0$, deciding whether $\lambda\in\Lam(f^*)$ is co-NP-complete, and so is deciding whether $\Lam(f^*)=\Lone(f^*)$, when the number of commodities is part of the input. Both remain co-NP-hard when all of the following hold: $\lambda=e_W$ is a unit vector; $f^*$ is the unique Wardrop equilibrium, it is a vertex of $K$, and $F$ is strongly monotone on $K$; $\Lone(f^*)$ is the whole orthant; every edge lies on paths of at most two commodities; demands are integers; and all commodities but one have exactly two paths. \status{proved here, Appendix~\ref{app:routing}; checked by an independent internal referee (round 4) and in E8}
+\end{theorem}
+\begin{proof}[Proof outline]
+Membership in co-NP is the argument of Proposition~\ref{prop:hard}. For hardness, one weighted commodity $W$ chooses between a route $O$ of constant cost and a route $T_\ell$ per orientation $\ell=(i,j)$ of an edge of a MAX-CUT instance; $T_\ell$ shares an edge with the route $S_i$ of node $i$, one with the other route $U_j$ of node $j$, and one with the route $Z_1$ of a switch commodity, which meets every $T_\ell$. Expensive private edges hold the weightless commodities on $U_i$ and $Z_1$ (so $f^*$ is the unique equilibrium), but $C_W$ does not charge them for the congestion they impose on $W$; minimising over $W$'s flows leaves a concave function (Lemma~\ref{lem:concave}) whose vertex values are $C_W(f^*)$ and $C_W(f^*)+k-\tfrac12-\mathrm{cut}_w(x)$.
+\end{proof}
+
+\begin{remark}[Interior weights]\label{rem:interior}
+Hardness does not need zero weights. With $B$, $k$, $n$ as in the proof, $\Gamma=2B+2k+1$ and $\varepsilon=1/(4(n+1)\Gamma)$, the weight $\lambda_\varepsilon=e_W+\varepsilon\sum_{h\ne W}e_h$ has all entries positive, and $\lambda_\varepsilon\in\Lam(f^*)$ iff every cut has weight $<k$: if so, $\Lam(f^*)$ is the orthant; otherwise the flow built from a heavy cut beats $f^*$ by at least $\tfrac14$ for $\Phi_{\lambda_\varepsilon}$ (Appendix~\ref{app:routing}). \status{proved here, Appendix~\ref{app:routing}; checked by an independent internal referee (round 4) and in E8}
+\end{remark}
+
+\begin{corollary}[Networks with all paths]\label{cor:routingdag}
+When the input is a directed acyclic graph with origin--destination pairs and $P_k$ is the set of all paths of commodity $k$ from its origin to its destination, both problems of Theorem~\ref{thm:routinghard} are co-NP-complete when the number of commodities is part of the input. They remain co-NP-hard when $\lambda=e_W$, $f^*$ is the unique Wardrop equilibrium and a vertex of $K$, $\Lone(f^*)$ is the whole orthant, demands are integers, every arc lies on paths of at most three commodities, and all commodities but two ($W$ and a switch, which has more than two paths) have exactly two paths. In this construction $F$ is not strongly monotone (Question~\ref{q:multi}(ii)). \status{proved here, Appendix~\ref{app:routing}; checked by an independent internal referee (round 4) and in E8 on small graphs}
+\end{corollary}
+
+\begin{proposition}[Two tractable cases]\label{prop:routingeasy}
+\begin{enumerate}[leftmargin=2em,label=(\alph*)]
+\item If, on every edge $e$ with $a_e>0$, $\lambda$ takes one value $\mu_e$ on all commodities having a path through $e$, then $\Phi_\lambda$ is convex on $K$ and $\lambda\in\Lam(f^*)$ iff $\lambda\in\Lone(f^*)$, a linear feasibility test. This covers $\lambda=\mathbf 1$ (the system optimum) and networks in which no edge with $a_e>0$ is shared.
+\item (Explicit path sets.) If $\lambda=\mu\mathbf 1_Q$ and at most $r$ commodities outside $Q$ use an edge of a path of $Q$, then $\lambda\in\Lam(f^*)$ can be decided by solving at most $\prod|P_k|\le(\max_k|P_k|)^r$ convex quadratic programmes over a simplex product, hence in polynomial time for fixed $r$ \citep{kozlovTarasovKhachiyan1980}. In particular membership of a unit vector is polynomial when the number of commodities is fixed.
+\end{enumerate}
+\status{proved here, Appendix~\ref{app:routing}; elementary}
+\end{proposition}
+Theorem~\ref{thm:routinghard} uses one weighted commodity and unboundedly many weightless ones sharing edges with the weighted paths, which, with explicit path sets, is unavoidable, unless P $=$ NP, for weights of the form $\mu\mathbf 1_Q$ (Proposition~\ref{prop:routingeasy}(b)); Example~\ref{ex:routing} ($\lambda=(0,1)$) and Example~\ref{ex:three} are instances with few commodities. With all paths of an acyclic network, the case of few commodities is open (Question~\ref{q:multi}(iii)).
+
+
+\section{Numerical checks}\label{sec:exp}
+
+All equilibria are computed by the projected-gradient iteration of Theorem~\ref{thm:mono}(b) (Remark~\ref{rem:hs}), run to a fixed-point step below $10^{-12}$, with the natural residual $\|x-\Pi_K(x-F(x))\|$ reported; $\Lone$ is tested by its linear system and $\Lam$ by exact maximisation (Appendix~\ref{app:repro}). Each script states its protocol and pass/fail criteria in its docstring and writes the flags into its output, from which the phrases ``all criteria hold'' are generated; there is no external pre-registration record (the criteria were written in the same session as the code, before the reference run). The experiments verify statements proved above; they discover nothing. Full tables are in \path{results/tables_*.md}.
+
+\paragraph{E1: routing.} \CritTraffic. Pigou: PoA $=\PigouPoAOne$ for $d=1$ and $\PigouPoASixteen$ for $d=\PigouDmax$ (closed form and grid search agree to \PigouGridGap). Affine parallel links: maximum PoA \AffPoAMax{} over \AffInstances{} instances, \AffViolations{} violations of $4/3$, maximum residual \AffMaxResidual; the solver matches exact water-filling to \AffMaxDevWaterfill, which for affine costs is also the only check of the tolls of Corollary~\ref{cor:toll} we offer ($c+\tau$ is the same function as $\nabla C$).
+
+\paragraph{E2--E4: welfare-weight cones.} \CritWelfare. Example~\ref{ex:wedge}: closed form, linear test and exact maximisation agree on \TwoAgreement/\TwoAngles{} directions; Cournot (i): \CourIntInLambda/\CourIntGrid{} grid directions in $\Lam$, (ii): agreement \CourBdAgreement/\CourBdGrid; Nikaid\^o--Isoda: $\max W'_\lambda\le\NImax$. \if\HasNP1 Example~\ref{ex:nonpoly} (E2c): \NPmismatch{} disagreements on \NPslicePts{} slice points, bisected boundary within \NPbisDiff{} of the parabola, and within \NPsmPhiDiff{} of $\varphi$ for $\varepsilon=\NPsmEps$ (test tolerance $10^{-8}$). \fi In the \RndConcInst{} concave random games (E3) every tested point agrees with $\Lam=\Lone$; in the \RndNoncInst{} non-concave ones (E4) $\Lam\subseteq\Lone$ is never violated and \RndNoncWit{} of the \RndNoncNontriv{} games with a non-trivial cone carry a certified witness of strict inclusion (a lower bound: witnesses are sought only among the cone points).
+
+\if\HasCommodity1
+\paragraph{E5: two commodities.} \CritCommodity. Example~\ref{ex:routing}: $f^*=(1,0)$ (residual \CmResidual), boundary $\lambda_1=\CmBoundary$ on $\lambda_2=1$. In \CmRandInst{} random instances $\Lone$ is two-dimensional in \CmRandLoneDimTwo{} and a ray in \CmRandLoneRay; \CmRandWit{} carry a certified witness of $\Lam\ne\Lone$ (\CmRandWitInterior{} at a direction with both weights positive), none of the \CmRandIntInst{} with an interior equilibrium and \CmRandZeroBWit{} of the \CmRandZeroB{} with every $b_e=0$; \CmRandViol{} violations of $\Lam\subseteq\Lone$.
+\fi
+
+\if\HasHardness1
+\paragraph{E6: the reduction of Proposition~\ref{prop:hard}.} \CritHardness. On all graphs with unit weights and $3$--$5$ nodes and on random graphs with $6$ nodes (unit weights, and weights in $\{1,2,3\}$), \HdGraphs{} graphs and \HdPairs{} pairs $(G,k)$ with $\varepsilon=\HdEps$: $e_{n+2}\in\Lam(x^*)$ holds iff the maximum cut, found by enumeration, is $<k$ (\HdMism{} mismatches; \HdMember{} members and \HdNonmember{} non-members), and $\Lam=\Lone=\R^{n+2}_+$ exactly in those cases. Membership was decided by exact maximisation over all faces of the box for the \HdFacePairs{} pairs with $n\le\HdFaceMaxN$, and over its vertices for the other \HdVertexPairs{}; the latter relies on the multilinearity used in the proof (\HdXcheck{} cross-checks against face enumeration agree).
+\fi
+
+\if\HasThree1
+\paragraph{E7: three commodities.} \CritThree. Example~\ref{ex:three}: $y^*=(0,0,1)$ (residual \TcResidual); the bisected boundary on $\lambda_2=1$ at \TcSlicePts{} values $\lambda_1\in[\TcLow,\TcHigh]$ is within \TcBoundaryDiff{} of $\psi$; the description $\{\lambda_3+m\ge0\}$ agrees with the exact test at \TcDescTests{} grid points (\TcDescMism{} mismatches); witness gap \TcWitGap{} ($=1/180$).
+\fi
+
+\if\HasRouting1
+\paragraph{E8: the reduction of Theorem~\ref{thm:routinghard}.} \CritRouting{} (\path{theory/check_routing_hardness.py}; numbers parsed from its saved output, which a re-run reproduced, where the details are). On \RtPairs{} pairs $(G,k)$ from \RtGraphs{} graphs (the \RtAllLabelled{} labelled graphs with unit weights on $3$ and $4$ nodes, and \RtRandFive{}${}+{}$\RtRandSix{} random graphs on $5$ and $6$ nodes, \RtRandWeighted{} of them with weights in $\{1,2,3\}$), $\min_KC_W$, computed without the closed form, gives $e_W\in\Lam(f^*)$ iff the maximum cut is $<k$ (\RtMism{} mismatches, margin \RtMargin); the equilibrium, $\Lone$, the witness and Remark~\ref{rem:interior} are checked in exact arithmetic; and the acyclic network of Corollary~\ref{cor:routingdag} (up to \RtDagMaxPathsW{} paths for $W$ and \RtDagMaxPathsZ{} for the switch) passes the same tests on \RtDagPairs{} pairs.
+\fi
+
+
+\section{What can be claimed, limitations and open question}\label{sec:claims}\label{sec:limits}
+
+Every statement carries its status in line; the claim-by-claim table is \path{results/CLAIMS.md}. In three lines: the classical results are theorems, proved above; the ``formal relationship'' between equilibrium and welfare is the first-order coincidence of Proposition~\ref{prop:nec}, a definition rather than a mechanism; and $(F,K)$ carries no welfare information (Proposition~\ref{prop:notdet}), so welfare statements need the externalities as separate data, and even with them deciding whether a weighting makes an equilibrium optimal is co-NP-complete when the number of agents is part of the input, for quadratic games (Proposition~\ref{prop:hard}, a standard reduction) and for multi-commodity routing with affine costs (Theorem~\ref{thm:routinghard}, Corollary~\ref{cor:routingdag}).
+
+\paragraph{Limitations.}
+(1) Everything is finite-dimensional, deterministic and $C^1$. (2) Theorem~\ref{thm:cone} is a first-order statement; its only general sufficient condition for equality is concavity, which excludes Cournot-type payoffs and multi-commodity routing costs (for routing, Proposition~\ref{prop:routingeasy}(a) is a variant). (3) The experiments verify theorems on quadratic games over boxes and on small networks; they are exact only because $N\le4$ (E2--E5, E7), $n\le6$ (E6) or the networks are small (E8), and the reported frequencies describe one sampling distribution. (4) We have not surveyed the toll-pricing and multi-objective literature exhaustively (Remark~\ref{rem:novelty}).
+
+\begin{question}[Routing with few commodities, and acyclic networks]\label{q:multi}
+Theorem~\ref{thm:routinghard} settles the complexity of membership in multi-commodity routing with affine costs when the number of commodities is part of the input, with explicit path sets or with all paths of an acyclic network (Corollary~\ref{cor:routingdag}); with explicit path sets, a fixed number of commodities and weights of the form $\mu\mathbf 1_Q$, membership is polynomial (Proposition~\ref{prop:routingeasy}(b)). Three questions remain. (i) What is the complexity of deciding $\lambda\in\Lam(f^*)$ when the number of commodities is fixed (already two) and the weights are positive and distinct, so that two weighted commodities with many paths each share edges? (ii) Does Corollary~\ref{cor:routingdag} hold with $F$ strongly monotone? Our acyclic construction is not: a path of the switch through $q_0$, $dz$, the arcs $p_\ell,e^1_\ell,e^2_\ell,e^z_\ell$ of some $T_\ell$ and the tail of $Z_1$ is not separated from $Z_0$ by arcs of positive slope that $W$ does not also use. (iii) What is the complexity with all paths of an acyclic network and a fixed number of commodities, already for two commodities and $\lambda=e_W$? Then $\min_K\Phi_\lambda$ is the minimum over $W$'s arc flows of a convex quadratic plus $d_R$ times the shortest-path length of the other commodity $R$ for the arc lengths $a_ef^W_e$, a concave function, and Proposition~\ref{prop:routingeasy}(b) does not apply because the paths may be exponentially many.
+\end{question}
+
+\paragraph{Next steps.} Settle Question~\ref{q:multi}; run E4 and E5 with a global solver for larger $N$ and $m$; and confirm with the author whether the ``formulation reviewed'' in the line's record was an instance of Proposition~\ref{prop:nec} or of Corollary~\ref{cor:toll}, which is our reading.
+
+\paragraph{Acknowledgements.} Four rounds of internal review by independent referees improved this note. They pointed out the counterexample of Example~\ref{ex:nonpoly}, suggested its strongly monotone variant, the three-commodity setting of Example~\ref{ex:three} and the reduction behind Proposition~\ref{prop:hard}, asked that the latter be labelled as standard, and checked Theorem~\ref{thm:routinghard}, Remark~\ref{rem:interior} and Corollary~\ref{cor:routingdag} independently.
+
+\appendix
+\section{Reproducibility}\label{app:repro}
+{\sloppy The directory contains \path{experiments/vi_solver.py} (projections and the iteration of Theorem~\ref{thm:mono}(b)), \path{traffic_poa.py} (E1), \path{welfare_cone.py} (E2--E4), \path{commodity_cone.py} (E5), \path{hardness_maxcut.py} (E6) and \path{three_commodity.py} (E7); E8 is \path{theory/check_routing_hardness.py} (seed \RtSeed, \RtCPU~s of CPU in the saved run), whose text output is parsed by \path{make_numbers.py}. Seed \MetaSeed, consumed sequentially by one generator per script; Python \MetaPython, NumPy \MetaNumpy~\citep{harris2020}, SciPy \MetaScipy~\citep{virtanen2020} (\texttt{linprog}/HiGHS for the geometry of $\Lone$); E1 took \MetaSecondsTraffic{}~s, E2--E4 \MetaSecondsWelfare{}~s, E5 \MetaSecondsCommodity{}~s, E6 \MetaSecondsHardness{}~s and E7 \MetaSecondsThree{}~s on shared cores. The scripts write \path{results/results_*.json} (with a \texttt{criteria} block) and \path{results/tables_*.md}; \path{experiments/make_numbers.py} turns them into the macros used here, so every number in the text is generated.\par}
+
+\paragraph{Exact tests and random families.} $\lambda\in\Lam$ is decided by enumerating the $3^N$ faces of the box and solving the stationarity system of $W_\lambda$ on each (a maximiser is stationary in the relative interior of its face): $\lambda\in\Lam$ iff $W_\lambda(x^*)\ge\max_KW_\lambda-10^{-8}$, and a \emph{certified witness} improves $W_\lambda$ by more than $10^{-6}$. The random quadratic games of E3--E4 ($\tfrac12$-strongly monotone $F$; \RndNFourCBdry--\RndNThreeXBdry\% of equilibrium coordinates on the boundary), the cross-check against multistart projected ascent (\RndPgaChecks{} instances, discrepancy \RndPgaDiff), the \CmRandTolDis{} directions of E5 accepted only within tolerance (first-order violation $\le$\CmRandTolDisViol), the grids and the pass/fail criteria are documented in the script docstrings and in \path{results/tables_*.md}.
+
+\section{Deferred proofs}\label{app:routing}
+We use the notation of Section~\ref{sec:cone}, in particular \eqref{eq:phiroute}.
+
+\begin{proof}[Proof of the strongly monotone variant in Example~\ref{ex:nonpoly}]
+Fix $\lambda_3=1$ and $\frac1{4(1-\varepsilon)}\le\lambda_1\le\frac3{4(1-\varepsilon)}$. As for $\varepsilon=0$, $x_3=1$ at a maximiser; on the edge $x_2=0$ the maximum, at $x_1=\frac{\lambda_1+1/4}{1+\varepsilon\lambda_1}\le1$, is $1-\frac\varepsilon2+\frac{(\lambda_1+1/4)^2}{2(1+\varepsilon\lambda_1)}$, which exceeds $W_\lambda(x^*)=(1+\lambda_1+\lambda_2)(1-\frac\varepsilon2)-\frac14$ iff $\lambda_2<\varphi(\lambda_1)$. Conversely let $\lambda_2\ge\varphi(\lambda_1)$. If the Hessian of $W_\lambda$ in $(x_1,x_2)$ is negative semidefinite, $\lambda\in\Lone$ suffices; otherwise it is indefinite (its $(1,1)$ entry is $-(1+\varepsilon\lambda_1)<0$), the maximum lies on an edge, and on the edges $x_1=1$, $x_2=1$ and $x_1=0$ the value is at most $W_\lambda(x^*)$ (increasing in $x_2$; increasing in $x_1$ because $\lambda_1\ge\frac1{4(1-\varepsilon)}$; at most $(1+\lambda_2)(1-\frac\varepsilon2)<W_\lambda(x^*)$).
+\end{proof}
+
+\begin{proof}[Proof of $\Lam(f^*)$ in Example~\ref{ex:routing}]
+For $\Lam$ fix $\lambda_2=1$ ($\lambda_2=0$ gives $\lambda\in\Lam$). The Hessian of $\lambda_1C_1+C_2$, $\begin{psmallmatrix}4\lambda_1&\lambda_1+1\\\lambda_1+1&5/2\end{psmallmatrix}$, is positive semidefinite iff $10\lambda_1\ge(\lambda_1+1)^2$, and then $\lambda\in\Lam$. Otherwise the minimum lies on an edge, where the restriction is a convex quadratic: on $f_B=1$ and on $f_D=0$ it is at $f^*$ (derivatives $\lambda_1+\tfrac12+\tfrac52t>0$ and $4\lambda_1(f_B-1)\le 0$); on $f_D=1$ the value is $\ge\tfrac{15}{8}\lambda_1+1>\lambda_1+\tfrac14$; on $f_B=0$ it is $3\lambda_1+\tfrac14(1-t)^2+t^2$, minimised at $t=\tfrac15$ with value $3\lambda_1+\tfrac15$. Hence $f^*$ is optimal iff $\lambda_1+\tfrac14\le3\lambda_1+\tfrac15$, i.e.\ $\lambda_1\ge\tfrac1{40}$, which is the claim after scaling.
+\end{proof}
+
+\begin{proof}[Proof of the description of $\Lam(y^*)$ in Example~\ref{ex:three}]
+Write $y=(u,w,t)$, $\Phi_\lambda=\sum_k\lambda_kC_k$ and $c=(\lambda_1+\lambda_3)u+(\lambda_2+\lambda_3)w\ge0$; expanding, $\Phi_\lambda(y)-\Phi_\lambda(y^*)=P(u,w)+\lambda_3+t(c-2\lambda_3)+\lambda_3t^2$. For fixed $(u,w)$ this is convex in $t$. If $c\ge2\lambda_3$ its minimum over $t\in[0,1]$ is at $t=0$ and equals $P+\lambda_3\ge m+\lambda_3$. Otherwise it is attained at $t=1-c/(2\lambda_3)$ and equals $P+c-c^2/(4\lambda_3)\ge P+\tfrac c2\ge P+\tfrac12(\lambda_1u+\lambda_2w)\ge\tfrac14(\lambda_1u^2+\lambda_2w^2)\ge0$. Hence $y^*$ is a minimiser iff $\lambda_3+m\ge0$, and when $\lambda_3+m<0$ the minimiser of $P$ on the face $t=0$ beats it.
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:hard}]
+\emph{Membership in co-NP.} $\lambda\notin\Lam(x^*)$ iff $W_\lambda(x)>W_\lambda(x^*)$ for some $x\in K$. Let $\hat x$ maximise $W_\lambda$ over $K$ and let $\mathcal F$ be the face of $K$ in whose relative interior it lies. The restriction of the quadratic $W_\lambda$ to the affine hull of $\mathcal F$ has a local, hence global, maximum at $\hat x$; it is therefore concave there, and every point of the nonempty polytope $\{x\in\mathcal F:\nabla_{\mathcal F} W_\lambda(x)=0\}$ ($\nabla_{\mathcal F}$ the projection of the gradient on the direction space of $\mathcal F$) is a maximiser. A vertex of this polytope has encoding size polynomial in the input \citep[Section~10.2]{schrijver1986} and is the certificate, checked in exact arithmetic. The argument uses only that the objective is quadratic with rational coefficients and that $K$ is a rational polyhedron given by linear inequalities; for quadratic programming over general polyhedra it is the theorem of \citet{vavasis1990}. (Deciding that a given point is \emph{not} a local minimiser of an indefinite quadratic programme is NP-complete \citep{murtyKabadi1987}; see also \citet{pardalosSchnitger1988}.) For $\Lam\ne\Lone$, a certificate is an extreme-ray generator $\lambda$ of the pointed rational polyhedral cone $\Lone(x^*)$, of polynomial size by the same theorem, together with such an $x$ for it: if every generator lay in the convex cone $\Lam$, then $\Lone\subseteq\Lam$.
+\emph{Hardness.} We reduce the complement of MAX-CUT, which is co-NP-complete \citep{karp1972}, to membership: YES-instances of MAX-CUT go to non-members. Given a graph $(V,E)$ on $n$ nodes with nonnegative integer weights $w_{ij}$ and an integer $k\ge1$ (is there a cut of weight $\ge k$?), let $\mathrm{cut}(x)=\sum_{\{i,j\}\in E}w_{ij}(x_i+x_j-2x_ix_j)$, $\deg_w(i)=\sum_{j:\{i,j\}\in E}w_{ij}$, $L(x)=\sum_i\deg_w(i)x_i$, which is $\ge\mathrm{cut}(x)$ on $[0,1]^n$ because $w\ge0$ (with a negative weight the reduction fails), and $q(x,y)=\mathrm{cut}(x)+y(k-\tfrac12-L(x))$. As $q$ is affine in each variable separately, its maximum over $[0,1]^{n+1}$ is attained at a vertex, where $q=\mathrm{cut}(x)$ if $y=0$ and $q=\mathrm{cut}(x)-L(x)+k-\tfrac12\le k-\tfrac12=q(0,1)$ if $y=1$; so $(0,1)$ maximises $q$ iff every cut has weight $<k$. Take players with actions $x_1,\dots,x_n,y,z\in[0,1]$, fix $0<\varepsilon<1$, and let $u_i=-x_i-\tfrac\varepsilon2x_i^2$, $u_{n+1}=y-\tfrac\varepsilon2y^2$, $u_{n+2}=z-\tfrac\varepsilon2z^2+q(x,y)$. Each payoff is concave in the own action, $F(v)=\varepsilon v+(\mathbf 1_n,-1,-1)$ is $\varepsilon$-strongly monotone, and $x^*=(0,\dots,0,1,1)$ is the unique equilibrium (strictly dominant strategies). $W_{e_{n+2}}=u_{n+2}$ separates in $z$, so $e_{n+2}\in\Lam(x^*)$ iff every cut has weight $<k$. At $x^*$, $\nabla_xq=0$ and $\partial_yq=k-\tfrac12>0$, so $\Lone(x^*)=\R^{n+2}_+$ by \eqref{eq:block}; the other unit vectors lie in $\Lam(x^*)$ by dominance, so $\Lam(x^*)=\Lone(x^*)$ iff $e_{n+2}\in\Lam(x^*)$. The construction is polynomial. (Merging the first $n+1$ players into one player with action $(x,y)\in[0,1]^{n+1}$ gives the same conclusions with $N=2$; membership in co-NP holds for vector actions in boxes by the same proof.)
+\end{proof}
+
+
+\begin{proof}[Proof of Lemma~\ref{lem:concave}]
+In \eqref{eq:phiroute}, $g_e$ involves only $f^Q$, and $f_e=\sum_kf^k_e$ is linear in the path flows; so for fixed $f^Q$ the expression is affine in $f^R$. A pointwise infimum of affine functions is concave, and a concave function on the polytope $\prod_{k\in R}\{f^k\ge0,\ \sum_pf^k_p=d_k\}$ attains its minimum at a vertex, i.e.\ at a pure profile; a minimiser of $\Phi_\lambda$ over $K$ is obtained by adding a minimising $f^Q$ for that profile (the minimum over the compact $K$ exists). If $\lambda=\mu\mathbf 1_Q$, then $g_e=\mu f^Q_e$ and, with $r_e=f_e-f^Q_e$ fixed, $\Phi_\lambda=\mu\sum_e\big(a_e(f^Q_e)^2+(a_er_e+b_e)f^Q_e\big)$ is convex in $f^Q$; commodities of $R$ that use no edge of a path of $Q$ do not appear in it.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:routinghard} and Remark~\ref{rem:interior}]
+\emph{Membership in co-NP.} $K$ is a product of simplices given by explicit linear constraints (the paths are listed in the input) and $\Phi_\lambda$ is a quadratic polynomial with rational coefficients, so the certificate argument in the proof of Proposition~\ref{prop:hard} applies \citep{vavasis1990}. For $\Lam\ne\Lone$: $\lambda\in\Lone(f^*)$ is a linear feasibility test by Lemma~\ref{lem:simplex} (eliminate $\gamma_k$, the value on a used path), and $\Lone(f^*)$ is a pointed rational polyhedral cone whose extreme rays have generators of polynomial size \citep[Section~10.2]{schrijver1986}, and a certificate is such a generator together with a point of $K$ that beats $f^*$ for it.
+
+\emph{Construction.} As in Proposition~\ref{prop:hard} we reduce the complement of MAX-CUT \citep{karp1972}, sending YES-instances of MAX-CUT to non-members. An instance is a graph $(V,E_G)$, $V=\{1,\dots,n\}$, with integer weights $w_{ij}\ge1$ and an integer $k\ge1$: is there a cut of weight $\ge k$? We may assume that $E_G\ne\emptyset$ (otherwise the answer is no and we output a fixed member) and that no node is isolated (deleting it changes no cut). Let $A$ be the set of the $M=2|E_G|$ ordered pairs $\ell=(i,j)$ with $\{i,j\}\in E_G$, $w_\ell=w_{ij}$, and set
+\[
+D=M,\quad \alpha_\ell=16w_\ell,\quad b_o=16\max_\ell w_\ell,\quad a_D=\frac{2k-1}{2D},\quad B=2+2(D+1)\textstyle\sum_\ell\alpha_\ell .
+\]
+Edges and costs: $dz$ with cost $a_Dx$; $e^o$ with constant cost $b_o$; for each $\ell\in A$, $p_\ell$ with constant cost $b_o-\alpha_\ell\ge0$, $e^1_\ell$ and $e^2_\ell$ with cost $\alpha_\ell x$, and $e^z_\ell$ with cost $2\alpha_\ell x$; for each $i\in V$, $s_i$ with cost $x+B$ and $r_i$ with cost $x$; and $q_1$ with cost $x$, $q_0$ with cost $x+B$. Commodities:
+\begin{itemize}[leftmargin=1.5em,itemsep=0pt]
+\item $W$, demand $D$, paths $O=\{dz,e^o\}$ and $T_\ell=\{dz,p_\ell,e^1_\ell,e^2_\ell,e^z_\ell\}$, $\ell\in A$;
+\item for each $i\in V$, commodity $i$, demand $1$, paths $S_i=\{s_i\}\cup\{e^1_\ell:\ell=(i,\cdot)\}$ and $U_i=\{r_i\}\cup\{e^2_\ell:\ell=(\cdot,i)\}$;
+\item a switch $z$, demand $1$, paths $Z_1=\{q_1\}\cup\{e^z_\ell:\ell\in A\}$ and $Z_0=\{q_0,dz\}$.
+\end{itemize}
+Let $f^*$ send $W$ along $O$, every $i$ along $U_i$ and $z$ along $Z_1$, and $\lambda=e_W$. Every edge lies on paths of at most two commodities, and all numbers have polynomial size.
+
+\emph{The objective.} Write $x_i\in[0,1]$ for the flow of $i$ on $S_i$, $z\in[0,1]$ for the flow of the switch on $Z_1$ and $t_\ell\ge0$ for the flow of $W$ on $T_\ell$ (so $D-\sum_\ell t_\ell$ on $O$); this affine reparametrisation of $K$ is one-to-one. Edge $dz$ carries $D+1-z$, all of $W$'s demand; $e^o$ carries $D-\sum_\ell t_\ell$ at the constant cost $b_o$; and for $\ell=(i,j)$, $e^1_\ell$, $e^2_\ell$, $e^z_\ell$ carry $t_\ell+x_i$, $t_\ell+1-x_j$, $t_\ell+z$. Hence, since $(b_o-\alpha_\ell)-b_o+\alpha_\ell=0$,
+\begin{equation}\label{eq:CW}
+C_W=a_DD(D+1-z)+b_oD+\sum_{\ell=(i,j)\in A}\alpha_\ell\big(4t_\ell^2+t_\ell(x_i-x_j+2z)\big).
+\end{equation}
+For fixed $(x,z)$ the minimum over $\{t\ge0,\ \sum_\ell t_\ell\le D\}$ separates: $t_\ell=\tfrac18(x_j-x_i-2z)_+\le\tfrac18$, so $\sum_\ell t_\ell\le M/8\le D$ is slack, and with $\alpha_\ell/16=w_\ell$,
+\[
+h(x,z):=\min_tC_W=a_DD(D+1-z)+b_oD-\sum_{\ell=(i,j)\in A}w_\ell\big((x_j-x_i-2z)_+\big)^2 .
+\]
+By Lemma~\ref{lem:concave} ($\lambda=e_W$; or directly, \eqref{eq:CW} is affine in $(x,z)$ for fixed $t$) $h$ is concave, so its minimum over $[0,1]^{n+1}$ is attained at a vertex. For $z=1$, $h=C^\star:=a_DD^2+b_oD$, since $x_j-x_i-2<0$. For $z=0$ and $x\in\{0,1\}^n$, the pair $\ell=(i,j)$ contributes $-w_\ell$ iff $x_i=0$, $x_j=1$, and each edge $\{i,j\}$ with $x_i\ne x_j$ does so through exactly one of its two orientations; so $h=C^\star+(k-\tfrac12)-\mathrm{cut}_w(x)$. Therefore
+\[
+\min_KC_W=C^\star+\min\big(0,\ k-\tfrac12-\mathrm{maxcut}_w\big),\qquad C_W(f^*)=C^\star,
+\]
+and $e_W\in\Lam(f^*)$ iff $\mathrm{maxcut}_w\le k-\tfrac12$, i.e.\ iff every cut has weight $<k$. When a cut $x$ has weight $\ge k$, the flow $y$ with that $x$, $z=0$ and $t_\ell=\tfrac18$ on the pairs $\ell=(i,j)$ with $x_i=0$, $x_j=1$ lowers $C_W$ by $\mathrm{cut}_w(x)-k+\tfrac12\ge\tfrac12$. \emph{Interior weights (Remark~\ref{rem:interior}).} At $y$ every path of a node or of the switch costs at most $\Gamma$: $c_{S_i}\le1+B+\tfrac98\sum_\ell\alpha_\ell\le2B$, $c_{U_i}\le1+\tfrac98\sum_\ell\alpha_\ell$, $c_{Z_1}=\sum_\ell2\alpha_\ell t_\ell$ and $c_{Z_0}\le1+B+a_D(D+1)\le1+B+2k$. As these demands are $1$, $0\le C_h(y)\le\Gamma$ and $C_h(f^*)\ge0$ for $h\ne W$, so $\Phi_{\lambda_\varepsilon}(y)-\Phi_{\lambda_\varepsilon}(f^*)\le-\tfrac12+\varepsilon(n+1)\Gamma=-\tfrac14$.
+
+\emph{$f^*$ is the unique equilibrium.} For every feasible flow, $c_{U_i}\le1+(D+1)\sum_\ell\alpha_\ell<B\le c_{S_i}$ and $c_{Z_1}\le1+2(D+1)\sum_\ell\alpha_\ell<B\le c_{Z_0}$, so at every Wardrop equilibrium $x=0$ and $z=1$. Then $c_{T_\ell}-c_O=\alpha_\ell t_\ell+\alpha_\ell(t_\ell+1)+2\alpha_\ell(t_\ell+1)-\alpha_\ell=4\alpha_\ell t_\ell+2\alpha_\ell>0$, so $W$ uses only $O$. Thus $f^*$, a vertex of $K$, is the only equilibrium. $F$ is affine with $DF=\Delta^{\!\top}\operatorname{diag}(a)\Delta$, $\Delta$ the edge--path incidence matrix. If $h$ is tangent to $K$ ($\sum_{p\in P_k}h_p=0$ for all $k$) and $h^{\!\top}DFh=\sum_ea_e(\Delta h)_e^2=0$, then $(\Delta h)_e=0$ on $s_i,r_i,q_1,q_0$ (slope $1$, each in a single path), so $h$ vanishes on the paths of the nodes and of the switch; then $(\Delta h)_{e^1_\ell}=h_{T_\ell}=0$ and $h_O=-\sum_\ell h_{T_\ell}=0$. So $DF$ is positive definite on the tangent space and $F$ is strongly monotone on $K$.
+
+\emph{$\Lone(f^*)$ is the orthant, and $\Lam=\Lone$ iff $e_W\in\Lam$.} At $f^*$ the derivatives of $C_W$ with respect to path flows are: $2a_DD+b_o$ on $O$ and $2a_DD+b_o+2\alpha_\ell$ on $T_\ell$; $0$ on $S_i$ and on $U_i$; $0$ on $Z_1$ and $a_DD$ on $Z_0$. In each commodity the used path has the least derivative, so $e_W\in\Lone(f^*)$ by Lemma~\ref{lem:simplex}. For a node $i$, $\sigma_i:=1+\sum_{\ell=(\cdot,i)}\alpha_\ell=C_i(f^*)$ and, for every feasible flow, $C_i\ge\sigma_i(1-x_i)^2+Bx_i$, and $\sigma_i(1-x)^2+Bx-\sigma_i=x(\sigma_ix-2\sigma_i+B)\ge0$ because $B\ge2\sigma_i$; so $e_i\in\Lam(f^*)$. For the switch, $\sigma_z:=1+2\sum_\ell\alpha_\ell=C_z(f^*)$, $C_z\ge\sigma_zz^2+B(1-z)$, and $\sigma_zz^2+B(1-z)-\sigma_z=(1-z)(B-\sigma_z(1+z))\ge0$ because $B\ge2\sigma_z$ ($D\ge1$); so $e_z\in\Lam(f^*)$. As $\Lam\subseteq\Lone$ are convex cones (Theorem~\ref{thm:cone}(a),(b)), $\Lone(f^*)$ contains every unit vector, hence equals $\R^{n+2}_+$ (there are $n+2$ commodities), and $\Lam(f^*)=\R^{n+2}_+$ iff $e_W\in\Lam(f^*)$. Both decision problems therefore have answer ``yes'' iff every cut has weight $<k$.
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{cor:routingdag}]
+\emph{Network.} Number the pairs $\ell=1,\dots,M$. Turn every edge of the construction into an arc with two endpoints of its own, add an origin $\mathsf o_k$ and a destination $\mathsf d_k$ per commodity, and add connector arcs of constant cost: for $W$, $\mathsf o_W\to dz\to e^o\to\mathsf d_W$ and $dz\to p_\ell\to e^1_\ell\to e^2_\ell\to e^z_\ell\to\mathsf d_W$; for node $i$, $\mathsf o_i\to s_i\to e^1_{\ell_1}\to\dots\to e^1_{\ell_r}\to\mathsf d_i$ and $\mathsf o_i\to r_i\to e^2_{\ell'_1}\to\dots\to e^2_{\ell'_r}\to\mathsf d_i$, along the pairs $\ell_1,\dots,\ell_r$ leaving and $\ell'_1,\dots,\ell'_r$ entering $i$; for the switch, $\mathsf o_z\to q_1\to e^z_{1}\to\dots\to e^z_{M}\to\mathsf d_z$ and $\mathsf o_z\to q_0\to dz\to\mathsf d_z$ (``$x\to y$'' is an arc from the head of $x$ to the tail of $y$). A connector between two consecutive arcs of the same chain ($e^1\to e^1$, $e^2\to e^2$, $e^z\to e^z$) costs $H=b_o+1$; all other connectors cost $0$; and the cost of $q_0$ becomes $x+B'$ with $B'=B+2(M-1)H$. Put $dz$, $e^o$, the $p_\ell$ and the private arcs $s_i,r_i,q_0,q_1$ on level $0$ and $e^1_\ell$, $e^2_\ell$, $e^z_\ell$ on levels $1,2,3$: within level $0$ arcs go $q_0\to dz\to\{e^o,p_\ell\}$, chain connectors stay on a level and go forward, all other connectors go up, and nothing goes down, so the graph is acyclic.
+
+\emph{Paths.} (i) A path from $\mathsf o_i$ enters the chain $S_i$ (level 1) or $U_i$ (level 2). It can leave a chain only through a connector of $W$, into the chain $U_j$ of the head $j\ne i$ of the pair, into $Z_1$, or to $\mathsf d_W$, and it can never come back, while $\mathsf d_i$ is entered only from the last arc of $S_i$ or of $U_i$. So commodity $i$ has exactly the two paths $S_i$, $U_i$. (ii) A path of $W$ other than $O$ and the $T_\ell$ leaves $T_\ell$ at the head of $e^1_\ell$, $e^2_\ell$ or $e^z_\ell$ along a chain connector (the other out-arcs end at $\mathsf d_i$, $\mathsf d_j$ or $\mathsf d_z$), so it contains an arc of cost $H$. (iii) A path of the switch other than $Z_1$ and $Z_0$ cannot leave $Z_1$ (its exits lead to $\mathsf d_W$), so it starts $\mathsf o_z\to q_0\to dz$, then continues along arcs of $W$ and chain connectors, and reaches $\mathsf d_z$ through the tail of the chain $Z_1$, ending with $e^z_M$; for every $\ell$, $q_0,dz,p_\ell,e^1_\ell,e^2_\ell,e^z_\ell$ followed by the chain $Z_1$ up to $e^z_M$ is such a path, so the switch has at least $M+2$ paths. (iv) By (i), an arc lies on paths of at most one node, hence on paths of at most three commodities.
+
+\emph{Minimum.} Moving an amount $\delta$ of $W$'s flow from a path $p$ of type (ii) to $O$ changes $C_W=\sum_ec_e(f_e)f^W_e$ by at most $\delta b_o-\delta H<0$: arcs of $p$ off $O$ lose $c_e(f_e)f^W_e-c_e(f_e-\delta)(f^W_e-\delta)\ge\delta c_e(f_e-\delta)$, which is $\delta H$ on the chain connector, and $O$ gains $\delta b_o$ on $e^o$. Moving the switch's flow from a path of type (iii) to $Z_0$ removes flow from arcs and adds it only on the arc $dz\to\mathsf d_z$, which $W$ does not use, so $C_W$ does not increase. Hence $\min_KC_W$ is attained on the face where $W$ uses $O$ and the $T_\ell$ and the switch uses $Z_1$ and $Z_0$; there, the connectors used by $W$ cost $0$ and the chain connectors carry no flow of $W$, so $C_W$ is \eqref{eq:CW}. The minimum and $C_W(f^*)$ are those of the theorem.
+
+\emph{Equilibrium and $\Lone$.} An arc $e^z_\ell$ carries only $W$ and the switch, so $c_{Z_1}\le1+2(D+1)\sum_\ell\alpha_\ell+(M-1)H<B'$ for every feasible flow, while every other path of the switch contains $q_0$: at every equilibrium the switch uses only $Z_1$. Both paths of node $i$ contain $\deg(i)-1$ chain connectors. An arc $e^1_\ell$ or $e^2_\ell$ may now also carry flow of the switch, along a path of type (iii), so $f_e\le D+2$ there instead of $D+1$; still $c_{U_i}\le1+(D+2)\sum_\ell\alpha_\ell+(\deg(i)-1)H<B+(\deg(i)-1)H\le c_{S_i}$, because $D+2\le2(D+1)$ gives $1+(D+2)\sum_\ell\alpha_\ell<2+2(D+1)\sum_\ell\alpha_\ell=B$. Given $x=0$ and $z=1$, for every flow of $W$, $c_{T_\ell}-c_O\ge-\alpha_\ell+\alpha_\ell f_{e^2_\ell}+2\alpha_\ell f_{e^z_\ell}\ge2\alpha_\ell>0$, since $f_{e^2_\ell},f_{e^z_\ell}\ge1$, and a path of type (ii) costs at least $c_O+H-b_o>c_O$; so $f^*$ is the unique equilibrium. At $f^*$ the derivative of $C_W$ along a path of type (ii) exceeds that along $O$ by at least $H-b_o>0$, and along a path of type (iii) it is at least $a_DD>0$, the value on $Z_1$ being $0$; so $e_W\in\Lone(f^*)$. The bounds for $e_i$ shift both sides by $(\deg(i)-1)H$, and for the switch $C_z\ge\sigma_zz^2+z(M-1)H+B'(1-z)$, whose excess over $C_z(f^*)=\sigma_z+(M-1)H$ is $(1-z)\big(B'-\sigma_z(1+z)-(M-1)H\big)\ge0$, as $B'-(M-1)H=B+(M-1)H\ge2\sigma_z$; so $e_i,e_z\in\Lam(f^*)\subseteq\Lone(f^*)$, and $\Lone(f^*)=\R^{n+2}_+$ as before.
+
+\emph{$F$ is not strongly monotone.} Let $h$ move a unit of the switch from $Z_0$ to the path $\mathsf o_z\to q_0\to dz\to p_M\to e^1_M\to e^2_M\to e^z_M\to\mathsf d_z$ of type (iii) and a unit of $W$ from $T_M$ to $O$. Then $dz$ and $q_0$ keep their flow, the arcs of $T_M$ gain the switch and lose $W$, and otherwise only $e^o$ and connectors change, so $(\Delta h)_e=0$ on every arc with $a_e>0$; hence $DF\,h=0$ and $F(f+\tau h)=F(f)$ whenever $f$ and $f+\tau h$ are feasible: $F$ is not even strictly monotone.
+
+\emph{Membership.} $C_k$ depends only on the arc flows $(f^k_e)_{e}$ of the commodities; on an acyclic graph every origin--destination flow of value $d_k$ decomposes into path flows, so $\lambda\in\Lam(f^*)$ iff the arc flows of $f^*$ minimise $\Phi_\lambda$ over the multicommodity flow polytope, which has a polynomial description, and the argument of Proposition~\ref{prop:hard} applies (that $f^*$ is a Wardrop equilibrium is checked by shortest paths). The first-order condition defining $\Lone(f^*)$ is equivalent to the same condition on that polytope (a linear function of path flows is minimised at $f^*$ iff every used path is shortest for it). By linear-programming duality, $\lambda\in\Lone(f^*)$ iff there are node potentials $\pi_k$ with nonnegative reduced arc costs for the linearised $\Phi_\lambda$ of each commodity $k$, zero on the arcs used by $k$; so $\Lone(f^*)$ is the projection of a rational polyhedral cone in $(\lambda,\pi)$ of polynomial description and has extreme-ray generators of polynomial size \citep[Section~10.2]{schrijver1986}.
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:routingeasy}]
+(a) Edges with $a_e=0$ contribute $b_eg_e$, which is linear; on the others $g_e=\mu_ef_e$, so \eqref{eq:phiroute} is $\sum_e\mu_e(a_ef_e^2+b_ef_e)$ plus a linear function, convex since $\mu_e\ge0$; apply Proposition~\ref{prop:nec}(a). (b) Lemma~\ref{lem:concave}: enumerate the pure profiles of the $r$ commodities, and for each decide whether the convex quadratic programme in $f^Q$ has value $<\Phi_\lambda(f^*)$.
+\end{proof}
+
+\renewcommand{\bibfont}{\footnotesize}\setlength{\bibsep}{0.5pt plus 0.5pt}
+\begin{multicols}{2}
+\bibliographystyle{plainnat}
+\bibliography{refs}
+\end{multicols}
+\end{document}

@@ -1,0 +1,53 @@
+% RTK001, round 3 -- (H_3) uniformly in d: what closes and what does not.
+% Ready to paste after Proposition~\ref{prop:curvpsi}; uses the macros and labels of main.tex.
+% Numerical checks: theory/check_H3.py -> theory/check_H3_output.txt. Derivation: theory/H3_uniform_derivation.md.
+
+\paragraph{Arclength form of $(\mathrm H_3)$.} For a regular closed curve $K$ with parameter $t$ of period $2\pi$, speed $v$, curvature vector $k=dT/d\sigma=\kappa_1N_0+\kappa_2B_0$ and $\kappa_{\rm par}':=\kappa_1'N_0+\kappa_2'B_0$ (the normal part of $dk/dt$), set
+\[
+\nu(K):=\sup_t\frac{|v'|}{v^2},\qquad \mu(K):=\sup_t\frac{|\kappa_{\rm par}'|}{v}.
+\]
+$\nu$ is invariant under the linear reparametrisations of Definition~\ref{def:family} ($\tilde v(s)=p\,v(ps)$ gives $\tilde v'/\tilde v^2=v'/v^2$) and $\mu=\sup|\Pi_\perp dk/d\sigma|$ is geometric; $M_v\le\nu v_{\max}^2$ and $M_\kappa\le\mu v_{\max}$. In the notation of the proof of Proposition~\ref{prop:Hccurv} put $\varepsilon:=r\kappa_{\max}(K)$ ($\le f$, since $\kappa_{\max}\le1/\tau$), $\lambda:=rm/v_{\min}$ and $\zeta':=v_{\min}(1-\varepsilon)/(rm)$ ($\ge\zeta_{\min}$).
+
+\begin{lemma}[speed of $K_d$]\label{lem:speedrec}\status{proved here}
+With $w=|K_d'|$, $c_T=v(1-x)$ and $a_0=v'(1-x)-rv\,\kappa_{\rm par}'\cdot U$,
+\begin{equation}\label{eq:wprime}
+w'=\frac{c_T\,(a_0-rvm\kappa_W)}{w},
+\qquad\text{hence}\qquad
+\nu(K_d)\ \le\ \frac{\nu(K)}{1-\varepsilon}+\frac{r\mu(K)+\lambda\,\kappa_{\max}(K)}{(1-\varepsilon)^2}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+$w^2=c_T^2+r^2m^2$ with $rm$ constant, so $w'=c_Tc_T'/w$, and $c_T'=v'(1-x)-vx'$ with $x'=r(\kappa_{\rm par}'\cdot U+m\kappa_W)$ (differentiate $\kappa_\perp=\kappa_1\cos\psi+\kappa_2\sin\psi$). Then $|w'|/w^2\le|a_0-rvm\kappa_W|/c_T^2$, $|a_0|\le|v'|(1-x)+rv|\kappa_{\rm par}'|$, $|\kappa_W|\le\kappa$, $1-x\ge1-\varepsilon$ and $v\ge v_{\min}$ give the bound; $\nu(K_d)$ is computed in any linear reparametrisation.
+\end{proof}
+
+\begin{proposition}[curvature of $K_d$ with the curvature of the base]\label{prop:curvrec}\status{proved here}
+Under the hypotheses of Proposition~\ref{prop:Hccurv}, with $G$ as there,
+\begin{equation}\label{eq:kaprec}
+\kappa_{\max}(K_d)\ \le\ \frac{\kappa_{\max}(K)\,G(\zeta')}{1-\varepsilon}+\frac1{r(1+\zeta'^2)}+\frac{\lambda\,\bigl(\nu(K)(1+\varepsilon)+r\mu(K)\bigr)}{(1-\varepsilon)^3}.
+\end{equation}
+\end{proposition}
+\begin{proof}
+The Minkowski split of the proof of Proposition~\ref{prop:Hccurv}, with $|x|\le\varepsilon$ in place of $|x|\le f$ and $\kappa\le\kappa_{\max}(K)$ in place of $\kappa\le1/\tau$: the first term is $\le v\kappa(A+2B)/(A+B)^{3/2}$, decreasing in $A\ge v^2(1-\varepsilon)^2$, which gives $\kappa\,g(v(1-\varepsilon)/rm)/(1-\varepsilon)\le\kappa_{\max}G(\zeta')/(1-\varepsilon)$; $rm^2/(A+B)\le1/(r(1+\zeta'^2))$; and $rm|a_0|/(A+B)^{3/2}\le rm\,v^2(\nu(1+\varepsilon)+r\mu)/(v^3(1-\varepsilon)^3)\le\lambda(\nu(1+\varepsilon)+r\mu)/(1-\varepsilon)^3$.
+\end{proof}
+
+\begin{corollary}[tolerated growth of $(\mathrm H_3)$, default family]\label{cor:tolerance}\status{proved here}
+Let $(p_j,q_j)=(2,3)$ and $r_j\le f\,\thick(K_{j-1})$, $f\le\frac12$, for all $j\le d$, and let $d\ge3$. If
+\begin{equation}\label{eq:tol}
+\frac{96}{\sqrt{13}}\,4^{-d}\,\nu(K_{d-1})+\frac{64}{\sqrt{13}}\,8^{-d}\,\mu(K_{d-1})\ \le\ 2-g(\sqrt{13})-\tfrac1{14}\quad(=0.8961\ldots),
+\end{equation}
+then $\minRad(K_d)\ge r_d/2$, hence $\thick(K_d)\ge r_d/2$, i.e.\ \eqref{eq:rho} holds at depth $d$ with $c=\frac12$.
+\end{corollary}
+\begin{proof}
+By the proof of Corollary~\ref{cor:samefamily}, $\zeta'\ge\zeta_{\min}\ge\Theta_{\min}\ge\sqrt{13}\,2^{d-3}\ge\sqrt{13}$, so $G(\zeta')\le g(\sqrt{13})$ ($g$ decreases on $[\sqrt2,\infty)$) and $1/(1+\zeta'^2)\le1/14$; $\varepsilon\le f\le\frac12$ gives $\varepsilon/(1-\varepsilon)\le1$, $(1+\varepsilon)/(1-\varepsilon)^3\le12$, $(1-\varepsilon)^{-3}\le8$; Proposition~\ref{prop:upper} gives $\tau_{d-1}\le2^{-(d-1)}$, so $r_d\le2^{-d}$; and $\lambda=(1-f)/\zeta_{\min}\le2^{3-d}/\sqrt{13}$. Multiplying \eqref{eq:kaprec} by $r_d$, $r_d\kappa_{\max}(K_d)\le g(\sqrt{13})+\frac1{14}+12r_d\lambda\nu+8r_d^2\lambda\mu\le2$ under \eqref{eq:tol}. Theorem~\ref{thm:Hc}(c) concludes.
+\end{proof}
+
+\begin{proposition}[the recursion for $(\mathrm H_3)$ does not close]\label{prop:noclose}\status{proved here}
+$K_d'''=K'''+rU'''$ and the only term of $U'''$ of order four in $K$ is $-(v\kappa_\perp)''\,T$; its component normal to $K_d$ is $-r\sin\chi\,\bigl(v\,\kappa_{\rm par}''\cdot U+v''\kappa_\perp+2v'\kappa_\perp'\bigr)$ along the unit normal $\sin\chi\,T-\cos\chi\,W$, with $\sin\chi=rm/w>0$. Consequently no inequality $\mu(K_d)\le F(v_{\min},v_{\max},\kappa_{\max},\nu,\mu,\sup|v''|,r,m)$ holds for all smooth bases $K$: speed (Lemma~\ref{lem:speedrec}) and curvature (Proposition~\ref{prop:curvrec}) of $K_d$ are controlled by the $(\mathrm H_3)$ data of $K$, but $\mu(K_d)$ is not.
+\end{proposition}
+\begin{proof}
+From $U'=mW-v\kappa_\perp T$, $W'=-mU-v\kappa_WT$, $T'=vk$: $U''=mW'-(v\kappa_\perp)'T-v\kappa_\perp T'$ and $U'''=mW''-(v\kappa_\perp)''T-2(v\kappa_\perp)'T'-v\kappa_\perp T''$, where $W''=-mU'-(v\kappa_W)'T-v\kappa_WT'$ and $T''=v'k+v\,dk/dt$ involve at most third derivatives of $K$. With $T_d=\cos\chi\,T+\sin\chi\,W$ the normal part of $T$ is $\sin\chi(\sin\chi\,T-\cos\chi\,W)$. For the last claim take a smooth closed $K$ and $K_\epsilon=K+\epsilon^{7/2}\Phi((t-t_0)/\epsilon)\,U(t_0)$ with $\Phi$ smooth, compactly supported, $\Phi''''(0)\ne0$: $K_\epsilon\to K$ in $C^2$, the third derivatives stay bounded ($O(\epsilon^{1/2})$ perturbation) while $|\kappa_{\rm par}''\cdot U|(t_0)\gtrsim\epsilon^{-1/2}/v^3$; since $\Pi_\perp K_d'''=3ww'k_d+w^2\,\Pi_\perp dk_d/dt$ with $w,w',\kappa_{K_d}$ bounded by the $(\mathrm H_3)$ data, $\mu(K_{d,\epsilon})\to\infty$.
+\end{proof}
+
+\begin{remark}[what this gives and what it does not]\label{rem:H3status}
+Lemma~\ref{lem:speedrec} and Proposition~\ref{prop:curvrec} propagate $\nu$ and $\kappa_{\max}$ given $\mu$ at the previous depth, and Corollary~\ref{cor:tolerance} shows that Theorem~\ref{thm:Hc} tolerates growth of $\nu(K_{d-1})$ up to $0.0336\cdot4^d$ and of $\mu(K_{d-1})$ up to $0.0505\cdot8^d$ (arclength quantities). It does \emph{not} prove $(\mathrm H_c)$ for $d\ge2$: by Proposition~\ref{prop:noclose} an a priori bound on $\mu(K_{d-1})$ requires the whole hierarchy of derivatives (each depth loses one, with coefficient $r_d\sin\chi_d=O(8^{-d})$ in the family), and at $d=2$ the a priori constants of \eqref{eq:tol} do not suffice (the analogue needs $1.664\,\nu(K_1)+0.277\,\mu(K_1)\le0.684$, while $\nu(K_1)\approx0.418$, $\mu(K_1)\approx4.5$ at $f=\frac12$). On the polygons ($f=\frac12$; $N_0=256$, $512$; $d=4$ at $N_0=128$): $\nu=0.42,0.72,1.12,1.35$ and $\mu=4.5,5.0,6.2,6.9$ at $d=1,\dots,4$ (bounded growth, ratios decreasing), the left-hand side of \eqref{eq:tol} is $0.47$ ($d=3$) and $0.14$ ($d=4$), \eqref{eq:wprime} and \eqref{eq:kaprec} hold in every level (bound/measured $\ge1.01$), and $r_d$ times the right-hand side of \eqref{eq:kaprec} with measured inputs is $0.72$, $0.21$, $0.11$ at $d=2,3,4$, against the requirement $\le2$ (\texttt{theory/check\_H3.py}; grid evaluation with polygon inputs, not a proof).
+\end{remark}

@@ -1,0 +1,19 @@
+check_signed_any.py -- exact arithmetic, seed 20261003
+== (A) signed ANY from the empty support: exhaustive search vs per-column sorting ==
+instances: 400 (p in {2,3}, n in 5..8, both rules, S(D) empty)
+f_signed >= f0 (per-column sorting): 400/400
+min|R| with ||X_K^T y_K||_inf > mu' equals f0 in all instances: True
+instances with every subsample certified (no ties): 397; f_signed == f0 there: 397/397
+instances with at least one undetermined (tied) subsample: 3
+[v0.7] instances with f0 = infinity (then f_signed = infinity = f0): 39
+[v0.7] certificate R*_j (a sort-produced removal set of size f0 whose minimiser is certified unique by full rank of X_E): closes f_signed = f0 in 361/361 instances with finite f0, 3/3 of them with tied subsamples; disagreements with exhaustive search: 0
+[v0.7] tied instances searched again with uniqueness certified by full rank of X_E: f_signed = f0 in 3/3
+
+== (B) Cauchy--Binet form of the inactive correlation, p = 2, S = {1} ==
+identity G11 (c2 - mu) = sum_(i<l) m_il m'_il - mu sum_i x_i1 (x_i1 - x_i2): 295/295
+items (1, 1 + e b_i), y_i = y0 + y1 b_i: item-item part = e y1 (N sum b_i^2 - sigma^2) >= 0: 200/200
+
+== (C) X3C-type gadget with uniform triple rows: c0 is affine in f(K) = 1^T (L I + M_K)^{-1} 1 ==
+identity c0 = 3 q phi mu + gamma L (theta - 3 phi) f(K): 344/344 (kept families, all anchors)
+triple residuals r = gamma L (L I + M_K)^{-1} 1 = gamma (I + M_K/L)^{-1} 1: 344/344
+instances with an exact cover: 9; exact covers are the strict maximisers of f: 0; the strict minimisers: 0

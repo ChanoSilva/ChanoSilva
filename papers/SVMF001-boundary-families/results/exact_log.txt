@@ -1,0 +1,5 @@
+exact example done in 27.8s
+
+real	0m31.882s
+user	0m30.435s
+sys	0m0.917s

@@ -1,0 +1,154 @@
+% theory/same_strand_lemma.tex -- same-strand pairs for p = 2 (RTK001 v0.2), ready to paste into Section 3 of
+% manuscript/main.tex after Proposition~\ref{prop:Hcsame}. Uses the macros of main.tex (\thick, \status, \R) and the
+% notation of the paragraph "Notation for the local case" (m, h_min, Theta_min, zeta_min, delta, u, Lambda, ell_0, E).
+% Numerical checks: theory/check_same_strand.py -> theory/check_same_strand_output.txt (about 21 s).
+% Derivation with all intermediate steps: theory/same_strand_derivation.md.
+
+\begin{lemma}[turning exclusion]\label{lem:turn}\status{proved here}
+Let $\gamma$ be a $C^1$ arc from $X_1$ to $X_2$ with unit tangent $T_\gamma$, $T_i$ its tangent at $X_i$, and let
+$a(\sigma)=\angle(T_\gamma(\sigma),T_1)$, $b(\sigma)=\angle(T_\gamma(\sigma),T_2)$. If $a+b<\pi$ along $\gamma$, then
+$(X_2-X_1)\cdot(T_1+T_2)>0$; in particular $(X_1,X_2)$ is not doubly critical. This holds whenever the total turning
+$\int_\gamma|T_\gamma'|$ is $<\pi$.
+\end{lemma}
+\begin{proof}
+Since $a,b\in[0,\pi]$ and $a+b<\pi$, $\cos a+\cos b=2\cos\frac{a+b}2\cos\frac{a-b}2>0$, so
+$(X_2-X_1)\cdot(T_1+T_2)=\int_\gamma T_\gamma\cdot(T_1+T_2)\,d\sigma>0$, while a doubly critical pair has
+$(X_2-X_1)\cdot T_1=(X_2-X_1)\cdot T_2=0$. The last sentence follows from $a(\sigma)\le\int_0^\sigma|T_\gamma'|$ and
+$b(\sigma)\le\int_\sigma^{\ell}|T_\gamma'|$.
+\end{proof}
+
+\noindent Write $\chi\in(0,\pi/2)$ for the angle between $K_d'$ and $T$: by \eqref{eq:deriv} in the parallel frame,
+$K_d'=v(1-x)\,T+rm\,W$ with $x=r\kappa_\perp\in[-f,f]$, $W=T\times U$, so $\tan\chi=rm/(v(1-x))$ and
+\[
+\chi_{\rm lo}:=\arctan\frac{rm}{v_{\max}(1+f)}\ \le\ \chi\ \le\ \chi_{\rm hi}:=\arctan\frac{rm}{v_{\min}(1-f)}=\arctan\frac1{\zeta_{\min}} .
+\]
+
+\begin{proposition}[pairs on the same strand, $p=2$, sharpened]\label{prop:samestrand}\status{proved here}
+Let $p=2$, $q$ odd, $f=r/\tau\le\frac12$, $m>0$, and set
+\[
+\delta_{R2}:=\frac{\pi-2(\chi_{\rm hi}-\chi_{\rm lo})}{1+\sin\chi_{\rm hi}/\Theta_{\min}} .
+\]
+If in addition $(\mathrm H_3)$ of Proposition~\ref{prop:Hccurv} holds, set
+\[
+\delta_{R1}:=\frac{\pi}{\tau\bar\Omega},\qquad
+\tau\bar\Omega:=1+\sin^2\chi_{\rm hi}+\frac{\sin\chi_{\rm hi}}{\Theta_{\min}}
++\tau\,\frac{rm\,[V_1(1+f)/v_{\min}+rK_1]}{v_{\min}^2(1-f)^2+r^2m^2},
+\]
+and otherwise $\delta_{R1}:=0$; let $\delta_{\rm turn}=\max(\delta_{R1},\delta_{R2})$. Then every doubly critical pair
+$(X_1,X_2)$ of $K_d$ with distinct base points and strand index $k=0$ relative to the shorter base arc has
+$\delta\ge\delta_{\rm turn}$, and
+\[
+|X_2-X_1|\ \ge\ \min\bigl(2(\tau-r),\ 2c_0'r\bigr),\qquad
+c_0':=\frac1{2r}\inf_{\delta_{\rm turn}\le\delta<\pi}\max\bigl(\Lambda(\delta),\,\ell_0(\delta)-2r\bigr).
+\]
+In particular $c_0'\ge\frac12$ whenever $\delta_{\rm turn}\ge\pi/3$.
+\end{proposition}
+\begin{proof}
+If the base chord is $\ge2\tau$ or $\delta\ge\pi$, Step~1 of Lemma~\ref{lem:Hc1} and
+Proposition~\ref{prop:partial}(b) give $|X_2-X_1|\ge2(\tau-r)$. Otherwise $\delta<\pi$; let $\gamma$ be the arc of
+$K_d$ over the shorter base arc, $t\in[t_1,t_2]$, $u=m(t_2-t_1)\le\delta/\Theta_{\min}$. Since $k=0$, $\gamma$ joins
+$X_1$ to $X_2$.
+
+\emph{Bound $\delta\ge\delta_{R2}$ (no $(\mathrm H_3)$).} With $U'=mW-v\kappa_\perp T$, $W'=-mU-v\kappa_WT$,
+$T'=v(\kappa_\perp U+\kappa_WW)$ (proof of Proposition~\ref{prop:Hccurv}), put $\chi_i=\chi(t_i)$ and
+$Y_i(t)=\cos\chi_i\,T(t)+\sin\chi_i\,W(t)$. Then $Y_i'=(v\kappa_\perp\cos\chi_i-m\sin\chi_i)U+v\kappa_W\cos\chi_i\,W-v\kappa_W\sin\chi_i\,T$, so
+$|Y_i'|^2=(v\kappa_\perp\cos\chi_i-m\sin\chi_i)^2+v^2\kappa_W^2\le(v\kappa+m\sin\chi_i)^2$, using
+$\kappa_\perp^2\cos^2\chi_i+\kappa_W^2\le\kappa^2$ and $-\kappa_\perp\cos\chi_i\le\kappa$. The unit tangent
+$T_d(t)=\cos\chi(t)\,T(t)+\sin\chi(t)\,W(t)$ and $Y_i(t)$ lie in $\operatorname{span}(T(t),W(t))$ at angles
+$\chi(t)$, $\chi_i$ from $T(t)$, hence
+\[
+a(t)\le|\chi(t)-\chi_1|+\int_{t_1}^{t}(v\kappa+m\sin\chi_1)\,dt,\qquad
+b(t)\le|\chi(t)-\chi_2|+\int_{t}^{t_2}(v\kappa+m\sin\chi_2)\,dt,
+\]
+and, with $\int v\kappa\,dt\le\sigma/\tau=\delta$, $a(t)+b(t)\le2(\chi_{\rm hi}-\chi_{\rm lo})+\delta+u\sin\chi_{\rm hi}
+\le2(\chi_{\rm hi}-\chi_{\rm lo})+\delta(1+\sin\chi_{\rm hi}/\Theta_{\min})$. This is $<\pi$ if $\delta<\delta_{R2}$,
+and then Lemma~\ref{lem:turn} excludes the pair.
+
+\emph{Bound $\delta\ge\delta_{R1}$ (under $(\mathrm H_3)$).} The turning rate of $T_d$ per unit $t$ is
+$\omega=|K_d'\times K_d''|/|K_d'|^2$. The Minkowski split in the proof of Proposition~\ref{prop:Hccurv} gives
+$\omega\le v\kappa(A+2B)/(A+B)+rm^2/\sqrt{A+B}+rm|a_0|/(A+B)$, and $B/(A+B)=\sin^2\chi$, $rm/\sqrt{A+B}=\sin\chi$,
+so per unit base arclength $\omega/v\le\kappa(1+\sin^2\chi)+(m/v)\sin\chi+rm|a_0|/(v(A+B))\le\bar\Omega$, using
+$\kappa\le1/\tau$, $\chi\le\chi_{\rm hi}$, $m/v\le m/v_{\min}$, $|a_0|\le V_1(1+f)+rvK_1$ and
+$A+B\ge v_{\min}^2(1-f)^2+r^2m^2$. The total turning of $\gamma$ is then at most $\bar\Omega\sigma=\tau\bar\Omega\,\delta$,
+which is $<\pi$ if $\delta<\delta_{R1}$; Lemma~\ref{lem:turn} applies.
+
+\emph{Distance.} For $\delta<\pi$, Step~3 of Lemma~\ref{lem:Hc1} gives $|X_2-X_1|\ge A\ge\Lambda(\delta)$ and
+$|X_2-X_1|\ge\ell_0(\delta)-2r$, which yields $c_0'$. Finally $\Lambda\ge r$ on $[\pi/3,\pi)$ when $f\le\frac12$:
+on $[\pi/3,\pi/2]$, $\Lambda=2(\tau-r)\sin(\delta/2)\ge\tau-r\ge r$; on $[\pi/2,\pi)$ this is Step~4 of
+Lemma~\ref{lem:Hc1} at $f=\frac12$, and $\Lambda/r$ decreases in $f$.
+\end{proof}
+
+\begin{corollary}[same strand in the default family]\label{cor:samefamily}\status{proved here}
+Let $(p_j,q_j)=(2,3)$ and $f_j=r_j/\thick(K_{j-1})\le\frac12$ for all $j\le d$. Then every doubly critical pair of $K_d$
+with distinct base points on the same strand (relative to the shorter base arc) is at distance
+$\ge\min(2(\tau-r),2c_0'r)$ with $c_0'\ge\frac12$, at every depth $d\ge1$ and without $(\mathrm H_3)$. More precisely:
+$c_0'\ge\sin(\delta_{R1}/2)=0.5092$ at $d=1$, $f=\frac12$, with $\delta_{R1}=\pi/(1+\frac9{13}+\frac9{2\sqrt{13}})=1.0684$;
+and $\delta_{\rm turn}\ge\delta_{R2}\ge1.677$, $c_0'\ge0.74$ for every $d\ge2$ and $f_d\le\frac12$.
+\end{corollary}
+\begin{proof}
+\emph{$d=1$.} The base is the unit circle: $v\equiv1$, $\kappa\equiv1=1/\tau$, $\alpha=0$, $m=\frac32$,
+$\Theta_{\min}=\frac23$, and $(\mathrm H_3)$ holds with $V_1=K_1=0$. Then $\zeta_{\min}=2(1-f)/(3f)$ and
+$\tau\bar\Omega=1+\frac1{1+\zeta^2}+\frac{3}{2\sqrt{1+\zeta^2}}$, which equals $2.9404<3$ at $f=\frac12$
+($\zeta=\frac23$) and decreases as $f$ decreases. Hence $\delta_{R1}>\pi/3$ and Proposition~\ref{prop:samestrand}
+applies. On $[\delta_{R1},\pi/2]$, $\Lambda/r=2\sin(\delta/2)\ge2\sin(\delta_{R1}/2)=1.0183$ at $f=\frac12$. On $[\pi/2,\pi)$
+the argument of Step~4 of Lemma~\ref{lem:Hc1} with $1$ replaced by $1.0183$ goes through:
+$\phi_c(\varsigma)=4\varsigma^2-1.0183\varsigma-1+\pi/2-2\arcsin\varsigma$ has the same $\phi_c''$,
+$\phi_c'(1/\sqrt2)=1.81>0$, $\phi_c(1/\sqrt2)=0.280$, $\phi_c(1)=0.411$.
+
+\emph{$d\ge2$.} By \eqref{eq:deriv}, $|K_1'|^2=(1-x)^2+r_1^2m_1^2$ with $r_1=f_1$, $m_1=\frac32$, so after the
+reparametrisation $v_{\min}(K_1)\ge2\sqrt{(1-f_1)^2+\frac94f_1^2}$. By Proposition~\ref{prop:upper},
+$\thick(K_1)\le r_1=f_1$, so $v_{\min}(K_1)/\thick(K_1)\ge2\sqrt{(1-f_1)^2/f_1^2+\frac94}\ge\sqrt{13}$. For $j\ge2$,
+$v_{\min}(K_j)\ge2(1-f_j)v_{\min}(K_{j-1})$ (tangential coefficient of \eqref{eq:deriv}) and
+$\thick(K_j)\le r_j=f_j\thick(K_{j-1})$, so the ratio $v_{\min}/\thick$ at least doubles with each depth. With
+$m_d\le\frac32+\frac12=2$ this gives $\Theta_{\min}\ge\sqrt{13}\,2^{d-3}\ge\sqrt{13}/2=1.8028$ and
+$\zeta_{\min}=(1-f_d)\Theta_{\min}/f_d\ge\Theta_{\min}$. Dropping $\chi_{\rm lo}\ge0$ gives
+$\delta_{R2}\ge(\pi-2\arctan(1/\zeta_{\min}))/(1+1/(\Theta_{\min}\sqrt{1+\zeta_{\min}^2}))$, which increases in
+$\Theta_{\min}$ and $\zeta_{\min}$; at $\Theta_{\min}=\zeta_{\min}=\sqrt{13}/2$ it equals $1.677>\pi/3$. Proposition~\ref{prop:samestrand}
+gives $c_0'\ge\frac12$; the value $0.7436$ is $\frac1{2r}\inf_{\delta\ge1.677}\Lambda$ at $f=\frac12$ on a grid with a
+Lipschitz correction (\texttt{theory/check\_same\_strand.py}).
+\end{proof}
+
+\begin{proposition}[curvature of $K_d$ with the strand angle kept]\label{prop:curvpsi}\status{proved here, under $(\mathrm H_3)$}
+Under the hypotheses of Proposition~\ref{prop:Hccurv}, $\kappa_{K_d}\le\hat\kappa_d$, where $\hat\kappa_d$ is
+\[
+\sup_{|x|\le f,\ v_{\min}\le v\le v_{\max}}
+\frac{\Bigl[b_U^2(A+B)+\Bigl(rm\bigl(V_1(1-x)+rvK_1\bigr)+v(A+2B)\sqrt{\tau^{-2}-x^2/r^2}\Bigr)^2\Bigr]^{1/2}}{(A+B)^{3/2}},
+\]
+with $A=v^2(1-x)^2$, $B=r^2m^2$, $b_U=v^2(1-x)x/r-rm^2$. Hence $\minRad(K_d)\ge1/\hat\kappa_d$.
+\end{proposition}
+\begin{proof}
+By the identity in the proof of Proposition~\ref{prop:Hccurv},
+$\kappa_{K_d}^2=[b_U^2(A+B)+(rma_0-\kappa_Wv(A+2B))^2]/(A+B)^3$ with $x=r\kappa_\perp$,
+$|a_0|\le V_1(1-x)+rvK_1$ and $|\kappa_W|=\sqrt{\kappa^2-\kappa_\perp^2}\le\sqrt{\tau^{-2}-x^2/r^2}$. For fixed $(x,v)$ the
+right-hand side is non-decreasing in $|a_0|$ and $|\kappa_W|$, so it is bounded by the supremum.
+\end{proof}
+
+\begin{remark}[constants on the polygons]\label{rem:samestrand-constants}
+On the polygons of Section~\ref{sec:exp} ($N_0=256$; $v_{\min}$, $v_{\max}$, $\alpha$ measured, plus $V_1$, $K_1$ for
+$\hat\kappa_d$ at $d\ge2$), Proposition~\ref{prop:samestrand} gives $\delta_{\rm turn}=1.068,\,2.057,\,2.928$ and
+$c_0'=0.509,\,0.845,\,0.989$ at $f=\frac12$, $d=1,2,3$ (routes R1, R2, R2; at $d=2,3$ no $(\mathrm H_3)$), and
+$c_0'=1.156,\,1.824,\,1.857$ at $f=0.35$, against $c_0=0.32,0.13,0.16$ and $0.65,0.66,0.67$ for
+Proposition~\ref{prop:Hcsame}. Including the term $P_0$ of Proposition~\ref{prop:Hcsame} for $\delta\ge\delta_{\rm turn}$
+raises $c_0'$ at $d=1$ to $0.650$ ($f=\frac12$) and $1.190$ ($f=0.35$). Proposition~\ref{prop:curvpsi} gives
+$1/(r\hat\kappa_d)=1.420,\,1.034,\,0.999$ ($f=\frac12$) and $2.215,\,1.879,\,1.855$ ($f=0.35$), against
+$1/(r\bar\kappa_d)=0.562,\,0.485,\,0.854$ and $1.019,\,1.594,\,1.845$. Hence in Theorem~\ref{thm:Hc} the constant
+$c=\min(c_1,c_0',1/(r\hat\kappa_d))$ is $0.509,\,0.699,\,0.707$ at $f=\frac12$ and $0.966,\,0.9998,\,0.9998$ at $f=0.35$
+( the different-strand constant $c_1$ is the minimum except at $(f=\frac12,d=1)$). The same values hold at
+$N_0=512$ to four digits. All of these except the thresholds $\delta_{\rm turn}\ge\pi/3$ and $c_0'\ge\frac12$, which are
+analytic, are grid infima or suprema with an estimated Lipschitz correction. On every level checked, the
+inequalities used in the proofs hold: the range of $\chi$ (up to $3\cdot10^{-10}$), $|Y_i'|\le v/\tau+m\sin\chi_i\,v/v_{\min}$ (ratio $\le0.97$),
+the bound on $a+b$ (slack $\le-0.15$), total turning $\le\tau\bar\Omega\delta$, and $\hat\kappa_d\ge$ measured $\kappa_d$. No same-strand doubly critical pair with $\delta<\delta_{\rm turn}$ occurs
+on any polygon: the only ones with $\delta<\pi$ appear at $d=1$, with $\delta\ge1.96$ and distance $\ge3.70\,r$
+(\texttt{theory/check\_same\_strand\_output.txt}).
+\end{remark}
+
+\paragraph{Consequence for Theorem~\ref{thm:Hc} and Hypothesis~\ref{hyp} (text to replace the status sentences).}
+For the default family $(2,3)$ with $f_j\le\frac12$ the doubly critical self-distance is now controlled at every
+depth without $(\mathrm H_3)$: by Proposition~\ref{prop:partial}, Lemma~\ref{lem:Hc1} and Corollary~\ref{cor:samefamily},
+$\frac12\dcsd(K_d)\ge\min\bigl(\tau-r,\ \min(c_1,c_0')\,r\bigr)$ with $\min(c_1,c_0')\ge\frac12$. So
+$\thick(K_d)\ge\min(\minRad(K_d),\tau-r,r/2)$ for all $d$, and $(\mathrm H_c)$ with $c=\frac12$ reduces to the curvature
+bound $\minRad(K_d)\ge\min(\tau-r,r/2)$. That bound is proved at $d=1$ (unconditionally; already by
+Proposition~\ref{prop:Hccurv}, $1/(r\bar\kappa_1)=0.56$) and at $d=2,3$ under $(\mathrm H_3)$ with the measured $V_1$, $K_1$
+(Proposition~\ref{prop:curvpsi}: $1/(r\hat\kappa_d)\ge0.999$). What remains open is only $(\mathrm H_3)$ itself, i.e.\ an a priori
+bound on $V_1$, $K_1$ of $K_{d-1}$ uniform in $d$; by Remark~\ref{rem:Hcfalse}(i) the curvature cannot be controlled without
+such a bound.

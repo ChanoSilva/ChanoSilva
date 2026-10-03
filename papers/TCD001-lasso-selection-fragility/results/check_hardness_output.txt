@@ -1,0 +1,52 @@
+TCD001 -- check_hardness.py (seed 20261003)
+Reduction: Subset Sum (b, t), 1 <= t <= sum(b)-1  ->  p = 2 Lasso, target enter(variable 2)
+items (1, rho; y_i), gadget (u, kappa*u; 1/(2u)); rule C: y_i = b_i, mu = t+1/2;
+rule P: y_i = b_i + lam, lam = t+1/2, mu = lam*(m+1); kappa = 1+1/(2B), u = m+1, rho = 1-eta/(4mu)
+
+=== rule C ===
+  b=[3, 5, 7] t=1: SS=NO  witness=no  f_enter=None (DP None, 16 states) | subsets=14 entries=0 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=2: SS=NO  witness=no  f_enter=None (DP None, 16 states) | subsets=14 entries=0 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=3: SS=YES witness=yes f_enter=2 (DP 2, 16 states) | subsets=14 entries=1 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=4: SS=NO  witness=no  f_enter=None (DP None, 16 states) | subsets=14 entries=0 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=5: SS=YES witness=yes f_enter=2 (DP 2, 16 states) | subsets=14 entries=1 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=6: SS=NO  witness=no  f_enter=None (DP None, 16 states) | subsets=14 entries=0 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=7: SS=YES witness=yes f_enter=2 (DP 2, 16 states) | subsets=14 entries=1 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=8: SS=YES witness=yes f_enter=1 (DP 1, 16 states) | subsets=14 entries=1 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=9: SS=NO  witness=no  f_enter=None (DP None, 16 states) | subsets=14 entries=0 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=10: SS=YES witness=yes f_enter=1 (DP 1, 16 states) | subsets=14 entries=1 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=11: SS=NO  witness=no  f_enter=None (DP None, 16 states) | subsets=14 entries=0 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=12: SS=YES witness=yes f_enter=1 (DP 1, 16 states) | subsets=14 entries=1 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  rule C: 156 instances (78 YES, 78 NO); equivalence witness<=>YES holds in 156/156; set-by-set characterisation failures 0 over 68664 subsets;
+           uniqueness not certified on 0 subsets; KKT ties on 0 subsets; full data S={1}, variable 2 inactive, unique, no tie: 156/156;
+           Prop. 3.1 closed-form test vs exact: 0 disagreements; lasso_lars support vs exact: 0 disagreements in 16586 fits; DP f_enter = exhaustive f_enter in 156/156
+
+=== rule P ===
+  b=[3, 5, 7] t=1: SS=NO  witness=no  f_enter=None (DP None, 16 states) | subsets=14 entries=0 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=2: SS=NO  witness=no  f_enter=None (DP None, 16 states) | subsets=14 entries=0 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=3: SS=YES witness=yes f_enter=2 (DP 2, 16 states) | subsets=14 entries=1 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=4: SS=NO  witness=no  f_enter=None (DP None, 16 states) | subsets=14 entries=0 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=5: SS=YES witness=yes f_enter=2 (DP 2, 16 states) | subsets=14 entries=1 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=6: SS=NO  witness=no  f_enter=None (DP None, 16 states) | subsets=14 entries=0 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=7: SS=YES witness=yes f_enter=2 (DP 2, 16 states) | subsets=14 entries=1 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=8: SS=YES witness=yes f_enter=1 (DP 1, 16 states) | subsets=14 entries=1 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=9: SS=NO  witness=no  f_enter=None (DP None, 16 states) | subsets=14 entries=0 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=10: SS=YES witness=yes f_enter=1 (DP 1, 16 states) | subsets=14 entries=1 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=11: SS=NO  witness=no  f_enter=None (DP None, 16 states) | subsets=14 entries=0 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  b=[3, 5, 7] t=12: SS=YES witness=yes f_enter=1 (DP 1, 16 states) | subsets=14 entries=1 char_fail=0 undet=0 ties=0 D_ok=True | lib: test_disagree=0 fit_disagree=0/14
+  rule P: 156 instances (78 YES, 78 NO); equivalence witness<=>YES holds in 156/156; set-by-set characterisation failures 0 over 68664 subsets;
+           uniqueness not certified on 0 subsets; KKT ties on 0 subsets; full data S={1}, variable 2 inactive, unique, no tie: 156/156;
+           Prop. 3.1 closed-form test vs exact: 0 disagreements; lasso_lars support vs exact: 0 disagreements in 16586 fits; DP f_enter = exhaustive f_enter in 156/156
+
+TOTAL reduction: 312 (instance, rule) pairs, n <= 12, 137328 subsets solved exactly; equivalence 312/312; characterisation failures 0; undetermined 0; ties 0; D ok 312/312; closed-form test disagreements 0; solver disagreements 0/33172; DP agreement 312/312
+
+=== ablations (negative controls; each violates one condition of the proof) ===
+  u = 1 (violates u^2 > N), rule C: characterisation failures 30, uncertified uniqueness 0, equivalence failures 1 (over 10 instances)
+  u = 1 (violates u^2 > N), rule P: characterisation failures 30, uncertified uniqueness 0, equivalence failures 1 (over 10 instances)
+  rho = 1 (items with x2 = x1; uniqueness on item-only subsamples lost), rule C: characterisation failures 0, uncertified uniqueness 155, equivalence failures 0 (over 10 instances)
+  rho = 1 (items with x2 = x1; uniqueness on item-only subsamples lost), rule P: characterisation failures 0, uncertified uniqueness 262, equivalence failures 0 (over 10 instances)
+  eta = 1, kappa = 2 (violates kappa - rho <= 1/B), rule C: characterisation failures 82, uncertified uniqueness 0, equivalence failures 1 (over 10 instances)
+  eta = 1, kappa = 2 (violates kappa - rho <= 1/B), rule P: characterisation failures 14, uncertified uniqueness 0, equivalence failures 1 (over 10 instances)
+
+=== DP over (|K|, X_K^T X_K, X_K^T y_K) vs exhaustive search, random integer data ===
+  145/145 (instance, target) pairs agree; mean reachable states 156.2 vs mean 2^n = 170.4
+

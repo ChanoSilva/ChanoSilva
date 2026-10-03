@@ -1,0 +1,150 @@
+% ============================================================================
+% theory/second_order.tex -- second-order results for Section 5 of MRT001 (for v0.8).
+% Closes what Remark~\ref{rem:sharpopen} (Remark 5.11 in v0.7) declares open.
+%
+% Ready to paste into manuscript/main.tex; uses only its macros (\status), theorem
+% environments, labels (thm:sharpN, thm:sharpR, prop:sharpexplicit, lem:sharpbad,
+% thm:realizers, rem:exact, app:realizers) and existing bibliography keys (albert2005).
+%   * Block 1 (statements) REPLACES Remark~\ref{rem:sharpopen} ("What remains open"), i.e. it
+%     goes in Section 5 right after Proposition~\ref{prop:sharpexplicit} and the paragraph that
+%     follows it.  The new Remark~\ref{rem:secondopen} at its end is the new "what remains open".
+%   * Block 2 (proofs) goes at the end of Appendix~\ref{app:realizers}, after the proof of
+%     Proposition~\ref{prop:sharpexplicit} and before "Numerical check of the sharp rates".
+%   * Block 3 (numerical check) goes after the paragraph "Numerical check of the sharp rates".
+% New labels: thm:secondN, thm:bestpois, prop:sharpC, rem:secondopen, lem:signs, lem:intref.
+%
+% Other changes this implies in main.tex (not made here; another agent arbitrates main.tex):
+%  - Remark 5.11 is superseded: "n^2 d_TV(N_n,Po(1-1/n)) -> 3/(4e)" is now proved (Thm S1),
+%    with the next term 1/(4e n) and a closed form; the best Poisson has constant 1/(2e)
+%    (Thm S2); the O(n^-2) of Theorem 5.9 now has an explicit constant (Prop. S3: 422/n^2 for
+%    n >= 22).  What stays open: the n^-2 term of d_TV(R_n,2^Z) (numerically 4.29707, with
+%    conjectured closed form 7/2 + 13/(6e)), and an independent referee for all of this.
+%  - Claims table (tab:claims): add rows
+%      "n^2 d_TV(N_n,Po(1-1/n)) -> 3/(4e); closed form up to 2^{n+1}/(n(n+1)!)  | proved here"
+%      "best Poisson approximation of N_n: n^2 inf d_TV -> 1/(2e)               | proved here"
+%      "|d_TV(R_n,2^Z) - c_2/n| <= 422/n^2 for n >= 22                           | proved here (uses Gallai)"
+%      "d_TV(R_n,2^Z) = c_2/n + kappa/n^2 + ..., kappa = 4.29707                 | computationally verified (exact laws, n <= 600); closed form conjectural"
+%    all "not yet independently refereed".
+%  - Abstract: after "...is $(1+1/(2e))/n+O(n^{-2})$" add ", with an explicit constant
+%    ($|\cdot|\le 422/n^2$ for $n\ge22$)"; optionally "and the law of $N_n$ is
+%    $\mathrm{Po}(1-1/n)$ up to $3/(4en^2)$ in total variation".
+%  - README / CONTINUIDAD: item 2 of "Queda abierto tras la ronda 4" closed (both parts);
+%    new open item: proof of the n^-2 term of d_TV(R_n,2^Z) (kappa).
+%  - The numbers in Block 3 are typed from theory/check_second_order_output.txt; the JSON
+%    theory/second_order_results.json holds them for make_numbers.py if macros are wanted.
+% Derivation (Spanish): theory/second_order_derivation.md.
+% ============================================================================
+
+% ---------------------------------------------------------------- Block 1 ---
+\paragraph{Second order.}
+Write $q_k=\Pr(\mathrm{Po}(1-1/n)=k)$ and, for integers $j,k\ge0$, let $c_j(k)=\sum_{i=0}^{j}(-1)^i\binom ki/(j-i)!$ be the coefficient of $x^j$ in $e^x(1-x)^k$, so that $c_0=1$, $c_1(k)=1-k$, $c_2(k)=\tfrac12(k^2-3k+1)$ and $q_k=\pi_k\sum_{j\ge0}c_j(k)n^{-j}$. The remainder $r_{n,k}$ is that of Theorem~\ref{thm:sharpN}(i).
+
+\begin{theorem}[Second-order law of $N_n$]\label{thm:secondN}
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+\item For $n\ge1$ and $0\le r\le n-1$, $\mathbb E[(N_n)_r]-(1-1/n)^r=-\binom r2n^{-2}+\theta\binom r3n^{-3}$ with $\theta\in[0,1]$, where $(N)_r=N(N-1)\cdots(N-r+1)$; and for $0\le k\le n-1$,
+\[
+p_k=q_k-\pi_k\sum_{j\ge2}\frac{c_j(k)}{n^{j}}+r_{n,k}=q_k-\pi_k\,\frac{k^2-3k+1}{2n^2}+O_k(n^{-3}).
+\]
+\item For $n\ge3$,
+\[
+d_{\mathrm{TV}}\bigl(N_n,\mathrm{Po}(1-1/n)\bigr)=\Phi(1/n)+\varepsilon_n,\qquad
+|\varepsilon_n|\le\frac{2^{n+1}-n-2}{n\,(n+1)!},
+\]
+where $\Phi(x)=\tfrac12e^{-1}(3-x)\bigl(1-(1-x)e^{x}\bigr)$.
+\item For $n\ge3$, $0<n^2\Phi(1/n)-\frac3{4e}-\frac1{4en}\le\frac1{48en^2}$. Hence
+\[
+n^2d_{\mathrm{TV}}\bigl(N_n,\mathrm{Po}(1-1/n)\bigr)=\frac3{4e}+\frac1{4en}+O(n^{-2})\longrightarrow\frac3{4e}=0.27591\ldots
+\]
+\end{enumerate}
+\status{proved here; not yet independently refereed}
+\end{theorem}
+
+\noindent The first-order measure $\pi+\nu/n$ of Theorem~\ref{thm:sharpN} has factorial moments exactly $1-r/n$ for every $r$ (since $\sum_k\nu(k)(k)_r=1-\mathbb E[(Z+1)_r]=-r$), which is why its distance to the law of $N_n$ is super-exponentially small; $\mathrm{Po}(1-1/n)$ matches the mean but not the second factorial moment, and the mismatch $-\binom r2/n^2$ is the term $-\pi_kc_2(k)/n^2$ of~(i). Since $\sum_k\pi_kc_2(k)=0$ and $c_2(k)<0$ only for $k=1,2$, $\tfrac12\sum_k\pi_k|c_2(k)|=\tfrac3{4e}$, which is the constant of~(iii). The mean-matching Poisson law is not the closest one at this order.
+
+\begin{theorem}[Best Poisson approximation of $N_n$]\label{thm:bestpois}
+For real $a$ let $L(a)=\sum_{k\ge0}\pi_k\,|c_2(k)+a(k-1)|$.
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+\item For every fixed $a$, $n^2d_{\mathrm{TV}}(N_n,\mathrm{Po}(1-1/n+a/n^2))\to L(a)/2$.
+\item $L(a)\ge e^{-1}$, with equality if and only if $a=\tfrac12$; for $a\ge-\tfrac14$, $L(a)=e^{-1}\bigl(1+(2a-1)^++(\tfrac12-a)^+\bigr)$, so $L(0)/2=3/(4e)$.
+\item $n^2\inf_{\lambda>0}d_{\mathrm{TV}}(N_n,\mathrm{Po}(\lambda))\to1/(2e)=0.18394\ldots$, and $\lambda_n=1-1/n+1/(2n^2)$ attains this limit.
+\end{enumerate}
+\status{proved here; not yet independently refereed}
+\end{theorem}
+
+\begin{proposition}[Explicit constant in Theorem~\ref{thm:sharpR}]\label{prop:sharpC}
+For every $n\ge22$ and every set $A$ of positive reals, $|\Pr(R_n\in A)-\Pr(2^Z\in A)-\mu(A)/n|\le B(n)$, where $B(n)$ is the explicit function~\eqref{eq:Bn} of Appendix~\ref{app:realizers}, and $n^2B(n)$ is non-increasing. Consequently
+\[
+\Bigl|d_{\mathrm{TV}}(R_n,2^Z)-\frac{c_2}{n}\Bigr|\le\frac{422}{n^2}\quad(n\ge22),\qquad\le\frac{286}{n^2}\quad(n\ge100),
+\]
+and $n^2B(n)\to259+10/e=262.68\ldots$ \status{proved here, using Theorem~\ref{thm:gallai}; not yet independently refereed}
+\end{proposition}
+
+\noindent The constant is far from sharp: from the exact law of $R_n$ computed for $n\le600$ (Appendix~\ref{app:realizers}), $n^2|d_{\mathrm{TV}}(R_n,2^Z)-c_2/n|$ is at most $5.72$ for $22\le n\le600$ and at most $8.01$ for $4\le n\le600$. Most of the gap comes from the bad event $\mathcal E$ of Lemma~\ref{lem:sharpbad}, which the proof charges in full although it rarely changes $R_n$.
+
+\begin{remark}[What remains open]\label{rem:secondopen}
+The $n^{-2}$ term of the law of $R_n$ is not proved. Numerically (exact laws for $n\le600$, extrapolated in $1/n$), $n^2\bigl(\Pr(R_n=x)-\Pr(2^Z=x)-\mu(x)/n\bigr)$ converges for every atom $x\in\{2^k\}\cup\{3\cdot2^k\}$, $n^2\Pr(R_n\notin\{2^k,3\cdot2^k\}_{k\ge0})\to\tfrac12$, and
+\[
+n^2\Bigl(d_{\mathrm{TV}}(R_n,2^Z)-\frac{c_2}n\Bigr)\to\kappa=4.29707\ldots,
+\]
+the three extrapolations agreeing to six digits. At the $24$ atoms with $k<12$ the limits agree within $1.4\cdot10^{-6}$ with $\pi_k\bigl[12\binom k4-12\binom k3+12\binom k2-3k-5\bigr]$ at $2^k$ and $(k+1)\pi_{k-1}$ at $3\cdot2^k$, $k\ge1$, which would give $\kappa=\tfrac72+\tfrac{13}{6e}=4.297072\ldots$; these closed forms are a conjecture read off the numbers, not a result. \status{open; computationally verified to six digits, closed form conjectural}
+\end{remark}
+
+% ---------------------------------------------------------------- Block 2 ---
+\subsection*{Proofs of the second-order results}
+Throughout, $x=1/n$ and $h_k(x)=e^x(1-x)^k-1-(1-k)x$, so that $\pi_k(1-(k-1)/n)-q_k=-\pi_kh_k(x)$ and, by Theorem~\ref{thm:sharpN}(i),
+\begin{equation}\label{eq:pkqk}
+p_k-q_k=-\pi_kh_k(x)+r_{n,k}\qquad(0\le k\le n-1),\qquad p_k=0\quad(k\ge n).
+\end{equation}
+
+\begin{lemma}[Signs]\label{lem:signs}
+For $0<x<\tfrac12$: $h_0(x)>0$, $h_1(x)<0$, $h_2(x)<0$ and $h_k(x)>0$ for every integer $k\ge3$. \status{proved here}
+\end{lemma}
+
+\begin{proof}
+$h_0=e^x-1-x>0$; $h_1=e^x(1-x)-1<0$ because $1-x<e^{-x}$; $h_2=(1-x)h_1<0$. For $k=3$, $h_3>0$ is equivalent to $\varphi(x)=x+3\log(1-x)-\log(1-2x)>0$, and $\varphi(0)=0$, $\varphi'(x)=1-\frac3{1-x}+\frac2{1-2x}=\frac{x(2x+1)}{(1-x)(1-2x)}>0$. As a function of a real variable $k$, $h_k(x)$ is convex (an exponential in $k$ minus an affine function), and $h_2<0<h_3$; hence $h_k\ge h_3+(k-3)(h_3-h_2)>0$ for $k\ge3$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:secondN}]
+(i) By Step~3 of the proof of Theorem~\ref{thm:realizers}, $\mathbb E[(N_n)_r]=1-r/n$, and $\mathbb E[(X)_r]=\lambda^r$ for $X\sim\mathrm{Po}(\lambda)$, so the difference is $-\sum_{i=2}^r\binom ri(-1/n)^i$; for $r\le n$ the moduli $\binom rin^{-i}$ decrease in $i$ (their ratio is $\frac{r-i}{(i+1)n}<1$), and the alternating-series bound gives the claim. The expansion of $p_k$ is~\eqref{eq:pkqk} with $p_k=\pi_k(1+c_1(k)x)+r_{n,k}$ and $q_k=\pi_k\sum_jc_j(k)x^j$, a series that converges for every $x$ since $(1-x)^k$ is a polynomial.
+
+(ii) $d_{\mathrm{TV}}=\sum_k(p_k-q_k)^+$, and the terms $k\ge n$ vanish. For $0\le k\le n-1$ put $y_k=-\pi_kh_k(x)$; since $t\mapsto t^+$ is $1$-Lipschitz, $|(p_k-q_k)^+-y_k^+|\le|r_{n,k}|$. By Lemma~\ref{lem:signs} ($x\le\tfrac13$), $y_k^+=\pi_k|h_k(x)|$ for $k\in\{1,2\}$, both at most $n-1$, and $y_k^+=0$ otherwise. Hence $d_{\mathrm{TV}}=\pi_1|h_1|+\pi_2|h_2|+\varepsilon_n$ with $|\varepsilon_n|\le\sum_{k=0}^{n-1}|r_{n,k}|\le\frac1{n(n+1)!}\sum_{k=0}^{n-1}\binom{n+1}k=\frac{2^{n+1}-n-2}{n(n+1)!}$, and $\pi_1|h_1|+\pi_2|h_2|=e^{-1}(1-e^x(1-x))\bigl(1+\tfrac12(1-x)\bigr)=\Phi(x)$.
+
+(iii) $1-(1-x)e^x=\sum_{j\ge2}(j-1)x^j/j!$, so $\Phi(x)=e^{-1}\sum_{j\ge2}d_jx^j$ with $d_j=\frac{-j^2+5j-3}{2\,j!}$: $d_2=\tfrac34$, $d_3=\tfrac14$, $d_4=\tfrac1{48}$ and $d_j<0$ for $j\ge5$. For $0<x\le\tfrac13$, $\sum_{j\ge5}|d_j|x^{j-4}\le\tfrac13\sum_{j\ge5}|d_j|<\tfrac1{48}$ (the sum is $0.0208\ldots$), so $0<\sum_{j\ge4}d_jx^{j-4}\le\tfrac1{48}$, which is the claim; with~(ii), $n^2|\varepsilon_n|\to0$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:bestpois}]
+(i) Let $\delta=1-\lambda=x-ax^2$, so $0<\delta\le1$ for $n$ large. Since $|c_j(k)|$ is at most the coefficient of $x^j$ in $e^x(1+x)^k$, $|q_k(\lambda)-\pi_k(1+c_1(k)\delta+c_2(k)\delta^2)|\le\pi_ke2^k\delta^3$, and $\sum_k\pi_ke2^k=e^2$. For $k\le n-1$, $p_k=\pi_k(1+c_1(k)x)+r_{n,k}$ and $c_1(k)(x-\delta)=(1-k)ax^2$ give $p_k-q_k(\lambda)=-\pi_kg_a(k)x^2+\pi_kc_2(k)(x^2-\delta^2)+r_{n,k}+\eta_k$ with $g_a(k)=c_2(k)+a(k-1)$ and $|\eta_k|\le\pi_ke2^k\delta^3$; for $k\ge n$, $|p_k-q_k+\pi_kg_a(k)x^2|\le q_k+\pi_k|g_a(k)|x^2$, whose sum over $k\ge n$ is super-exponentially small. Summing, $|2d_{\mathrm{TV}}-x^2L(a)|\le\frac3{2e}|x^2-\delta^2|+e^2\delta^3+\sum_k|r_{n,k}|+o(x^3)=O(x^3)$, uniformly for $a$ in compact sets.
+
+(ii) $\sum_k\pi_kg_a(k)=0$, since $\mathbb E[Z^2-3Z+1]=0$ and $\mathbb E[Z-1]=0$. With $f(1)=-1$ and $f(k)=1$ for $k\ne1$, $L(a)\ge\sum_k\pi_kg_a(k)f(k)=-2\pi_1g_a(1)=e^{-1}$, because $g_a(1)=-\tfrac12$. Equality requires $g_a(k)\ge0$ for all $k\ne1$; $g_a(0)=\tfrac12-a$ and $g_a(2)=a-\tfrac12$ force $a=\tfrac12$, and $g_{1/2}(k)=\tfrac12k(k-2)$ satisfies it. Writing $g_a(k)=\tfrac12[(k-1)(k-2+2a)-1]$, for $a\ge-\tfrac14$ one has $g_a(3)=\tfrac12(1+4a)\ge0$ and $g_a(k)\ge\tfrac12(5+6a)>0$ for $k\ge4$, so $L(a)=2\sum_k\pi_kg_a(k)^-=2\bigl[\tfrac12\pi_1+\pi_0(a-\tfrac12)^++\pi_2(\tfrac12-a)^+\bigr]$, which is the formula.
+
+(iii) The upper bound is~(i) with $a=\tfrac12$. For the lower bound write $\lambda=1-x+ax^2$. If $a\in[-\tfrac12,\tfrac32]$, (i) (uniform in $a$) and (ii) give $n^2d_{\mathrm{TV}}\ge\frac1{2e}-O(1/n)$. If $a>\tfrac32$, then, as $\Pr(\mathrm{Po}(\lambda)=0)=e^{-\lambda}$ decreases in $\lambda$, $d_{\mathrm{TV}}\ge p_0-e^{-\lambda}\ge e^{-1}\bigl(1+x-e^{x-3x^2/2}\bigr)-|r_{n,0}|=e^{-1}x^2+O(x^3)$; if $a<-\tfrac12$, likewise $d_{\mathrm{TV}}\ge e^{-\lambda}-p_0\ge e^{-1}\bigl(e^{x+x^2/2}-1-x\bigr)-|r_{n,0}|=e^{-1}x^2+O(x^3)$. In both cases $n^2d_{\mathrm{TV}}\ge e^{-1}-o(1)>\frac1{2e}$.
+\end{proof}
+
+\noindent For the explicit constant we sharpen part~(a) of Lemma~\ref{lem:sharpbad}, whose term $120/n^2$ (intervals with $5$ to $n-5$ elements) is in fact $O(n^{-3})$. Write $(m)_j=m(m-1)\cdots(m-j+1)$, recall $\mathbb EI_k(m)=(m-k+1)^2/\binom mk$ for a uniform permutation of length $m$, and let $s_m$, $h_m$ be as in the proof of Lemma~\ref{lem:sharpbad}(b) and
+\[
+\bar F(m)=\frac{42}{(m)_2}+\frac{936}{(m)_3}+\frac{600}{(m)_4}+\frac{4320}{(m)_5}.
+\]
+
+\begin{lemma}[Intervals, refined]\label{lem:intref}
+For $m\ge12$: (a) $\sum_{k=4}^{m-2}\mathbb EI_k(m)\le\bar F(m)$; (b) $\Pr(\mathcal E)\le\bar P(m)=\frac{90}{(m)_2}+\frac{944}{(m)_3}+\frac{600}{(m)_4}+\frac{4320}{(m)_5}$ for $n=m$; (c) $s_m\le\bar s_m=\frac{10}m+\bar F(m)$ and $h_m\le\bar h_m=\frac8m+\frac{18}{(m)_2}+\bar F(m)$. \status{proved here}
+\end{lemma}
+
+\begin{proof}
+(a) Exactly, $\mathbb EI_4=24(m-3)/(m)_3\le24/(m)_2$, $\mathbb EI_{m-2}=18/(m)_2$, $\mathbb EI_{m-3}=96/(m)_3$, $\mathbb EI_{m-4}=600/(m)_4$, $\mathbb EI_5=120(m-4)/(m)_4\le120/(m)_3$ and $\mathbb EI_{m-5}=4320/(m)_5$; these six indices are distinct for $m\ge12$. For the $m-11$ values $6\le k\le m-6$, $\binom mk\ge\binom m6$ and $(m-k+1)^2\le(m-5)^2$, so they contribute at most $720(m-11)(m-5)/(m)_5\le720/(m)_3$. (b) The proof of Lemma~\ref{lem:sharpbad}(a) bounds $\Pr(\mathcal E)$ by $\sum_{k=4}^{n-2}\mathbb EI_k$ plus the three pair moments, which it computes exactly; using $(n-4)(n-5)\le(n-2)(n-3)$, $n-3\le n-2$, $n-4\le n-3$ and $6n-16\le6(n-2)$ they are at most $\frac{18+4}{(n)_2}+\frac8{(n)_3}$, $\frac{24}{(n)_2}$ and $\frac2{(n)_2}$. (c) $s_m=\mathbb EI_3(m)+\sum_{k=4}^{m-2}\mathbb EI_k(m)+\mathbb EI_{m-1}(m)$ with $\mathbb EI_3(m)=6(m-2)/(m)_2\le6/m$ and $\mathbb EI_{m-1}(m)=4/m$; the proof of Lemma~\ref{lem:sharpbad}(b) gives $h_m\le4/m+18/(m)_2+\sum_{l=4}^{m-1}\mathbb EI_l(m)$.
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:sharpC}]
+Let $\bar d_m=e^{-1}/m+2/(m\cdot m!)$, an upper bound for $d_{\mathrm{TV}}(N_m,\mathrm{Po}(1))$ when $m\ge4$ (Theorem~\ref{thm:sharpN}(ii)), and for $n\ge22$
+\begin{equation}\label{eq:Bn}
+\begin{aligned}
+B(n)={}&\frac{2^{n+1}}{n\,(n+1)!}+\frac1{n!}+\bar P(n)
++\frac{3(n-2)}{(n)_2}\bigl(\bar s_{n-2}+3\bar h_{n-2}\bigr)+\frac{12}{(n)_2}+\frac2n\bigl(\bar s_{n-1}+\bar h_{n-1}\bigr)\\
+&+\frac{3(n-2)}{(n)_2}\Bigl(\frac4{n-2}+2\bar d_{n-2}\Bigr)+\frac2n\Bigl(\frac2{n-1}+2\bar d_{n-1}\Bigr)+\frac3{(n)_2}.
+\end{aligned}
+\end{equation}
+We follow the proof of Theorem~\ref{thm:sharpR} and bound each error. The first bracket differs from $\nu(\{k:2^k\in A\})/n$ by $|\rho_1|\le2^{n+1}/(n(n+1)!)+1/n!$. Replacing $\mathbb E[\mathbf 1\{R_n\in A\}-\mathbf 1\{2^{N_n}\in A\}]$ by $\sum_\omega\mathbb E[\mathbf 1_\omega g_\omega(N_n)]$ costs $|\rho_2|\le\Pr(\mathcal E)+\mathbb E[\#\omega;\mathcal E]$; the first is at most $\bar P(n)$ by Lemma~\ref{lem:intref}(b), and the second at most the second group of terms of~\eqref{eq:Bn}, by the bound displayed in the proof of Lemma~\ref{lem:sharpbad}(b) and Lemma~\ref{lem:intref}(c) with $m=n-2\ge20$ and $m=n-1$. Given a three-element occurrence, $g_\omega$ takes values in $\{-1,0,1\}$, so $|\mathbb E[g_\omega(N_n)\mid\omega]-\mathbb Eg_\omega(N(p)+Z)|\le2\Pr(\delta\ne0\mid\omega)+2d_{\mathrm{TV}}(N_{n-2},Z)\le\frac4{n-2}+2\bar d_{n-2}$, because $\delta\ne0$ requires a descending succession of the uniform $\sigma\in S_{n-2}$ at one of the two pairs of positions that contain $j^*$, each of probability $1/(n-2)$; for the two boundary occurrences the bound is $\frac2{n-1}+2\bar d_{n-1}$. With the weights $3(n-2)/(n)_2$ and $2/n$ this gives the third group. Finally, replacing the exact weight $(n-2)/(n(n-1))$ of each of the three patterns by $1/n$ changes the main term by at most $1/(n(n-1))$ each, since $|\mathbb Eg_\omega|\le1$: the last term. Hence $|\Pr(R_n\in A)-\Pr(2^Z\in A)-\mu(A)/n|\le B(n)$ for every $A$; as $d_{\mathrm{TV}}(R_n,2^Z)=\sup_A|\Pr(R_n\in A)-\Pr(2^Z\in A)|$ and $c_2/n=\sup_A|\mu(A)|/n$, the same bound holds for $|d_{\mathrm{TV}}(R_n,2^Z)-c_2/n|$. After expanding $\bar P$, $\bar s$, $\bar h$ and $\bar d$, every term of $n^2B(n)$ without a factorial is a positive constant times $n^2$ divided by a product of at least two factors $n-i$ with $0\le i\le6$, hence non-increasing for $n\ge22$, and the terms with a factorial ($n^2\cdot2^{n+1}/(n(n+1)!)$, $n^2/n!$ and those coming from $2/(m\cdot m!)$ in $\bar d_m$) are decreasing as well; the monotonicity was also checked numerically for $22\le n\le5000$. Evaluating, $22^2B(22)=421.49$, $100^2B(100)=285.80$, and $n^2B(n)\to90+150+(16+10/e)+3$.
+\end{proof}
+
+% ---------------------------------------------------------------- Block 3 ---
+\paragraph{Numerical check of the second-order results.}
+\path{theory/check_second_order.py} (deterministic; output \path{theory/check_second_order_output.txt}, $51$ seconds of CPU) computes the law of $N_n$ in rational arithmetic (closed form, inversion of factorial moments and brute force, all equal) and $d_{\mathrm{TV}}(N_n,\mathrm{Po}(1-1/n))$ with $150$ digits for $3\le n\le60$ and $n\in\{70,80,100,\dots,1000\}$: $|d_{\mathrm{TV}}-\Phi(1/n)|$ is at most $0.19$ times the bound of Theorem~\ref{thm:secondN}(ii) wherever that bound exceeds $10^{-130}$, and below $10^{-130}$ elsewhere; the quantity $48en^2\bigl(n^2\Phi(1/n)-\frac3{4e}-\frac1{4en}\bigr)$ lies in $[0.763,0.9994]$; $n^2d_{\mathrm{TV}}(N_n,\mathrm{Po}(1-1/n))=0.2760016$ at $n=1000$ against $\frac3{4e}+\frac1{4000e}=0.2760016$. Minimising over $\lambda$ at $n=1000$ gives $a=n^2(\lambda-1+1/n)=0.4997$ and $n^2d_{\mathrm{TV}}=0.18388$ (Theorem~\ref{thm:bestpois}: $\tfrac12$ and $1/(2e)=0.18394$). The same script computes the law of $R_n$ exactly on the atoms $2^k$ and $3\cdot2^k$ from the substitution decomposition: with Gallai's product formula (Remark~\ref{rem:exact}) and the uniqueness of the decomposition~\citep{albert2005}, the generating function of the permutations whose number of transitive orientations is $2^a3^b$, $b\le1$, satisfies a system of equations in which the numbers $s_m$ of simple permutations enter through $\sum_{m\ge4}s_mu^m=u-g(u)-2u^2/(1+u)$, $g$ the compositional inverse of $\sum_{n\ge1}n!z^n$ (which satisfies $(1+u)gg'-ug'+g^2=0$). The resulting law agrees with the product formula on all permutations of length at most $8$, with brute force over pairs of linear extensions for length at most $6$, and, in exact integer arithmetic up to $n=30$, with the floating-point computation (relative error $1.1\cdot10^{-15}$) that is used up to $n=600$. Over $22\le n\le600$, $|d_{\mathrm{TV}}(R_n,2^Z)-c_2/n|$ is at most $0.0163$ times $B(n)$; atom by atom, $n^2|\Pr(R_n=x)-\Pr(2^Z=x)-\mu(x)/n|\le3.15$ for $100\le n\le600$, a check of Theorem~\ref{thm:sharpR} that does not rely on sampling; and the inequalities of Lemma~\ref{lem:intref} hold for $12\le m\le3000$ with ratios at most $0.994$, $0.9998$ and $0.999$.

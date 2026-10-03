@@ -1,0 +1,75 @@
+# SHA-256 of the evaluation of the theory constants frozen for v0.3 (review round 2, M4), 03/10/2026
+# experiments/check_Hc.py and experiments/check_same_strand.py are copies of theory/check_Hc.py and theory/check_same_strand.py
+# with only the import path and the output directory changed (experiments/, results/); rerun on 03/10/2026:
+# results/*_summary.json are byte-identical to theory/*_summary.json, the *_output.txt files differ only in timing lines.
+# make_numbers.py reads only the results/ copies.
+97264f3ddafc71015d6d1d843dfc40958c7e02645972f6432e1d6e07a0f3179f  experiments/check_Hc.py
+e807ca55416403af9b2a1f04d018b8ac48562b961542b6b1c1401f9034011bbd  experiments/check_same_strand.py
+dcc6745b40360dc6a9b67a56abd40f19e321b1ee3d74aa847a7f3435343cdcdc  results/check_Hc_summary.json
+4797be4ef6fd37d1a2e5984d6001ab4c477b38d8568cbc89cdf9d625f7a4eefd  results/check_same_strand_summary.json
+aeff73089ded42a4a5e8cdade0f2e91f090b7e6350a009a0b978b0c0e1407a40  results/check_Hc_output.txt
+ce5da1dfd00e7faa6d28e08f7078f613ca8265e6e7d5587b6d3bc51480676445  results/check_same_strand_output.txt
+# originals in theory/ at freezing time:
+8e894481d9c59bb811f95fb386d91df3356528ba4e0a2c2086650fa2380c9503  theory/check_Hc.py
+92e4721624af81cadd3614ac68f1157a98e711eb281f3f1c1b44f632cfbf77e2  theory/check_same_strand.py
+dcc6745b40360dc6a9b67a56abd40f19e321b1ee3d74aa847a7f3435343cdcdc  theory/check_Hc_summary.json
+4797be4ef6fd37d1a2e5984d6001ab4c477b38d8568cbc89cdf9d625f7a4eefd  theory/check_same_strand_summary.json
+# --- added for v0.4 (review round 3, 03/10/2026): partial result on the uniformity of (H_3) ---
+# experiments/check_H3.py is a copy of theory/check_H3.py with only (i) the output directory changed to results/ and
+# (ii) a JSON summary added (results/check_H3_summary.json, the numbers of the text output); rerun on 03/10/2026:
+# results/check_H3_output.txt is identical to theory/check_H3_output.txt except for the timing lines.
+# make_numbers.py reads only results/check_H3_summary.json (and results/phase_margin.json, a new scan, not frozen theory).
+56b602b717d204bedf8c8b6e3d9b94e232f44dd52691996805ccde0e4b8a75dd  experiments/check_H3.py
+7fd274d618dca09a2ea835c584711b85d539da49e959776cc1afb6667dc76065  results/check_H3_summary.json
+ce55a2200d9fb7ed56cd8969d9858a9fd8556e57dc38223ce3b95a5b5e210891  results/check_H3_output.txt
+# originals in theory/ at freezing time (03/10/2026; theory/ was not modified):
+fdee275aa2a9ef759468a62be28d80634a56386f8b285c3ab27c025073654fd0  theory/check_H3.py
+0b8faf4caaf1c49216e5ccb5d722bb0d3e37c7863e640f6eaecc34e2ca562de8  theory/check_H3_output.txt
+d2af32c50051ed71c96b320e823bbc65cd85fc7cb71a651c33ed6965d2d82503  theory/H3_uniform_lemma.tex
+319f92c4f0c5934488e7daa660c97e3ea98370a5582a2562ae1c2b67133191ee  theory/H3_uniform_derivation.md
+# --- added for v0.5 (review round 4, 03/10/2026): computer-assisted proof of d = 2 and joint scan of the phases ---
+# experiments/certify_d2.py and experiments/joint_phase_sweep.py are copies of the theory/ scripts with ONLY the output path
+# changed to results/; rerun on 03/10/2026: outputs and JSON identical to theory/ except timing lines/meta (no operation of
+# certify_d2.py was found without outward rounding, so nothing was corrected). make_numbers.py reads only the results/ copies.
+# (v0.5, superseded in v0.6) 87c1eef8242b7cb2fd6238e6308161e1a71c2e1e69ddcd4d0b9d5001ec58617b  experiments/certify_d2.py
+615cc30eb81b8def1c15e2c9a0e9033a2eacd2a75f04c13e72c7d97fa85631b1  experiments/joint_phase_sweep.py
+# (v0.5, superseded in v0.6) ae346fe614c6f6da2cfb74832bd8519ebf276fac68ec762f0aa2e72ee443fe79  results/certify_d2.json
+# (v0.5, superseded in v0.6) 7c180b9935321929834dee41f4fd093afc1764bdd7daa28aa028ae9c608d52da  results/certify_d2_output.txt
+2f21559225b33742740c574bc5f63e2032842cf5704bb38049c23391c2a73ac8  results/joint_phase_sweep.json
+9d1c3bbd6f0e3192b4a49ac746485f3f30064632981cf8ebb8cb6273fd2ba0ce  results/joint_phase_sweep_output.txt
+# author's independent check and smooth evaluations (new in v0.5, not frozen theory):
+d5c64e36c2bd8e39ba6386ae8e9dda1a9b4c1442670437b8740c28790713fdfe  experiments/check_certify_d2.py
+95eabe0400eccb029a802e3619f19385fcd310798cba261ca11aeb86720a17bf  results/check_certify_d2.json
+7c7d7e2c4b77d2ad621c38784fe83050ec2c2244795ac1d3acf1796ae34064a2  experiments/verify_H3.py
+5d3fb97cbc8f7d9d42b442104ebf653d76dee2bcaa4a5c12ee218898ee447f7c  results/verify_H3.json
+# (v0.5, superseded in v0.6) 7238c702ff4765f2e94278ee4ce960ccafab5d0e9c0a8195556fd16366298a05  experiments/smooth_margin.py
+c291ce95fc408e194617b1233acab231a60dc2306a7df4ca7b97d5f7d0c8e7e4  results/smooth_margin.json
+07249e9cc38590a2b6949e3184e29858d4c496c355c695b8d31d71ac3efd8667  experiments/smooth_H3.py
+4d0746bc6d9929962664c371c90191757f87d9125f409d08a6c9a4a5c3e8144a  results/smooth_H3.json
+# originals in theory/ at freezing time (theory/ was not modified):
+4caf98503d7d7e74b6c72fea02e4b471c917d4359a0a02d6afc33ecfb4e4055a  theory/certify_d2.py
+198affd84563843149d8f64e8e83f95ac4e8f60459c9bdc63f89762e2ccf7edc  theory/certify_d2.json
+082ed47d9d4696421dc3035afd52b9b5e9bb7ab24e93176f243d4da1f6e86339  theory/certify_d2_output.txt
+bc9ea3eb2bd488b645715bdda936fb31b3dda4beaa3278f291196ef89d2ccd2e  theory/joint_phase_sweep.py
+c69e4400068d7b9158fb924d56cfcfd1fd21986eeda0b51be00e035db456f98d  theory/joint_phase_sweep.json
+df38fcefee86644f65c20a63d06a877e22e1eb5834c94bea745c8e2d68aaa3d0  theory/joint_phase_sweep_output.txt
+842093a2b79ba39c0d871a7d41ff5ffbe4bcc08868dd0765b39a09883b478d00  theory/d2_certified.tex
+4dfb96740655fab297187b8729d6277c117d080a824afe37d016892d56fb6fd4  theory/d2_certified_derivation.md
+# --- v0.6 (review round 5, 03/10/2026): re-frozen after changes to comments, assertions and one added JSON key ---
+# experiments/certify_d2.py now differs from theory/certify_d2.py (unchanged, hash above) in: the output path; the docstring
+# and two comments (m1: "K_1 has kappa > 0" is false at r_1 = 4/13; the alpha_2 enclosure at r_1 = 0.5 straddles -pi and the
+# printed m_2 interval is not an enclosure; the trust base, m4); explicit assertions (finite enclosures, eps < 1 and finite
+# bound on every box, m4); the per-box eps upper bound in the rows and its maximum results/certify_d2.json["B"]["max_eps_hi"]
+# (m2).  No arithmetic operation changed.  Rerun on 03/10/2026: certify_d2_output.txt identical to v0.5 except the three
+# timing lines; certify_d2.json identical except meta timings and the added keys "eps_hi" and "max_eps_hi".
+# check_certify_d2.py (imports certify_d2) was rerun: output and JSON identical to v0.5 except timings (v0.5 files kept).
+950bc8ad82589cc2223bee6caf328e1af3cf18bde62e8114c82cc5078840d1c9  experiments/certify_d2.py
+9d704c6930e21d7137a658be525442ec5fc9baf0803385e3c0c47e23e46c8bc6  results/certify_d2.json
+f4fa00edf86927899e716cad710b6dba7e41ed891d7f307468797192043742d5  results/certify_d2_output.txt
+# experiments/smooth_margin.py: docstring only (m6, exclusion window documented); rerun: identical except timing (v0.5
+# results/smooth_margin.json and _output.txt kept, hashes above unchanged).  phase_margin.py: docstring only (m6), not rerun.
+52ba59a0c07757e90b6c142cdb95745738f19193911f0bfaedab987b93f78e26  experiments/smooth_margin.py
+# new smooth (uncertified) scan of r_2 kappa_max(K_2) over phi_2 and r_1, r_2 = r_1/2 (m3; not frozen theory):
+954797fd071092030a18dc756bb9aacbc5c5cdc3afd354627c885b380db961a7  experiments/smooth_d2_phases.py
+0654c4c5764b5475c5c0929e08ae674894bed136fb1b3fc466d7e1f99d769f2e  results/smooth_d2_phases.json
+dc18fedf67827d7fa6d6babe5f5062e45956c278e5168ee257398c6cd03bffc6  results/smooth_d2_phases_output.txt

@@ -1,0 +1,84 @@
+{
+ "meta": {
+  "script": "experiments/check_strong.py",
+  "seed": 20261003,
+  "python": "3.11.15",
+  "numpy": "2.4.6",
+  "cpu_seconds": 104.7,
+  "log_sha256": "157a5db1890d123eb3955b9bd102a5dc97a3c7dbccf6458c376ff33a1fc29d2a",
+  "log_has_timing": false,
+  "kkt_guard": {
+   "calls": 1560,
+   "fallbacks": 340,
+   "fallbacks_tie_at_entry": 304,
+   "fallbacks_full_rank": 134,
+   "max_active_rel": 1.9737298215558337e-16,
+   "max_inactive_rel": 0.0,
+   "max_active_rel_rejected": 1.9707016160505921,
+   "max_active_rel_fallback": 4.736951571734001e-16,
+   "max_inactive_rel_fallback": 0.0
+  }
+ },
+ "reduction": {
+  "n_instances": 40,
+  "n_yes": 20,
+  "n_no": 20,
+  "equiv_ok": 40,
+  "subsets": 81840,
+  "char_fail": 0,
+  "full_data_ok": 40,
+  "uncertified": 0,
+  "uncertified_with_entry": 0,
+  "ties": 35890,
+  "inter_fail": 0,
+  "inter_neg_coef": 0,
+  "lib_checked": 1560,
+  "lib_disagree": 0,
+  "max_int": 12960,
+  "max_mu": 16200,
+  "exact_solves": 165280,
+  "enum_fallbacks": 0,
+  "exact_solves_incl_controls": 300328,
+  "enum_fallbacks_incl_controls": 95,
+  "q_values": [
+   2,
+   3
+  ],
+  "n_q": [
+   38,
+   2
+  ],
+  "max_n": 13,
+  "max_p": 10
+ },
+ "controls": {
+  "theta = 1/q (> eta/(6q))": {
+   "equiv_fail": 1,
+   "char_fail": 212,
+   "inter_fail": 212,
+   "n_instances": 10,
+   "detected": true
+  },
+  "theta = -1/(24q) (no margin)": {
+   "equiv_fail": 9,
+   "char_fail": 9,
+   "inter_fail": 9,
+   "n_instances": 10,
+   "detected": true
+  },
+  "S = 0 (no offset)": {
+   "equiv_fail": 1,
+   "char_fail": 595,
+   "inter_fail": 10879,
+   "n_instances": 10,
+   "detected": true
+  },
+  "u = 1 (no anchor dominance)": {
+   "equiv_fail": 0,
+   "char_fail": 0,
+   "inter_fail": 1658,
+   "n_instances": 10,
+   "detected": true
+  }
+ }
+}

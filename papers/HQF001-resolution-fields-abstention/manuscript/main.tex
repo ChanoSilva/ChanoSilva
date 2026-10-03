@@ -1,0 +1,265 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{placeins}
+\captionsetup{font=footnotesize,labelfont=bf}
+
+\IfFileExists{numbers.tex}{\input{numbers.tex}}{}
+\renewcommand{\bibfont}{\footnotesize}
+\setlength{\bibsep}{0pt}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Sig}{\Sigma}
+\newcommand{\status}[1]{\textsf{\small [#1]}}
+\newcommand{\aurc}{\mathrm{AURC}}
+\newcommand{\dd}{d^2}
+
+\title{\textbf{Local Resolution and Abstention:}\\[2pt]
+\large A Controlled Comparison of Anisotropic Resolution Fields with Local-Metric and Prototype Baselines under a Predefined Criterion}
+\author{Luciano Silva Alarco\\
+\small Pontificia Universidad Cat\'olica del Per\'u\\
+\small ORCID 0000-0002-3395-3129}
+\date{\small Working draft v0.3 (after two rounds of internal review) --- research line HQF001 --- 3 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+Research line HQF001 asked whether an \emph{anisotropic resolution field}, a positive definite matrix $A(x)$ attached to every input point and estimated from the local geometry of the data, carries information about uncertainty, useful for abstention, that local metrics and prototype methods do not already carry. We reconstruct a precise version of the idea, derive three scores from it (a Mahalanobis margin to local prototypes, the log-volume and the anisotropy of the resolution ellipsoid) and evaluate them as selective classifiers (area under the risk--coverage curve, AURC) against seven tuned references on \MetaNDatasets{} datasets with \MetaFolds{} paired folds. The criterion for a ``residual gain'', fixed before the first run, was a lower AURC than the best reference on a majority of datasets with a paired 95\% bootstrap interval excluding zero. It was \CritFanisoMet: with the field's hyper-parameter grid widened after review, the anisotropic field was better than the best reference on \CritFanisoBetter{} datasets and worse on \CritFanisoWorse{} (\CritFanisoWorseT{} with a $t$ interval, \CritFanisoWorseNB{} with the Nadeau--Bengio correction); with the original grid, on \VTwoCritFanisoBetter{} and \VTwoCritFanisoWorse. Anisotropy improves on the field's own isotropic ablation robustly on \AblAnisoIsoFirstRobust{} datasets (\AblAnisoIsoFirstRobustList), on up to \AblAnisoIsoFirst{} with the bootstrap interval alone and on \AblAnisoIsoFirstNB{} with the Nadeau--Bengio correction: suggestive, not established. An exact statement isolates what anisotropy could add: with the shared within-class inverse covariance as metric, the resolution margin is an increasing function of the LDA posterior margin (two equiprobable classes) and twice the top-two posterior log-ratio (any number of equiprobable classes), and with fixed prototypes a field can change it only through $(A(x)-\Sig^{-1})\delta$. In the precise form reconstructed here, the question is answered in the negative.
+\end{abstract}
+
+\section{Introduction and scope}\label{sec:intro}
+
+A classifier that may abstain trades coverage for accuracy~\citep{chow1970,elyaniv2010,franc2023}. The trade is governed by a scalar confidence score: examples are accepted in decreasing order of the score and the selective risk is tracked as a function of coverage; the area under this risk--coverage curve (AURC) summarises the quality of the score for a fixed classifier~\citep{geifman2017,geifman2019}. The simplest scores are the maximum posterior probability of a probabilistic classifier~\citep{hendrycks2017}, the vote fraction of a $k$-nearest-neighbour rule~\citep{cover1967} and the distance margin of a prototype classifier~\citep{kohonen1995,tibshirani2002}. Locally adaptive metrics~\citep{hastie1996,weinberger2009} change the geometry in which those distances are measured.
+
+Research line HQF001 proposed to represent uncertainty by an \emph{anisotropic resolution field}: a field of positive definite matrices $A(x)$, one per input point, describing in which directions and at what scale the data around $x$ resolve distinctions between classes, together with an abstention rule derived from it. Its public record stated the objective (``test whether the representation adds information beyond local metrics and prototype-based methods''), the finding (``available comparisons do not establish a residual gain over those references'') and the scope (``the formulation is computational and makes no claim about quantum physical phenomena''). No manuscript existed; the present note reconstructs a precise version of the idea from that record, states one exact result about it, and runs the controlled comparison that the record said was missing, with the success criterion fixed before the first run.
+
+\paragraph{Scope.} Everything below is a statement about algorithms evaluated on public and synthetic datasets. The word ``resolution'' names a matrix field; it carries no physical meaning here, and we restate the line's own disclaimer: nothing in this note refers to quantum phenomena. Every result in the text is produced by the scripts of Appendix~\ref{app:repro} with a fixed seed and injected as a generated macro; only design parameters (grids, noise levels, thresholds) are typed. Versions 0.1 (30 September 2026) and 0.2 (3 October 2026) went through two rounds of internal review; the findings are addressed here and listed in the response files of the directory.
+
+\section{Setting and definitions}\label{sec:setting}
+
+\subsection{Selective classification}
+
+Let $(x,y)\in\R^d\times\{1,\dots,K\}$ and let $h$ be a classifier with confidence score $g:\R^d\to\R$ (higher means more confident). For a threshold $t$, the selective classifier predicts $h(x)$ when $g(x)\ge t$ and abstains otherwise. On a test sample of size $n$, sorting by decreasing $g$ and accepting the first $i$ points gives coverage $c_i=i/n$ and selective risk $r_i$ (the error rate among the accepted points). The risk--coverage curve is $i\mapsto (c_i,r_i)$ and
+\[
+\aurc(g,h)=\frac1n\sum_{i=1}^{n} r_i ,
+\]
+the discrete version of the area under the curve~\citep{geifman2019}. Ties in $g$ are frequent for vote-based scores; we compute the \emph{expected} $r_i$ under uniformly random tie-breaking, exactly, block by block (Appendix~\ref{app:repro}). A score with no information about correctness yields, in expectation, $r_i$ equal to the overall error rate at every coverage, so the error rate of $h$ is, in expectation, the AURC of a random ordering and serves as the ``no information'' level. We also report the selective accuracy $1-r_i$ at coverages $0.9$ and $0.8$.
+
+\subsection{The anisotropic resolution field}
+
+\begin{definition}[Resolution field and derived scores]\label{def:field}
+Let $D=\{(x_j,y_j)\}_{j=1}^{N}$ be a training set with standardised features. Fix a neighbourhood size $K_m$ and a shrinkage $\alpha\in(0,1]$. For a query $x$, let $N(x)$ be its $K_m$ nearest training points in the Euclidean metric, $C(x)$ their sample covariance, $\tau(x)=\operatorname{tr}C(x)/d$, and
+\[
+S(x)=(1-\alpha)\,C(x)+\alpha\,\tau(x)\,I,\qquad A(x)=S(x)^{-1}.
+\]
+$A(x)$ is the \emph{resolution field}; the ellipsoid $\{u: u^{\top}A(x)u\le 1\}$ is the \emph{resolution ellipsoid} at $x$. For each class $c$, the \emph{local prototype} $\mu_c(x)$ is the mean of the points of class $c$ in $N(x)$, or the nearest training point of class $c$ when the class is absent from $N(x)$. With $\dd_c(x)=(x-\mu_c(x))^{\top}A(x)(x-\mu_c(x))$ and $\dd_{(1)}\le \dd_{(2)}\le\cdots$ the sorted values, the field classifier predicts $\arg\min_c \dd_c(x)$ and the three scores are
+\[
+s_{\mathrm{margin}}(x)=\dd_{(2)}(x)-\dd_{(1)}(x),\qquad
+s_{\mathrm{vol}}(x)=-\log\det S(x),\qquad
+s_{\mathrm{anis}}(x)=-\log\frac{\lambda_{\max}(S(x))}{\lambda_{\min}(S(x))}.
+\]
+\end{definition}
+
+The margin is the distance to the local decision boundary between the two nearest prototypes, measured in resolution units. The log-volume is a pure density proxy (a large ellipsoid means sparse data, hence low resolution); the anisotropy score ranks elongated neighbourhoods as less certain. Two ablations isolate the geometry: the \emph{isotropic field} sets $\alpha=1$, so $A(x)=\tau(x)^{-1}I$ and the margin is the Euclidean margin in units of the local scale; the \emph{Euclidean field} sets $A(x)=I$, which is nearest-local-centroid classification. A further variant keeps $A(x)$ but uses the global class means as prototypes. The shrinkage towards a scaled identity is the standard device for neighbourhood covariances in moderate dimension~\citep{ledoit2004}; $\alpha$ and $K_m$ are tuned. \path{figures/fig_field_moons.pdf} shows the estimated ellipsoids ($K_m=40$, $\alpha=0.2$) on moons-aniso: along the moons they follow the local orientation of the data, away from them they inflate.
+
+
+\subsection{References}
+
+All references are tuned by inner cross-validation on the same criterion (AURC) and see the same preprocessed features. (a)~$k$-NN with vote-fraction confidence, uniform or distance weights, $k\in\{3,\dots,31\}$. (b)~Prototype methods: nearest class mean (NCM) with Euclidean margin; LDA (prototypes with the global pooled metric $\hat\Sig^{-1}$) and QDA (class-specific metrics), both with maximum-posterior confidence; the LVQ family~\citep{kohonen1990,kohonen1995} is represented by NCM. (c)~A locally adaptive metric: discriminant adaptive nearest neighbours (DANN)~\citep{hastie1996}, one iteration, $\Sig(x)=W^{-1/2}[W^{-1/2}BW^{-1/2}+\varepsilon I]W^{-1/2}$ from the within- and between-class scatter of $K_m\in\{50,100\}$ neighbours, then a $k$-NN vote under $\Sig(x)$. (d)~Maximum softmax probability of tuned logistic regression and of a random forest~\citep{breiman2001}. Implementations are from scikit-learn~\citep{pedregosa2011} except DANN and the field, which are written in NumPy~\citep{harris2020}.
+
+\section{An exact statement: what anisotropy could add}\label{sec:exact}
+
+The comparison is only interpretable if one knows what the field score reduces to when the metric is the ``right'' one. The right one, in the classical setting of Gaussian classes with a shared covariance $\Sig$, is $\Sig^{-1}$: the LDA rule~\citep{fisher1936,hastie2009}. Write $\dd_c(x)=(x-\mu_c)^{\top}\Sig^{-1}(x-\mu_c)$ with the true class means, $s(x)=\dd_{(2)}(x)-\dd_{(1)}(x)$ for the resolution margin under this metric, and
+\[
+p_c(x)=\frac{\pi_c\exp(-\dd_c(x)/2)}{\sum_j \pi_j\exp(-\dd_j(x)/2)}
+\]
+for the LDA posterior with priors $\pi_c$, whose two largest values we denote $p_{(1)}(x)\ge p_{(2)}(x)$, attained at classes $c_1$ and $c_2$. The \emph{posterior margin} is $m(x)=p_{(1)}(x)-p_{(2)}(x)$.
+
+\begin{proposition}[Resolution margin versus LDA posterior margin]\label{prop:lda} \status{proved here}
+Let $K\ge2$ Gaussian classes share the covariance $\Sig\succ0$.
+\begin{enumerate}[leftmargin=2em,label=(\roman*)]
+\item If $K=2$ and $\pi_1=\pi_2$, the nearest-prototype rule $\arg\min_c\dd_c$ is the Bayes rule and
+$m(x)=\tanh\!\big(s(x)/4\big)$. Hence $s$ and $m$ induce the same ordering of every test set, the same risk--coverage curve and the same AURC, and the rejection rules $\{s<t\}$ and $\{m<\tanh(t/4)\}$ coincide.
+\item If $K=2$ and $\pi_1\neq\pi_2$, let $\sigma(x)=\dd_2(x)-\dd_1(x)$ be the signed margin. Then $\log\frac{p_1}{p_2}=\frac{\sigma}{2}+\log\frac{\pi_1}{\pi_2}$ and $m=\tanh\big(|\sigma+2\log(\pi_1/\pi_2)|/4\big)$. The unsigned score $s=|\sigma|$ is not a function of $m$, and the nearest-prototype prediction differs from the Bayes prediction on the band $\{-2\log(\pi_1/\pi_2)<\sigma<0\}$ (for $\pi_1>\pi_2$); the prior-corrected score $|\sigma+2\log(\pi_1/\pi_2)|$ restores (i).
+\item If $K\ge3$ and the priors are equal, $s(x)=2\log\big(p_{(1)}(x)/p_{(2)}(x)\big)$: the resolution margin is a strictly increasing function of the log-ratio of the two largest posteriors. It is \emph{not} a function of $m$ nor of the maximum posterior $p_{(1)}$. Explicitly, with $\Sig=I$, $\mu_1=(0,0)$, $\mu_2=(2,0)$, $\mu_3=(1,2)$, the points $x_A=(0.75,0)$ and $x_B=(0.75,0.5)$ both have $s=\CexSA$ but $m(x_A)=\CexMA$, $m(x_B)=\CexMB$ and $p_{(1)}(x_A)=\CexMspA$, $p_{(1)}(x_B)=\CexMspB$. For arbitrary priors, let $c_1,c_2$ be the classes attaining $p_{(1)},p_{(2)}$; the identity becomes $s(x)=2\log\big(p_{(1)}/p_{(2)}\big)-2\log\big(\pi_{c_1}/\pi_{c_2}\big)$ whenever the two nearest prototypes are $c_1,c_2$, in this order; without the prior term it fails.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(i) With equal priors $\log(p_1/p_2)=(\dd_2-\dd_1)/2$, so the Bayes rule picks the smaller $\dd_c$, and $p_{(1)}/p_{(2)}=e^{s/2}$. Since $p_{(1)}+p_{(2)}=1$, $m=(e^{s/2}-1)/(e^{s/2}+1)=\tanh(s/4)$, a strictly increasing bijection $[0,\infty)\to[0,1)$. Every selective-classification quantity depends on $g$ only through the induced ordering (including ties) and on the predictions, which agree. (ii) The first identity is the LDA log-odds; the Bayes prediction is $\operatorname{sign}(\sigma+2\log(\pi_1/\pi_2))$, whereas the nearest-prototype prediction is $\operatorname{sign}\sigma$; they differ exactly on the stated band, and two points with $\sigma=\pm a$ have the same $s=a$ but different $m$ unless $\log(\pi_1/\pi_2)=0$. (iii) In general $\log(p_i/p_j)=\log(\pi_i/\pi_j)+(\dd_j-\dd_i)/2$. With equal priors the ranking of the posteriors is the reverse ranking of the $\dd_c$, so $p_{(1)}/p_{(2)}=e^{s/2}$; with arbitrary priors and the two nearest prototypes equal to $c_1,c_2$ the same identity gives the prior-corrected form. For the counterexample, $(\dd_1,\dd_2,\dd_3)(x_A)=(\CexDtwoA)$ and $(\dd_1,\dd_2,\dd_3)(x_B)=(\CexDtwoB)$: in both cases classes $1,2$ are the two nearest with gap $1$, but the third distance differs and enters the normalisation of the posteriors. The numbers were also checked by \path{experiments/lda_identity.py}.
+\end{proof}
+
+\begin{proposition}[Departure from LDA under an arbitrary field]\label{prop:departure} \status{proved here}
+Let $A(x)\succ0$ be any field, $d^{2}_{A,c}(x)=(x-\mu_c)^{\top}A(x)(x-\mu_c)$, and suppose the two nearest prototypes at $x$ under $A(x)$ and under $\Sig^{-1}$ are the same pair in the same order, with difference $\delta=\mu_{(1)}-\mu_{(2)}$ and midpoint $\bar m=(\mu_{(1)}+\mu_{(2)})/2$. Then
+\[
+s_A(x)-s(x)=2\,(x-\bar m)^{\top}\big(A(x)-\Sig^{-1}\big)\,\delta .
+\]
+In particular: (a) $s_A(x)=s(x)$ whenever $(A(x)-\Sig^{-1})\delta=0$, so metric perturbations with $\delta$ in their kernel cannot change the score (a perturbation orthogonal to $\delta$ in some other sense, e.g.\ $vw^{\top}+wv^{\top}$ with $v\perp\delta$, $w\parallel\delta$, can); (b) for the isotropic rescaling $A(x)=\lambda(x)\Sig^{-1}$, $\lambda>0$, one gets $s_A=\lambda s$, the predictions are unchanged, and the ordering \emph{can} change when $\lambda$ is non-constant: two points with $0<s(x)<s(x')$ swap order if and only if $\lambda(x)/\lambda(x')>s(x')/s(x)$, so any $\lambda=f\circ s$ with $f>0$ non-decreasing preserves the ordering; (c) if the prototypes are replaced by arbitrary points $\nu_c(x)$ (for instance the local prototypes of Definition~\ref{def:field}), with $\delta_\nu=\nu_{(1)}-\nu_{(2)}$ and $\bar m_\nu=(\nu_{(1)}+\nu_{(2)})/2$, and the same pair, in the same order, is nearest under $(\Sig^{-1},\mu)$ and under $(A(x),\nu)$ (and, for the first term below to equal $s_A-s$, also under $(A(x),\mu)$), then
+\[
+s_{A,\nu}(x)-s(x)=2\,(x-\bar m)^{\top}\big(A(x)-\Sig^{-1}\big)\,\delta\;+\;2\,(x-\bar m)^{\top}A(x)\,(\delta_\nu-\delta)\;+\;2\,(\bar m-\bar m_\nu)^{\top}A(x)\,\delta_\nu .
+\]
+The hypothesis on the order is needed: the identities hold for the \emph{signed} margins without it, so if the pair is the same but the order is reversed under $A(x)$ they hold with $s_A+s$ on the left and a change of sign on the right; if the pair itself changes, no identity of this form holds.
+\end{proposition}
+
+\begin{proof}
+For any symmetric $M$ and any two points $\nu_1,\nu_2$, $(x-\nu_2)^{\top}M(x-\nu_2)-(x-\nu_1)^{\top}M(x-\nu_1)=2x^{\top}M(\nu_1-\nu_2)-(\nu_1-\nu_2)^{\top}M(\nu_1+\nu_2)=2(x-\bar\nu)^{\top}M(\nu_1-\nu_2)$. With $M=A(x)-\Sig^{-1}$ and the true means this is the main identity; (a) is immediate; (b) follows from $M=(\lambda-1)\Sig^{-1}$ and $2(x-\bar m)^{\top}\Sig^{-1}\delta=s$ (a positive scalar multiple of $\Sig^{-1}$ does not change which prototypes are nearest), and for $s(x),s(x')>0$, $\lambda(x)s(x)>\lambda(x')s(x')\iff\lambda(x)/\lambda(x')>s(x')/s(x)$, while $\lambda=f\circ s$ with $f$ non-decreasing gives $\lambda(x)s(x)\le\lambda(x')s(x)<\lambda(x')s(x')$; (c) is $s_{A,\nu}-s=[2(x-\bar m_\nu)^{\top}A\delta_\nu-2(x-\bar m)^{\top}A\delta]+[2(x-\bar m)^{\top}A\delta-2(x-\bar m)^{\top}\Sig^{-1}\delta]$ with the first bracket regrouped as stated; only the nearest pairs under $(\Sig^{-1},\mu)$ and $(A(x),\nu)$ enter the two unsigned margins, and the second bracket is $s_A-s$ when the pair is also nearest under $(A(x),\mu)$. The last sentence follows because the signed margins are $2(x-\bar m)^{\top}M\delta$ for a fixed labelling of the pair.
+\end{proof}
+
+\paragraph{What the experiment can and cannot show.} By Proposition~\ref{prop:lda}(i), on shared-covariance data with two balanced classes and the true means as prototypes a well-estimated field reproduces the LDA ordering; any difference is estimation error. Proposition~\ref{prop:departure}(a) says that, with fixed prototypes, where the field \emph{could} help it must do so through $(A(x)-\Sig^{-1})\delta$, the action of the metric perturbation on the discriminant direction (in practice $\Sig$ is itself estimated), which is exactly the quantity that class-dependent covariances (QDA regime) or curved boundaries make non-zero. The method as run uses \emph{local} prototypes, for which part~(c) adds two terms that (a) does not control, so the statement is exact for fixed prototypes and a heuristic for the method as run; the variant ``aniso, global prototypes'' isolates the prototype terms empirically, and synth-lda measures estimation error and prototype effects together. Hence the synthetic datasets: one shared-covariance control where no score can beat a well-estimated LDA beyond estimation error (for $K=3$ this follows from the optimality of the true maximum-posterior rejection rule~\citep{chow1970}, not from Proposition~\ref{prop:lda}(i), which is for $K=2$), one class-dependent-covariance problem and one curved-boundary problem with anisotropic noise where a gain is possible in principle, and one generic problem with redundant features. \status{proved here for fixed prototypes / heuristic for local prototypes / design} A second heuristic explains the direction of the results: $C(x)$ is the covariance of the \emph{mixture} of classes in $N(x)$; where two classes meet it equals the within-class covariance plus a between-class term proportional to $\delta\delta^{\top}$, so $A(x)$ is \emph{smaller} along $\delta$ precisely near boundaries, shrinking the margin there. The direction of this bias is consistent with abstention, but its size is set by the local class balance rather than by the class geometry; DANN separates the within- and between-class parts and avoids it. \status{heuristic}
+
+Numerical verification (\path{experiments/lda_identity.py}, true parameters, $d=\IdD$, $n=\IdN$ points per case; full output in \path{results/tables_identity.md}, plots in \path{figures/fig_identity.pdf}): for $K=2$ and equal priors $\max|m-\tanh(s/4)|=\IdKtwoMaxDev$ and the AURC difference is $\IdKtwoAurcDiff$; with priors $(\IdUneqPriorA,\IdUneqPriorB)$ the unsigned margin is not monotone in $m$ (predictions differ on \IdUneqFrac\% of the points) and the corrected score is (deviation $\IdUneqCorrectedDev$); for $K=3$ and equal priors $\max|s-2\log(p_{(1)}/p_{(2)})|=\IdKthreeMaxDev$, and $s$ is monotone in the log-ratio but not in $m$ nor in $p_{(1)}$; with priors $(\IdGenPriors)$ the uncorrected identity fails (deviation $\IdGenNaiveDev$) and the prior-corrected one holds to $\IdGenDev$; Proposition~\ref{prop:departure}(c) has relative residual $\IdLocalResidual$ over \IdLocalCases{} random fields, means and prototypes.
+
+\section{Experimental protocol and predefined criterion}\label{sec:protocol}
+
+\paragraph{Datasets.} Table~\ref{tab:datasets}. The real datasets are those shipped with scikit-learn~\citep{fisher1936,street1993,pedregosa2011}; digits is reduced to 20 principal components (fitted on each training fold) so that neighbourhood covariances are estimable for all local methods alike. The synthetic problems follow the design paragraph of Section~\ref{sec:exact}: \emph{synth-informative} is \path{make_classification} with informative, redundant and noise features; \emph{moons-aniso} adds anisotropic Gaussian noise (standard deviations $0.30$ and $0.06$ along axes rotated by $30^\circ$) and three nuisance dimensions to the two-moons problem; \emph{synth-classcov} has two Gaussian classes in $d=6$ with the same covariance spectrum ($2\to0.25$, geometric) under two different random rotations; \emph{synth-lda} has three Gaussian classes with one shared covariance (spectrum $2\to0.05$). In the last two the mean separation is chosen by bisection on a Monte-Carlo estimate of the Bayes error, with target $10\%$ and search interval $[0.05,20]$; the bisection now reports whether it ended at a bound (it did not: shifts \ShiftCcov{} and \ShiftSlda, Bayes errors \BayesCcov\% and \BayesSlda\%). In version 0.1 the synth-classcov spectrum was $(2,1,0.5,0.25,0.1,0.05)$: the rotated covariances alone gave a \VOneBayesCcov\% Bayes error, the bisection stopped at its lower bound and the class means coincided. The dataset was regenerated for version 0.2 (same rotations and draws) after the v0.1 results had been seen (v0.1 run: \path{results/results_v01.json}; same criterion verdict). Four less disparate candidate spectra were tried using only the Bayes-error calibration (no classifier was run on them); the candidates and the selection rule were not recorded. A post hoc scan of $\mathrm{geomspace}(2,\lambda,6)$, $\lambda\in\{\SpecLams\}$ (\path{experiments/spectrum_scan.py}), finds an interior solution from $\lambda=\SpecMinSolvable$ on (Bayes error \SpecMinSolvableErr\% with coinciding means), so the chosen spectrum ($\lambda=\SpecChosenLam$, \SpecChosenErr\% with coinciding means) is not the most disparate solvable one: the covariance difference alone gives about twice the target error and the mean shift supplies the rest.
+
+\begin{table}[t]
+\centering\footnotesize
+\input{table_datasets.tex}
+\caption{Datasets. $d$ is the dimension after preprocessing; the Bayes error is known only for the Gaussian problems.}
+\label{tab:datasets}
+\end{table}
+
+\paragraph{Evaluation.} Repeated stratified $\MetaSplits$-fold cross-validation with $\MetaRepeats$ repeats ($\MetaFolds$ outer folds, identical for all methods). Inside each training fold, features are standardised and every method's hyper-parameters are chosen by $\MetaInner$-fold inner cross-validation minimising AURC; the chosen configuration is refitted on the whole training fold and scored on the test fold. Paired per-fold differences of AURC are summarised by their mean and three 95\% intervals: a percentile bootstrap over folds ($B=\MetaBootB$)~\citep{efron1993}, which is the interval named in the predefined criterion; a Student $t$ interval over folds ($\MetaFolds-1$ degrees of freedom); and, as an extreme, the $t$ interval with the Nadeau--Bengio corrected variance $(1/J+\rho)\,s^2$, $\rho=n_{\mathrm{test}}/n_{\mathrm{train}}=\MetaRho$~\citep{nadeau2003}, applied to repeated cross-validation as in the corrected repeated $k$-fold test of~\citet{bouckaert2004}. We also report wins/ties/losses over folds and a two-sided Wilcoxon signed-rank $p$-value~\citep{wilcoxon1945} as a descriptive secondary check. Folds of a repeated cross-validation are not independent, so the bootstrap and $t$ intervals are optimistic~\citep{dietterich1998,nadeau2003}. Since even these optimistic intervals give no ``better'' verdict, the conclusion that the criterion is unmet does not depend on their optimism; the optimism does inflate every ``worse'' verdict and every positive ablation count, which we therefore also report with the $t$ interval and the Nadeau--Bengio correction. No multiplicity correction is applied to the \NVsRefCells{} intervals of the field against each reference and the \NAblCells{} of Table~\ref{tab:ablation}; those counts are descriptive, and we do not perform the cross-dataset tests of~\citet{demsar2006}. An interval whose end lies within $0.02$ (AURC${}\times100$) of zero is marked \emph{borderline} ($^{\circ}$) and read as inconclusive. On iris and wine the test folds hold \TestSizeIris{} and \TestSizeWine{} points and the best reference has AURC exactly $0$ in \ZeroFoldsIris{} and \ZeroFoldsWine{} of \MetaFolds{} folds: ties are frequent and verdicts rest on one or two errors.
+
+\paragraph{Predefined criterion.} Fixed before the first run: the field score shows a \emph{residual gain} if its AURC is lower than that of the best reference (the reference with the lowest mean AURC on that dataset, among the $\MetaNRefs$ references) on a majority ($\ge\MetaMajority$ of $\MetaNDatasets$) of datasets, with the paired 95\% bootstrap interval excluding zero. The criterion code is recorded in commit \texttt{31398e3} of the repository (30 September 2026, 08:29 UTC), which contains no results; the first reference run (v0.1) appears in commit \texttt{0c3bde3} (08:44 UTC). Between that record and the run, after at least one reduced quick test whose output included the verdict on subsampled data, the number of repeats was reduced from 4 to 3 and the logistic-regression and QDA grids were narrowed ($C\in\{0.1,1,10\}$; no $\mathrm{reg\_param}=0$) for compute budget, and the hyper-parameter key of the field was corrected (nominal rather than capped $K_m$, so that inner and outer configurations match on small folds). For version 0.2 the bootstrap became $B=\MetaBootB$ with one generator per pair and synth-classcov was regenerated. For version 0.3 the field grid was widened from $K_m\in\{\VTwoFieldGridKm\}$, $\alpha\in\{\VTwoFieldGridAlpha\}$ to $K_m\in\{\FieldGridKm\}$, $\alpha\in\{\FieldGridAlpha\}$ (all field variants; $\alpha=1$ remains the isotropic ablation), as preregistered before the run in \path{PREREGISTRO_HQF001_rejilla_20261003.md}, because with the v0.2 grid the selected hyper-parameters sat on an upper edge in at least 14 of 15 folds on \VTwoSatFanisoDsHighN{} datasets; references, folds and seeds are unchanged and the reference results reproduce version 0.2 exactly. The tables are from the v0.3 run; the v0.2 run (original grid) is kept in \path{results/v02/}, and a residual gain would be claimed only if the criterion were met in both. History and script hashes: \path{CRITERIO_HQF001.md}. Choosing the best reference per dataset on the same folds favours the references slightly; we therefore also report the field against each reference separately. Total compute: $\MetaCpuSeconds$~s of CPU ($\MetaCpuMinutes$~min) for the benchmark, single-threaded, plus \IdCpuSeconds~s for the verification of Section~\ref{sec:exact} (the v0.2 run took \VTwoCpuSeconds~s).
+
+\section{Results}\label{sec:results}
+
+\subsection{Main comparison}
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{2.3pt}
+\begin{tabular}{lrrrrrrrrrrrrrr}
+\toprule
+& \multicolumn{7}{c}{references} & & \multicolumn{6}{c}{field variants}\\
+\cmidrule(lr){2-8}\cmidrule(lr){10-15}
+dataset & $k$-NN & NCM & LDA & QDA & LogReg & RF & DANN & err. & aniso & iso & Eucl. & vol. & anis. & glob.\\
+\midrule
+\input{table_aurc_all.tex}\\
+\bottomrule
+\end{tabular}
+\caption{AURC${}\times100$, mean over \MetaFolds{} folds (lower is better; best reference in bold); v0.3 run, widened field grid (v0.2 values in \texttt{results/v02/tables.md}). ``err.'' is the error rate${}\times100$ of the best reference at full coverage, i.e.\ the expected AURC of an uninformative score for that classifier. ``aniso'' is the full method of Definition~\ref{def:field}; ``iso'' and ``Eucl.'' are its ablations; ``vol.'' and ``anis.'' rank by geometry alone (with the predictions of the full method); ``glob.'' keeps $A(x)$ with the global class means as prototypes; RF is the random forest.}
+\label{tab:aurc}
+\end{table}
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrcccrr}
+\toprule
+dataset & $\Delta$ & bootstrap 95\% & $t$ 95\% & NB 95\% & W/T/L & $p_W$\\
+\midrule
+\input{table_diff.tex}\\
+\bottomrule
+\end{tabular}
+\caption{Anisotropic field against the best reference (bold in Table~\ref{tab:aurc}): paired difference $\Delta=\aurc(\text{field})-\aurc(\text{best reference})$, ${}\times100$ (negative favours the field), with three 95\% intervals over folds (percentile bootstrap, the predefined one; Student $t$; NB: $t$ with the Nadeau--Bengio correction), wins/ties/losses of the field over the \MetaFolds{} folds and the Wilcoxon $p$-value. $^{\circ}$: borderline (an end of the bootstrap or $t$ interval within $0.02$ of zero). The same table for the isotropic and Euclidean ablations is in \texttt{results/tables.md}.}
+\label{tab:diff}
+\end{table}
+
+Tables~\ref{tab:aurc} and~\ref{tab:diff} give the main result. Against the best reference, the anisotropic field is better with a 95\% bootstrap interval excluding zero on \CritFanisoBetter{} of \MetaNDatasets{} datasets (\CritFanisoBetterList), worse on \CritFanisoWorse{} (\CritFanisoWorseList) and inconclusive on \CritFanisoIncon{} (\CritFanisoInconList); with the $t$ interval the counts are \CritFanisoBetterT{}/\CritFanisoWorseT{}/\CritFanisoInconT{} (inconclusive: \CritFanisoInconListT), and with the Nadeau--Bengio correction \CritFanisoBetterNB{}/\CritFanisoWorseNB{}/\CritFanisoInconNB. The predefined criterion is therefore \textbf{\CritFanisoMet} under each of the three readings; with the original grid it was also \VTwoCritFanisoMet{} (v0.2: \VTwoCritFanisoBetter{}/\VTwoCritFanisoWorse{}/\VTwoCritFanisoIncon{} bootstrap, \VTwoCritFanisoBetterT{}/\VTwoCritFanisoWorseT{}/\VTwoCritFanisoInconT{} $t$, \VTwoCritFanisoBetterNB{}/\VTwoCritFanisoWorseNB{}/\VTwoCritFanisoInconNB{} NB). The only verdict that changes with the grid under the bootstrap and $t$ intervals is \CritChangedList, a borderline case (under the Nadeau--Bengio correction: \CritChangedListNB); on the smallest dataset the wider grid lets the inner selection move to configurations that use all training points (\SelWine) and the field's AURC rises from \VTwoAurcWineFaniso{} to \AurcWineFaniso. The closest the field comes to the best reference is on \GapClosestDs{} ($\Delta=\GapClosest$); the largest loss is on \GapWorstDs{} ($\Delta=\GapWorst$). The other five field variants (isotropic, Euclidean, volume, anisotropy, global prototypes) are worse than the best reference on \CritFisoWorse, \CritFeuclidWorse, \CritFvolWorse, \CritFanisWorse{} and \CritFgprotoWorse{} of the \MetaNDatasets{} datasets and better on none (\path{results/tables.md}).
+
+
+Comparing the field with each reference separately removes the best-reference selection (table ``Field-aniso vs each reference'' in \path{results/tables.md}). Counting datasets on which the field is better/worse with the bootstrap interval, and in parentheses with the $t$ interval: $k$-NN \VsRefKnnBetter/\VsRefKnnWorse{} (\VsRefKnnBetterT/\VsRefKnnWorseT), NCM \VsRefNcmBetter/\VsRefNcmWorse{} (\VsRefNcmBetterT/\VsRefNcmWorseT), LDA \VsRefLdaBetter/\VsRefLdaWorse{} (\VsRefLdaBetterT/\VsRefLdaWorseT), QDA \VsRefQdaBetter/\VsRefQdaWorse{} (\VsRefQdaBetterT/\VsRefQdaWorseT), logistic regression \VsRefLogregBetter/\VsRefLogregWorse{} (\VsRefLogregBetterT/\VsRefLogregWorseT), random forest \VsRefRforestBetter/\VsRefRforestWorse{} (\VsRefRforestBetterT/\VsRefRforestWorseT), DANN \VsRefDannBetter/\VsRefDannWorse{} (\VsRefDannBetterT/\VsRefDannWorseT). \VsRefBorderN{} of these \NVsRefCells{} intervals are borderline (\VsRefBorderList) and \VsRefBootOnlyN{} are decided by the bootstrap interval only (\VsRefBootOnlyList); all of them should be read as inconclusive.
+The regime-specific picture is as follows. The field beats the global-prototype methods on the datasets where their linear boundaries are wrong (with both intervals: LDA on \VsRefLdaBetterListT; logistic regression on \VsRefLogregBetterListT; NCM on all but breast-cancer). On synth-classcov, the class-dependent-covariance problem, it beats every reference except QDA with both intervals ($k$-NN \VsCcovKnn, DANN \VsCcovDann, random forest \VsCcovRforest) and is worse than QDA (AURC${}\times100$ \AurcCcovQda{} against \AurcCcovFaniso), whose class-specific metric is the population version of what the field estimates locally. On every dataset at least one reference is at least as good. Moreover, on synth-classcov anisotropy contributes nothing measurable: the isotropic and Euclidean ablations reach \AurcCcovFiso{} and \AurcCcovFeuclid{} (aniso$-$iso \AblAnisoIsoCcov, Table~\ref{tab:ablation}) and the tuning drives the field to the isotropic end of its grid (\SelCcov), so what the field offers in this regime is the local-prototype margin over large neighbourhoods, not the metric. With the original grid ($K_m\le80$) the two ablations beat the full method (\VTwoAurcCcovFiso{} and \VTwoAurcCcovFeuclid{} against \VTwoAurcCcovFaniso; aniso$-$iso \VTwoAblAnisoIsoCcov); that ``handicap'' was a consequence of the cap on $K_m$. For the record, in version 0.1 (coinciding means) QDA was also best and the Euclidean ablation beat the full method; the wins over NCM, LDA and logistic regression were then a consequence of the design (those references were at chance level, error \VOneErrCcovLda\%; \path{results/tables_v01.md}).
+
+\subsection{Ablations: does anisotropy add information?}
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{2.4pt}
+\begin{tabular}{lrccrrrrrr}
+\toprule
+& \multicolumn{4}{c}{aniso$-$iso} & & & & & \\
+\cmidrule(lr){2-5}
+dataset & $\Delta$ & bootstrap & $t$ & W/T/L & a$-$Eucl. & Eucl.$-$NCM & a$-$vol. & a$-$anis. & a$-$glob.\\
+\midrule
+\input{table_ablation.tex}\\
+\bottomrule
+\end{tabular}
+\caption{Ablations: mean paired difference of AURC${}\times100$ (first minus second; negative favours the first; ``a'' is the anisotropic field). For aniso$-$iso, the two 95\% intervals and the wins/ties/losses of the anisotropic field over folds are shown; for the other pairs, bold (italic) marks a difference whose bootstrap and $t$ intervals both exclude zero in favour of the first (second) member, $^{b}$ and $^{t}$ a difference decided by one interval only, $^{\circ}$ a borderline interval. Full intervals in \texttt{results/tables.md}; direct comparisons with the references are in Section~\ref{sec:results}.1.}
+\label{tab:ablation}
+\end{table}
+
+Table~\ref{tab:ablation} answers the line's question in its narrow form. Allowing anisotropy improves on the isotropic field (same neighbourhoods, same prototypes, scalar metric) with both the bootstrap and the $t$ interval excluding zero and no borderline end on \AblAnisoIsoFirstRobust{} datasets (\AblAnisoIsoFirstRobustList), on \AblAnisoIsoFirstWeak{} more only with the bootstrap interval or with a borderline end (\AblAnisoIsoFirstWeakList), and on \AblAnisoIsoFirstNB{} with the Nadeau--Bengio correction; the fold counts behind these cases are \AblAnisoIsoWinsText{} (wins/ties/losses). It hurts robustly on \AblAnisoIsoSecondRobust{} and with the bootstrap interval alone on \AblAnisoIsoSecondWeak{} (\AblAnisoIsoSecondWeakList, borderline). Depending on the reading the positive count is \AblAnisoIsoFirstRange{} and the negative one \AblAnisoIsoSecondRange. It also depends on the grid: with $K_m\le80$ the robust counts were \VTwoAblAnisoIsoFirstRobust{} better (\VTwoAblAnisoIsoFirstRobustList) and \VTwoAblAnisoIsoSecondRobust{} worse (\VTwoAblAnisoIsoSecondRobustList); the bootstrap verdicts that change are \AblChangedList. The robust gain on synth-lda is the expected one: its shared covariance is strongly anisotropic and the tuning moves the field towards a near-global covariance (\SelSlda), i.e.\ towards the LDA metric, which it still does not match (Table~\ref{tab:diff}). So the evidence that the anisotropic metric carries information about correctness that a local scale alone does not is suggestive, not established: robust on one real dataset and on a control whose correct metric is known to be anisotropic, absent under the Nadeau--Bengio correction. Replacing the local prototypes by the global class means while keeping $A(x)$ is worse on \AblAnisoGprotoFirst{} datasets with both intervals: the local metric is meaningful only at the scale of the neighbourhood from which it was estimated.
+
+\subsection{Geometry-only scores, fixed coverage, selected hyper-parameters}
+
+The geometry-only scores (section ``Geometry-only scores'' of \path{results/tables.md}; point estimates, no interval) are far weaker than the margin, but not uniformly uninformative. Relative to the random level (the error rate of the same predictions), the log-volume reaches \GeomVolInformRange\% of it on \GeomVolInformList, lies between half and the random level on \GeomVolBelowList{} and is \emph{worse} than random on \GeomVolAboveRandomList; ranking by anisotropy is worse than random on \GeomAnisAboveRandom{} datasets (\GeomAnisAboveRandomList) and between half and the random level on the other \GeomAnisBelowN. The margin stays below \GeomMarginRatioMax\% of the random level on every dataset. Most of the information the field carries about correctness is therefore in the margin, i.e.\ in \emph{where the prototypes are} relative to the ellipsoid; the ellipsoid's size carries some on \GeomVolInformList, its shape little anywhere.
+
+The accuracies at fixed coverage (\path{results/tables.md}; mean risk--coverage curves in \path{figures/fig_rc_curves.pdf}) show the same picture. On \AccGapBigN{} datasets the field's classifier is already less accurate than the best reference at full coverage, by \AccGapBigText{} percentage points, so part of the AURC gap is a weaker classifier rather than a weaker ranking. On digits the field is slightly \emph{more} accurate than \BestRefDigits{} at full coverage (\AccDigitsFaniso\% against \AccDigitsDann\%) yet behind at 90\% coverage (\AccNinetyDigitsFaniso\% against \AccNinetyDigitsDann\%), so there the ranking is the weaker part. The hyper-parameters selected for the anisotropic field over all \AlphaTotal{} dataset--fold pairs were \AlphaFracText; \KmFracText. With the original grid, \VTwoSatFanisoAnyHigh{} of the \SatFanisoTotal{} selections had a hyper-parameter on the upper edge and \VTwoSatFanisoDsHighN{} datasets had at least 14 of \MetaFolds{} folds there; with the widened grid the numbers are \SatFanisoAnyHigh{} and \SatFanisoDsHighN{} (\SatFanisoDsHighList: \SelCcov{} and \SelSlda). This residual saturation points to limits covered elsewhere: $\alpha\to1$ is the isotropic ablation, which already ties with the full method on synth-classcov, and $K_m\to N$ is a single global covariance, close to the LDA regime of synth-lda, where LDA is the best reference. Widening the grid changed the field's AURC by $\FieldChangeCcov\%$ on synth-classcov, $\FieldChangeSlda\%$ on synth-lda and $\FieldChangeWine\%$ on wine. Several references also sit on an end of their grids in at least 14 of \MetaFolds{} folds (\SatRefText; counts in \path{results/tables.md}), which, if anything, favours the field.
+
+\FloatBarrier
+\section{What can be claimed}\label{sec:claims}
+
+\begin{table}[htbp]
+\centering\footnotesize
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.72\linewidth}>{\raggedright\arraybackslash}p{0.21\linewidth}}
+\toprule
+claim & status\\
+\midrule
+LDA posterior and Bayes optimality for shared-covariance Gaussians & classical\\
+$K=2$, equal priors: the LDA posterior margin equals $\tanh(s/4)$ of the resolution margin under $\Sig^{-1}$; identical risk--coverage curves (Prop.~\ref{prop:lda}(i)) & proved here\\
+Unequal priors: identity fails for the unsigned margin; restored by the prior-corrected signed margin (Prop.~\ref{prop:lda}(ii)) & proved here\\
+$K\ge3$, equal priors: margin equals twice the top-two posterior log-ratio, not a function of the posterior difference or of the maximum posterior; with unequal priors a prior term is needed (Prop.~\ref{prop:lda}(iii)) & proved here, examples verified\\
+Departure from LDA under any field is $2(x-\bar m)^{\top}(A-\Sig^{-1})\delta$ with fixed prototypes, plus two terms with arbitrary ones (Prop.~\ref{prop:departure}) & proved here\\
+``Where the field could help it must do so along $\delta$'' for the method as run (local prototypes) & heuristic\\
+Unsupervised local covariance is inflated along $\delta$ near boundaries & heuristic\\
+Predefined criterion for a residual gain of the field over the best reference: \CritFanisoMet{} (\CritFanisoBetter{} better; \CritFanisoWorse{}, \CritFanisoWorseT{} and \CritFanisoWorseNB{} worse with the bootstrap, $t$ and Nadeau--Bengio intervals, of \MetaNDatasets; original grid: \VTwoCritFanisoBetter{} better, \VTwoCritFanisoWorse{} worse) & computationally verified\\
+Anisotropy improves on the isotropic ablation robustly on \AblAnisoIsoFirstRobust{} datasets (\AblAnisoIsoFirstRobustList), on up to \AblAnisoIsoFirst{} with the bootstrap interval alone, on \AblAnisoIsoFirstNB{} with Nadeau--Bengio, and hurts robustly on \AblAnisoIsoSecondRobust{} (original grid: \VTwoAblAnisoIsoFirstRobust{} and \VTwoAblAnisoIsoSecondRobust); the representation being non-empty is suggestive, not established & computationally verified; interval- and grid-dependent\\
+On synth-classcov (class-dependent covariances, version 0.2 of the dataset) the field beats every reference except QDA (worse); its isotropic and Euclidean ablations match it with the widened grid and beat it with $K_m\le80$: anisotropy adds nothing there & computationally verified, regime- and grid-specific; dataset regenerated after v0.1\\
+Geometry-only scores are far weaker than the margin; the log-volume is informative on \GeomVolInformList{} (AURC at \GeomVolInformRange\% of the random level) and worse than random on \GeomVolAboveRandomList; anisotropy is worse than random on \GeomAnisAboveRandom{} of \MetaNDatasets & computationally verified (point estimates)\\
+Behaviour on other data, in high dimension, or with supervised field estimation & not addressed\\
+Any statement about physical or quantum phenomena & not made\\
+\bottomrule
+\end{tabular}
+\caption{Claims and their status. ``Computationally verified'' means reproduced by the scripts of Appendix~\ref{app:repro} with the fixed seed on the listed datasets; it is not a proof and does not generalise beyond them.}
+\label{tab:claims}
+\end{table}
+
+Table~\ref{tab:claims} lists the claims with their status. The main one is negative: under a criterion fixed before the first run, on \MetaNDatasets{} datasets chosen to include the regimes where a local anisotropic metric could help, the resolution-field score does not deliver a residual gain over tuned local-metric, prototype and softmax references, under any of the three interval readings and with either grid. The comparison with the best reference is inconclusive only on \CritFanisoInconList{} with the bootstrap interval (\DiffWtlDigitsFaniso{} wins/ties/losses), on \CritFanisoInconListT{} with the $t$ interval (iris: \DiffWtlIrisFaniso) and on \CritFanisoInconListNB{} with the Nadeau--Bengio correction; nowhere does the field win. The positive finding is narrow and depends on the interval and on the grid: anisotropy ranks correctness better than an isotropic local scale robustly on \AblAnisoIsoFirstRobustList{} only, so the representation may be non-empty, but it is redundant given the references.
+
+\paragraph{Limitations.} The field is one specific reconstruction of an idea for which no manuscript existed; other formulations (a supervised field from the Fisher information of a local probabilistic model, a field learned end-to-end, or a combination of the margin with the log-volume) were not run, and the second and third could in principle change the outcome. The datasets are small to moderate ($n\le\NDigits$, $d\le30$) and low-dimensional after preprocessing; neighbourhood covariances in higher dimension would need stronger regularisation and the comparison could shift either way. Inner tuning on AURC with $\MetaInner$ folds is noisy on the smallest datasets. The bootstrap and $t$ intervals over repeated folds are optimistic and the best reference is selected on the same folds; the first favours every ``worse'' and every positive ablation verdict (which is why the Nadeau--Bengio reading is also given), the second favours the references; neither produced a ``better'' verdict for the field here. DANN was not tuned beyond its grid, and QDA at $\mathrm{reg\_param}=0$ was excluded (singular class covariances on inner folds). The field's hyper-parameters sat on an upper edge of the original grid in most folds of \VTwoSatFanisoDsHighN{} datasets; the preregistered wider grid lowers its AURC by about a fifth on synth-classcov and synth-lda, raises it on wine and changes no verdict against the best reference except wine's (borderline), but selections remain on the new edge on \SatFanisoDsHighList.
+
+\paragraph{Next steps for the research line.} If the line is reopened, the directions consistent with the results are: (a) a supervised field built from within-class rather than mixture covariances (the DANN decomposition), tested first on synth-classcov and moons-aniso; (b) the margin combined with the log-volume as a two-dimensional rejection rule; (c) a higher-dimensional benchmark with explicit covariance regularisation; all under the same criterion. Absent these, the line is proposed to close for the unsupervised formulation evaluated here: on the problems studied, the field is a valid but redundant representation of uncertainty for abstention.
+
+\FloatBarrier
+\appendix
+\section{Reproducibility}\label{app:repro}
+{\sloppy The directory contains \path{experiments/selective_benchmark.py} (benchmark; \texttt{-{}-fast} for a reduced run, \texttt{-{}-resummarise} to recompute the statistics from stored per-fold results), \path{experiments/lda_identity.py} (Section~\ref{sec:exact}), \path{experiments/make_figures.py} and \path{experiments/make_numbers.py}, which turns \path{results/results.json} and \path{results/results_identity.json} into the macros and table bodies of this document; \path{results/results_v01.json} is the version 0.1 run. Script \MetaVersion; seed \MetaSeed; Python \MetaPython, NumPy \MetaNumpy, SciPy \MetaScipy~\citep{virtanen2020}, scikit-learn \MetaSklearn, Matplotlib~\citep{hunter2007}; BLAS threads limited to one; \MetaCpuSeconds~s of CPU for the benchmark (wall \MetaWallSeconds~s).\par}
+
+\paragraph{Tie handling.} Tied scores form blocks; within a block of size $b$ with $e$ errors the expected cumulative error after accepting $j\le b$ of its points is $ej/b$, so $r_i$, the AURC (mean of $r_i$) and the accuracy at coverage $c$ ($1-r_{\lceil cn\rceil}$) are exact expectations under uniform random tie-breaking.
+
+\paragraph{Preprocessing and inner selection.} Standardisation (and, for digits, the 20-component PCA) is fitted on each outer training fold and applied to its test fold, so no test information reaches any method. The inner $\MetaInner$-fold cross-validation then splits that already standardised training fold: the inner validation folds have seen their own statistics through the scaler, which can only affect hyper-parameter selection, not the test numbers. Inner selection minimises the mean inner AURC; the hyper-parameter key carries the nominal $K_m$ so that inner and outer configurations match on small folds; a configuration that fails on some inner fold (QDA with a singular class covariance) is discarded rather than averaged over fewer folds: \DroppedConfigs{} configurations were discarded in the reference run (\DroppedConfigsList). The inner training sets hold 80 points on iris and about 95 on wine. On iris every $K_m\ge80$ is therefore capped at 79 in the inner selection (the inner ``local'' covariance is the global one); with the v0.3 rule that identical capped configurations keep the largest nominal $K_m$, the outer fold then also uses all its training points, whereas in v0.2 $K_m=80$ meant 80 of 120 outer points, a change of regime between inner and outer folds. On wine $K_m=80$ is 80 of about 95 inner points and $K_m\ge160$ means all points in both inner and outer folds. Grids: \texttt{results/tables.md}; class-mean separations: 40 bisection steps on a Monte-Carlo estimate ($40\,000$ points) of the Bayes error (\path{make_datasets}).
+
+\paragraph{Supplementary tables.} \path{results/tables.md} (generated with the JSON) holds, with the conventions of Table~\ref{tab:diff}, every field variant against the best reference and the anisotropic field against each reference, all ablation pairs, the geometry-only scores against the error rate of their own classifier, the accuracies at coverage 100\%, 90\% and 80\%, the grids, the grid-edge saturation and the configurations selected per fold; \path{results/v02/tables.md} holds the same for the original grid. Mean risk--coverage curves: \path{figures/fig_rc_curves.pdf}.
+
+\FloatBarrier
+\bibliographystyle{plainnat}
+\bibliography{refs}
+\end{document}

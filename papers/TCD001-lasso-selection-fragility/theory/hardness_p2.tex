@@ -1,0 +1,110 @@
+% ==============================================================================================
+% TCD001 -- theory/hardness_p2.tex  (03/10/2026)
+% Ready to paste into Section~\ref{sec:hardness} of manuscript/main.tex, after Remark~\ref{rem:hardness}.
+% Uses only the macros and environments of main.tex (\tsc, \Dm, \status, \supp, \sgn, \R, \Q) and
+% existing bibliography keys. Derivation: theory/hardness_derivation.md.
+% Exhaustive exact check: theory/check_hardness.py -> theory/check_hardness_output.txt.
+% New labels: lem:entry, thm:enter2, prop:pseudo, cor:weak, rem:verify2, conj:strong.
+% ==============================================================================================
+
+\begin{lemma}[Entry criterion for $p=2$]\label{lem:entry}\status{proved here}
+Let $p=2$, let $R\subsetneq[n]$, $K=[n]\setminus R$, $\mu'=\mu_{|R|}$, and suppose $P:=\lVert X_{K,1}\rVert^2>0$. Put $Q=X_{K,1}^{\top}X_{K,2}$, $a=X_{K,1}^{\top}y_K$, $c=X_{K,2}^{\top}y_K$,
+\[
+\beta_1^\ast=\sgn(a)\,(|a|-\mu')_+/P,\qquad \gamma=c-Q\beta_1^\ast .
+\]
+(a) If $|\gamma|\le\mu'$, then $(\beta_1^\ast,0)$ minimises the Lasso objective on $\Dm$; in particular $R$ is not a witness for \tsc{enter}$(2)$.
+(b) If $|\gamma|>\mu'$, no minimiser on $\Dm$ has $\beta_2=0$; in particular, if the minimiser on $\Dm$ is unique, then $2\in S(\Dm)$.
+\end{lemma}
+\begin{proof}
+On $\{\beta_2=0\}$ the objective is $\tfrac12\lVert y_K-X_{K,1}\beta_1\rVert^2+\mu'|\beta_1|$ up to a constant, strictly convex because $P>0$, with unique minimiser $\beta_1^\ast$ (the formula of Example~\ref{ex:one}). At $(\beta_1^\ast,0)$ the KKT condition for coordinate~1 is the optimality condition of this restricted problem, and the condition for coordinate~2 reads $|c-Q\beta_1^\ast|\le\mu'$. (a)~The KKT conditions are sufficient for the convex objective. If the minimiser is unique, it is $(\beta_1^\ast,0)$ and $2\notin S(\Dm)$; if it is not unique, $R$ is not a witness by Definition~\ref{def:witness}. (b)~A minimiser $(\beta_1,0)$ would minimise the restricted problem, so $\beta_1=\beta_1^\ast$, and the necessary KKT conditions would give $|\gamma|\le\mu'$.
+\end{proof}
+
+For $p=1$ the selection event is that a sum leaves an interval, which is why Theorem~\ref{thm:hard}(b) is easy. For $p=2$ the residual correlation $\gamma$ has a kink: while variable~1 is inactive, $\gamma=c$ grows with the removed data, and as soon as variable~1 becomes active it absorbs the correlation. With integer data, the kink creates a window of width less than one, and the inactive variable enters exactly when a subset sum hits a target. This is the competition mechanism of Example~\ref{ex:two} made exact.
+
+\begin{theorem}[Selection witnesses, $p\ge2$]\label{thm:enter2}\status{proved here}
+Fix $p\ge2$. Consider instances with $p$ columns, rational data and rational $\mu>0$, under either penalty rule. \tsc{Selection-Witness}: given $(X,y,\mu)$ with a unique minimiser on $D$ and $j\notin S(D)$, decide whether some proper $R\subsetneq[n]$ is a witness for \tsc{enter}$(j)$. This problem is NP-complete. Hardness holds already on instances in which the Lasso has a unique minimiser on $\Dm$ for every $R\subsetneq[n]$. Consequently computing $f_{\tsc{enter}(j)}$ is NP-hard for every fixed $p\ge2$. This proves Conjecture~\ref{conj:enter} for every fixed $p\ge2$ (in the weak sense of Remark~\ref{rem:hardness}(i); see Corollary~\ref{cor:weak}).
+\end{theorem}
+
+\begin{proof}
+\emph{Membership in NP} (for fixed $p$). The certificate is $R$. By Lemma~\ref{lem:rank} a unique minimiser on $\Dm$ has a support $S$ with $X_{K,S}$ of full column rank, so it is found by enumerating the $3^p$ signed supports, solving each KKT system $X_{K,S}^{\top}(y_K-X_{K,S}\beta_S)=\mu' s$ in exact rational arithmetic and checking the sign and inactive inequalities; the solutions have polynomial bit length (Cramer's rule). Given a minimiser $\hat\beta$, every minimiser has the same fit and the same $\ell_1$ norm, so the set of minimisers is the polytope $M=\{\beta:\ X_K\beta=X_K\hat\beta,\ \lVert\beta\rVert_1\le\lVert\hat\beta\rVert_1\}$. Since $X_Kv=0$ if and only if $X_K^{\top}X_Kv=0$, the fit constraint is equivalent to the $p$ equations $X_K^{\top}X_K(\beta-\hat\beta)=0$. Uniqueness means $M=\{\hat\beta\}$, i.e.\ that $M$ has a single vertex. This is decided by enumerating, in each of the $2^p$ orthants, the vertices of the polytope cut out by the $p$ sign constraints, these $p$ equations and the linear form of the norm constraint, a computation that is polynomial for fixed $p$. Finally, test whether $\hat\beta_j\neq0$.
+
+\emph{Reduction for $p=2$, target $j=2$.} Start from \tsc{Subset Sum} with positive integers $b_1,\dots,b_m$, target $t$, and $B=\sum_ib_i$. If $t\le0$ or $t\ge B$ the answer is immediate; output the instance below for the fixed yes-instance $(b,t)=((1,1),1)$ or the fixed no-instance $((2,2),1)$. Otherwise $1\le t\le B-1$. Set $n=m+1$, $u=m+1$, $\eta=1/(2B)$, $\kappa=1+\eta$, and
+\[
+\text{rule C: }\ \mu=t+\tfrac12,\quad y_i=b_i;\qquad
+\text{rule P: }\ \lambda=t+\tfrac12,\quad \mu=\lambda n,\quad y_i=b_i+\lambda\qquad(i\le m),
+\]
+then $\varepsilon=\eta/(4\mu)$ and $\rho=1-\varepsilon$. The rows are $x_i=(1,\rho)$ with response $y_i$ for the items $i\le m$, and $x_g=(u,\kappa u)$ with $y_g=1/(2u)$ for the gadget $g=m+1$. All numbers are rationals whose numerators and denominators are polynomial in $m$, $B$ and $t$, so the reduction is polynomial. We use $\kappa-\rho=\eta+\varepsilon\in(0,1/B]$ (as $\varepsilon\le\eta$), $\rho>\tfrac12$, $u^2>m$, and the fact that $\mu'=\mu_{|R|}\ge\tfrac32$ for every $R$ that keeps $g$ (rule C: $\mu'=t+\frac12$; rule P: $\mu'=\lambda|K|\ge\lambda$).
+
+Let $R\subsetneq[n]$ be proper, $K=[n]\setminus R$, $I=K\cap[m]$, $N=|I|$, $\sigma=\sum_{i\in I}b_i$ and $W=\sum_{i\in I}y_i$.
+
+\emph{Case $g\notin K$} ($N\ge1$). Then $P=N$, $Q=\rho N$, $a=W$, $c=\rho W$, and $\gamma=\rho\,(W-\sgn(W)(|W|-\mu')_+)$, so $|\gamma|=\rho\min(|W|,\mu')<\mu'$. By Lemma~\ref{lem:entry}(a), $R$ is not a witness.
+
+\emph{Case $g\in K$.} Then $P=u^2+N$, $Q=\kappa u^2+\rho N$, $a=\tfrac12+W>0$ and $c=\tfrac{\kappa}{2}+\rho W>0$. Put $\Delta=a-\mu'$. Under rule C, $\Delta=\tfrac12+\sigma-t-\tfrac12=\sigma-t$. Under rule P, $|K|=N+1$, $\mu'=\mu(N+1)/n=\lambda(N+1)$ and $W=\sigma+\lambda N$, so again $\Delta=\sigma-t$. Thus $\Delta\in\mathbb Z$ under both rules; the shift $y_i=b_i+\lambda$ makes the cardinality cancel under rule P. Direct computation gives
+\begin{equation}\label{eq:entry-id}
+c-\mu'=\tfrac12(\kappa-\rho)+\rho\Delta-(1-\rho)\mu',\qquad \frac{Q}{P}-\rho=\frac{(\kappa-\rho)u^2}{u^2+N},
+\end{equation}
+and $0<(1-\rho)\mu'=\varepsilon\mu'\le\varepsilon\mu=\eta/4$. Since $a>0$, $\beta_1^\ast=\Delta_+/P$.
+\begin{itemize}[leftmargin=2em,itemsep=1pt]
+\item $\Delta\le-1$: $\gamma=c\in(0,\mu')$, because $c-\mu'\le\frac12(\kappa-\rho)-\rho<0$. No entry by Lemma~\ref{lem:entry}(a).
+\item $\Delta=0$: $\gamma=c$ and $c-\mu'\ge\frac12(\eta+\varepsilon)-\frac14\eta>0$. Here $\sigma=t\ge1$, so $N\ge1$. The rows $(1,\rho)$ and $(u,\kappa u)$ are linearly independent ($\kappa\neq\rho$), so $X_K$ has rank~$2$, the objective is strictly convex and the minimiser is unique. By Lemma~\ref{lem:entry}(b), $2\in S(\Dm)$.
+\item $\Delta\ge1$: $\gamma=c-Q\Delta/P$ and, by \eqref{eq:entry-id},
+\[
+\gamma-\mu'=(\kappa-\rho)\Bigl(\tfrac12-\frac{\Delta u^2}{u^2+N}\Bigr)-(1-\rho)\mu'<0,\qquad
+\gamma+\mu'>(1+\rho)\mu'-(\kappa-\rho)\Delta\ge\tfrac32-\frac{B-t}{B}>0 ,
+\]
+using $u^2>m\ge N$ (so $\Delta u^2/(u^2+N)>\frac12$), $\Delta\le B-t$ and $\kappa-\rho\le1/B$. No entry by Lemma~\ref{lem:entry}(a).
+\end{itemize}
+Hence $R$ is a witness for \tsc{enter}$(2)$ if and only if $g\notin R$ and $\sum_{i\in[m]\setminus R}b_i=t$.
+
+\emph{The full data.} $K=[n]$ gives $\Delta=B-t\ge1$. By the third item $(\beta_1^\ast,0)$ with $\beta_1^\ast>0$ is a minimiser with $|\gamma|<\mu$, and it is unique because $X$ has rank~$2$. So $S(D)=\{1\}$ and $2\notin S(D)$; the same computation with $\mu'=\mu$ covers rule~P.
+
+\emph{Equivalence.} If $\sum_{i\in I}b_i=t$ for some $I\subseteq[m]$, then $\emptyset\neq I\neq[m]$ because $1\le t\le B-1$, and $R=[m]\setminus I$ is a proper nonempty witness. Conversely, a witness yields such an $I$.
+
+\emph{Uniqueness on every subsample.} If $g\in K$ and $N\ge1$, $X_K$ has rank~$2$. If $K=\{g\}$ or $g\notin K$, all rows of $X_K$ are multiples of $(1,\kappa)$, respectively of $(1,\rho)$. All minimisers share the fit, hence the value $f=\beta_1+\kappa\beta_2$ (respectively $f=\beta_1+\rho\beta_2$). Because $\kappa>1$ (respectively $\rho<1$), $|\beta_1|+|\beta_2|$ at fixed $f$ is minimised only at $\beta_1=0$ (respectively $\beta_2=0$), so the minimiser is unique.
+
+\emph{Fixed $p\ge3$.} Append $p-2$ zero columns. Every minimiser vanishes on them, which leaves minimisers, uniqueness and supports unchanged, so the same reduction applies.
+\end{proof}
+
+\begin{proposition}[Pseudo-polynomial algorithm for fixed $p$]\label{prop:pseudo}\status{proved here}
+Fix $p\ge1$. For integer data with $|x_{ij}|,|y_i|\le M$, rational $\mu>0$, either penalty rule and any target $\Pi$ of Definition~\ref{def:witness} (\tsc{any} signed or unsigned, \tsc{leave}$(j)$, \tsc{enter}$(j)$), the fragility number $f_\Pi(D)$, and in particular whether $W_\Pi(D)=\emptyset$, can be computed with $O\bigl(n^2(2nM^2+1)^{p(p+3)/2}\bigr)$ additions of integers of $O(\log(nM))$ bits, plus one test per reachable state whose cost depends only on $p$ and is polynomial in the bit lengths of $nM$ and $\mu$.
+\end{proposition}
+\begin{proof}
+On $\Dm$ the objective equals $\tfrac12\beta^{\top}G_K\beta-g_K^{\top}\beta+\mu'\lVert\beta\rVert_1$ plus a constant, with $G_K=X_K^{\top}X_K$, $g_K=X_K^{\top}y_K$ and $\mu'=\mu_{|R|}$ a function of $|K|$. Hence the set of minimisers, its uniqueness, the signed support and the truth of $\Pi$ are functions of the state $(|K|,G_K,g_K)$. For uniqueness, note that $X_Kv=0$ if and only if $G_Kv=0$, so the polytope $M$ in the proof of Theorem~\ref{thm:enter2} is $\{\beta:\ G_K(\beta-\hat\beta)=0,\ \lVert\beta\rVert_1\le\lVert\hat\beta\rVert_1\}$. The entries of $G_K$ and $g_K$ are integers in $[-nM^2,nM^2]$, so at most $(n+1)(2nM^2+1)^{p(p+1)/2+p}$ states exist. Processing the rows one at a time, the set of states reachable by a subset of the first $i$ rows is obtained from the previous set by adding row $i$ or not, at cost $O(p^2)$ per state and row. At the end, test $\Pi$ (with uniqueness) on every reachable state with $1\le|K|\le n-1$ and return $n$ minus the largest $|K|$ that passes. The test enumerates the $3^p$ signed supports and runs the vertex enumeration of Theorem~\ref{thm:enter2} on $O(p)$ constraints in $p$ variables.
+\end{proof}
+
+\begin{corollary}[The hardness is weak for every fixed $p$]\label{cor:weak}\status{proved here}
+For every fixed $p$, \tsc{Deselection-Witness} (Theorem~\ref{thm:hard}(a), embedded in $p$ columns by adding zero columns), \tsc{Selection-Witness} (Theorem~\ref{thm:enter2}) and the existence of an unsigned \tsc{any} witness (equal to deselection of variable~1 in the embedded instances of Theorem~\ref{thm:hard}(a), since zero columns never enter) are NP-complete. None of them is NP-hard in the strong sense for integer data unless P${}={}$NP. Strong NP-hardness of any of these problems therefore requires $p$ to grow with the input.
+\end{corollary}
+\begin{proof}
+NP-hardness follows from Theorems~\ref{thm:hard}(a) and~\ref{thm:enter2}. Membership in NP is shown as in the proof of Theorem~\ref{thm:enter2}. Proposition~\ref{prop:pseudo} gives an algorithm polynomial in $n$ and $M$. A strongly NP-hard problem admits no such algorithm unless P${}={}$NP~\citep{garey1979}.
+\end{proof}
+
+\begin{remark}[Exhaustive check]\label{rem:verify2}\status{computationally verified (exact arithmetic)}
+\path{theory/check_hardness.py} builds the instance of Theorem~\ref{thm:enter2} for 156 source instances: every target $t$ of three small vectors $b$, plus random ones with $m\le11$, so $n\le12$; 78 are yes-instances and 78 no-instances. For each instance and each rule it solves the Lasso in rational arithmetic on all $137\,328$ subsamples $\Dm$, certifying uniqueness by full rank of $X_E$ on the equicorrelation set~\citep{tibshirani2013}. The results:
+\begin{itemize}[leftmargin=2em,itemsep=1pt]
+\item a witness exists if and only if the source answer is yes, in $312/312$ (instance, rule) pairs;
+\item the set-by-set characterisation in the proof never fails;
+\item uniqueness is certified on every subsample, with no KKT boundary case;
+\item the closed-form test of Proposition~\ref{prop:exact} and the KKT-guarded homotopy solver of the library agree with the exact solution, with no disagreement in either;
+\item the dynamic programme of Proposition~\ref{prop:pseudo} reproduces $f_{\tsc{enter}(2)}$ in every case.
+\end{itemize}
+Three negative controls each violate one condition of the proof: $u=1$, $\kappa=2$ and $\rho=1$. The first two produce spurious entries and break the equivalence on purpose-built no-instances; the third produces subsamples without certified uniqueness.
+\end{remark}
+
+\begin{conjecture}[Strong hardness for growing $p$]\label{conj:strong}\status{conjectural}
+With $p$ part of the input, \tsc{Selection-Witness} and \tsc{Deselection-Witness} are NP-complete in the strong sense, already for data in $\{-1,0,1\}$ up to a common scale and a rational $\mu$ of polynomial size.
+\end{conjecture}
+\noindent A possible route, which we have not carried out, generalises the gadget of Theorem~\ref{thm:enter2} to $d$ absorbing variables with integer slacks $\Delta_1,\dots,\Delta_d$. The target would enter only if every absorber stays inactive ($\Delta_l\le0$) while its own correlation requires $\sum_l\Delta_l\ge0$, that is, $\Delta_l=0$ for all $l$, an exact vector sum as in \tsc{Exact Cover by 3-Sets}~\citep{garey1979}. What is missing is control of the interaction of several active absorbers through the Gram matrix, including the exclusion of entries with the opposite sign.
+
+% ----------------------------------------------------------------------------------------------
+% Suggested consequential edits to main.tex (for the coordinator; NOT applied here):
+%  * Conjecture~\ref{conj:enter}: replace by a pointer to Theorem~\ref{thm:enter2} (status: proved here).
+%  * Remark~\ref{rem:hardness}(ii): "we have no hardness proof for \tsc{enter}" -> Theorem~\ref{thm:enter2};
+%    "no polynomial algorithm for any target with p>=2" -> Proposition~\ref{prop:pseudo} (pseudo-polynomial).
+%  * Abstract (iii) and Table~\ref{tab:claims}, row on hardness: selection witnesses NP-complete for
+%    p = 2 (both rules, weakly), pseudo-polynomial for every fixed p; strong hardness for growing p conjectural.
+%  * Section~\ref{sec:intro}: "the case p>=2 is open" -> "selection is NP-complete from p = 2 on".
+%  * Reproducibility appendix: add theory/check_hardness.py (about 40 s).
+%  * Membership in NP with p part of the input (not needed above) needs polynomial-time linear
+%    programming for the uniqueness test; cite Khachiyan (1979) if stated (no bib entry yet).
+% ----------------------------------------------------------------------------------------------

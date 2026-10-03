@@ -1,0 +1,17 @@
+start 2026-10-03T10:03:18Z script sha256 35aefc57f5343e3f11bbb183882f22712151dd3c46670cb851c139a1d1cf3a80
+[iris] done in 19.9 s; mean AURC x100: kNN=0.68, NCM=2.73, LDA=0.17, QDA=0.23, LogReg=0.25, RForest=0.54, DANN=0.19, Field-aniso=0.37, Field-iso=0.65, Field-euclid=0.76, Field-vol=1.67, Field-anis=8.59, Field-aniso-gproto=1.77
+[wine] done in 21.9 s; mean AURC x100: kNN=0.69, NCM=0.57, LDA=0.10, QDA=0.03, LogReg=0.11, RForest=0.15, DANN=0.70, Field-aniso=0.13, Field-iso=0.28, Field-euclid=0.34, Field-vol=0.94, Field-anis=1.37, Field-aniso-gproto=0.37
+[breast_cancer] done in 60.8 s; mean AURC x100: kNN=0.57, NCM=1.15, LDA=0.61, QDA=0.54, LogReg=0.25, RForest=0.64, DANN=0.86, Field-aniso=0.79, Field-iso=0.45, Field-euclid=0.57, Field-vol=3.73, Field-anis=4.12, Field-aniso-gproto=1.88
+[digits] done in 166.7 s; mean AURC x100: kNN=0.28, NCM=2.97, LDA=1.54, QDA=1.80, LogReg=0.64, RForest=0.41, DANN=0.25, Field-aniso=0.26, Field-iso=1.17, Field-euclid=2.56, Field-vol=0.74, Field-anis=1.52, Field-aniso-gproto=2.12
+[synth_informative] done in 59.6 s; mean AURC x100: kNN=4.81, NCM=21.04, LDA=18.00, QDA=6.41, LogReg=17.54, RForest=3.51, DANN=3.96, Field-aniso=4.94, Field-iso=4.95, Field-euclid=4.95, Field-vol=17.21, Field-anis=16.29, Field-aniso-gproto=22.00
+[moons_aniso] done in 38.3 s; mean AURC x100: kNN=0.82, NCM=2.36, LDA=2.18, QDA=2.23, LogReg=2.17, RForest=0.62, DANN=1.23, Field-aniso=1.19, Field-iso=1.23, Field-euclid=1.66, Field-vol=4.66, Field-anis=9.46, Field-aniso-gproto=2.00
+[synth_classcov] done in 41.3 s; mean AURC x100: kNN=2.55, NCM=8.51, LDA=6.30, QDA=1.69, LogReg=5.96, RForest=3.42, DANN=2.83, Field-aniso=2.07, Field-iso=2.07, Field-euclid=2.06, Field-vol=16.47, Field-anis=14.28, Field-aniso-gproto=9.10
+[synth_lda] done in 48.7 s; mean AURC x100: kNN=2.90, NCM=5.05, LDA=1.58, QDA=1.64, LogReg=1.63, RForest=3.67, DANN=2.26, Field-aniso=2.24, Field-iso=2.63, Field-euclid=2.63, Field-vol=15.33, Field-anis=12.94, Field-aniso-gproto=3.95
+total CPU 440.0 s, wall 461.1 s
+criterion Field-aniso: better [] worse ['iris', 'wine', 'breast_cancer', 'synth_informative', 'moons_aniso', 'synth_classcov', 'synth_lda'] inconclusive ['digits'] -> met=False
+criterion Field-iso: better [] worse ['iris', 'wine', 'breast_cancer', 'digits', 'synth_informative', 'moons_aniso', 'synth_classcov', 'synth_lda'] inconclusive [] -> met=False
+criterion Field-euclid: better [] worse ['iris', 'wine', 'breast_cancer', 'digits', 'synth_informative', 'moons_aniso', 'synth_classcov', 'synth_lda'] inconclusive [] -> met=False
+criterion Field-vol: better [] worse ['iris', 'wine', 'breast_cancer', 'digits', 'synth_informative', 'moons_aniso', 'synth_classcov', 'synth_lda'] inconclusive [] -> met=False
+criterion Field-anis: better [] worse ['iris', 'wine', 'breast_cancer', 'digits', 'synth_informative', 'moons_aniso', 'synth_classcov', 'synth_lda'] inconclusive [] -> met=False
+criterion Field-aniso-gproto: better [] worse ['iris', 'wine', 'breast_cancer', 'digits', 'synth_informative', 'moons_aniso', 'synth_classcov', 'synth_lda'] inconclusive [] -> met=False
+end 2026-10-03T10:11:00Z exit=0

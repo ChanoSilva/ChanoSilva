@@ -1,0 +1,56 @@
+{
+ "per_r_box": {
+  "n_boxes": 512,
+  "s_points_full_period": 6000,
+  "violations": 0,
+  "min_slack": {
+   "v": 0.00019630814270032992,
+   "kap": 0.007859424164202489,
+   "nu": 0.003539972521845373,
+   "mu": 0.005828747261721834
+  }
+ },
+ "symmetry_sup_difference_r05": {
+  "v": 0.0,
+  "kap": 2.220446049250313e-16,
+  "nu": 1.1102230246251565e-16,
+  "mu": 0.0
+ },
+ "float_values_r05": {
+  "v": 1.8027756377319946,
+  "kap": 1.398314540900053,
+  "nu": 0.41819378877376534,
+  "mu": 4.544378698224853
+ },
+ "per_box_containment": {
+  "points_times_quantities": 368640,
+  "violations": 0,
+  "min_slack": 0.0
+ },
+ "phi_mpmath": {
+  "max": 1.1861643026691602,
+  "max_certify": 1.1861643026691637,
+  "zeta_min": 2.323464052622462,
+  "agree": true
+ },
+ "monotonicity": {
+  "tests": 24000,
+  "violations": 0,
+  "directions": "non-decreasing in kappa_max, nu, mu, r_2, m; non-increasing in v_min"
+ },
+ "iv_unit_test": {
+  "tests": 14229,
+  "violations": 0
+ },
+ "mpmath_iv_extremum": {
+  "lower": -1.0,
+  "contains_minus_one": true
+ },
+ "meta": {
+  "seconds_wall": 15.45954704284668,
+  "seconds_cpu": 12.688028537,
+  "numpy": "2.4.6",
+  "sympy": "1.14.0",
+  "mpmath": "1.3.0"
+ }
+}

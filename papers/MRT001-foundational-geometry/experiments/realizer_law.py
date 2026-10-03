@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""
+E5f: check of Theorem 5.6 (realizer law) and Proposition 5.7 (where the exceptions
+come from) of the manuscript, on independent uniform samples of the 1+1 diamond.
+(Docstring updated in v0.7, round 4, item m8; the code and its output are unchanged.)
+
+Let pi be the permutation that sends the u-rank of a point to its v-rank, and
+let N be the number of descending successions of pi (indices i with
+pi(i+1) = pi(i) - 1), i.e. the number of pairs of points adjacent in both
+coordinate orders with opposite directions.  Such a pair is a pair of
+incomparable twins of the order, hence a module of the incomparability graph.
+Theorem 5.6 (proved in Appendix B, using Gallai's theorem): if pi has no
+interval with between 3 and n-1 elements, the number of realizers modulo the
+swap is exactly 2^N; this fails with probability <= 10/n + 166/n^2 (n >= 20),
+and the law of the count tends to 2^{Poisson(1)} at rate O(1/n).  Proposition
+5.7: the exceptions have rate 5/n + O(n^-2) and, up to O(n^-2), ratio
+count/2^N equal to 3/2 or 2.  (Not every succession pair "doubles" the count:
+when a larger module contains it the factor can be 3!, which is what the
+exceptions with ratio 3/2 record.)
+
+This script draws uniform samples, computes the exact count with the
+colour-class enumeration of lorentzian_chain.py, computes N, and records how
+often count == 2^N, the empirical law of N against Poisson(1), and the
+exceptions.  Seed: MASTER_SEED + 3.
+
+Usage:   python3 realizer_law.py [--fast]
+Outputs: ../results/results_realizer_law.json, ../results/tables_realizer_law.md
+"""
+import argparse
+import json
+import math
+import os
+import platform
+import sys
+import time
+
+import numpy as np
+import scipy
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import lorentzian_chain as lc  # noqa: E402
+
+RESULTS = lc.RESULTS
+SEED = lc.MASTER_SEED + 3
+
+
+def descending_successions(UV):
+    """Number of i with pi(i+1) = pi(i) - 1, pi = v-rank as a function of u-rank."""
+    order_u = np.argsort(UV[:, 0])
+    v_rank = np.argsort(np.argsort(UV[:, 1]))
+    pi = v_rank[order_u]
+    return int(np.sum(pi[1:] == pi[:-1] - 1))
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--fast", action="store_true")
+    args = ap.parse_args()
+    plan = [(20, 200), (50, 200), (100, 200), (200, 100), (300, 100), (500, 50)] if not args.fast else \
+           [(20, 50), (50, 50), (100, 30)]
+    rng = np.random.default_rng(SEED)
+    t_all = time.time()
+    rows, raw = [], []
+    for n, reps in plan:
+        t0 = time.time()
+        counts, Ns, exceptions = [], [], []
+        for _ in range(reps):
+            UV = lc.sprinkle_diamond_2d(rng, n)
+            R = lc.causal_order_2d(UV)
+            c, k = lc.count_realizers_mod_swap(R)
+            N = descending_successions(UV)
+            counts.append(c if c is not None else -1)
+            Ns.append(N)
+            if c is None or c != 2 ** N:
+                exceptions.append({"count": c, "N": N, "colour_classes": k})
+        counts = np.array(counts); Ns = np.array(Ns)
+        enumerated = counts >= 0
+        eq = enumerated & (counts == 2 ** Ns)
+        hist = [int(np.sum(Ns == j)) for j in range(6)] + [int(np.sum(Ns >= 6))]
+        rows.append({"n": n, "samples": reps, "not_enumerated": int(np.sum(~enumerated)),
+                     "equal_to_two_pow_N": int(eq.sum()),
+                     "fraction_equal": float(eq.sum() / reps),
+                     "mean_N": float(Ns.mean()),
+                     "N_histogram_0_to_5_and_6plus": hist,
+                     "fraction_unique": float(np.mean(counts[enumerated] == 1)),
+                     "fraction_two": float(np.mean(counts[enumerated] == 2)),
+                     "fraction_le_eight": float(np.mean(counts[enumerated] <= 8)),
+                     "fraction_N_zero": float(np.mean(Ns == 0)),
+                     "fraction_N_one": float(np.mean(Ns == 1)),
+                     "fraction_N_le_three": float(np.mean(Ns <= 3)),
+                     "exceptions": exceptions,
+                     "seconds": round(time.time() - t0, 1)})
+        raw.append({"n": n, "counts": counts.tolist(), "N": Ns.tolist()})
+        print(f"  E5f n={n}: count == 2^N in {eq.sum()}/{reps}, mean N {Ns.mean():.2f}, "
+              f"exceptions {len(exceptions)}  ({rows[-1]['seconds']} s)", file=sys.stderr)
+    e = math.exp(-1.0)
+    pred = {"P_N_eq_0": e, "P_N_eq_1": e, "P_N_le_3": e * (1 + 1 + 0.5 + 1 / 6),
+            "note": "Poisson(1) predictions for the fractions of samples with 1, 2 and at most 8 realizers"}
+    total_eq = sum(r["equal_to_two_pow_N"] for r in rows); total = sum(r["samples"] for r in rows)
+    res = {"meta": {"seed": SEED, "fast": args.fast, "python": platform.python_version(),
+                    "numpy": np.__version__, "scipy": scipy.__version__,
+                    "seconds": round(time.time() - t_all, 1)},
+           "rows": rows, "raw": raw, "poisson_predictions": pred,
+           "total_equal": total_eq, "total_samples": total}
+    with open(os.path.join(RESULTS, "results_realizer_law.json"), "w") as fh:
+        json.dump(res, fh, indent=2)
+    L = ["# E5f tables (generated by experiments/realizer_law.py)\n",
+         f"seed = {SEED}; fast = {args.fast}; runtime = {res['meta']['seconds']} s\n",
+         f"Poisson(1) predictions: P(N=0) = P(N=1) = {e:.3f}, P(N<=3) = {pred['P_N_le_3']:.3f}; "
+         f"count == 2^N in {total_eq}/{total} samples overall.\n",
+         "| n | samples | count = 2^N | mean N | unique obs. | two obs. | <= 8 obs. | P(N=0) obs. | P(N=1) obs. | P(N<=3) obs. | exceptions (count, N) |",
+         "|---|---|---|---|---|---|---|---|---|---|---|"]
+    for r in rows:
+        exc = "; ".join(f"({x['count']},{x['N']})" for x in r["exceptions"][:12])
+        if len(r["exceptions"]) > 12:
+            exc += "; ..."
+        L.append(f"| {r['n']} | {r['samples']} | {r['equal_to_two_pow_N']}/{r['samples']} | {r['mean_N']:.2f} | "
+                 f"{r['fraction_unique']:.3f} | {r['fraction_two']:.3f} | {r['fraction_le_eight']:.3f} | "
+                 f"{r['fraction_N_zero']:.3f} | {r['fraction_N_one']:.3f} | {r['fraction_N_le_three']:.3f} | {exc} |")
+    with open(os.path.join(RESULTS, "tables_realizer_law.md"), "w") as fh:
+        fh.write("\n".join(L) + "\n")
+    print(f"done in {res['meta']['seconds']} s", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()

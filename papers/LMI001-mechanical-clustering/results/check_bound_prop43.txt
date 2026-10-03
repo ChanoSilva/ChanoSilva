@@ -1,0 +1,40 @@
+== Part 1: E_tot, dense A, min over omega of uniform distance / (1/2 min A) ==
+n=4 k=2 hooke    #part=  7 #omega= 55 min dist/bound = 1.0019
+n=4 k=2 string   #part=  7 #omega= 55 min dist/bound = 1.0026
+n=4 k=2 rest     #part=  7 #omega= 55 min dist/bound = 1.0216
+n=4 k=2 uniform  #part=  7 #omega= 55 min dist/bound = 1.0000
+n=5 k=2 hooke    #part= 15 #omega= 71 min dist/bound = 6.2994
+n=5 k=2 string   #part= 15 #omega= 71 min dist/bound = 3.1490
+n=5 k=2 rest     #part= 15 #omega= 71 min dist/bound = 9.0703
+n=5 k=2 uniform  #part= 15 #omega= 71 min dist/bound = 2.0000
+n=5 k=3 hooke    #part= 25 #omega= 71 min dist/bound = 28.4172
+n=5 k=3 string   #part= 25 #omega= 71 min dist/bound = 3.6619
+n=5 k=3 rest     #part= 25 #omega= 71 min dist/bound = 41.2387
+n=5 k=3 uniform  #part= 25 #omega= 71 min dist/bound = 1.0000
+n=6 k=2 hooke    #part= 31 #omega= 76 min dist/bound = 9.6387
+n=6 k=2 string   #part= 31 #omega= 76 min dist/bound = 9.8935
+n=6 k=2 rest     #part= 31 #omega= 76 min dist/bound = 59.3010
+n=6 k=2 uniform  #part= 31 #omega= 76 min dist/bound = 4.0000
+n=6 k=3 hooke    #part= 90 #omega= 76 min dist/bound = 19.9795
+n=6 k=3 string   #part= 90 #omega= 76 min dist/bound = 13.9625
+n=6 k=3 rest     #part= 90 #omega= 76 min dist/bound = 893057.8375
+n=6 k=3 uniform  #part= 90 #omega= 76 min dist/bound = 3.0000
+n=6 k=4 hooke    #part= 65 #omega= 76 min dist/bound = 5.3061
+n=6 k=4 string   #part= 65 #omega= 76 min dist/bound = 2.7273
+n=6 k=4 rest     #part= 65 #omega= 76 min dist/bound = 49.0545
+n=6 k=4 uniform  #part= 65 #omega= 76 min dist/bound = 1.0000
+worst ratio over all dense cases: 1.0000 (claim: >= 1)
+== Part 2: size weight w(2)=1, w(3)=2 (w(3)>=w(2)), bound 1/2 w(3) min A ==
+n=5 k=3 min dist/bound = 21.1922
+n=6 k=3 min dist/bound = 20.8229
+n=4 k=2 min dist/bound = 3.0783
+== Part 3: a single non-zero spring, n=4, k=2: distance -> 0 as omega_3, omega_4 -> 0 ==
+eps=1: LP uniform distance = 8.333e-02; <nu,E>/||nu||_1 = 8.333e-02
+eps=0.1: LP uniform distance = 3.546e-03; <nu,E>/||nu||_1 = 3.546e-03
+eps=0.01: LP uniform distance = 4.807e-05; <nu,E>/||nu||_1 = 4.807e-05
+eps=0.001: LP uniform distance = 4.980e-07; <nu,E>/||nu||_1 = 4.980e-07
+== Part 4: k = n-1 (E_tot is in G_omega; Prop. 4.2 holds trivially) ==
+n=4: #partitions=6, rank G_omega+1 = 6, uniform distance of E_tot = 0.00e+00
+n=5: #partitions=10, rank G_omega+1 = 10, uniform distance of E_tot = 0.00e+00
+n=6: #partitions=15, rank G_omega+1 = 15, uniform distance of E_tot = 0.00e+00
+CPU 68.6 s

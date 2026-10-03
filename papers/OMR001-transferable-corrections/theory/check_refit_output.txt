@@ -1,0 +1,141 @@
+OMR001 -- check of theory/refit_bound.tex (transported refit and cross-fitting)
+design: d=5, sigma=1.0, n=60, m in [3, 6, 12, 24], alpha in [0.5, 0.2, 0.1, 0.05, 0.01], replicates per point 20000, seed 20260930
+
+== Constants (rho = m/n; kbar = max(kappa + rho phi(z), rho phi(0)); caps in absolute risk units) ==
+ alpha   m  rho  kappa   kappa2  lambda1 kappa_rho kbar   Psi(0) | split   cap_rf(exact) cap_rf(closed) lower_rf | split+cap43 [lo, hi] (split estimator vs Xbar_n)
+ 0.50   3 0.05 0.1700 0.1657 0.2420 0.1852  0.1899 0.1852 | 0.0044 0.3479        0.3752         0.0218   | [0.2854, 0.3360]
+ 0.50   6 0.10 0.1700 0.1657 0.2420 0.2006  0.2099 0.2006 | 0.0093 0.2225        0.2537         0.0374   | [0.1748, 0.2001]
+ 0.50  12 0.20 0.1700 0.1657 0.2420 0.2322  0.2498 0.2322 | 0.0208 0.1720        0.2221         0.0700   | [0.1237, 0.1363]
+ 0.50  24 0.40 0.1700 0.1657 0.2420 0.2979  0.3295 0.2979 | 0.0556 0.1994        0.3439         0.1573   | [0.1261, 0.1324]
+ 0.20   3 0.05 0.0451 0.0331 0.0853 0.0531  0.0591 0.0531 | 0.0044 0.0808        0.0934         0.0126   | [0.0664, 0.0778]
+ 0.20   6 0.10 0.0451 0.0331 0.0853 0.0615  0.0731 0.0615 | 0.0093 0.0567        0.0731         0.0206   | [0.0469, 0.0526]
+ 0.20  12 0.20 0.0451 0.0331 0.0853 0.0801  0.1011 0.0801 | 0.0208 0.0516        0.0809         0.0365   | [0.0450, 0.0479]
+ 0.20  24 0.40 0.0451 0.0331 0.0853 0.1596  0.1596 0.1226 | 0.0556 0.0792        0.1810         0.0769   | [0.0727, 0.0741]
+ 0.10   3 0.05 0.0188 0.0120 0.0410 0.0234  0.0275 0.0234 | 0.0044 0.0322        0.0392         0.0075   | [0.0282, 0.0326]
+ 0.10   6 0.10 0.0188 0.0120 0.0410 0.0399  0.0399 0.0286 | 0.0093 0.0241        0.0354         0.0120   | [0.0239, 0.0261]
+ 0.10  12 0.20 0.0188 0.0120 0.0410 0.0798  0.0798 0.0405 | 0.0208 0.0244        0.0532         0.0208   | [0.0304, 0.0315]
+ 0.10  24 0.40 0.0188 0.0120 0.0410 0.1596  0.1596 0.0704 | 0.0556 0.0450        0.1493         0.0425   | [0.0624, 0.0630]
+ 0.05   3 0.05 0.0082 0.0047 0.0200 0.0199  0.0199 0.0108 | 0.0044 0.0138        0.0219         0.0042   | [0.0142, 0.0159]
+ 0.05   6 0.10 0.0082 0.0047 0.0200 0.0399  0.0399 0.0139 | 0.0093 0.0109        0.0268         0.0067   | [0.0154, 0.0162]
+ 0.05  12 0.20 0.0082 0.0047 0.0200 0.0798  0.0798 0.0215 | 0.0208 0.0123        0.0444         0.0115   | [0.0249, 0.0253]
+ 0.05  24 0.40 0.0082 0.0047 0.0200 0.1596  0.1596 0.0423 | 0.0556 0.0269        0.1343         0.0231   | [0.0585, 0.0587]
+ 0.01   3 0.05 0.0013 0.0006 0.0039 0.0199  0.0199 0.0020 | 0.0044 0.0022        0.0145         0.0010   | [0.0058, 0.0061]
+ 0.01   6 0.10 0.0013 0.0006 0.0039 0.0399  0.0399 0.0029 | 0.0093 0.0020        0.0212         0.0016   | [0.0102, 0.0103]
+ 0.01  12 0.20 0.0013 0.0006 0.0039 0.0798  0.0798 0.0054 | 0.0208 0.0028        0.0382         0.0027   | [0.0214, 0.0215]
+ 0.01  24 0.40 0.0013 0.0006 0.0039 0.1596  0.1596 0.0142 | 0.0556 0.0090        0.1229         0.0053   | [0.0560, 0.0560]
+validity of closed forms on the grids: max_a [M_rho(a) - B(a)] = -1.12e-04 (<= 0 required); max_x [Psi_rho(x) - kbar - x Phi(x-z)] = -4.16e-03 (<= 0 required)
+max over grid of closed cap via B(a) vs exact: ratio closedB/exact in [1.08, 10.70]; fully explicit closed/exact in [1.08, 13.59]
+
+== (a) Simulation design ==
+replica of sr.simulate (same seed): max |difference| of L_Re, L_Rn, Dhat, L(C_n) = 0.0e+00
+configurations x operators x alpha: 345; refit risks reproduce results.json: max |diff| = 0.0e+00
+  transported refit vs Xbar_n <= (II) E[s Psi]     : holds in 345/345; max MC/bound = 0.925
+  transported refit vs Xbar_n <= (II) closed       : holds in 345/345; max MC/bound = 0.862
+  transported refit vs Xbar_n <= (III) cap exact   : holds in 345/345; max MC/bound = 0.707
+  transported refit vs Xbar_n <= (III) cap closed  : holds in 345/345; max MC/bound = 0.655
+  identity (I): paired z in 274 combinations, max |z| = 2.90; Poisson in 71; failures: 1
+  [not covered] simulation's refit (C re-applied to Xbar_n, lambda_n) vs Xbar_n <= (II) E[s Psi]: 345/345; max MC/bound = 0.846
+  [not covered] simulation's refit (C re-applied to Xbar_n, lambda_n) vs Xbar_n <= (III) cap exact: 345/345; max MC/bound = 0.654
+
+EB operator, alpha = 0.1, excess risk over Xbar_n (MC +- SE): split reversion (Cor. 4.4) | transported refit | simulation's refit | bounds (II) and (III) for the refit
+  stru snr=0.0   dep=0.0  m=12: split -0.0064 | refit -0.0056+-0.0002 | sim-refit -0.0131 | (II) 0.0103 (closed 0.0201) | cap 0.0244 (closed 0.0532)
+  stru snr=0.25  dep=0.0  m=12: split -0.0008 | refit -0.0036+-0.0002 | sim-refit -0.0090 | (II) 0.0095 (closed 0.0186) | cap 0.0244 (closed 0.0532)
+  stru snr=0.5   dep=0.0  m=12: split +0.0022 | refit -0.0035+-0.0002 | sim-refit -0.0072 | (II) 0.0087 (closed 0.0169) | cap 0.0244 (closed 0.0532)
+  stru snr=1.0   dep=0.0  m=12: split +0.0056 | refit -0.0029+-0.0002 | sim-refit -0.0051 | (II) 0.0075 (closed 0.0146) | cap 0.0244 (closed 0.0532)
+  stru snr=2.0   dep=0.0  m=12: split +0.0101 | refit -0.0020+-0.0001 | sim-refit -0.0031 | (II) 0.0061 (closed 0.0118) | cap 0.0244 (closed 0.0532)
+  stru snr=4.0   dep=0.0  m=12: split +0.0139 | refit -0.0016+-0.0001 | sim-refit -0.0021 | (II) 0.0047 (closed 0.0091) | cap 0.0244 (closed 0.0532)
+  stru snr=8.0   dep=0.0  m=12: split +0.0163 | refit -0.0007+-0.0001 | sim-refit -0.0010 | (II) 0.0035 (closed 0.0068) | cap 0.0244 (closed 0.0532)
+  stru snr=16.0  dep=0.0  m=12: split +0.0181 | refit -0.0004+-0.0001 | sim-refit -0.0005 | (II) 0.0025 (closed 0.0049) | cap 0.0244 (closed 0.0532)
+  depa snr=1.0   dep=0.0  m=12: split +0.0059 | refit -0.0030+-0.0002 | sim-refit -0.0051 | (II) 0.0075 (closed 0.0146) | cap 0.0244 (closed 0.0532)
+  depa snr=1.0   dep=2.0  m=12: split +0.0106 | refit +0.0014+-0.0002 | sim-refit -0.0020 | (II) 0.0088 (closed 0.0172) | cap 0.0244 (closed 0.0532)
+  depa snr=1.0   dep=4.0  m=12: split +0.0186 | refit +0.0071+-0.0002 | sim-refit +0.0028 | (II) 0.0121 (closed 0.0235) | cap 0.0244 (closed 0.0532)
+  depa snr=1.0   dep=6.0  m=12: split +0.0233 | refit +0.0095+-0.0004 | sim-refit +0.0050 | (II) 0.0162 (closed 0.0314) | cap 0.0244 (closed 0.0532)
+  depa snr=1.0   dep=8.0  m=12: split +0.0250 | refit +0.0095+-0.0005 | sim-refit +0.0056 | (II) 0.0205 (closed 0.0400) | cap 0.0244 (closed 0.0532)
+  depa snr=1.0   dep=12.0 m=12: split +0.0246 | refit +0.0061+-0.0005 | sim-refit +0.0039 | (II) 0.0299 (closed 0.0582) | cap 0.0244 (closed 0.0532)
+  depa snr=1.0   dep=16.0 m=12: split +0.0220 | refit +0.0019+-0.0004 | sim-refit +0.0012 | (II) 0.0393 (closed 0.0764) | cap 0.0244 (closed 0.0532)
+  m_sw snr=1.0   dep=0.0  m=3 : split -0.0026 | refit -0.0039+-0.0001 | sim-refit -0.0042 | (II) 0.0056 (closed 0.0069) | cap 0.0322 (closed 0.0392)
+  m_sw snr=1.0   dep=8.0  m=3 : split +0.0148 | refit +0.0140+-0.0005 | sim-refit +0.0118 | (II) 0.0160 (closed 0.0197) | cap 0.0322 (closed 0.0392)
+  m_sw snr=1.0   dep=0.0  m=6 : split -0.0001 | refit -0.0036+-0.0001 | sim-refit -0.0043 | (II) 0.0055 (closed 0.0081) | cap 0.0241 (closed 0.0354)
+  m_sw snr=1.0   dep=8.0  m=6 : split +0.0163 | refit +0.0111+-0.0005 | sim-refit +0.0083 | (II) 0.0155 (closed 0.0228) | cap 0.0241 (closed 0.0354)
+  m_sw snr=1.0   dep=0.0  m=12: split +0.0054 | refit -0.0031+-0.0002 | sim-refit -0.0053 | (II) 0.0075 (closed 0.0146) | cap 0.0244 (closed 0.0532)
+  m_sw snr=1.0   dep=8.0  m=12: split +0.0249 | refit +0.0100+-0.0005 | sim-refit +0.0060 | (II) 0.0206 (closed 0.0401) | cap 0.0244 (closed 0.0532)
+  m_sw snr=1.0   dep=0.0  m=24: split +0.0208 | refit +0.0035+-0.0002 | sim-refit -0.0071 | (II) 0.0196 (closed 0.0443) | cap 0.0450 (closed 0.1493)
+  m_sw snr=1.0   dep=8.0  m=24: split +0.0571 | refit +0.0085+-0.0005 | sim-refit +0.0033 | (II) 0.0492 (closed 0.1095) | cap 0.0450 (closed 0.1493)
+
+== (a') Cross-fitted reversion on the same design (fresh seed 20260930+7; K = n/m) ==
+configurations x operators x alpha: 285 (m in [3, 6, 12]; m = 24 does not divide n = 60)
+  cross-fit vs Xbar_n <= (IV) fold-average of E[s Psi] : holds in 285/285; max MC/bound = 0.155
+  cross-fit vs Xbar_n <= (IV) cap exact                : holds in 285/285; max MC/bound = 0.091
+  cross-fit vs Xbar_n <= (IV) cap closed               : holds in 285/285; max MC/bound = 0.084
+  Jensen step: cross-fit excess <= fold-average of per-fold refit excesses in 285/285 (pathwise inequality)
+EB operator, alpha = 0.1: cross-fit excess over Xbar_n vs split cost (what the split estimator always pays)
+  snr=0.0   dep=0.0  m=12: cross-fit -0.0245+-0.0002 | split cost 0.0208 | (IV) 0.0103 | cap 0.0244
+  snr=0.25  dep=0.0  m=12: cross-fit -0.0187+-0.0001 | split cost 0.0208 | (IV) 0.0096 | cap 0.0244
+  snr=0.5   dep=0.0  m=12: cross-fit -0.0155+-0.0001 | split cost 0.0208 | (IV) 0.0087 | cap 0.0244
+  snr=1.0   dep=0.0  m=12: cross-fit -0.0114+-0.0001 | split cost 0.0208 | (IV) 0.0075 | cap 0.0244
+  snr=2.0   dep=0.0  m=12: cross-fit -0.0073+-0.0001 | split cost 0.0208 | (IV) 0.0061 | cap 0.0244
+  snr=4.0   dep=0.0  m=12: cross-fit -0.0043+-0.0001 | split cost 0.0208 | (IV) 0.0047 | cap 0.0244
+  snr=8.0   dep=0.0  m=12: cross-fit -0.0023+-0.0000 | split cost 0.0208 | (IV) 0.0035 | cap 0.0244
+  snr=16.0  dep=0.0  m=12: cross-fit -0.0012+-0.0000 | split cost 0.0208 | (IV) 0.0025 | cap 0.0244
+  snr=1.0   dep=0.0  m=12: cross-fit -0.0115+-0.0001 | split cost 0.0208 | (IV) 0.0075 | cap 0.0244
+  snr=1.0   dep=2.0  m=12: cross-fit -0.0079+-0.0001 | split cost 0.0208 | (IV) 0.0088 | cap 0.0244
+  snr=1.0   dep=4.0  m=12: cross-fit -0.0027+-0.0001 | split cost 0.0208 | (IV) 0.0121 | cap 0.0244
+  snr=1.0   dep=6.0  m=12: cross-fit +0.0000+-0.0001 | split cost 0.0208 | (IV) 0.0161 | cap 0.0244
+  snr=1.0   dep=8.0  m=12: cross-fit +0.0011+-0.0001 | split cost 0.0208 | (IV) 0.0206 | cap 0.0244
+  snr=1.0   dep=12.0 m=12: cross-fit +0.0011+-0.0001 | split cost 0.0208 | (IV) 0.0298 | cap 0.0244
+  snr=1.0   dep=16.0 m=12: cross-fit +0.0006+-0.0001 | split cost 0.0208 | (IV) 0.0392 | cap 0.0244
+  snr=1.0   dep=0.0  m=3 : cross-fit -0.0088+-0.0001 | split cost 0.0044 | (IV) 0.0056 | cap 0.0322
+  snr=1.0   dep=8.0  m=3 : cross-fit -0.0015+-0.0001 | split cost 0.0044 | (IV) 0.0161 | cap 0.0322
+  snr=1.0   dep=0.0  m=6 : cross-fit -0.0097+-0.0001 | split cost 0.0093 | (IV) 0.0055 | cap 0.0241
+  snr=1.0   dep=8.0  m=6 : cross-fit -0.0004+-0.0001 | split cost 0.0093 | (IV) 0.0155 | cap 0.0241
+
+== (b) Adversarial grid (theta, C), transported refit, 20000 replicates per point ==
+  refit vs Xbar_n <= (II) E[s Psi]   : holds in 560/560; max MC/bound = 1.023 (Prop4.5b, m=3, alpha=0.01)
+  refit vs Xbar_n <= (III) cap exact : holds in 560/560; max MC/bound = 1.086 (Prop4.5b, m=3, alpha=0.01)
+  refit vs Xbar_n <= (III) cap closed: holds in 560/560; max MC/bound = 0.913 (worst(M_rho), m=3, alpha=0.5)
+  identity (I): max |paired z| over 440 points with acceptance >= 1% = 3.09
+  sharpness of the cap: refit excess of the family 'worst(M_rho)' / exact cap, and family 'reflect t=2.0' (C = 2 theta_0 - R) / lower bound 4 alpha split + 4 rho phi(z) sigma^2 c_d / sqrt(n_e m):
+    m= 3: a=0.5: 0.985 / 1.000; a=0.2: 1.004 / 0.995; a=0.1: 0.992 / 0.993; a=0.05: 1.019 / 0.994; a=0.01: 1.016 / 1.031
+    m= 6: a=0.5: 1.004 / 0.994; a=0.2: 1.002 / 1.000; a=0.1: 1.012 / 1.013; a=0.05: 0.998 / 0.991; a=0.01: 1.011 / 0.998
+    m=12: a=0.5: 1.000 / 1.007; a=0.2: 1.000 / 1.005; a=0.1: 1.016 / 1.014; a=0.05: 1.035 / 1.031; a=0.01: 1.073 / 1.039
+    m=24: a=0.5: 0.999 / 0.990; a=0.2: 1.004 / 1.007; a=0.1: 1.008 / 1.005; a=0.05: 1.003 / 1.002; a=0.01: 1.028 / 1.084
+
+== (b') Adversarial grid, cross-fitted (same families applied in every fold), 20000 replicates per point ==
+  cross-fit vs Xbar_n <= (IV) fold-avg E[s Psi]: holds in 420/420; max MC/bound = 0.266 (fixed |v|=1.0sig/sqrt(m), m=3, alpha=0.5)
+  cross-fit vs Xbar_n <= (IV) cap exact        : holds in 420/420; max MC/bound = 0.118 (fixed |v|=2.0sig/sqrt(m), m=3, alpha=0.5)
+  cross-fit vs Xbar_n <= (IV) cap closed       : holds in 420/420; max MC/bound = 0.110 (fixed |v|=2.0sig/sqrt(m), m=3, alpha=0.5)
+  largest cross-fit excess / split cost on the grid: 9.394 (fixed |v|=2.0sig/sqrt(m), m=3, alpha=0.5); per-fold refit average (Jensen) for that point: 50.148
+    m= 3 worst family: a=0.5: 0.0412 (9.39 split; fixed |v|=2.0sig/sqrt(m)); a=0.2: 0.0039 (0.89 split; fixed |v|=1.0sig/sqrt(m)); a=0.1: 0.0011 (0.24 split; fixed |v|=1.0sig/sqrt(m)); a=0.05: 0.0004 (0.08 split; fixed |v|=1.0sig/sqrt(m)); a=0.01: 0.0000 (0.01 split; fixed |v|=1.0sig/sqrt(m))
+    m= 6 worst family: a=0.5: 0.0254 (2.75 split; fixed |v|=2.0sig/sqrt(m)); a=0.2: 0.0034 (0.36 split; fixed |v|=2.0sig/sqrt(m)); a=0.1: 0.0011 (0.11 split; fixed |v|=2.0sig/sqrt(m)); a=0.05: 0.0004 (0.04 split; fixed |v|=2.0sig/sqrt(m)); a=0.01: 0.0000 (0.01 split; fixed |v|=1.0sig/sqrt(m))
+    m=12 worst family: a=0.5: 0.0171 (0.82 split; fixed |v|=2.0sig/sqrt(m)); a=0.2: 0.0034 (0.16 split; fixed |v|=2.0sig/sqrt(m)); a=0.1: 0.0014 (0.07 split; fixed |v|=2.0sig/sqrt(m)); a=0.05: 0.0006 (0.03 split; fixed |v|=2.0sig/sqrt(m)); a=0.01: 0.0001 (0.01 split; fixed |v|=2.0sig/sqrt(m))
+
+== (c) Route 'C if the check passes, else Xbar_n': exact limit of the excess for a vanishing correction ==
+  limit / split cost:  a=0.5, m=3: 1.987; a=0.5, m=6: 1.539; a=0.5, m=12: 1.234; a=0.5, m=24: 1.056; a=0.2, m=3: 1.739; a=0.2, m=6: 1.436; a=0.2, m=12: 1.221; a=0.2, m=24: 1.071; a=0.1, m=3: 1.292; a=0.1, m=6: 1.142; a=0.1, m=12: 1.060; a=0.1, m=24: 1.020; a=0.05, m=3: 0.889; a=0.05, m=6: 0.841; a=0.05, m=12: 0.858; a=0.05, m=24: 0.932; a=0.01, m=3: 0.317; a=0.01, m=6: 0.349; a=0.01, m=12: 0.446; a=0.01, m=24: 0.668
+
+== (d) Collinear reduction of M_eta (1-D sup over c = +-1) vs the 2-D search ==
+  max over grid of [M_2D - M_1D] = 1.05e-05; max [M_1D - M_2D] = 1.70e-07; max relative difference of the exact cap = 7.3e-07; min |c| at the 2-D maximiser = 1.0000
+
+== (e) Exact worst case of the split estimator over theta and C (excess over Xbar_n; Prop. 4.5(c)) ==
+  a=0.5: m=3: split 0.3210 (over R 0.3167 in [0.2810, 0.3316]) vs refit 0.3479; m=6: split 0.1904 (over R 0.1812 in [0.1656, 0.1908]) vs refit 0.2225; m=12: split 0.1302 (over R 0.1094 in [0.1029, 0.1155]) vs refit 0.1720; m=24: split 0.1285 (over R 0.0730 in [0.0705, 0.0768]) vs refit 0.1994
+  a=0.2: m=3: split 0.0737 (over R 0.0693 in [0.0620, 0.0735]) vs refit 0.0808; m=6: split 0.0500 (over R 0.0407 in [0.0377, 0.0434]) vs refit 0.0567; m=12: split 0.0462 (over R 0.0254 in [0.0242, 0.0270]) vs refit 0.0516; m=24: split 0.0731 (over R 0.0176 in [0.0171, 0.0186]) vs refit 0.0792
+  a=0.1: m=3: split 0.0308 (over R 0.0264 in [0.0238, 0.0282]) vs refit 0.0322; m=6: split 0.0250 (over R 0.0158 in [0.0147, 0.0169]) vs refit 0.0241; m=12: split 0.0308 (over R 0.0100 in [0.0096, 0.0106]) vs refit 0.0244; m=24: split 0.0626 (over R 0.0070 in [0.0069, 0.0074]) vs refit 0.0450
+  a=0.05: m=3: split 0.0152 (over R 0.0108 in [0.0098, 0.0116]) vs refit 0.0138; m=6: split 0.0158 (over R 0.0065 in [0.0061, 0.0070]) vs refit 0.0109; m=12: split 0.0250 (over R 0.0042 in [0.0040, 0.0045]) vs refit 0.0123; m=24: split 0.0585 (over R 0.0030 in [0.0029, 0.0031]) vs refit 0.0269
+  a=0.01: m=3: split 0.0059 (over R 0.0016 in [0.0014, 0.0017]) vs refit 0.0022; m=6: split 0.0102 (over R 0.0010 in [0.0009, 0.0010]) vs refit 0.0020; m=12: split 0.0215 (over R 0.0006 in [0.0006, 0.0007]) vs refit 0.0028; m=24: split 0.0560 (over R 0.0005 in [0.0005, 0.0005]) vs refit 0.0090
+
+== (f) Oracle correction C = theta: exact excess over Xbar_n (quadrature) ==
+  a=0.5: m=3: refit -0.0423, split -0.0495; m=6: refit -0.0405, split -0.0522; m=12: refit -0.0342, split -0.0558; m=24: refit -0.0088, split -0.0614
+  a=0.2: m=3: refit -0.0176, split -0.0212; m=6: refit -0.0167, split -0.0222; m=12: refit -0.0128, split -0.0230; m=24: refit +0.0061, split -0.0245
+  a=0.1: m=3: refit -0.0089, split -0.0098; m=6: refit -0.0083, split -0.0090; m=12: refit -0.0054, split -0.0066; m=24: refit +0.0098, split -0.0012
+  a=0.05: m=3: refit -0.0045, split -0.0034; m=6: refit -0.0040, split -0.0012; m=12: refit -0.0019, split +0.0041; m=24: refit +0.0101, split +0.0166
+  a=0.01: m=3: refit -0.0009, split +0.0025; m=6: refit -0.0007, split +0.0065; m=12: refit +0.0002, split +0.0158; m=24: refit +0.0063, split +0.0405
+  (risk of Xbar_n = 0.0833; accepting the oracle always: excess d sigma^2 (m - n_e)/(n n_e))
+
+== (g) Adversarial families without held-out noise ==
+  exact (quadrature): worst(M_eta)/cap in [0.9996, 1.0000]; Prop4.5b/cap in [0.3377, 0.9929]; reflection t=2 / closed-form value of (iv) in [1.000000, 1.000000]; largest ratio to the cap over these families 1.0000
+  Rao-Blackwellised MC (held-out sample integrated out): max rb/cap = 1.0043 (worst(M_rho), m=12, alpha=0.01); over the families that are not functions of xi: 0.6988 (shrink lam=0.0 |mu-theta|=8sig_e, m=3, alpha=0.2)
+  expected number of |z| > 3 among 440 paired tests if identity (I) holds exactly: 1.19; observed 1
+
+== (h) alpha = 0.5: worst case of the transported refit vs exact worst case of the split, other designs ==
+  36 designs (d in 1,2,5,50; n_e in 2,10,1000; m in 1,3,30): refit worse in 36; ratio refit/split in [1.001, 3.276]
+
+done in 82.0 s wall, 86.4 s CPU

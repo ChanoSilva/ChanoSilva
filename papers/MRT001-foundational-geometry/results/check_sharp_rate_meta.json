@@ -1,0 +1,9 @@
+{
+ "script": "theory/check_sharp_rate.py",
+ "seed": 20261004,
+ "seconds": 116.3,
+ "sha256_frozen_output": "72d23ffe8f50726c66bd8d38b5f9e8a078c6f4f0063c5f13d7258448ec911282",
+ "python": "3.11.15",
+ "numpy": "2.4.6",
+ "cpu": "one core"
+}

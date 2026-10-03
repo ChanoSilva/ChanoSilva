@@ -1,0 +1,84 @@
+{
+ "meta": {
+  "script": "experiments/check_hardness.py",
+  "seed": 20261003,
+  "python": "3.11.15",
+  "numpy": "2.4.6",
+  "seconds": 38.1,
+  "log_sha256": "8652338a0a6d7921b1494e334d1d232db3bea79697df822e98fd524ef8c367d8",
+  "log_has_timing": false,
+  "kkt_guard": {
+   "calls": 33484,
+   "fallbacks": 0,
+   "fallbacks_tie_at_entry": 0,
+   "fallbacks_full_rank": 0,
+   "max_active_rel": 1.6240976817373718e-14,
+   "max_inactive_rel": 0.0,
+   "max_active_rel_rejected": 0.0,
+   "max_active_rel_fallback": 0.0,
+   "max_inactive_rel_fallback": 0.0
+  }
+ },
+ "reduction": {
+  "n_source": 156,
+  "n_yes": 78,
+  "n_no": 78,
+  "n_hand_vectors": 3,
+  "n_hand_instances": 56,
+  "max_m": 11,
+  "max_n": 12,
+  "pairs": 312,
+  "equiv_ok": 312,
+  "char_fail": 0,
+  "subsets": 137328,
+  "undetermined": 0,
+  "ties": 0,
+  "full_data_ok": 312,
+  "closed_form_disagree": 0,
+  "solver_disagree": 0,
+  "solver_checked": 33172,
+  "dp_agree": 312
+ },
+ "ablations": {
+  "u_C": {
+   "char_fail": 30,
+   "undetermined": 0,
+   "equiv_fail": 1,
+   "n_instances": 10
+  },
+  "u_P": {
+   "char_fail": 30,
+   "undetermined": 0,
+   "equiv_fail": 1,
+   "n_instances": 10
+  },
+  "rho_C": {
+   "char_fail": 0,
+   "undetermined": 155,
+   "equiv_fail": 0,
+   "n_instances": 10
+  },
+  "rho_P": {
+   "char_fail": 0,
+   "undetermined": 262,
+   "equiv_fail": 0,
+   "n_instances": 10
+  },
+  "eta_C": {
+   "char_fail": 82,
+   "undetermined": 0,
+   "equiv_fail": 1,
+   "n_instances": 10
+  },
+  "eta_P": {
+   "char_fail": 14,
+   "undetermined": 0,
+   "equiv_fail": 1,
+   "n_instances": 10
+  }
+ },
+ "dp_random": {
+  "agree": 145,
+  "total": 145
+ }
+}

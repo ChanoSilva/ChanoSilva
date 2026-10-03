@@ -1,0 +1,113 @@
+% ============================================================================
+% routing_hardness.tex  --  answer to Question~\ref{q:multi} (EQO001 v0.3)
+% Ready to paste into manuscript/main.tex; uses only its macros and labels.
+% Suggested placement:
+%   (1) Lemma lem:concave, Theorem thm:routinghard, Corollary cor:routingdag,
+%       Remark rem:interior and Proposition prop:routingeasy go right after
+%       Remark~\ref{rem:q1} (end of Section~\ref{sec:cone}).
+%   (2) The paragraph "E8" goes after E7 in Section~\ref{sec:exp}
+%       (numbers are literal, from theory/check_routing_hardness_output.txt;
+%       turn them into macros via make_numbers.py if desired).
+%   (3) Question~\ref{q:multi} is replaced by the block at the end of this file.
+% New bibliography entry needed (only for Proposition prop:routingeasy(b)):
+%   @article{kozlovTarasovKhachiyan1980,
+%     author  = {Kozlov, M. K. and Tarasov, S. P. and Khachiyan, L. G.},
+%     title   = {The polynomial solvability of convex quadratic programming},
+%     journal = {USSR Computational Mathematics and Mathematical Physics},
+%     volume  = {20}, number = {5}, pages = {223--228}, year = {1980}}
+% MAX-CUT with integer weights: \citep{karp1972} (already in refs.bib).
+% ============================================================================
+
+\subsection*{Routing: the commodity cone is hard as well}
+
+Throughout this subsection the network is as in Definition~\ref{def:wardrop}, with affine costs $c_e(x)=a_ex+b_e$, $a_e,b_e\ge0$ rational, and the path sets $P_k$ listed explicitly as part of the input (each path a set of edges). As in Example~\ref{ex:routing}, $C_k(f)=\sum_{p\in P_k}f_pc_p(f)=\sum_ec_e(f_e)f^k_e$, where $f^k_e$ is the flow of commodity $k$ on $e$; $\Lam(f^*)$ and $\Lone(f^*)$ are defined with $u_k=-C_k$, and we write $\Phi_\lambda=\sum_k\lambda_kC_k$, so that $\lambda\in\Lam(f^*)$ iff $f^*\in\arg\min_K\Phi_\lambda$. With $g_e=\sum_k\lambda_kf^k_e$ the $\lambda$-weighted flow on $e$,
+\begin{equation}\label{eq:phiroute}
+\Phi_\lambda(f)=\sum_e(a_ef_e+b_e)\,g_e .
+\end{equation}
+
+\begin{lemma}[Zero-weight commodities enter affinely]\label{lem:concave}
+Let $Q=\{k:\lambda_k>0\}$ and $R$ its complement. For fixed flows of the commodities in $Q$, $\Phi_\lambda$ is affine in the flows of the commodities in $R$, jointly; hence $f^R\mapsto\min_{f^Q}\Phi_\lambda(f^Q,f^R)$ is concave and $\Phi_\lambda$ has a minimiser over $K$ in which every commodity of $R$ uses a single path. If moreover $\lambda=\mu\mathbf 1_Q$ for some $\mu>0$, then $\Phi_\lambda$ is convex in $f^Q$ for fixed $f^R$, so $\min_K\Phi_\lambda$ is the minimum, over the pure profiles of the commodities of $R$ that share an edge with a path of $Q$, of a convex quadratic programme. \status{proved here; elementary}
+\end{lemma}
+\begin{proof}
+In \eqref{eq:phiroute}, $g_e$ involves only $f^Q$, and $f_e=\sum_kf^k_e$ is linear in the path flows; so for fixed $f^Q$ the expression is affine in $f^R$. A pointwise infimum of affine functions is concave, and a concave function on the polytope $\prod_{k\in R}\{f^k\ge0,\ \sum_pf^k_p=d_k\}$ attains its minimum at a vertex, i.e.\ at a pure profile; a minimiser of $\Phi_\lambda$ over $K$ is obtained by adding a minimising $f^Q$ for that profile (the minimum over the compact $K$ exists). If $\lambda=\mu\mathbf 1_Q$, then $g_e=\mu f^Q_e$ and, with $r_e=f_e-f^Q_e$ fixed, $\Phi_\lambda=\mu\sum_e\big(a_e(f^Q_e)^2+(a_er_e+b_e)f^Q_e\big)$ is convex in $f^Q$; commodities of $R$ that use no edge of a path of $Q$ do not appear in it.
+\end{proof}
+
+The lemma says where non-convexity can come from: a commodity of weight zero is never penalised for the congestion it causes, and its route choice is a vertex choice. The reduction below exploits exactly this, with one weighted commodity and many weightless ones.
+
+\begin{theorem}[Membership in the commodity cone is co-NP-complete]\label{thm:routinghard}
+Given a network as above, a Wardrop equilibrium $f^*$ and a rational $\lambda\ge0$, deciding whether $\lambda\in\Lam(f^*)$ is co-NP-complete, and so is deciding whether $\Lam(f^*)=\Lone(f^*)$. Both remain co-NP-hard when all of the following hold: $\lambda=e_W$ is a unit vector; $f^*$ is the unique Wardrop equilibrium, it is a vertex of $K$, and $F$ is strongly monotone on $K$; $\Lone(f^*)=\R^m_+$; every edge is used by at most two commodities; demands are integers; and all commodities but one have exactly two paths. \status{proved here; checked in E8}
+\end{theorem}
+
+\begin{proof}
+\emph{Membership in co-NP.} $K$ is a product of simplices given by explicit linear constraints and $\Phi_\lambda$ is a quadratic polynomial with rational coefficients, so the certificate argument in the proof of Proposition~\ref{prop:hard} applies, with ``gradient in the free coordinates'' read as the projection of the gradient on the direction space of the face (it uses only that the objective is quadratic and $K$ a rational polyhedron given by inequalities, \citealp{vavasis1990}). For $\Lam\ne\Lone$: $\lambda\in\Lone(f^*)$ is a linear feasibility test by Lemma~\ref{lem:simplex}, $\Lone(f^*)$ is a rational polyhedral cone whose extreme rays have generators of polynomial size \citep[Ch.~10]{schrijver1986}, and a certificate is such a generator together with a point of $K$ that beats $f^*$ for it.
+
+\emph{Construction.} We reduce from MAX-CUT \citep{karp1972}: a graph $(V,E_G)$, $V=\{1,\dots,n\}$, integer weights $w_{ij}\ge1$ and an integer $k\ge1$; is there a cut of weight $\ge k$? Let $A$ be the set of the $M=2|E_G|$ ordered pairs $m=(i,j)$ with $\{i,j\}\in E_G$, $w_m=w_{ij}$, and set
+\[
+D=M,\quad \alpha_m=16w_m,\quad b_o=16\max_mw_m,\quad a_D=\frac{2k-1}{2D},\quad B=2+2(D+1)\textstyle\sum_m\alpha_m .
+\]
+Edges and costs: $dz$ with cost $a_Dx$; $o$ with constant cost $b_o$; for each $m\in A$, $p_m$ with constant cost $b_o-\alpha_m\ge0$, $e^1_m$ and $e^2_m$ with cost $\alpha_mx$, and $e^z_m$ with cost $2\alpha_mx$; for each $i\in V$, $s_i$ with cost $x+B$ and $r_i$ with cost $x$; and $q_1$ with cost $x$, $q_0$ with cost $x+B$. Commodities:
+\begin{itemize}[leftmargin=1.5em,itemsep=0pt]
+\item $W$, demand $D$, paths $O=\{dz,o\}$ and $T_m=\{dz,p_m,e^1_m,e^2_m,e^z_m\}$, $m\in A$;
+\item for each $i\in V$, commodity $i$, demand $1$, paths $S_i=\{s_i\}\cup\{e^1_m:m=(i,\cdot)\}$ and $P_i=\{r_i\}\cup\{e^2_m:m=(\cdot,i)\}$;
+\item a switch $z$, demand $1$, paths $Z_1=\{q_1\}\cup\{e^z_m:m\in A\}$ and $Z_0=\{q_0,dz\}$.
+\end{itemize}
+Let $f^*$ send $W$ along $O$, every $i$ along $P_i$ and $z$ along $Z_1$, and $\lambda=e_W$. Every edge is used by at most two commodities, and all numbers have polynomial size.
+
+\emph{The objective.} Write $x_i\in[0,1]$ for the flow of $i$ on $S_i$, $z\in[0,1]$ for the flow of the switch on $Z_1$ and $t_m\ge0$ for the flow of $W$ on $T_m$ (so $D-\sum_mt_m$ on $O$); this affine reparametrisation of $K$ is one-to-one. Edge $dz$ carries $D+1-z$, all of $W$'s demand; $o$ carries $D-\sum_mt_m$ at the constant cost $b_o$; and for $m=(i,j)$, $e^1_m$, $e^2_m$, $e^z_m$ carry $t_m+x_i$, $t_m+1-x_j$, $t_m+z$. Hence, since $(b_o-\alpha_m)-b_o+\alpha_m=0$,
+\begin{equation}\label{eq:CW}
+C_W=a_DD(D+1-z)+b_oD+\sum_{m=(i,j)\in A}\alpha_m\big(4t_m^2+t_m(x_i-x_j+2z)\big).
+\end{equation}
+For fixed $(x,z)$ the minimum over $\{t\ge0,\ \sum_mt_m\le D\}$ separates: $t_m=\tfrac18(x_j-x_i-2z)_+\le\tfrac18$, so $\sum_mt_m\le M/8\le D$ is slack, and with $\alpha_m/16=w_m$,
+\[
+h(x,z):=\min_tC_W=a_DD(D+1-z)+b_oD-\sum_{m=(i,j)\in A}w_m\big((x_j-x_i-2z)_+\big)^2 .
+\]
+By Lemma~\ref{lem:concave} ($\lambda=e_W$; or directly, \eqref{eq:CW} is affine in $(x,z)$ for fixed $t$) $h$ is concave, so its minimum over $[0,1]^{n+1}$ is attained at a vertex. For $z=1$, $h=C^\star:=a_DD^2+b_oD$, since $x_j-x_i-2<0$. For $z=0$ and $x\in\{0,1\}^n$, the pair $m=(i,j)$ contributes $-w_m$ iff $x_i=0$, $x_j=1$, and each edge $\{i,j\}$ with $x_i\ne x_j$ does so through exactly one of its two orientations; so $h=C^\star+(k-\tfrac12)-\mathrm{cut}_w(x)$. Therefore
+\[
+\min_KC_W=C^\star+\min\big(0,\ k-\tfrac12-\mathrm{maxcut}_w\big),\qquad C_W(f^*)=C^\star,
+\]
+and $e_W\in\Lam(f^*)$ iff $\mathrm{maxcut}_w\le k-\tfrac12$, i.e.\ iff every cut has weight $<k$. When a cut $x$ has weight $\ge k$, the flow with that $x$, $z=0$ and $t_m=\tfrac18$ on the pairs $m=(i,j)$ with $x_i=0$, $x_j=1$ lowers $C_W$ by $\mathrm{cut}_w(x)-k+\tfrac12\ge\tfrac12$.
+
+\emph{$f^*$ is the unique equilibrium.} For every feasible flow, $c_{P_i}\le1+(D+1)\sum_m\alpha_m<B\le c_{S_i}$ and $c_{Z_1}\le1+2(D+1)\sum_m\alpha_m<B\le c_{Z_0}$, so at every Wardrop equilibrium $x=0$ and $z=1$. Then $c_{T_m}-c_O=\alpha_mt_m+\alpha_m(t_m+1)+2\alpha_m(t_m+1)-\alpha_m=4\alpha_mt_m+2\alpha_m>0$, so $W$ uses only $O$. Thus $f^*$, a vertex of $K$, is the only equilibrium. $F$ is affine with $DF=\Delta^{\!\top}\operatorname{diag}(a)\Delta$, $\Delta$ the edge--path incidence matrix. If $h$ is tangent to $K$ ($\sum_{p\in P_k}h_p=0$ for all $k$) and $h^{\!\top}DFh=\sum_ea_e(\Delta h)_e^2=0$, then $(\Delta h)_e=0$ on $s_i,r_i,q_1,q_0$ (slope $1$, each in a single path), so $h$ vanishes on the paths of the nodes and of the switch; then $(\Delta h)_{e^1_m}=h_{T_m}=0$ and $h_O=-\sum_mh_{T_m}=0$. So $DF$ is positive definite on the tangent space and $F$ is strongly monotone on $K$.
+
+\emph{$\Lone(f^*)=\R^m_+$, and $\Lam=\Lone$ iff $e_W\in\Lam$.} At $f^*$ the derivatives of $C_W$ with respect to path flows are: $2a_DD+b_o$ on $O$ and $2a_DD+b_o+2\alpha_m$ on $T_m$; $0$ on $S_i$ and on $P_i$; $0$ on $Z_1$ and $a_DD$ on $Z_0$. In each commodity the used path has the least derivative, so $e_W\in\Lone(f^*)$ by Lemma~\ref{lem:simplex}. For a node $i$, $\sigma_i:=1+\sum_{m=(\cdot,i)}\alpha_m=C_i(f^*)$ and, for every feasible flow, $C_i\ge\sigma_i(1-x_i)^2+Bx_i$, and $\sigma_i(1-x)^2+Bx-\sigma_i=x(\sigma_ix-2\sigma_i+B)\ge0$ because $B\ge2\sigma_i$; so $e_i\in\Lam(f^*)$. For the switch, $\sigma_z:=1+2\sum_m\alpha_m=C_z(f^*)$, $C_z\ge\sigma_zz^2+B(1-z)$, and $\sigma_zz^2+B(1-z)-\sigma_z=(1-z)(B-\sigma_z(1+z))\ge0$ because $B\ge2\sigma_z$ ($D\ge1$); so $e_z\in\Lam(f^*)$. As $\Lam\subseteq\Lone$ are convex cones (Theorem~\ref{thm:cone}(a),(b)), $\Lone(f^*)$ contains every unit vector, hence equals $\R^m_+$, and $\Lam(f^*)=\R^m_+$ iff $e_W\in\Lam(f^*)$. Both decision problems therefore have answer ``yes'' iff every cut has weight $<k$.
+\end{proof}
+
+\begin{remark}[Interior weights]\label{rem:interior}
+Hardness does not need zero weights. Let $\Gamma=2B+2k+1$ and $\varepsilon=1/(4(n+1)\Gamma)$, and $\lambda_\varepsilon=e_W+\varepsilon\sum_{h\ne W}e_h$, all of whose entries are positive. If every cut has weight $<k$, then $\lambda_\varepsilon\in\Lam(f^*)$ because $\Lam(f^*)=\R^m_+$. Otherwise, take the flow $y$ built from a heavy cut in the proof: each path of a node or of the switch costs at most $\Gamma$ (for instance $c_{Z_0}\le1+B+a_D(D+1)\le1+B+2k$), so $0\le C_h(y)\le\Gamma$ for $h\ne W$, and $\Phi_{\lambda_\varepsilon}(y)-\Phi_{\lambda_\varepsilon}(f^*)\le-\tfrac12+\varepsilon(n+1)\Gamma=-\tfrac14$. Thus deciding $\lambda\in\Lam(f^*)$ is co-NP-hard also for $\lambda$ in the interior of the orthant. \status{proved here; checked in E8}
+\end{remark}
+
+\begin{corollary}[Networks with all paths]\label{cor:routingdag}
+Theorem~\ref{thm:routinghard} holds, without the strong monotonicity of $F$, when the input is a directed acyclic graph with origin--destination pairs and $P_k$ is the set of all paths of commodity $k$ from its origin to its destination: both problems are co-NP-complete, and co-NP-hard with $\lambda=e_W$, $f^*$ the unique Wardrop equilibrium and $\Lone(f^*)=\R^m_+$. \status{proved here; checked in E8 on small graphs}
+\end{corollary}
+\begin{proof}
+\emph{Network.} Turn every edge of the construction into an arc with two endpoints of its own, add an origin $\mathsf o_k$ and a destination $\mathsf d_k$ per commodity, and add connector arcs of constant cost: for $W$, $\mathsf o_W\to dz\to o\to\mathsf d_W$ and $dz\to p_m\to e^1_m\to e^2_m\to e^z_m\to\mathsf d_W$; for node $i$, $\mathsf o_i\to s_i\to e^1_{m_1}\to\dots\to e^1_{m_r}\to\mathsf d_i$ and $\mathsf o_i\to r_i\to e^2_{m'_1}\to\dots\to e^2_{m'_r}\to\mathsf d_i$, along the pairs $m_1,\dots,m_r$ leaving and $m'_1,\dots,m'_r$ entering $i$; for the switch, $\mathsf o_z\to q_1\to e^z_{1}\to\dots\to e^z_{M}\to\mathsf d_z$ and $\mathsf o_z\to q_0\to dz\to\mathsf d_z$ (``$x\to y$'' is an arc from the head of $x$ to the tail of $y$). A connector between two consecutive arcs of the same chain ($e^1\to e^1$, $e^2\to e^2$, $e^z\to e^z$) costs $H=b_o+1$; all other connectors cost $0$; and the cost of $q_0$ becomes $x+B'$ with $B'=B+2(M-1)H$. Put $dz$, $o$, the $p_m$ and the private arcs $s_i,r_i,q_0,q_1$ on level $0$ and $e^1_m$, $e^2_m$, $e^z_m$ on levels $1,2,3$: within level $0$ arcs go $q_0\to dz\to\{o,p_m\}$, chain connectors stay on a level and go forward, all other connectors go up, and nothing goes down, so the graph is acyclic.
+
+\emph{Paths.} (i) A path from $\mathsf o_i$ enters the chain $S_i$ (level 1) or $P_i$ (level 2). It can leave a chain only through a connector of $W$, into the chain $P_j$ of the head $j\ne i$ of the pair, into $Z_1$, or to $\mathsf d_W$, and it can never come back, while $\mathsf d_i$ is entered only from the last arc of $S_i$ or of $P_i$. So commodity $i$ has exactly the two paths $S_i$, $P_i$. (ii) A path of $W$ other than $O$ and the $T_m$ leaves $T_m$ at the head of $e^1_m$, $e^2_m$ or $e^z_m$ along a chain connector (the other out-arcs end at $\mathsf d_i$, $\mathsf d_j$ or $\mathsf d_z$), so it contains an arc of cost $H$. (iii) A path of the switch other than $Z_1$ and $Z_0$ cannot leave $Z_1$ (its exits lead to $\mathsf d_W$), so it starts $\mathsf o_z\to q_0\to dz$ and then follows arcs of $W$.
+
+\emph{Minimum.} Moving an amount $\delta$ of $W$'s flow from a path $p$ of type (ii) to $O$ changes $C_W=\sum_ec_e(f_e)f^W_e$ by at most $\delta b_o-\delta H<0$: arcs of $p$ off $O$ lose $c_e(f_e)f^W_e-c_e(f_e-\delta)(f^W_e-\delta)\ge\delta c_e(f_e-\delta)$, which is $\delta H$ on the chain connector, and $O$ gains $\delta b_o$ on $o$. Moving the switch's flow from a path of type (iii) to $Z_0$ removes flow from arcs and adds it only on the arc $dz\to\mathsf d_z$, which $W$ does not use, so $C_W$ does not increase. Hence $\min_KC_W$ is attained on the face where $W$ uses $O$ and the $T_m$ and the switch uses $Z_1$ and $Z_0$; there, the connectors used by $W$ cost $0$ and the chain connectors carry no flow of $W$, so $C_W$ is \eqref{eq:CW}. The minimum and $C_W(f^*)$ are those of the theorem.
+
+\emph{Equilibrium and $\Lone$.} Both paths of node $i$ contain $\deg(i)-1$ chain connectors, so the dominance $c_{P_i}<c_{S_i}$ is unchanged; $c_{Z_1}$ grows by $(M-1)H$, and $c_{Z_1}\le1+2(D+1)\sum_m\alpha_m+(M-1)H<B'$, while every other path of the switch contains $q_0$. Given $x=0$, $z=1$, $c_{T_m}-c_O=4\alpha_mt_m+2\alpha_m>0$ and a path of type (ii) costs at least $c_O+H-b_o>c_O$; so $f^*$ is the unique equilibrium. At $f^*$ the derivative of $C_W$ along a path of type (ii) exceeds that along $O$ by at least $H-b_o>0$, and along a path of type (iii) it is at least $a_DD>0$, the value on $Z_1$ being $0$; so $e_W\in\Lone(f^*)$. The bounds for $e_i$ shift both sides by $(\deg(i)-1)H$, and for the switch $C_z\ge\sigma_zz^2+z(M-1)H+B'(1-z)$, whose excess over $C_z(f^*)=\sigma_z+(M-1)H$ is $(1-z)\big(B'-\sigma_z(1+z)-(M-1)H\big)\ge0$; so $\Lone(f^*)=\R^m_+$ as before.
+
+\emph{Membership.} $C_k$ depends only on the arc flows $(f^k_e)_{e}$ of the commodities; on an acyclic graph every origin--destination flow of value $d_k$ decomposes into path flows, so $\lambda\in\Lam(f^*)$ iff the arc flows of $f^*$ minimise $\Phi_\lambda$ over the multicommodity flow polytope, which has a polynomial description, and the argument of Proposition~\ref{prop:hard} applies. The first-order condition defining $\Lone(f^*)$ is equivalent to the same condition on that polytope (a linear function of path flows is minimised at $f^*$ iff every used path is shortest for it), so $\Lone(f^*)$ is the projection of a rational polyhedral cone of polynomial description and has extreme-ray generators of polynomial size \citep[Ch.~10]{schrijver1986}.
+\end{proof}
+
+\begin{proposition}[Two tractable cases]\label{prop:routingeasy}
+\begin{enumerate}[leftmargin=2em,label=(\alph*)]
+\item If, on every edge $e$ with $a_e>0$, $\lambda$ takes one value $\mu_e$ on all commodities having a path through $e$, then $\Phi_\lambda$ is convex on $K$ and $\lambda\in\Lam(f^*)$ iff $\lambda\in\Lone(f^*)$, a linear feasibility test. This covers $\lambda=\mathbf 1$ (the system optimum) and networks in which no edge with $a_e>0$ is shared.
+\item If $\lambda=\mu\mathbf 1_Q$ and at most $r$ commodities outside $Q$ use an edge of a path of $Q$, then $\lambda\in\Lam(f^*)$ can be decided by solving at most $\prod|P_k|\le(\max_k|P_k|)^r$ convex quadratic programmes over a simplex product, hence in polynomial time for fixed $r$ \citep{kozlovTarasovKhachiyan1980}. In particular membership of a unit vector is polynomial when the number of commodities is fixed.
+\end{enumerate}
+\status{proved here; elementary}
+\end{proposition}
+\begin{proof}
+(a) Edges with $a_e=0$ contribute $b_eg_e$, which is linear; on the others $g_e=\mu_ef_e$, so \eqref{eq:phiroute} is $\sum_e\mu_e(a_ef_e^2+b_ef_e)$ plus a linear function, convex since $\mu_e\ge0$; apply Proposition~\ref{prop:nec}(a). (b) Lemma~\ref{lem:concave}: enumerate the pure profiles of the $r$ commodities, and for each decide whether the convex quadratic programme in $f^Q$ has value $<\Phi_\lambda(f^*)$.
+\end{proof}
+
+Theorem~\ref{thm:routinghard} uses one weighted commodity and unboundedly many weightless ones, which by Proposition~\ref{prop:routingeasy}(b) is unavoidable for weights of the form $\mu\mathbf 1_Q$; Example~\ref{ex:routing} ($\lambda=(0,1)$) and Example~\ref{ex:three} are instances with few commodities.
+
+% ---------------------------------------------------------------------------- E8 (Section sec:exp)
+\paragraph{E8: the reduction of Theorem~\ref{thm:routinghard}.} All criteria hold. On all labelled graphs with unit weights on $3$ and $4$ nodes and on $80$ random graphs on $5$ and $6$ nodes (half with weights in $\{1,2,3\}$), $130$ graphs and $381$ pairs $(G,k)$ with $k\in\{1,\mathrm{maxcut},\mathrm{maxcut}+1\}$ ($130$ members, $251$ non-members): $f^*$ is a strict Wardrop equilibrium and $e_W\in\Lone(f^*)$ in exact arithmetic; $\min_KC_W$, computed without the closed form by enumerating the pure profiles of the weightless commodities and solving the convex programme in $W$'s path flows with a certified Frank--Wolfe gap ($\le10^{-10}$), gives $e_W\in\Lam(f^*)$ iff the maximum cut, found by enumeration, is $<k$ ($0$ mismatches; the margin is $\tfrac12$); the per-vertex values agree with $h$ to $3\cdot10^{-12}$; every other unit vector lies in $\Lam(f^*)$; and the witness built from a maximum cut beats $f^*$ by exactly $\mathrm{maxcut}-k+\tfrac12$, also for the interior weight of Remark~\ref{rem:interior}. On $14$ pairs from seven small graphs, enumeration of all faces of $K$ (up to $30\,861$ per pair), which does not use Lemma~\ref{lem:concave}, gives the same minima to $10^{-13}$. On $16$ pairs from eight graphs, the acyclic network of Corollary~\ref{cor:routingdag}, with its paths enumerated (up to $66$ for $W$), has the claimed path structure, and the same tests agree. Script \path{theory/check_routing_hardness.py}, under one minute of CPU.
+
+% ---------------------------------------------------------------------------- replaces Question q:multi
+\begin{question}[Routing with few commodities]\label{q:multi}
+Theorem~\ref{thm:routinghard} answers the question on routing left open in v0.3: in multi-commodity routing with affine costs, membership $\lambda\in\Lam(f^*)$ and the equality $\Lam(f^*)=\Lone(f^*)$ are co-NP-complete when the number of commodities is part of the input, with explicit path sets or with all paths of an acyclic network (Corollary~\ref{cor:routingdag}). With a fixed number of commodities and weights of the form $\mu\mathbf 1_Q$ membership is polynomial (Proposition~\ref{prop:routingeasy}(b)). What is the complexity of deciding $\lambda\in\Lam(f^*)$ when the number of commodities is fixed (already two) and the weights are positive and distinct, so that two weighted commodities with many paths each share edges?
+\end{question}
