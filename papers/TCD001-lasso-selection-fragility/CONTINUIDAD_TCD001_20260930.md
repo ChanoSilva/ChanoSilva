@@ -41,7 +41,7 @@ Pedido de la sesión (coordinador, Claude Code, 30/09/2026): dar a la línea un 
 ## Limitaciones y lo que NO se afirma
 - No se afirma novedad de la fórmula cerrada (es Woodbury + KKT, en la tradición de Cook/Belsley y de la unicidad de Tibshirani 2013) ni de la reducción (dos líneas desde Subset Sum). Es plausible que ambas existan en la literatura de auditoría de OLS (Moitra–Rohatgi; Freund–Hopkins) o en notas no publicadas.
 - La dureza es débil y solo para p = 1; no dice nada sobre instancias típicas, en las que la búsqueda exhaustiva fue rápida.
-- El certificado de la Prop. 3.5 es holgado; no se afirma ninguna tasa de f/n con n (la caída observada de g/n es empírica y de estas familias).
+- El certificado de la Prop. 3.4 es holgado; no se afirma ninguna tasa de f/n con n (la caída observada de g/n es empírica y de estas familias).
 - Los porcentajes de los experimentos son específicos de dos familias gaussianas sintéticas, un solver y un tope de búsqueda; no se afirma nada sobre datos reales ni sobre poblaciones.
 - Los cocientes de costo dependen de la implementación (test vectorizado en NumPy frente a un bucle Python de reajustes).
 - Bibliografía: el árbitro verificó moitra2022, freund2023, broderick2020 (ahora con "v4 (2023)"), meinshausen2010 y tibshirani2013, y corrigió kuschnig2021 (CESifo Working Paper 8981, Múnich, 2021; aplicado). Se añadió woodbury1950 (Memorandum Report 42, Princeton). Las entradas clásicas (tibshirani1996, efron2004, osborne2000, zhao2006, wainwright2009, cook1977, hampel1974, pedregosa2011, amaldi1995, amaldi1998, sherman1950, hager1989, buhlmann2011, belsley1980, garey1979, karp1972) no pudieron verificarse en red por el árbitro ni en esta sesión; sus datos coinciden con los de uso común y quedan marcadas como "no verificadas en red". La forma del Lasso en Meinshausen–Bühlmann (2010) (suma con λ fijo, según memoria) no se cotejó con el PDF.
@@ -49,7 +49,7 @@ Pedido de la sesión (coordinador, Claude Code, 30/09/2026): dar a la línea un 
 ## Pendientes y próximos pasos concretos
 1. Confirmar con el autor que la interpretación de la ficha (testigos, no monotonía, reducción) coincide con la idea original; integrar notas previas si existen.
 2. Conjetura 5.3: NP-completitud del testigo de selección para p ≥ 2; y dureza fuerte de "sale" con p fijo ≥ 2 (la reducción actual solo da dureza débil).
-3. Apretar la Prop. 3.5 (estructura de signos del término de interacción; relajación SDP pequeña) y medir la brecha con f en E4.
+3. Apretar la Prop. 3.4 (estructura de signos del término de interacción; relajación SDP pequeña) y medir la brecha con f en E4.
 4. Reglas dependientes de los datos (μ por validación cruzada): el testigo debe incluir el cambio de μ.
 5. Extender el test exacto a elastic net y square-root Lasso (KKT lineales sobre soporte con signos fijo).
 6. Buscar un contraejemplo explícito del recíproco de la Observación 3.6 (frecuencia de stability selection 1 con f_leave ≤ ⌈n/2⌉).
@@ -68,7 +68,7 @@ Informe: `REFEREE_TCD001_ronda1_20260930.md` (veredicto: cambios mayores; 1 bloq
 | M3 decisiones no declaradas / dos versiones de la biblioteca | Párrafo "Pre-specification and changes" en la Sec. 6; cuatro scripts corridos en una sesión (03/10/2026 04:08–04:09 UTC); `results/` regenerado. |
 | M4 `examples.json` sin Ejemplo 1b | Regenerado; macro `\ExOneChecks` (12/12) citada en el Ej. 4.2. |
 | M5 errores típicos y cronómetros | Errores típicos en texto y Tabla E3 (columna ± s.e.); cociente de coste ajustado (quitando el ajuste inicial): mínimo 0.26 (bruto 0.46), ningún veredicto cambia; nota en "Pre-specification". |
-| M6 Tabla 8 desbordada | Tabla de afirmaciones compactada (12 filas, footnotesize, sin `[H]`); 0 overfull en la compilación final. |
+| M6 Tabla 8 desbordada | Tabla de afirmaciones compactada (10 filas, footnotesize, sin `[H]`); 0 overfull en la compilación final. |
 | M7 atribución de la regla P | Obs. 3.5 reformulada (regla según parametrización). |
 | m1–m17 | Todos aplicados (numeración unificada en README/CONTINUIDAD/docstrings; coste O(nps₀ + pn log n); "unsigned f_ANY"; Woodbury 1950; kuschnig2021 movido y corregido; 30 instancias nuevas en E1; "--" sin %; g/n y "with finite f"; media censurada; resumen ≤ 200 palabras; nota sobre cocientes a n ≤ 18; convenciones Sᶜ = ∅ / γ = 0; "nonempty"; `\status{classical}` en el Lema 2.4; "20 of the (up to 50)"; residuo precisado en la Obs. 3.3; `\textsc` recto vía `\tsc`; dureza fuerte excluida salvo P = NP). |
 | Recortes 1–8 | Resumen, lista de la intro, cinco tablas a `results/*.md`, figuras fusionadas, tabla de afirmaciones compacta, Apéndice A reducido, texto de E2/E3 sin repetir tablas; 10pt y márgenes de 0.9in. |

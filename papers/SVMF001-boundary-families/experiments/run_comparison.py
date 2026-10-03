@@ -6,8 +6,9 @@ Protocol (fixed before running):
   * binary tasks, features standardised on the training fold (digits: PCA(16) then
     standardisation, fitted on the training fold);
   * main condition: 2 x stratified 5-fold CV (10 outer folds);
-    robustness conditions: 1 x 5-fold CV with (noise20) 20% of the TRAINING labels
-    flipped, test labels clean, and (sub25) only 25% of the training fold used;
+    robustness conditions: 1 x 5-fold CV with (noise20) each TRAINING label flipped
+    independently with probability 0.2, test labels clean, and (sub25) only 25% of the
+    training fold used;
   * every family is tuned by an inner stratified 3-fold CV on the training fold,
     accuracy as the score, ties broken towards the global special case;
   * reference = 'best global' = the global reference (linear or RBF) with the higher

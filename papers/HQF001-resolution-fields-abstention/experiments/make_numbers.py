@@ -206,7 +206,7 @@ with open(os.path.join(OUT, "table_diff.tex"), "w") as fh:
     for ds in S:
         c = S[ds]["comparisons"]["Field-aniso"]["__best__"]
         delta = spct(c["mean_diff"]) + (r"$^{\circ}$" if c["borderline"] else "")
-        fh.write(f"{DS_NAME[ds]} & {M_NAME[S[ds]['best_reference']]} & {delta} & {ci(c, 'boot')} & {ci(c, 't')} & {ci(c, 'nb')} & {wtl(c)} & {c['wilcoxon_p']:.3f} \\\\\n")
+        fh.write(f"{DS_NAME[ds]} & {delta} & {ci(c, 'boot')} & {ci(c, 't')} & {ci(c, 'nb')} & {wtl(c)} & {c['wilcoxon_p']:.3f} \\\\\n")
 
 # ---- Table (appendix): isotropic and Euclidean ablations vs best reference
 with open(os.path.join(OUT, "table_diff_abl.tex"), "w") as fh:
