@@ -141,7 +141,7 @@ Informe: `REFEREE_LMI001_ronda2_20261003.md` (cambios mayores, solo de texto; 0 
 5. Extensión: 12 páginas; 10 exigiría quitar la tabla de afirmaciones o pruebas.
 6. La subcarpeta `theory/`, si aparece con trabajo de otro agente, no se tocó ni se integró en esta pasada.
 
-## Integración de la teoría de invariancias y pesos de tamaño (03/10/2026) [EN CURSO]
+## Integración de la teoría de invariancias y pesos de tamaño (03/10/2026)
 
 Integrador: lleva el manuscrito de v0.3 a v0.4 con el material de `theory/` (`invariances.tex`, `invariances_derivation.md`, `check_invariances.py`, `check_invariances_output.txt`), que **no** se modifica. Plan: (1) verificación independiente de cada demostración y chequeo propio en el scratchpad; (2) integración de los bloques P, A, B, C, D y de las frases indicadas en la cabecera de `invariances.tex`; (3) etiquetas "[proved here; not yet checked by an independent referee]"; (4) demostraciones largas a un apéndice, objetivo ≤ 14 páginas; (5) compilación y revisión visual; (6) esta sección, README y ficha.
 
@@ -169,4 +169,46 @@ Integrador: lleva el manuscrito de v0.3 a v0.4 con el material de `theory/` (`in
 
 **Correcciones o degradaciones:** ninguna demostración falla. Cambios de redacción al integrar: (i) `prop:weightsdd` y su comentario dicen "as functions of the partition, up to an additive constant" (valores, no minimizadores; con A libre toda partición es minimizador único de algún objetivo kernel) y llevan la salvedad del punto 4; (ii) el umbral de `cor:reps` se relaciona con el desplazamiento de Roth et al. solo "for σ_* ≥ 0, as we recall it; not checked against their text"; (iii) todo lo nuevo lleva "[proved here; not yet checked by an independent referee]" en la tabla de afirmaciones.
 
-Estado: integración en curso.
+### 2. Qué se integró y dónde (manuscrito v0.4, 3 October 2026)
+
+Numeración v0.3 → v0.4 (comprobada en `main.aux`): Teorema 3.2 → **3.4**; Prop. 3.3 → **3.5**; Remark 3.4 → **3.8**; Prop. 3.5 → **3.9**; Prop. 3.6 → **3.10**; Problema abierto 4.2 → **4.4**. Sin cambio: Def. 2.1–2.3, Lema 3.1, Teorema 4.1, Tablas 1–2, ecuaciones (1)–(3), Apéndice A.
+
+| Bloque / cambio | Dónde | Notas |
+|---|---|---|
+| P (`corollary`) | preámbulo, tras `conjecture` | |
+| A: Prop. 3.2 (`prop:invcomplete`), Cor. 3.3 (`cor:reps`) | §3.1, tras el párrafo que sigue al Lema 3.1 | demostración de la Prop. 3.2 en el Apéndice B; la del Cor. 3.3 queda en el texto; el estado del Cor. 3.3 relaciona σ_* con Roth et al. solo para σ_* ≥ 0 "as we recall it (not checked against their text)" |
+| Frase del "Rest length" (Prop. 3.5) | prueba de la Prop. 3.5 | reemplazada según la cabecera; el cálculo de cuatro puntos (−8rs + 4σ) se movió a la prueba del Cor. 3.6(b), escrito completo (Σc_ic_jφ = 4r² + 2(4rs − 2r²) = 8rs), para no duplicarlo |
+| B: Cor. 3.6 (`cor:rest`), Remark 3.7 (`rem:argmin`) | tras la prueba de la Prop. 3.5 | (a), (b) se prueban en el texto; (c) en el Apéndice B |
+| Nota en la Prop. 3.9 (Hartigan) | primera línea | "by Corollary 3.3 these are exactly the PSD matrices K + σI + g1ᵀ + 1gᵀ" |
+| C: párrafo *Size weights*, Prop. 4.2 (`prop:weights`), Prop. 4.3 (`prop:weightsdd`) | §4, entre *Values, not minimisers* y *The dynamic route* | demostraciones en el Apéndice B; el comentario de la Prop. 4.3 añade "values, not minimisers" y la salvedad de que el certificado no acota la distancia (ω degenerados) |
+| D: Problema 4.4 (con "unique") y Remark 4.5 (`rem:dyn`) | sustituye al Problema 4.2 de v0.3 | |
+| Tabla 2 | §6 | fila del Lema 3.1 fusionada con Prop. 3.2/Cor. 3.3; fila del resorte con reposo reemplazada (Cor. 3.6 + Remark 3.7); fila de pesos (Prop. 4.2 y 4.3); fila del Problema 4.4/Remark 4.5; "not yet refereed" definido en el pie |
+| *Next steps* | §6 | (c) y (d) viejos eliminados; nuevos (c) k = 2 / pesos dependientes de los datos, (d) núcleo PD con los mismos minimizadores, (e) cotejo con Roth et al.; (b) reescrito con unicidad y Farkas; (f) = antiguo (e), acotado a "pairwise, per-particle" |
+| *Limitations* | §6 | 1/n_c es el único peso con pesos fijos; lista de resultados no arbitrados; cotejos pendientes |
+| Apéndice B "Proofs of the results on invariances and size weights" | tras el Apéndice A | Prop. 3.2, Cor. 3.6(c), Prop. 4.2, Prop. 4.3, sin quitar pasos (solo dos displays pasados a texto en línea) |
+| Apéndice A | reproducibilidad | menciona `theory/check_invariances.py` y el chequeo independiente |
+
+**Coherencia sobre la energía total (pedido explícito).** El texto de v0.3 no decía que E_tot fuera un k-means con núcleo, pero el **título** ("Spring-Energy Clustering Is Kernel Clustering"), el título del Teorema 3.4 ("Spring energies are kernel objectives"), la lectura de E1–E3 ("If the screened formulations were of the pairwise kind…") y el resumen ("For that family the null result follows…") abarcaban también la normalización total, lo que la Prop. 4.3 vuelve inexacto. Cambios: título → "**Per-Particle** Spring-Energy Clustering Is Kernel Clustering" (decisión del integrador; revertible por el autor); Teorema 3.4 → "Spring energies and kernel objectives; collected from the literature" y su *Status* dice que E_tot no es k-means con núcleo ponderado; resumen, Introducción, *Contribution*, lectura de E1–E3 y *Next step* (f) acotan el cribado nulo a la normalización por partícula y dicen que, con la total, un control de kernel optimiza otra función y un nulo sería un hallazgo empírico. README y ficha, igual.
+
+**Otros archivos.** `experiments/*.py`: solo docstrings y comentarios renumerados (3.2 → 3.4, 3.3 → 3.5, 3.5(ii) → 3.9(ii), 3.6 → 3.10); se dejó sin tocar la cadena de `identity_check.py`:405 que genera la cabecera "Theorem-3.2(f) kernel" de `results/tables_identity.md`, para no desalinear código y resultados sin repetir la corrida (el README lo advierte). Ningún experimento se relanzó (E1–E4 no cambian); `numbers.tex` se regeneró con `build.sh` desde los mismos JSON y es idéntico. Ningún número nuevo entra al texto salvo el "about 22 s" del script teórico (Apéndice A), copiado de su salida guardada. `theory/` no se modificó.
+
+### 3. Compilación y extensión
+
+- `manuscript/build.sh` (make_numbers + latexmk + latexmk -c): 0 errores, 0 referencias o citas indefinidas, 0 cajas desbordadas, `pdftotext main.pdf - | grep -c '??'` = 0; 35/35 referencias citadas; `main.pdf` conservado.
+- Páginas: **12 (v0.3) → 17 (v0.4)**. El texto principal (§1–§6, con las Tablas 1–2) termina en la p. 14; Apéndice A y Apéndice B (demostraciones) ocupan las pp. 14–15 y la bibliografía las pp. 15–17 (unas 7 líneas por columna en la p. 17). Con todos los bloques en línea la cuenta era 17 páginas; se pasaron al Apéndice B las demostraciones de las Prop. 3.2, 4.2, 4.3 y del Cor. 3.6(c), y se condensó la redacción nueva (resumen reescrito, comentarios, Remark 3.7, filas de la Tabla 2). **No se alcanzó el objetivo de ≤ 14 páginas en total**: mover demostraciones al apéndice no reduce el total, y bajar de 17 exigiría quitar material (p. ej. la Tabla 1 de E3, cuyo agregado por potencial solo existe en `table_e3_agg.tex`, o resumir texto ya arbitrado), cosa que no se hizo. Márgenes y tamaño de letra sin cambios.
+- Revisión visual de las páginas nuevas (pp. 4, 6–7, 9–11, 13–15): sin problemas de composición; el título queda en tres líneas.
+
+### 4. Abiertos (tras la integración)
+
+1. k = 2 en la Prop. 4.2 cuando h(a)+h(n−a) es constante y w no es ∝ 1/m (n ≥ 5). Indicio (no prueba): con n = 5 y w = (1, 1, 2/3) el rango es deficiente, no está en 𝒢_1 y el residuo con 20 ω aleatorios es ≥ 0.18.
+2. Pesos dependientes de los datos para w decreciente con w(3) < w(2), distinto de 1/m (1/m², 1/binom(m,2)): el certificado de la Prop. 4.3 no aplica.
+3. Núcleo PD independiente de los datos con los **mismos minimizadores** que el resorte con longitud de reposo (Remark 3.7(c)); condición necesaria ordinal en ternas.
+4. Problema 4.4 con unicidad: buscar o certificar un contraejemplo con distancias repetidas (sistema lineal estricto + certificado de Farkas sobre ℚ); no ejecutado.
+5. Cotejar con el texto de Roth et al. (2003) la relación entre su desplazamiento mínimo y σ_* (coinciden si σ_* ≥ 0, según lo que recordamos) y si el recíproco (Prop. 3.2) ya está publicado; búsqueda bibliográfica no exhaustiva.
+6. Revisión por un árbitro independiente de todo lo marcado "not yet refereed" (Prop. 3.2, Cor. 3.3, Cor. 3.6, Remark 3.7, Prop. 4.2, Prop. 4.3, Remark 4.5).
+7. Siguen abiertos los puntos de la ronda 2: confirmación del autor (supuestos 1 y 2, y ahora también **qué normalización** se usó en el cribado), cotejos de França et al., Dhillon et al., BCR y SSV.
+8. Extensión: 17 páginas; decidir si se acepta o qué se recorta.
+
+### 5. Cómputo
+
+`my_check.py` 22 s de CPU; re-ejecución de `theory/check_invariances.py` 23 s; sondeo de ω degenerados (Nelder–Mead, `probe_omega.py`) unos 30 s; unas 14 compilaciones de LaTeX (~4–5 s cada una). Total del orden de 2–3 minutos de CPU. Sin corridas de E1–E4.
