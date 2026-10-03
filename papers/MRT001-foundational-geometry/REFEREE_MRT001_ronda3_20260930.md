@@ -8,19 +8,41 @@ Archivos de trabajo del árbitro: `/tmp/claude-0/-home-user-ChanoSilva/6d28bda3-
 
 ## Veredicto en una línea
 
-`[en curso]`
+**Cambios menores.** Las seis proposiciones y la clasificación de la Sección 4 son correctas y las correcciones de las dos rondas previas están aplicadas de verdad en texto, código y resultados (48/48 macros coinciden con los JSON); lo que queda son una fórmula de conteo con una excepción no cubierta y un hueco de una línea en la prueba de la Prop. 5.2, un enunciado informal del teorema de Kleindessner–von Luxburg con hipótesis más débiles que las del original, dos referencias usadas y no citadas (Golumbic 1977, Schoenberg 1937), una observación imprecisa en la Prop. 3.8 y restos de nomenclatura/versión.
 
 ## Hallazgos bloqueantes
 
-`[en curso]`
+Ninguno. No encontré errores que invaliden resultados ni afirmaciones del cuerpo sin respaldo en una demostración o en los JSON.
 
 ## Hallazgos mayores
 
-`[en curso]`
+**M1. Prop. 5.2, enunciado (main.tex:311): la fórmula "half the number of transitive orientations of the incomparability graph" falla para la cadena.** Evidencia: para una cadena el grafo de incomparabilidad es vacío y tiene exactamente una orientación transitiva (la vacía); la mitad es 1/2, pero la misma frase dice "it is … 1 for a chain" y el código devuelve 1 por caso especial (`lorentzian_chain.py:411–412`). Corrección: "The number of realizers modulo the swap is 1 for a chain and otherwise equals half the number of transitive orientations of the incomparability graph of the order (the unique realizer of a chain is fixed by the swap; for any other order the reversal of an orientation is a different orientation)".
+
+**M2. Prop. 5.2, prueba (main.tex:314): no se demuestra que T = <_u ∩ inc(≺) sea una orientación transitiva del grafo de incomparabilidad.** El paréntesis "(if a≺b and b<_u c with b,c unrelated then c≺a is impossible …)" prueba otra cosa (compatibilidad con ≺), no la transitividad de T ni que a ∥ b, b ∥ c, a <_u b <_u c implique a ∥ c. Corrección (una línea): "If a ∥ b, b ∥ c and a <_u b <_u c then v_a > v_b > v_c, so a ∥ c and a <_u c: T is a transitive orientation of the incomparability graph. Conversely, for any transitive orientation T of the incomparability graph, ≺ ∪ T is a linear order: if a ≺ b and (b,c) ∈ T, then c ≺ a would give c ≺ b, and (c,a) ∈ T would give (b,a) ∈ T by transitivity, contradicting a ≺ b; the other case is symmetric." Con ello la cláusula "for which ≺ ∪ T is transitive" sobra (es automática) y el conteo del enunciado queda demostrado.
+
+**M3. Resultado usado sin cita: Golumbic (main.tex:375 "Golumbic's Γ-relation"; main.tex:452 "implication classes").** E5e se apoya en que toda orientación transitiva contiene cada clase de implicación o su reversa; esa es la razón por la que la enumeración 2^k es exhaustiva. No hay entrada en refs.bib. Corrección: añadir `golumbic1977` (J. Combin. Theory Ser. B 22(1), 68–90, 1977; verificada) y citarla en ambas líneas, opcionalmente también el libro de 1980 (cap. 5).
+
+**M4. Teorema 3.7 (main.tex:204–207), enunciado informal más débil que el teorema real.** El enunciado dice "Ω bounded, connected and open" y "points that become dense in Ω". Según las reformulaciones del teorema disponibles en línea (Arias-Castro, *Some theory for ordinal embedding*, 2015/2017; Jain et al.), Kleindessner–von Luxburg exigen además una condición de regularidad sobre el dominio (p. ej. que Ω sea una unión finita de bolas abiertas), que se conozcan **todas** las comparaciones de cuádruplas, que el encaje esté en la **misma** dimensión d, y la conclusión es la recuperación salvo semejanza en el límite de muestras densas. No pude leer el PDF original desde este contenedor (PMLR, JMLR, arXiv y Semantic Scholar bloqueados), así que la redacción exacta debe cotejarla el autor; la nota de continuidad ya lo listaba como pendiente nº 2 y sigue abierto. Correcciones: (a) añadir "satisfying a mild regularity condition (for instance, a finite union of open balls)"; (b) decir explícitamente "all quadruple comparisons" y "embeddings in the same dimension d"; (c) en l.207, al identificar el teorema con la Def. 2.6 ("asymptotically faithful"), decir qué clases C_n se toman (segmentos iniciales de una sucesión densa fija) porque la Def. 2.6 pide un supremo sobre C_n y sobre la clase, y la convergencia de K–vL es para sucesiones de encajes de una sucesión densa dada; si la convergencia del teorema no es uniforme en i ≤ n, la identificación necesita una frase más. Misma cautela para la frase sobre Terada–von Luxburg (l.207): el enunciado "for points drawn from a density and k→∞ with k/n→0" coincide con lo que recuerdo del artículo (Sección de teoría, encaje del grafo k-NN no ponderado, salvo semejanza), pero no pude verificarlo en línea; marcar en la tabla de afirmaciones como "literature (statement to be checked against the source)" hasta cotejarlo.
 
 ## Hallazgos menores
 
-`[en curso]`
+**m1. Prop. 3.8, paréntesis del caso compartido (main.tex:243).** "the true inradius generally lies strictly inside the interval" es falso para configuraciones admitidas: si {a,b},{a,c} realizan g y b, a, c son colineales con a en medio, el desplazamiento de a hacia c, de b lejos de a y de c hacia a, todos de g/4, empata exactamente (verificado: 2.500000e−4 para g = 1e−3), luego el radio inscrito es g/4 también con punto compartido. A primer orden el desplazamiento de cierre es g/(2(1+sin(θ/2))) con θ el ángulo en a (90° → 0.293 g, 120° → 0.268 g, 150° → 0.254 g, 180° → 0.250 g). Sustituir el paréntesis por esa fórmula y la observación de que el radio inscrito es el mínimo de los desplazamientos de cierre sobre todos los pares consecutivos.
+
+**m2. "a disparity of at most 3g²/8" (main.tex:248).** Es 6e² con e = g/4 usando E‖X_c‖²_F = n/6; no es una cota para cada X. Escribir "of order 3g²/8 (using the expected centred norm n/6 of a uniform sample)".
+
+**m3. "(Schoenberg)" sin referencia precisa (main.tex:288).** El resultado D euclidiana ⇒ D^p euclidiana (0<p<1) es Schoenberg 1937, Ann. of Math. 38(4), 787–793; añadir `schoenberg1937` y citar.
+
+**m4. E5e, "The extra realizers come from pairs … whose expected number tends to one" (main.tex:375).** Es la fuente típica, no la única (máximo observado 72 en n=10, que no es potencia de 2). Escribir "typically come from"; opcionalmente añadir que los datos son compatibles con "número de realizadores = 2^N con N → Poisson(1)" (predicción 0.368/0.368/0.981 para único/dos/≤8 frente a 0.34/0.37/0.98 observados en n=300), como conjetura.
+
+**m5. Versionado y README.** `\date` dice "Working draft v0.3" (main.tex:55); la ficha dice v0.4; README dice v0.2 y "revisado una vez por un árbitro"; README da "lorentzian_chain.py < 1 min" y "ordinal_class.py ~5 min" cuando las corridas de referencia tardaron 315 s y 168 s. La nota de continuidad dice "92/92" (son 91/91) y "E5 en 149 s" (315 s). Unificar a v0.4 y actualizar tiempos y conteos.
+
+**m6. Resto de "walk radius".** Leyenda de la Figura 3 ("walk radius (slope −7.9)", `ordinal_class.py:179`), claves JSON `walk_radius_*`, encabezado de `results/tables_class.md`, docstring del script (l.14–17: "lower bound on the class radius"). El texto ya dice "walk range" y "lower bound on the extent"; alinear figura y script (relanzar solo la figura es suficiente si se conservan las claves JSON, o renombrar las claves y `make_numbers.py:256,259`).
+
+**m7. `\EfiveDablation` (make_numbers.py:205).** Imprime "less than one percent" cuando |Δ| < 1 %, lo que reproduce literalmente la frase que la ronda 2 pidió sustituir por un número. Imprimir siempre el porcentaje con signo (+0.4 % en n=2000) y citar la fila de la ablación en la tabla E5d o en el apéndice.
+
+**m8. refs.bib `meyer1988`.** El registro del MIT (handle 1721.1/14328) fecha la tesis en 1989; la literatura la cita mayoritariamente como 1988. Añadir `note = {MIT handle 1721.1/14328}` y decidir el año con el registro a la vista.
+
+**m9. Prop. 3.8 (ii), redacción.** "there is a configuration Y with max_i‖y_i − x_i‖ = g(X)/4 in which those two distances coincide" está bien; convendría añadir "(the four moved points stay distinct because g ≤ min D_ab)", que ahora está al final de la prueba, también en el enunciado o justo después de la construcción, para que el lector no se pregunte por la inyectividad antes de tiempo. Opcional.
 
 ## Verificación matemática, línea por línea
 
@@ -142,4 +164,16 @@ Reproducción rápida (hecha en la sesión anterior interrumpida de esta ronda, 
 
 ## Lista de acciones (prioridad descendente, imperativo)
 
-`[en curso]`
+1. Reescribe el enunciado de la Prop. 5.2 (main.tex:311): "1 for a chain and otherwise half the number of transitive orientations of the incomparability graph" (M1).
+2. Inserta en la prueba de la Prop. 5.2 (main.tex:314) la línea que muestra que T es una orientación transitiva (v_a > v_b > v_c ⇒ a ∥ c) y la que muestra que ≺ ∪ T es lineal para toda orientación transitiva T; elimina la cláusula "for which ≺ ∪ T is transitive" o dila automática (M2).
+3. Añade `golumbic1977` a refs.bib y cítalo en main.tex:375 y :452 (M3).
+4. Coteja el Teorema 3.7 con el PDF de Kleindessner–von Luxburg (COLT 2014, pp. 40–67) y añade la condición de regularidad del dominio, "all quadruple comparisons", "same dimension d" y la clase C_n a la que se aplica la Def. 2.6; coteja igualmente la frase sobre Terada–von Luxburg (main.tex:204–207) (M4).
+5. Sustituye el paréntesis del caso compartido en la prueba de la Prop. 3.8 (main.tex:243) por la fórmula g/(2(1+sin(θ/2))) y la observación de que el caso colineal da exactamente g/4 (m1).
+6. Cambia "at most 3g²/8" por "of order 3g²/8" con la justificación n/6 (main.tex:248) (m2).
+7. Añade `schoenberg1937` y cítalo en main.tex:288 (m3).
+8. Escribe "typically come from" en main.tex:375 y, si quieres, la conjetura 2^Poisson(1) con los tres números de apoyo (m4).
+9. Pon "v0.4" en main.tex:55 y en README.md; actualiza en README los tiempos (E5 ≈ 5 min, E2c ≈ 3 min) y "dos rondas de revisión"; corrige "92/92" → "91/91" y "149 s" → "315 s" en la nota de continuidad (m5).
+10. Renombra "walk radius" → "walk range" en la leyenda de la figura (`ordinal_class.py:179`), el docstring y el encabezado de `tables_class.md`; regenera `figures/ordinal_class.{png,pdf}` (m6).
+11. Haz que `make_numbers.py:205` imprima el porcentaje con signo en lugar de "less than one percent" (m7).
+12. Añade a `meyer1988` la nota con el handle del MIT y fija el año (1989 según el registro) (m8).
+13. Opcional: adelanta la observación de inyectividad en la Prop. 3.8 (ii) (m9); añade DOI/URL a myrheim1978 y sorkin2005.
