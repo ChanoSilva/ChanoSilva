@@ -88,7 +88,7 @@ The margin is the distance to the local decision boundary between the two neares
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.36\linewidth]{../figures/fig_field_moons.pdf}
+\includegraphics[width=0.33\linewidth]{../figures/fig_field_moons.pdf}
 \caption{Resolution ellipsoids ($K_m=40$, $\alpha=0.2$, drawn at $0.6$ standard deviations, projected on the two informative coordinates) on a grid of query points of moons-aniso. Along the moons the ellipses follow the local orientation of the data; away from them they inflate.}
 \label{fig:moons}
 \end{figure}
@@ -141,7 +141,7 @@ Numerical verification (\path{experiments/lda_identity.py}, true parameters, $d=
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.55\linewidth]{../figures/fig_identity.pdf}
+\includegraphics[width=0.50\linewidth]{../figures/fig_identity.pdf}
 \caption{Proposition~\ref{prop:lda} on samples from the true model. Left: $K=2$, equal priors, the posterior margin is exactly $\tanh(s/4)$. Right: $K=3$, equal priors, neither the posterior difference nor the maximum posterior is a function of $s$.}
 \label{fig:identity}
 \end{figure}
@@ -245,7 +245,7 @@ The accuracies at fixed coverage (\path{results/tables.md}; mean risk--coverage 
 
 \begin{table}[htbp]
 \centering\small
-\begin{tabular}{>{\raggedright\arraybackslash}p{0.73\linewidth}>{\raggedright\arraybackslash}p{0.22\linewidth}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.72\linewidth}>{\raggedright\arraybackslash}p{0.22\linewidth}}
 \toprule
 claim & status\\
 \midrule
@@ -277,7 +277,7 @@ Table~\ref{tab:claims} lists the claims with their status. The main one is negat
 \FloatBarrier
 \appendix
 \section{Reproducibility}\label{app:repro}
-{\sloppy The directory contains \path{experiments/selective_benchmark.py} (benchmark; \texttt{-{}-fast} for a reduced run, \texttt{-{}-resummarise} to recompute the statistics from stored per-fold results), \path{experiments/lda_identity.py} (verification of Section~\ref{sec:exact}), \path{experiments/make_figures.py} and \path{experiments/make_numbers.py}, which converts \path{results/results.json} and \path{results/results_identity.json} into the macros and table bodies of this document; \path{results/results_v01.json} is the version 0.1 run. Script \MetaVersion; seed \MetaSeed; Python \MetaPython, NumPy \MetaNumpy, SciPy \MetaScipy~\citep{virtanen2020}, scikit-learn \MetaSklearn, Matplotlib~\citep{hunter2007}; BLAS threads limited to one; \MetaCpuSeconds~s of CPU for the benchmark (wall \MetaWallSeconds~s).\par}
+{\sloppy The directory contains \path{experiments/selective_benchmark.py} (benchmark; \texttt{-{}-fast} for a reduced run, \texttt{-{}-resummarise} to recompute the statistics from stored per-fold results), \path{experiments/lda_identity.py} (Section~\ref{sec:exact}), \path{experiments/make_figures.py} and \path{experiments/make_numbers.py}, which turns \path{results/results.json} and \path{results/results_identity.json} into the macros and table bodies of this document; \path{results/results_v01.json} is the version 0.1 run. Script \MetaVersion; seed \MetaSeed; Python \MetaPython, NumPy \MetaNumpy, SciPy \MetaScipy~\citep{virtanen2020}, scikit-learn \MetaSklearn, Matplotlib~\citep{hunter2007}; BLAS threads limited to one; \MetaCpuSeconds~s of CPU for the benchmark (wall \MetaWallSeconds~s).\par}
 
 \paragraph{Tie handling.} Tied scores form blocks; within a block of size $b$ with $e$ errors the expected cumulative error after accepting $j\le b$ of its points is $ej/b$, so $r_i$, the AURC (mean of $r_i$) and the accuracy at coverage $c$ ($1-r_{\lceil cn\rceil}$) are exact expectations under uniform random tie-breaking.
 
