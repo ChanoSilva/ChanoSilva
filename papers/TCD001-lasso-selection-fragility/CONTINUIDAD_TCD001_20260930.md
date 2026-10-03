@@ -1,4 +1,4 @@
-# TCD001 — Continuidad interna, 30/09/2026 (actualizada 03/10/2026, v0.4)
+# TCD001 — Continuidad interna, 30/09/2026 (actualizada 03/10/2026, v0.5)
 
 Documento de trabajo interno. No incorporar al manuscrito ni a entregas institucionales.
 
@@ -15,7 +15,7 @@ Pedido de la sesión (coordinador, Claude Code, 30/09/2026): dar a la línea un 
 5. **"Conexión con problemas combinatorios conocidos".** Se materializó como una reducción directa desde Subset Sum para p = 1 (existencia de testigo de deselección). No se sabe si la conexión que tenía en mente la ficha era esta u otra (p. ej. sistemas máximos factibles de Amaldi–Kann).
 
 ## Qué se produjo (todo en `papers/TCD001-lasso-selection-fragility/`)
-1. Manuscrito LaTeX (`manuscript/main.tex`, inglés; v0.1: 15 páginas, 22 referencias; v0.2: 10 páginas, 23 referencias, tablas por celda trasladadas a `results/*.md`; v0.3: 10 páginas, 25 referencias; v0.4: 12 páginas —cuerpo hasta la p. 11—, 25 referencias), compilado sin errores ni referencias indefinidas.
+1. Manuscrito LaTeX (`manuscript/main.tex`, inglés; v0.1: 15 páginas, 22 referencias; v0.2: 10 páginas, 23 referencias, tablas por celda trasladadas a `results/*.md`; v0.3: 10 páginas, 25 referencias; v0.4: 12 páginas —cuerpo hasta la p. 11—, 25 referencias; v0.5: 13 páginas —cuerpo hasta la p. 11, Apéndice B en letra menor—, 26 referencias), compilado sin errores ni referencias indefinidas.
 2. Biblioteca `experiments/lasso_fragility.py` y cuatro scripts de experimentos con semillas fijas (20260930 para E0–E3/E5, 20260931 para E4), salida JSON + Markdown, `make_numbers.py` (~500 macros en v0.2, 528 en v0.3, con aserciones que atan las frases cualitativas del texto a los datos) y `make_figures.py`; `check_b1_counterexample.py` (v0.2); `snapshot_cost_ratios.py` (v0.3). Ningún número del manuscrito está escrito a mano.
 3. README, esta nota y una propuesta de ficha.
 
@@ -24,7 +24,7 @@ Pedido de la sesión (coordinador, Claude Code, 30/09/2026): dar a la línea un 
 - **Cor. 3.2 (una eliminación) — demostrado, enunciado corregido en v0.2.** Con la hipótesis h_i < 1 (rango completo de X_{S,−i}): fórmula DFBETA con el residuo del Lasso bajo la regla C; índice de inestabilidad ι_i (ι_i := +∞ si h_i = 1, caso de rango deficiente en el que el soporte no se conserva); certificado O(np) de f ≥ 2. El v0.1 enunciaba h_i < 1 como incondicional (falso: X = I₂, y = (3,3), μ = 1 da h₁ = h₂ = 1). La condición suficiente cubre el 58% de las eliminaciones individuales realmente estables.
 - **Prop. 3.4 (certificado para k eliminaciones) — demostrada, holgada.** Coste O(nps₀ + pn log n). Requiere T_k(h) < 1; certifica k* ≥ 1 solo en el 30% de las instancias de la familia A con f ≥ 2 (n ≤ 14), brecha media 1.2; a n = 400 la horquilla [k*+1, greedy] tiene razón media 0.57 (A).
 - **Ejemplos de no monotonía.** p = 1: x = (1,1,1), y = (2,−2,2), μ = 3/2, R = {1}, R' = {1,2}, ambas reglas (demostrado a mano). p = 2: X = [[2,−1],[0,2],[1,1],[2,−2],[−1,1]], y = (2,−2,3,−1,0), μ = 7/2, R = {3,4}, R' = {2,3,4}: la variable 1 sale por competencia con la 2 (su correlación marginal en D∖R es 4 > 7/2 pero la residual es 11/4 < 7/2) y vuelve en D∖R'. Los 26 subconjuntos propios se verifican en aritmética racional exacta; 3 pares no monótonos.
-- **Teorema 5.1 — demostrado.** (a) Existencia de testigo de deselección NP-completa para p = 1 (reducción desde Subset Sum con x_i = 1, y = (b_1,…,b_m, −t), μ = 1/2; funciona con ambas reglas). (b) Testigo mínimo de selección para p = 1 en O(n log n). Observaciones: dureza débil (DP pseudo-polinomial); para p ≥ 2 se hereda la dureza de "sale"/"cualquiera", y desde v0.4 "entra" es NP-completo para p fijo ≥ 2 (Teorema 5.4; ver la sección final).
+- **Teorema 5.1 — demostrado.** (a) Existencia de testigo de deselección NP-completa para p = 1 (reducción desde Subset Sum con x_i = 1, y = (b_1,…,b_m, −t), μ = 1/2; funciona con ambas reglas). (b) Testigo mínimo de selección para p = 1 en O(n log n). (c) (v0.5, ronda 3 M2) Número de fragilidad con signo (el ANY con signo que calculan E2/E4) para p = 1 en O(n log n): con s = sgn T, hay testigo de tamaño k sii sT − σ_k^{(s)} ≤ μ_k (σ_k^{(s)} = suma de los k mayores s·a_i); comprobado en exacto en 2 400/2 400 instancias. Observaciones: dureza débil **con datos enteros** (DP pseudo-polinomial); para p ≥ 2 se hereda la dureza de "sale"/"cualquiera sin signo", "entra" es NP-completo para p fijo ≥ 2 (Teorema 5.4) y, con p en la entrada, fuertemente NP-completo bajo la regla C (Teorema 5.8, v0.5); la complejidad del ANY con signo para p ≥ 2 está abierta (ver las secciones finales).
 - **Observación 3.5 (stability selection) — demostrada, trivial.** Si el minimizador del Lasso es único en cada submuestra de tamaño ⌊n/2⌋ (c.s. en diseños continuos), f_leave(j) > ⌈n/2⌉ ⇒ frecuencia de selección 1 bajo la regla que use stability selection (hipótesis de unicidad añadida en v0.3, ronda 2 M3). El artículo original usa ‖Y − Xβ‖²₂ + λ‖β‖₁ con λ fijo en las submuestras, es decir, la regla C (μ = λ/2); las implementaciones con factor 1/n usan la P. Esa forma se verificó con fragmentos de búsqueda (árbitro de la ronda 2); el PDF no se pudo abrir (stat.ethz.ch y wiley bloqueados por el proxy). El recíproco no se sigue de las definiciones por la no monotonía. No se buscó un contraejemplo explícito del recíproco.
 - **Experimentos (verificados, solo en dos familias sintéticas).** Ver README para las cifras. Lo esencial: a n ≤ 14 el soporte cambia con una sola eliminación en el 92% (familia ruidosa) y el 52% (familia con señal fuerte) de las instancias; los testigos mínimos son mayoritariamente eventos simples; 0 de 18 combinaciones heurística×objetivo×familia cumplen el criterio predefinido de ventaja computacional (el greedy de un paso cumple la parte de exactitud para "cualquiera" y "sale", pero nunca la de costo, porque la búsqueda exhaustiva con el test cerrado es barata a estos tamaños; en E4, familia A, el cociente de coste baja del 10% solo a n = 34 —0.062 en la corrida v0.3, 0.055–0.070 en tres corridas— con 17 de 19 instancias exactas, y en la familia B el greedy es 8–11 veces más caro a todos los tamaños); pares no monótonos en el 51–72% de las instancias.
 
@@ -40,7 +40,7 @@ Pedido de la sesión (coordinador, Claude Code, 30/09/2026): dar a la línea un 
 
 ## Limitaciones y lo que NO se afirma
 - No se afirma novedad de la fórmula cerrada (es Woodbury + KKT, en la tradición de Cook/Belsley y de la unicidad de Tibshirani 2013) ni de la reducción (dos líneas desde Subset Sum). Es plausible que ambas existan en la literatura de auditoría de OLS (Moitra–Rohatgi; Freund–Hopkins) o en notas no publicadas.
-- La dureza es débil y solo para p = 1; no dice nada sobre instancias típicas, en las que la búsqueda exhaustiva fue rápida.
+- La dureza es débil (datos enteros, todo p fijo) y usa datos con estructura especial; con p en la entrada, ENTER es fuertemente NP-completo bajo la regla C (Teorema 5.8, aún sin árbitro independiente); ninguna dureza cubre el ANY con signo que miden los experimentos (para p = 1 es O(n log n); para p ≥ 2, abierto). Nada de esto dice algo sobre instancias típicas, en las que la búsqueda exhaustiva fue rápida.
 - El certificado de la Prop. 3.4 es holgado; no se afirma ninguna tasa de f/n con n (la caída observada de g/n es empírica y de estas familias).
 - Los porcentajes de los experimentos son específicos de dos familias gaussianas sintéticas, un solver y un tope de búsqueda; no se afirma nada sobre datos reales ni sobre poblaciones.
 - Los cocientes de costo dependen de la implementación (test vectorizado en NumPy frente a un bucle Python de reajustes).
@@ -48,12 +48,12 @@ Pedido de la sesión (coordinador, Claude Code, 30/09/2026): dar a la línea un 
 
 ## Pendientes y próximos pasos concretos
 1. Confirmar con el autor que la interpretación de la ficha (testigos, no monotonía, reducción) coincide con la idea original; integrar notas previas si existen.
-2. Conjetura 5.8 (v0.4): dureza fuerte con p como parte de la entrada (ruta: varios absorbedores; `theory/hardness_derivation.md` §4). La Conjetura 5.3 de v0.3 quedó demostrada (Teorema 5.4) y la dureza fuerte con p fijo queda excluida salvo P = NP (Cor. 5.6).
+2. (v0.5) Complejidad del número de fragilidad con signo (ANY con signo, el de los experimentos) para p ≥ 2, con el problema de signo de Moitra–Rohatgi (algoritmo n^{O(d³)}, cota ETH n^{o(d)} excluida) como comparación natural; Conjetura 5.11 (dureza fuerte de deselección, ANY sin signo y regla P con p en la entrada, datos en {−1, 0, 1}); revisión independiente del Teorema 5.8 (dureza fuerte de ENTER, regla C), integrado en v0.5 sin pasar aún por un árbitro. La Conjetura 5.8 de v0.4 quedó demostrada para ENTER/regla C; la dureza fuerte con p fijo y datos enteros queda excluida salvo P = NP (Cor. 5.6).
 3. Apretar la Prop. 3.4 (estructura de signos del término de interacción; relajación SDP pequeña) y medir la brecha con f en E4.
 4. Reglas dependientes de los datos (μ por validación cruzada): el testigo debe incluir el cambio de μ.
 5. Extender el test exacto a elastic net y square-root Lasso (KKT lineales sobre soporte con signos fijo).
 6. Buscar un contraejemplo explícito del recíproco de la Observación 3.5 (frecuencia de stability selection 1 con f_leave ≤ ⌈n/2⌉).
-7. Decidir destino (arXiv stat.ME / math.OC); la extensión es ahora 12 páginas con apéndices (ver ronda 1 y la sección final).
+7. Decidir destino (arXiv stat.ME / math.OC); la extensión es ahora 13 páginas con apéndices (objetivo ≤ 12 no alcanzado; ver la sección de la ronda 3).
 8. Actualizar la ficha TCD001 del CV web según `FICHA_TCD001_propuesta.md`.
 
 ## Ronda 1 de revisión interna (30/09/2026; respuesta 03/10/2026)
@@ -131,3 +131,31 @@ Origen: `theory/` (otro agente): `hardness_p2.tex`, `hardness_derivation.md`, `c
 **Lo que NO se afirma.** Novedad de las reducciones; dureza fuerte (con p fijo está excluida salvo P = NP, con p creciente es conjetural); pertenencia a NP con p como parte de la entrada; nada sobre instancias típicas (las reducciones usan datos con estructura especial).
 
 **Pendiente.** (i) Conjetura 5.8. (ii) Si se quiere la observación de pertenencia a NP con p en la entrada, verificar la referencia de Khachiyan (1979) y añadirla a `refs.bib`. (iii) Decidir si recortar a 11 páginas en total.
+
+*(Nota v0.5: la frase «solo queda abierta la dureza fuerte con p no acotado» de la sección anterior quedó superada: era inexacta porque el ANY con signo no estaba tratado (ronda 3, M2), y la dureza fuerte de ENTER bajo la regla C quedó demostrada en v0.5.)*
+
+## Ronda 3 de revisión interna e integración de la dureza fuerte (03/10/2026)
+
+Informe: `REFEREE_TCD001_ronda3_20261003.md` (cambios menores; 0 bloqueantes, 2 mayores, 12 menores; los teoremas de v0.4 son correctos; 16/16 puntos de la ronda 2 bien aplicados). Respuesta: `RESPUESTA_TCD001_ronda3_20261003.md`. Resultado: v0.5, 3 October 2026, 13 páginas.
+
+| Hallazgo | Acción |
+|---|---|
+| M1 "dureza débil" sin "datos enteros" | Aceptado: resumen, introducción, Obs. 5.2(i)–(ii), título del Cor. 5.6, tabla de afirmaciones, Limitations (con la frase sobre datos racionales con muchos denominadores), README y FICHA. |
+| M2 ANY con signo no tratado | Aceptado: Teorema 5.1(c) (O(n log n) para p = 1, demostrado y comprobado en exacto 2 400/2 400, `check_signed_any_p1.py`); Obs. 5.2(iv) (las reducciones no dicen nada del ANY con signo; abierto para p ≥ 2, en NP, pseudo-polinomial con datos enteros y p fijo); tabla ("f_LEAVE y el ANY sin signo NP-duros"); introducción; Next steps (a); Limitations. |
+| m1 cardinalidad | Aceptado (Obs. 5.2(i)). |
+| m2 SHA-256 con la línea de tiempo | Aceptado: logs congelados sin tiempos (`check_hardness`, `check_strong`); el SHA-256 del log de `check_strong` se reprodujo idéntico en dos corridas; aserciones en `make_numbers.py`. |
+| m3 contador KKT de la verificación de dureza | Aceptado: `meta.kkt_guard` en `hardness.json` (33 484 ajustes, 0 retrocesos); Limitations. |
+| m4–m7 precisiones de la prueba | Aceptados (Apéndice B; promesa del problema tras el Teorema 5.4). |
+| m8 línea desfasada de esta nota | Aceptado (sección "Limitaciones"). |
+| m9 "integer data" de la ventana | Aceptado ("the slack Δ = σ − t … is an integer"). |
+| m10 extensión | Aceptado con matiz: recortes (a)–(d) aplicados y otros (ver la respuesta); con el Teorema 5.8 el PDF tiene 13 páginas (12 en v0.4). Llegar a 12 exigiría quitar la Tabla 2 o pruebas; no se hizo. El Apéndice B va en `\footnotesize` y la bibliografía en estilo `abbrvnat`; se usa `\enlargethispage{2\baselineskip}` en la última página. |
+| m11 avisos de hyperref | Aceptado (`\texorpdfstring`; 0 avisos). |
+| m12 Moitra–Rohatgi | Aceptado (Obs. 5.2(iii) y comentario de la Conjetura 5.11); Hu et al. (NeurIPS 2024) añadido en E3; Konrad–Kuschnig (ICLR 2026) no añadido. |
+
+**Integración de `theory/strong_hardness.tex` (otro agente).** Verificación propia paso a paso (detalle en la respuesta): el teorema es correcto. Cuatro precisiones aplicadas: (1) casos triviales m ≤ q decididos directamente (con m = 0 la construcción degeneraba; además así en D algún cov_e ≥ 2); (2) en la pertenencia a NP con p en la entrada, los duales básicos óptimos existen tras descartar filas linealmente dependientes de la igualdad (si no, el poliedro dual no es puntiagudo); (3) el corolario dice "the dependence on p cannot be made polynomial" (la dureza fuerte no excluye algoritmos g(p)·poly(n, M); eso sería una pregunta paramétrica); (4) se reformuló la referencia a la conjetura sustituida. El "Lema entry-any" se fusionó con el Lema 5.3 (criterio de entrada para cualquier p, con la fórmula explícita para p = 2). Dónde: Sección 5 (párrafo "Strong hardness with growing p", Teorema 5.8, Corolario 5.9, Obs. 5.10 con la advertencia de que el teorema no ha pasado por un árbitro independiente, Conjetura 5.11 con comentario), Apéndice B (construcción, Lema B.1, pruebas del Teorema 5.8 y del Corolario 5.9), Apéndice A (verificación). `theory/` no se modificó.
+
+**Reproducibilidad.** `experiments/check_strong.py` (copia de `theory/check_strong.py` que escribe `results/strong_hardness.json`, `results/check_strong_output.txt` sin tiempos y su SHA-256 `157a5db1890d123e…`; 105 s de CPU; idéntico a la salida de `theory/` salvo los tiempos y una línea con el contador KKT). `make_numbers.py` genera 23 macros nuevas (`\Strong*`, `\HardKKT*`, `\SignedPOne*`; 568 en total) y afirma con assert lo que el texto dice (40/40, 0 fallos de caracterización y del Lema B.1, unicidad certificada, controles detectados, u = 1 solo por las afirmaciones intermedias, |x| ≤ μ). Comprobación independiente adicional del autor con `sklearn.linear_model.Lasso` y código propio (fuera del repositorio): 12 instancias, 45 544 submuestras, 0 fallos (49 s).
+
+**Bibliografía.** Moitra–Rohatgi: el algoritmo n^{O(d³)} para decidir Stability(X, y) ≤ k y la exclusión de algoritmos n^{o(d)} bajo ETH se verificaron por resultados de búsqueda concordantes (arXiv:2205.14284, mlanthology ICLR 2023); arxiv.org sigue bloqueado por el proxy. Hu, Hu, Zhao, Ma, "Most Influential Subset Selection: Challenges, Promises, and Beyond", NeurIPS 2024 (arXiv:2409.18153): verificada por búsqueda (actas NeurIPS, mlanthology, NSF PAR); se cita por lo que dice su resumen (las heurísticas voraces basadas en influencia pueden fallar incluso en regresión lineal; la versión adaptativa captura parte de las interacciones). Las entradas clásicas siguen "no verificadas en red".
+
+**Queda abierto.** (i) Revisión independiente del Teorema 5.8 y de su verificación. (ii) Complejidad del ANY con signo para p ≥ 2 (fijo o en la entrada). (iii) Conjetura 5.11. (iv) Dureza paramétrica en p (W[1]); la cota ETH de Moitra–Rohatgi no se traslada. (v) Extensión: 13 páginas frente al objetivo de 12.

@@ -4,7 +4,7 @@
   "seed": 20261003,
   "python": "3.11.15",
   "numpy": "2.4.6",
-  "cpu_seconds": 106.4,
+  "cpu_seconds": 104.7,
   "log_sha256": "157a5db1890d123eb3955b9bd102a5dc97a3c7dbccf6458c376ff33a1fc29d2a",
   "log_has_timing": false,
   "kkt_guard": {
@@ -36,8 +36,10 @@
   "lib_disagree": 0,
   "max_int": 12960,
   "max_mu": 16200,
-  "exact_solves": 300328,
-  "enum_fallbacks": 95,
+  "exact_solves": 165280,
+  "enum_fallbacks": 0,
+  "exact_solves_incl_controls": 300328,
+  "enum_fallbacks_incl_controls": 95,
   "q_values": [
    2,
    3

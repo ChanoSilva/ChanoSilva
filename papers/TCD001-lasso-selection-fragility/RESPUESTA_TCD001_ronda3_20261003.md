@@ -2,11 +2,12 @@
 
 Objeto: informe `REFEREE_TCD001_ronda3_20261003.md` (cambios menores; 0 bloqueantes, 2 mayores, 12 menores; teoremas de v0.4 correctos; 16/16 puntos de la ronda 2 bien aplicados) e integración del trabajo de `theory/` sobre dureza fuerte (`strong_hardness.tex`, `strong_hardness_derivation.md`, `check_strong.py`). Versión resultante: borrador v0.5 (3 October 2026).
 
-*Documento escrito de forma incremental; las secciones marcadas "pendiente" se completan a medida que se aplican los cambios.*
-
 ## Resumen
 
-(pendiente)
+- **Recuento:** 14 hallazgos → 13 aceptados, 1 aceptado con matiz (m10, extensión), 0 rebatidos. Bloqueantes: ninguno. M1 (dureza débil sólo con datos enteros): aceptado en todos los lugares señalados. M2 (ANY con signo): aceptado; el caso p = 1 se demuestra (Teorema 5.1(c), O(n log n)) y se comprueba en exacto (2 400/2 400); p ≥ 2 queda abierto y así se dice.
+- **Teorema de dureza fuerte (`theory/`):** verificado por mí paso a paso y **correcto**; integrado como Teorema 5.8 (Selection-Witness con p en la entrada, regla C, fuertemente NP-completo) con Lema B.1, Corolario 5.9 y la Conjetura 5.11 revisada. Cuatro precisiones de redacción/prueba (casos triviales m ≤ q, puntiagudez del dual, "polynomial in p", referencia a la conjetura sustituida), ninguna cambia el enunciado. `check_strong.py` reproducido (40/40, 0 fallos) y su log congelado sin tiempos (SHA-256 idéntico en dos corridas); comprobación independiente propia con otro solver: 0 fallos. El manuscrito, el README, la FICHA y CONTINUIDAD dicen que el teorema **aún no ha pasado por un árbitro independiente**.
+- **Números:** ningún número de E0–E5 cambia (no se corrieron de nuevo; no hacía falta). Cambian `\HardSha` (log sin línea de tiempo) y se añaden 23 macros (`\Strong*`, `\HardKKT*`, `\SignedPOne*`; 568 en total). `\HardSeconds` sigue en 38.
+- **Compilación:** v0.4 tenía 12 páginas; v0.5 tiene **13** (objetivo ≤ 12 no alcanzado; ver abajo). 0 errores, 0 referencias o citas indefinidas, 0 "??", 0 Overfull, 0 avisos de hyperref, 2 Underfull ya conocidos (tabla de afirmaciones).
 
 ## Verificación propia del teorema de dureza fuerte (theory/)
 
@@ -29,6 +30,7 @@ Imprecisiones encontradas y corregidas en la integración:
 2. **Duales básicos.** "Por dualidad fuerte cada LP tiene una solución dual básica óptima" exige que el poliedro dual sea puntiagudo; con G singular las filas de la igualdad G β = G β̂ son dependientes y el dual tiene un espacio de linealidad. Se añade: "tras descartar las filas linealmente dependientes de la igualdad (lo que no cambia el conjunto factible) el poliedro dual es puntiagudo", y entonces existe un vértice óptimo dado por Cramer.
 3. **"La dependencia exponencial en p no puede eliminarse".** La dureza fuerte excluye un algoritmo polinomial en (n, p, M), no uno de la forma g(p)·poly(n, M) (eso sería una pregunta de complejidad parametrizada, W[1], que no se estudia). Se escribe "cannot be made polynomial in p".
 4. **Frase "the route sketched after Conjecture 5.8 lacked"**: la conjetura desaparece; se reformula sin la referencia cruzada.
+5. **Notación.** En `theory/` el conjunto de elementos sin ancla se llamaba B, que en el mismo apéndice es Σb_i (Teorema 5.4); en el manuscrito pasa a P̄ = U ∖ P. El "Lema entry-any" de `theory/` se fusionó con el Lema 5.3 (un solo criterio de entrada para todo p, con la fórmula explícita para p = 2).
 
 Además (no es un error de la prueba, pero sí de alcance, en línea con M2 del árbitro): el teorema es sobre ENTER; en su construcción los testigos ANY (con o sin signo) son triviales (quitar una tripleta que cubre un elemento dos veces cambia el soporte de los absorbedores), así que no dice nada del objetivo ANY con signo de los experimentos. Así se dice en la Obs. 5.2(iv) y en la conjetura revisada.
 
@@ -61,12 +63,34 @@ Nota sobre el teorema nuevo de dureza fuerte (integración de `theory/`): con é
 
 ## Bibliografía
 
-(pendiente)
+| Entrada | Estado | Acción |
+|---|---|---|
+| `moitra2022` | Verificada por dos búsquedas concordantes (arXiv:2205.14284 y mlanthology ICLR 2023): algoritmo n^{O(d³)} que decide Stability(X, y) ≤ k (mínimo número de eliminaciones que cambia el signo de un coeficiente de MCO) y, bajo ETH, inexistencia de algoritmos n^{o(d)}. arxiv.org está bloqueado por el proxy: no se leyó el PDF. | Usada en la Obs. 5.2(iii), en el comentario de la Conjetura 5.11 y en Next steps. |
+| `hu2024` (nueva) | Verificada por búsqueda (actas NeurIPS 2024, mlanthology, NSF PAR, arXiv:2409.18153): Yuzheng Hu, Pingbang Hu, Han Zhao, Jiaqi W. Ma. | Citada en E3 por lo que dice su resumen. |
+| Konrad–Kuschnig, ICLR 2026 | Aparece en las búsquedas (actas ICLR 2026). | No añadida: ninguna frase del texto la necesita. |
+| Resto | Sin cambios; las clásicas siguen "no verificadas en red" (CONTINUIDAD). | — |
+
+Estilo bibliográfico: `plainnat` → `abbrvnat` (iniciales), por extensión.
 
 ## Cómputo y compilación
 
-(pendiente)
+| Paso | CPU |
+|---|---|
+| `experiments/check_hardness.py` (m2/m3: log sin tiempo y contador KKT); diff con el log v0.4 vacío salvo la línea `elapsed` | 38.5 s |
+| `experiments/check_strong.py`, primera corrida (reproduce `theory/check_strong_output.txt` salvo tiempos; 40/40, 0 fallos) | 107 s |
+| `experiments/check_strong.py`, segunda corrida tras guardar en el JSON los recuentos previos a los controles: SHA-256 del log idéntico (`157a5db1890d123e…`) | 106 s |
+| `experiments/check_signed_any_p1.py` (Teorema 5.1(c), 2 400/2 400) | 0.8 s |
+| Comprobación independiente propia del Teorema 5.8 (scratchpad, `sklearn.linear_model.Lasso`, construcción reescrita desde el enunciado; 12 instancias propias, 5 SÍ, 45 544 submuestras: 0 fallos de caracterización, de soporte del Lema B.1, de signo, de la cota general de γ₀ y de la fórmula exacta del caso (iii); equivalencia 12/12) | 49 s |
+| `make_numbers.py` + `latexmk` (varias veces) | < 1 min |
+| **Total** | **≈ 5 min** |
+
+Páginas: 12 (v0.4) → 13 (v0.5). Lo nuevo ocupa ≈ 1.7 páginas (Teorema 5.1(c), Obs. 5.2(iii)–(iv), bloque del Teorema 5.8 en el cuerpo, construcción, Lema B.1 y pruebas en el Apéndice B, verificación en el Apéndice A). Los recortes m10(a)–(d) y otros (fusión de lemas, construcción del Teorema 5.4 al apéndice, introducción, Obs. 3.3 y 3.5, E1, E3, E4, E5, Limitations, tabla de afirmaciones, Apéndice A, leyendas) recuperaron ≈ 1 página; además el Apéndice B va en `\footnotesize`, la bibliografía en `abbrvnat` y la última página usa `\enlargethispage{2\baselineskip}`. Llegar a 12 exigiría sacar del PDF la Tabla 2 (veredicto de E3) o pruebas; no lo hice y lo dejo a decisión del autor. Revisé visualmente las páginas cambiadas (Sección 5, Figura 1, Tabla 2, apéndices, última página).
 
 ## Lo que queda abierto
 
-(pendiente)
+1. Revisión independiente del Teorema 5.8 (y del Lema B.1); hasta entonces su estado en la tabla de afirmaciones es "proved here, not yet refereed".
+2. Complejidad del número de fragilidad con signo (ANY con signo) para p ≥ 2, fijo o en la entrada; la comparación natural es el problema de signo de Moitra–Rohatgi.
+3. Conjetura 5.11: dureza fuerte de deselección y del ANY sin signo (ambas reglas) y de la selección bajo la regla P, con p en la entrada y datos en {−1, 0, 1}.
+4. Dureza paramétrica en p (W[1]); la cota ETH de Moitra–Rohatgi no se traslada.
+5. Extensión: 13 páginas frente al objetivo de 12.
+6. Las entradas bibliográficas clásicas siguen sin verificar en red.
