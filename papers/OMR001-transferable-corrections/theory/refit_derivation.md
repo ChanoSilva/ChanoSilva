@@ -89,3 +89,9 @@ For $\tilde\theta=JC+(1-J)\bar X_n$, $\ell(\tilde\theta)-\ell(\bar X_n)=J\big(\D
 \frac{\sigma^2}{m}\,\E\Big[\Phi(\xi-z)\big((2\eta-\eta^2)\xi^2-\eta^2d\big)+2\eta(1-\eta)\,\xi\,\varphi(z-\xi)-\eta^2(z-\xi)\,\varphi(z-\xi)\Big],
 \]
 which \path{theory/check_refit.py} evaluates by quadrature over $\xi\sim\sqrt{m/n_e}\,\chi_d$ (no Monte Carlo).
+
+## Nota v0.5 (ronda 3 de revisión interna, 03/10/2026)
+
+- La comparación del peor caso "comparable con $m\le6$ y $\alpha=0.1$" de la tabla de arriba quedó **resuelta**: el peor caso del estimador con partición es exactamente $d\sigma^2m/(nn_e)+(\sigma^2/m)E[M_0(\alpha;\xi)]$, $M_0(\alpha;\xi)=4\sup_{u\ge0}(u^2+\xi u)\Phi(-(z+u))$ (Prop. 4.5(c) del manuscrito, demostrada allí). Con $\alpha=0.1$: $m=3$, reajuste 0.0322 frente a partición 0.0308 (el reajuste es **peor**); $m=6$, 0.0241 frente a 0.0250 (mejor). Valores generados por `theory/check_refit.py`, sección (e).
+- El supremo que define $M_\eta$ se alcanza con $c=\pm1$ (para $u$ fijo, $f_\eta$ es cuadrática convexa en $\omega$): el peor caso es colineal con $R-\theta$ y vale para todo $d\ge1$ (Teorema 5.1(iv) del manuscrito); la construcción con $\hat e_\perp$ de este documento ya no es necesaria. `check_refit.py`, sección (d), lo comprueba frente a la búsqueda 2-D.
+- "Para cada corrección dada desaparece el costo de partición" (lectura de este pase teórico) es cierto de la **cota**, no del riesgo: con la corrección oráculo $C=\theta$ la partición es mejor con $\alpha\ge0.1$ y el reajuste es dañino con $m=24$ (Obs. 5.3(e) del manuscrito; sección (f) del script).
