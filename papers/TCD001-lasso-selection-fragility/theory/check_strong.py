@@ -280,7 +280,7 @@ def main():
     tot = dict(inst=0, yes=0, no=0, eq_ok=0, subsets=0, char_fail=0, uncert=0, uncert_entry=0, ties=0,
                inter_fail=0, inter_sign_fail=0, D_ok=0, lib_checked=0, lib_disagree=0)
     maxint = 0
-    insts = [(2, tr) for tr in make_instances(2, [3, 4, 5], 12, 20261003)]
+    insts = [(2, tr) for tr in make_instances(2, [3, 4, 5, 6], 18, 20261003)]
     # two hand-made q = 2 instances: every element covered, no exact cover / exact cover hidden among overlaps
     insts.append((2, [(0, 1, 2), (2, 3, 4), (4, 5, 0), (1, 3, 5)]))     # NO
     insts.append((2, [(0, 1, 2), (0, 3, 4), (1, 3, 5), (3, 4, 5)]))     # YES ({012,345})
@@ -311,7 +311,7 @@ def main():
     log(f"  set-by-set characterisation failures: {tot['char_fail']} over {tot['subsets']} subsets D\\R")
     log(f"  full data: target inactive and minimiser unique on {tot['D_ok']}/{tot['inst']}")
     log(f"  uniqueness not certified by rank(X_E) on {tot['uncert']} subsets, of which with the target in the found minimiser: {tot['uncert_entry']}")
-    log(f"  KKT ties (|c_j| = mu with beta_j = 0) on {tot['ties']} subsets (expected: the exact-cover sets and their neighbours)")
+    log(f"  KKT ties (|c_j| = mu with beta_j = 0) on {tot['ties']} subsets (expected: an anchored absorber covered once by the kept triples sits exactly at |c_e| = mu)")
     log(f"  intermediate claims (problem without target: support = anchored e with cov_e >= 2, |X_0'r| > mu iff predicted): {tot['inter_fail']} failures; negative coefficients: {tot['inter_sign_fail']}")
     log(f"  library cross-check (lasso_lars with KKT guard, float): {tot['lib_disagree']} support disagreements in {tot['lib_checked']} fits")
     log(f"  largest integer in the data over all instances: {maxint}")
