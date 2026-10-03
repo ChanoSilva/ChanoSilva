@@ -8,7 +8,7 @@ does not print, for lack of space. Full derivation, in Spanish, with the routes 
 **Status.** Proved here (the identities are exact, with complete proofs below); the conclusions concern the
 gadget families described, and are **not** lower or upper bounds for the signed fragility number. Not yet
 refereed. Checked in exact arithmetic by `experiments/check_signed_any.py` (counts copied from
-`results/signed_any.json`; frozen log `results/check_signed_any_output.txt`, SHA-256 prefix `c3e7244d5c447f90`).
+`results/signed_any.json`; frozen log `results/check_signed_any_output.txt`, SHA-256 prefix `b80f98cc974cbd05` since v0.7, `c3e7244d5c447f90` in v0.6; the v0.7 log only appends the counters of the certificate R*_j of Proposition 5.12 to part A, and the counts of parts B and C quoted here are unchanged). Proposition 5.12 itself was checked by the internal referee of round 5; these notes were not.
 
 Notation as in the paper: K = [n] \ R, mu' = mu_{|R|}, G = X_K^T X_K, q = X_K^T y_K.
 
