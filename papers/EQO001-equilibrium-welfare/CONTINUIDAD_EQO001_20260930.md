@@ -33,7 +33,7 @@ Encargo de esta sesión (subagente de Claude Code, 30/09/2026): escribir la nota
 ## Limitaciones (y lo que NO se afirma)
 - No se afirma ningún concepto de equilibrio nuevo, ninguna "solución general de equilibrio", ningún resultado empírico.
 - El Teorema 5.1 es de primer orden; su única condición suficiente de igualdad es la concavidad conjunta, que excluye Cournot y la mayoría de juegos con externalidades bilineales.
-- La decisión $\lambda\in\Lambda(x^*)$ para $W_\lambda$ no cóncava es un QP no convexo sobre una caja; aquí es tratable solo porque $N\le4$ ($3^N$ caras). No se cita complejidad (se evitó citar Pardalos–Vavasis por no tener certeza bibliográfica completa).
+- La decisión $\lambda\in\Lambda(x^*)$ para $W_\lambda$ no cóncava es un QP no convexo sobre una caja; aquí es tratable solo porque $N\le4$ ($3^N$ caras). No se cita complejidad (se evitó citar Pardalos–Vavasis por no tener certeza bibliográfica completa). **[Superado: Prop. 5.9 de la v0.3 (complejidad en juegos, reducción estándar; se citan Murty–Kabadi 1987, Pardalos–Schnitger 1988 y Vavasis 1990) y Teorema 5.12 de la v0.4 (ruteo).]**
 - No se revisó exhaustivamente la literatura de peajes (toll pricing) ni de equilibrio multiobjetivo; la lectura del Teorema 5.1 puede existir ya en otra forma.
 - Las frecuencias de conos no triviales y de testigos dependen de la distribución de instancias; no se les atribuye significado general.
 

@@ -6,6 +6,8 @@
 % delimited by "%%%% BLOCK X BEGIN/END" (the compile test splits on them).
 %
 % WHERE EACH BLOCK GOES, AND WHICH SENTENCES OF v0.3 CHANGE
+%  BLOCK P  -> preamble, right after \newtheorem{conjecture}... (main.tex
+%              defines no corollary environment).
 %  BLOCK A  -> Section 3.1, right after the paragraph that follows the
 %              proof of Lemma 3.1 ("In particular the minimisers ... below.").
 %              Proposition "Lemma 3.1 is complete" + Corollary on
@@ -67,6 +69,10 @@
 % Verification: theory/check_invariances.py (exact ranks for n<=7, all k),
 % output in theory/check_invariances_output.txt.
 % =====================================================================
+
+%%%% BLOCK P BEGIN
+\newtheorem{corollary}[theorem]{Corollary}
+%%%% BLOCK P END
 
 %%%% BLOCK A BEGIN
 \begin{proposition}[Lemma~\ref{lem:inv} is complete]\label{prop:invcomplete}
@@ -150,7 +156,7 @@ and $\nu=0$ on all other partitions. (1) $\sum_X\nu(C_X)=\bigl(\hat\Omega^2-\sum
 Since $\langle\nu,J^\omega_K+\mathrm{const}\rangle=0$, $E_\tot$ is not of that form. With singleton groups and a size weight, the same count gives $\langle\nu,F^w_A\rangle=\sum_{t<u}A_{tu}\bigl[(w(3)-w(2))\hat\omega(\{t,u\})\hat\omega(\{v,z\})+2w(3)\hat\omega_v\hat\omega_z\bigr]>0$ under the stated conditions on $w$.
 \end{proof}
 
-\noindent For $w=1/m$ the pairing vanishes at $\omega=\one$, as it must. For decreasing weights with $w(3)<w(2)$ (e.g.\ $1/m^2$, $\binom m2^{-1}$) the bracket changes sign on $(0,\infty)^4$. So for $n=4$, $k=2$ a single spring can then be matched by suitable data-dependent weights, and Proposition~\ref{prop:weightsdd} says nothing about them; Proposition~\ref{prop:weights} still excludes fixed weights. Max-$k$-cut and min-sum $k$-clustering (Theorem~\ref{thm:main}(d)) are therefore not weighted kernel $k$-means objectives for non-negative spring matrices, unlike ratio association and normalised cut~\citep{dhillon2007}. We know of no statement of Propositions~\ref{prop:weights}--\ref{prop:weightsdd} in the literature, but have not searched exhaustively.
+\noindent For $w=1/m$ the pairing vanishes at $\omega=\one$, as it must. For decreasing weights with $w(3)<w(2)$ (e.g.\ $1/m^2$, $\binom m2^{-1}$) the bracket changes sign on $(0,\infty)^4$, so this certificate does not apply to them, and we do not know whether data-dependent weights can represent them; Proposition~\ref{prop:weights} still excludes fixed weights. Max-$k$-cut and min-sum $k$-clustering (Theorem~\ref{thm:main}(d)) are therefore not weighted kernel $k$-means objectives for non-negative spring matrices, unlike ratio association and normalised cut~\citep{dhillon2007}. We know of no statement of Propositions~\ref{prop:weights}--\ref{prop:weightsdd} in the literature, but have not searched exhaustively.
 %%%% BLOCK C END
 
 %%%% BLOCK D BEGIN

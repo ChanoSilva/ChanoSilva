@@ -273,6 +273,10 @@ if os.path.exists(auxp):
     for sg in aux["segment_check"]:
         mac("SegRatio" + FN[sg["f"]] + DN[sg["d"]], f"{sg['ratio_global']:.5f}")
 
+# Rounding rule (review round 3, m1): a printed constant is rounded towards the side on which the printed statement
+# stays true.  Lower bounds ("X > a") and thresholds of SUFFICIENT conditions ("if y <= a then ...") use floor_fmt;
+# upper bounds ("X < a") use ceil_fmt; a NECESSARY condition "needs y >= a" uses floor_fmt (a weaker necessary
+# condition is still necessary), "needs y <= a" uses ceil_fmt.
 def floor_fmt(x, nd):
     """Round DOWN to nd decimals (for numbers quoted as lower bounds)."""
     return f"{np.floor(x * 10 ** nd) / 10 ** nd:.{nd}f}"
@@ -321,7 +325,7 @@ for lv in ss:
         continue
     k = FN[lv["f"]] + DN[d]
     mac("SsCzero" + k, floor_fmt(lv["c0_Lam"], 3))
-    mac("SsDturn" + k, f"{lv['delta_turn']:.3f}")
+    mac("SsDturn" + k, floor_fmt(lv["delta_turn"], 3))            # Table 1 says "rounded down" (round 3, m2)
     mac("SsCkappa" + k, floor_fmt(lv["c_kappa_new"], 3))
     mac("SsCkappaOld" + k, floor_fmt(lv["c_kappa_old"], 3))
     mac("SsC" + k, floor_fmt(min(c1_by_level[k], lv["c0_Lam"], lv["c_kappa_new"]), 3))
@@ -344,13 +348,8 @@ chi = np.arctan(1 / th_ap)
 dR2ap = (np.pi - 2 * chi) / (1 + np.sin(chi) / th_ap)
 mac("SsThetaAp", floor_fmt(th_ap, 3))
 mac("SsDeltaRTwoAp", floor_fmt(dR2ap, 3))
-def _Lam(dl, f):
-    tau = 1 / f
-    l0 = 2 * tau * np.sin(dl / 2)
-    E = np.where(dl <= np.pi / 2, tau * (1 - np.cos(dl)), tau * (1 + dl - np.pi / 2))
-    return np.maximum(l0 - 2 * E / l0, l0 - 2)
-_dd = np.linspace(dR2ap, np.pi - 1e-12, 400001)
-mac("SsCzeroAp", floor_fmt(0.5 * _Lam(_dd, 0.5).min(), 2))     # grid value
+# (the a-priori c_0' value 0.74 of theory/same_strand_lemma.tex, macro SsCzeroAp, was unused and is removed in v0.4,
+#  review round 3, m9: it is 1/2 inf max(Lambda, l_0 - 2r) over delta >= 1.677, not 1/2 inf Lambda = 0.7148)
 # threshold Theta* for delta_R2^ap >= pi/3 at f = 1/2 (zeta = Theta), by bisection
 lo_, hi_ = 0.5, 3.0
 for _ in range(80):
@@ -360,7 +359,7 @@ for _ in range(80):
         hi_ = mid
     else:
         lo_ = mid
-mac("SsThetaStar", ceil_fmt(hi_, 2))
+mac("SsThetaStar", floor_fmt(hi_, 3))     # necessary condition "needs Theta_min >= Theta*": round down (round 3, m1)
 gmax = 4 * np.sqrt(2) / (3 * np.sqrt(3))                    # max g = g(sqrt 2)
 mac("GMax", ceil_fmt(gmax, 4))
 zeta1 = 2 * (1 - 0.5) / (3 * 0.5)
@@ -393,6 +392,56 @@ for ch in cc_:
     if ch["N0"] == 512:
         for lv in ch["levels"]:
             mac("CorRop" + FN[ch["f"]] + DN[lv["d"]], f"{lv['Rop']:.1f}")
+
+
+# ---- (H_3) uniformly in d: partial result integrated in v0.4 (theory/H3_uniform_lemma.tex, verified by the author) ----
+# closed forms (analytic), rounded in the safe direction
+def _g(z):
+    return z * (z ** 2 + 2) / (z ** 2 + 1) ** 1.5
+_s13 = np.sqrt(13.0)
+_R3 = 2 - _g(_s13) - 1 / 14                                   # right-hand side of the tolerance condition, d >= 3
+mac("HthreeTolRHS", floor_fmt(_R3, 4))                          # sufficient-condition threshold: round down
+mac("HthreeNuTol", floor_fmt(_R3 * _s13 / 96, 4))               # nu alone: nu <= this * 4^d suffices
+mac("HthreeMuTol", floor_fmt(_R3 * _s13 / 64, 4))               # mu alone: mu <= this * 8^d suffices
+_R2 = 2 - _g(_s13 / 2) - 4 / 17                                 # d = 2 analogue with the a priori constants
+mac("HthreeDtwoRHS", ceil_fmt(_R2, 3))                          # used in "would need ... <= a" with a measured LHS > a
+mac("HthreeLossConst", ceil_fmt(16 / _s13, 2))                  # a priori r_d sin chi_d <= (16/sqrt13) 4^-d
+# grid evaluation with polygon inputs (experiments/check_H3.py -> results/check_H3_summary.json)
+h3 = need("check_H3_summary.json")
+_main = [x for x in h3 if abs(x["f"] - 0.5) < 1e-9 and x["N0"] == 256][0]
+_deep = [x for x in h3 if abs(x["f"] - 0.5) < 1e-9 and x["depth"] == 4][0]
+_lv = {lv["j"]: lv for lv in _main["levels"]}
+_lv[4] = [lv for lv in _deep["levels"] if lv["j"] == 4][0]
+for j in (1, 2, 3, 4):
+    mac("HthreeNu" + DN.get(j, "Four"), f"{_lv[j]['nu']:.2f}")
+    mac("HthreeMu" + DN.get(j, "Four"), f"{_lv[j]['mu']:.1f}")
+_chk = {c["d"]: c for c in _main["checks"]}
+_chk[4] = [c for c in _deep["checks"] if c["d"] == 4][0]
+for d in (2, 3, 4):
+    mac("HthreeSharp" + DN.get(d, "Four"), ceil_fmt(_chk[d]["r"] * _chk[d]["ka_b"], 2))      # r_d * bound (<= 2 needed)
+    mac("HthreeLoss" + DN.get(d, "Four"), f"{_chk[d]['r'] * _chk[d]['sinchi']:.2g}")        # measured r_d sin chi_d
+for d in (3, 4):
+    mac("HthreeTap" + DN.get(d, "Four"), ceil_fmt(_chk[d]["Tap"], 2))                       # LHS of the tolerance cond.
+_nu1, _mu1 = _lv[1]["nu"], _lv[1]["mu"]
+mac("HthreeDtwoLHS", floor_fmt(6 / _s13 * _nu1 + 1 / _s13 * _mu1, 2))
+_ratios = [c["nu"] / c["nu_b"] for x in h3 for c in x["checks"]] + [c["ka"] / c["ka_b"] for x in h3 for c in x["checks"]]
+mac("HthreeMinBoundRatio", floor_fmt(1 / max(_ratios), 2))      # min over all levels of bound / measured
+mac("HthreeNumLevels", sum(len(x["checks"]) for x in h3))
+mac("HthreeWprimeErr", f"{max(c['rel_wp'] for x in h3 for c in x['checks']):.0e}".replace("e-0", r"\cdot10^{-") + "}")
+
+# dependence on the normalisation of the frame (experiments/phase_margin.py; review round 3, M1)
+ph = need("phase_margin.json")
+_s = ph["summary"]
+mac("PhaseNTwo", _s["d2_N256"]["n"])
+mac("PhaseNThree", _s["d3_N256"]["n"])
+mac("PhaseMarginTwoMin", floor_fmt(min(_s["d2_N256"]["margin_min"], _s["d2_N512"]["margin_min"]), 2))
+mac("PhaseMarginTwoMax", floor_fmt(_s["d2_N256"]["margin_max"], 1))
+mac("PhaseMarginThreeMin", floor_fmt(min(_s["d3_N256"]["margin_min"], _s["d3_N512"]["margin_min"]), 2))
+mac("PhaseMarginThreeMax", floor_fmt(_s["d3_N256"]["margin_max"], 1))
+_spr = max(v["L_rel_spread"] for v in _s.values())
+mac("PhaseLSpread", r"10^{%d}" % int(np.ceil(np.log10(max(_spr, 1e-16)))))
+assert all(v["tau_over_r_min"] > 1 - 5e-4 and v["k0_total"] == 0 and v["k1_total"] == 0 for v in _s.values())
+mac("PhaseSeconds", f"{ph['meta']['seconds_cpu']:.0f}")
 
 with open(os.path.join(out, "numbers.tex"), "w") as fh:
     fh.write("% generated by experiments/make_numbers.py -- do not edit\n" + "\n".join(L) + "\n")
