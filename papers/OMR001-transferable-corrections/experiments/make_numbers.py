@@ -369,14 +369,15 @@ with open(os.path.join(out_dir, "table_oracle.tex"), "w") as fh:
         cells = [f"{a:g}"]
         for m in cfg["m_grid"]:
             c = RC[(a, m)]
-            v = f"{c['oracle_refit']:+.4f}"
-            if c["oracle_refit"] > 0:
-                _ora_harm.append((a, m)); v += r"$^{\mathrm H}$"
+            harm = c["oracle_refit"] > 0
+            if harm:
+                _ora_harm.append((a, m))
             if c["oracle_split"] < c["oracle_refit"]:
-                _ora_split_better.append((a, m)); v = r"\textit{" + v + "}"
+                _ora_split_better.append((a, m)); fm = r"\mathit"
             else:
-                v = r"\textbf{" + v + "}"
-            cells += [v, f"{c['oracle_split']:+.4f}"]
+                fm = r"\mathbf"
+            v = f"${fm}{{{c['oracle_refit']:+.4f}}}" + (r"^{\mathrm H}$" if harm else "$")
+            cells += [v, f"${c['oracle_split']:+.4f}$"]
         fh.write(" & ".join(cells) + " \\\\\n")
 mac("RfOraRfTenTwentyFourPct", pct(RC[(0.1, 24)]["oracle_refit"] / (cfg["d"] * cfg["sigma"] ** 2 / cfg["n"]), signed=False))
 # reduction check (round 3, m2) and adversarial families without held-out noise (m4)
@@ -422,6 +423,8 @@ def _cls_text(pairs):
 mac("RfBetterText", _cls_text(_cls.get("better", [])))
 mac("RfWorseText", _cls_text(_cls.get("worse", [])))
 mac("RfUnclearText", _cls_text(_cls.get("unclear", [])))
+assert not _cls.get("unclear"), "v0.5: every cell of Table tab:worstrefit is decided by the exact split value"
+mac("RfOraHarmText", _cls_text(_ora_harm)); mac("RfOraSplitBetterText", _cls_text(_ora_split_better))
 assert all(k == "worse" for (a, m), k in [((a, m), k) for k, v in _cls.items() for (a, m) in v] if a == 0.5), \
     "text claims that the refit is worse than the split at alpha = 0.5 for every m"
 # Monte Carlo checks (design, cross-fit, adversarial)
