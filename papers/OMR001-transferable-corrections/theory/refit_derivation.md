@@ -76,3 +76,16 @@ Peor caso sobre $(\theta,C)$ del exceso sobre $\bar X_n$, V3 (exacto) frente al 
 | 0.01 | 0.0022 vs [0.0058, 0.0061] | 0.0020 vs [0.0102, 0.0103] | 0.0028 vs [0.0214, 0.0215] | 0.0090 vs [0.0560, 0.0560] |
 
 Lectura: en el peor caso V3 es mejor que la partición para $\alpha\le0.1$ y $m\ge12$, comparable con $m\le6$ y $\alpha=0.1$, y **peor con $\alpha=0.5$** (coeficiente $4\alpha=2$ sobre el costo de partición). En casos típicos (barrido de estructura, EB, $\alpha=0.1$, $m=12$) el exceso de V3 sobre $\bar X_n$ es negativo en todos los snr (de −0.0056 a −0.0004), mientras que el estimador con partición va de −0.0064 a +0.0181; el cross-fitting ($K=5$) llega a −0.0245 en snr 0 (29 % del riesgo de $\bar X_n$) y en el barrido de desviación no pasa de +0.0011.
+
+
+## Ruta "C si el chequeo pasa, si no $\bar X_n$" (Observación 5.3(c) del manuscrito; trasladado del Apéndice B en v0.5)
+
+En v0.5 (ronda 3 de revisión interna, recorte de extensión §5.3 del árbitro) esta derivación salió del Apéndice B del manuscrito; el texto queda aquí sin cambios (LaTeX). El valor citado en el manuscrito (1.06 veces el costo de partición con $m=12$, $\alpha=0.1$; rango en la rejilla) lo calcula `theory/check_refit.py`, sección (c), por cuadratura.
+
+Para $\tilde\theta=JC+(1-J)\bar X_n$:
+
+For $\tilde\theta=JC+(1-J)\bar X_n$, $\ell(\tilde\theta)-\ell(\bar X_n)=J\big(\Delta+\norm e^2-\norm{\bar X_n-\theta}^2\big)$. Take $\theta=\theta_0$ and $C=R-t\,e$: then $|\Delta|\le(2t+t^2)\norm e^2\to0$ in $L^1$, $u\to-\xi$ and, with $Z=-\sqrt m\ip{\hat e,h}/\sigma\sim N(0,1)$ given $e$, $J\to\mathbf 1\{Z\ge z-\xi\}$ almost surely. Writing $\norm h^2=(\sigma^2/m)(Z^2+W)$ with $W\sim\chi^2_{d-1}$ independent of $Z$, using $\E[Z\mathbf 1\{Z\ge\tau\}]=\varphi(\tau)$ and $\E[Z^2\mathbf 1\{Z\ge\tau\}]=\Phi(-\tau)+\tau\varphi(\tau)$, and dominated convergence, the excess tends to
+\[
+\frac{\sigma^2}{m}\,\E\Big[\Phi(\xi-z)\big((2\eta-\eta^2)\xi^2-\eta^2d\big)+2\eta(1-\eta)\,\xi\,\varphi(z-\xi)-\eta^2(z-\xi)\,\varphi(z-\xi)\Big],
+\]
+which \path{theory/check_refit.py} evaluates by quadrature over $\xi\sim\sqrt{m/n_e}\,\chi_d$ (no Monte Carlo).

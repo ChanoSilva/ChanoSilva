@@ -469,12 +469,6 @@ This difference is at least $-\ell(\bar X_n)$, so all expectations below are wel
 Each observation lies outside exactly $K-1$ folds, so $\frac1K\sum_kR_k=\bar X_n$. By convexity of the squared loss, $\ell(\hat\theta_{\rm cf})\le\frac1K\sum_k\ell(\bar X_n+J_k(C_k-R_k))$. The $k$-th term is the transported refit of Theorem~\ref{thm:refit} with estimation sample outside $I_k$, held-out sample $I_k$, $\eta=m/n=1/K$ and the same law of $\xi$.
 \end{proof}
 
-\paragraph{The route of Remark~\ref{rem:refitcost}(c).} For $\tilde\theta=JC+(1-J)\bar X_n$, $\ell(\tilde\theta)-\ell(\bar X_n)=J\big(\Delta+\norm e^2-\norm{\bar X_n-\theta}^2\big)$. Take $\theta=\theta_0$ and $C=R-t\,e$: then $|\Delta|\le(2t+t^2)\norm e^2\to0$ in $L^1$, $u\to-\xi$ and, with $Z=-\sqrt m\ip{\hat e,h}/\sigma\sim N(0,1)$ given $e$, $J\to\mathbf 1\{Z\ge z-\xi\}$ almost surely. Writing $\norm h^2=(\sigma^2/m)(Z^2+W)$ with $W\sim\chi^2_{d-1}$ independent of $Z$, using $\E[Z\mathbf 1\{Z\ge\tau\}]=\varphi(\tau)$ and $\E[Z^2\mathbf 1\{Z\ge\tau\}]=\Phi(-\tau)+\tau\varphi(\tau)$, and dominated convergence, the excess tends to
-\[
-\frac{\sigma^2}{m}\,\E\Big[\Phi(\xi-z)\big((2\eta-\eta^2)\xi^2-\eta^2d\big)+2\eta(1-\eta)\,\xi\,\varphi(z-\xi)-\eta^2(z-\xi)\,\varphi(z-\xi)\Big],
-\]
-which \path{theory/check_refit.py} evaluates by quadrature over $\xi\sim\sqrt{m/n_e}\,\chi_d$ (no Monte Carlo).\par}
-
 \bibliographystyle{plainnat}
 {\footnotesize\bibliography{refs}}
 \end{document}
