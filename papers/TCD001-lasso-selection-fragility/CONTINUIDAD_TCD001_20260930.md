@@ -106,4 +106,4 @@ Queda abierto tras la ronda 2:
 4. Los cocientes de coste dependen de la carga de la máquina (hasta ×2.3 entre corridas); cualquier afirmación sobre coste a n ≥ 22 descansa en 20–40 instancias por celda y tres corridas.
 5. La exactitud del greedy a n = 34 (17/19) no decide la parte de exactitud del criterio; harían falta más instancias a n ≥ 30 para leer E4 contra el criterio.
 6. Integración de `theory/` (complejidad para p ≥ 2, otro agente): pendiente, por separado.
-7. Opcional: ampliar la verificación exacta del Ej. 4.3 a los 31 conjuntos no vacíos propios (|R| = 4 incluido; 9 pares no monótonos en lugar de 3), regenerando `examples.json` y la macro.
+7. Opcional: ampliar la verificación exacta del Ej. 4.3 a los 30 conjuntos no vacíos propios (31 con R = ∅; |R| = 4 incluido; 9 pares no monótonos en lugar de 3), regenerando `examples.json` y la macro.

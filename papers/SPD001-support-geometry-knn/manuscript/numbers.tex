@@ -1345,6 +1345,13 @@
 \newcommand{\SatMMaxNoT}{16}
 \newcommand{\SatMMaxNoTArg}{breast cancer}
 \newcommand{\NTWorst}{6}
+\newcommand{\LphCiAboveList}{wine, spheres}
+\newcommand{\SdCiAboveList}{iris, breast cancer, digits, swiss roll, spheres}
+\newcommand{\KnnCiAboveList}{digits, spheres}
+\newcommand{\SelBelowList}{moons}
+\newcommand{\SelAboveList}{digits}
+\newcommand{\NWOLargest}{8}
+\newcommand{\HullFamilyMaxSpreadArg}{wine}
 \newcommand{\NNearCeiling}{5}
 \newcommand{\NearCeilingList}{iris, wine, breast cancer, digits, swiss roll}
 \newcommand{\NLowDim}{4}
@@ -1395,6 +1402,9 @@
 \newcommand{\RegAblDepthNbPPZero}{0.955}
 \newcommand{\RegBestAccPZero}{89.9}
 \newcommand{\RegAblTangPZero}{\ensuremath{+0.03}}
+\newcommand{\RegAblOrthPZero}{\ensuremath{+1.0}}
+\newcommand{\RegAblOrthLoPZero}{\ensuremath{+0.03}}
+\newcommand{\RegAblOrthHiPZero}{\ensuremath{+2.0}}
 \newcommand{\RegPTwoKnn}{87.1}
 \newcommand{\RegPTwoNfl}{82.6}
 \newcommand{\RegPTwoHknn}{86.5}
@@ -1432,6 +1442,9 @@
 \newcommand{\RegAblDepthNbPPTwo}{0.282}
 \newcommand{\RegBestAccPTwo}{87.9}
 \newcommand{\RegAblTangPTwo}{\ensuremath{+0.4}}
+\newcommand{\RegAblOrthPTwo}{\ensuremath{+2.4}}
+\newcommand{\RegAblOrthLoPTwo}{\ensuremath{+1.8}}
+\newcommand{\RegAblOrthHiPTwo}{\ensuremath{+3.0}}
 \newcommand{\RegPFiveKnn}{84.4}
 \newcommand{\RegPFiveNfl}{81.7}
 \newcommand{\RegPFiveHknn}{83.6}
@@ -1469,6 +1482,9 @@
 \newcommand{\RegAblDepthNbPPFive}{0.611}
 \newcommand{\RegBestAccPFive}{84.7}
 \newcommand{\RegAblTangPFive}{\ensuremath{+0.2}}
+\newcommand{\RegAblOrthPFive}{\ensuremath{+0.9}}
+\newcommand{\RegAblOrthLoPFive}{\ensuremath{-0.03}}
+\newcommand{\RegAblOrthHiPFive}{\ensuremath{+1.8}}
 \newcommand{\RegPTenKnn}{83.2}
 \newcommand{\RegPTenNfl}{78.2}
 \newcommand{\RegPTenHknn}{82.9}
@@ -1506,6 +1522,9 @@
 \newcommand{\RegAblDepthNbPPTen}{0.930}
 \newcommand{\RegBestAccPTen}{83.4}
 \newcommand{\RegAblTangPTen}{\ensuremath{+0.4}}
+\newcommand{\RegAblOrthPTen}{\ensuremath{-0.3}}
+\newcommand{\RegAblOrthLoPTen}{\ensuremath{-1.2}}
+\newcommand{\RegAblOrthHiPTen}{\ensuremath{+0.6}}
 \newcommand{\RegPTwentyKnn}{82.4}
 \newcommand{\RegPTwentyNfl}{75.9}
 \newcommand{\RegPTwentyHknn}{82.7}
@@ -1543,6 +1562,9 @@
 \newcommand{\RegAblDepthNbPPTwenty}{0.926}
 \newcommand{\RegBestAccPTwenty}{82.7}
 \newcommand{\RegAblTangPTwenty}{\ensuremath{+0.1}}
+\newcommand{\RegAblOrthPTwenty}{\ensuremath{+0.03}}
+\newcommand{\RegAblOrthLoPTwenty}{\ensuremath{-0.6}}
+\newcommand{\RegAblOrthHiPTwenty}{\ensuremath{+0.6}}
 \newcommand{\NRegSigWins}{0}
 \newcommand{\NRegSigLosses}{1}
 \newcommand{\NRegSigWinsNb}{0}
@@ -1580,6 +1602,10 @@
 \newcommand{\VtwoDeltaBestIris}{\ensuremath{-0.3}}
 \newcommand{\VtwoBestRefIris}{LPH}
 \newcommand{\VtwoFracTdIris}{12}
+\newcommand{\VtwoTieCorrectIris}{723}
+\newcommand{\VtwoNTiedIris}{1}
+\newcommand{\VtwoDeltaLoIris}{\ensuremath{-1.2}}
+\newcommand{\VtwoDeltaHiIris}{\ensuremath{+0.7}}
 \newcommand{\VtwoAblTdWine}{\ensuremath{+0.7}}
 \newcommand{\VtwoAblTdLoWine}{\ensuremath{-0.6}}
 \newcommand{\VtwoAblTdHiWine}{\ensuremath{+2.0}}
@@ -1587,6 +1613,10 @@
 \newcommand{\VtwoDeltaBestWine}{\ensuremath{+0.1}}
 \newcommand{\VtwoBestRefWine}{NFL}
 \newcommand{\VtwoFracTdWine}{8}
+\newcommand{\VtwoTieCorrectWine}{863}
+\newcommand{\VtwoNTiedWine}{1}
+\newcommand{\VtwoDeltaLoWine}{\ensuremath{-1.0}}
+\newcommand{\VtwoDeltaHiWine}{\ensuremath{+1.3}}
 \newcommand{\VtwoAblTdBc}{\ensuremath{+1.1}}
 \newcommand{\VtwoAblTdLoBc}{\ensuremath{+0.5}}
 \newcommand{\VtwoAblTdHiBc}{\ensuremath{+1.7}}
@@ -1594,6 +1624,10 @@
 \newcommand{\VtwoDeltaBestBc}{\ensuremath{-0.2}}
 \newcommand{\VtwoBestRefBc}{HKNN}
 \newcommand{\VtwoFracTdBc}{16}
+\newcommand{\VtwoTieCorrectBc}{2759}
+\newcommand{\VtwoNTiedBc}{1}
+\newcommand{\VtwoDeltaLoBc}{\ensuremath{-0.7}}
+\newcommand{\VtwoDeltaHiBc}{\ensuremath{+0.2}}
 \newcommand{\VtwoAblTdDigits}{\ensuremath{+5.1}}
 \newcommand{\VtwoAblTdLoDigits}{\ensuremath{+4.4}}
 \newcommand{\VtwoAblTdHiDigits}{\ensuremath{+5.8}}
@@ -1601,6 +1635,10 @@
 \newcommand{\VtwoDeltaBestDigits}{\ensuremath{-0.3}}
 \newcommand{\VtwoBestRefDigits}{NFL}
 \newcommand{\VtwoFracTdDigits}{52}
+\newcommand{\VtwoTieCorrectDigits}{4878}
+\newcommand{\VtwoNTiedDigits}{1}
+\newcommand{\VtwoDeltaLoDigits}{\ensuremath{-0.6}}
+\newcommand{\VtwoDeltaHiDigits}{\ensuremath{-0.1}}
 \newcommand{\VtwoAblTdSwiss}{\ensuremath{+1.9}}
 \newcommand{\VtwoAblTdLoSwiss}{\ensuremath{+1.2}}
 \newcommand{\VtwoAblTdHiSwiss}{\ensuremath{+2.7}}
@@ -1608,6 +1646,10 @@
 \newcommand{\VtwoDeltaBestSwiss}{\ensuremath{-0.2}}
 \newcommand{\VtwoBestRefSwiss}{HKNN}
 \newcommand{\VtwoFracTdSwiss}{0}
+\newcommand{\VtwoTieCorrectSwiss}{2921}
+\newcommand{\VtwoNTiedSwiss}{1}
+\newcommand{\VtwoDeltaLoSwiss}{\ensuremath{-0.6}}
+\newcommand{\VtwoDeltaHiSwiss}{\ensuremath{+0.2}}
 \newcommand{\VtwoAblTdMoons}{\ensuremath{+1.1}}
 \newcommand{\VtwoAblTdLoMoons}{\ensuremath{+0.2}}
 \newcommand{\VtwoAblTdHiMoons}{\ensuremath{+2.0}}
@@ -1615,6 +1657,10 @@
 \newcommand{\VtwoDeltaBestMoons}{\ensuremath{-0.8}}
 \newcommand{\VtwoBestRefMoons}{kNN/HKNN/LCD}
 \newcommand{\VtwoFracTdMoons}{76}
+\newcommand{\VtwoTieCorrectMoons}{2697}
+\newcommand{\VtwoNTiedMoons}{3}
+\newcommand{\VtwoDeltaLoMoons}{\ensuremath{-1.6}}
+\newcommand{\VtwoDeltaHiMoons}{\ensuremath{+0.2}}
 \newcommand{\VtwoAblTdMoonsN}{\ensuremath{+2.7}}
 \newcommand{\VtwoAblTdLoMoonsN}{\ensuremath{+1.5}}
 \newcommand{\VtwoAblTdHiMoonsN}{\ensuremath{+3.8}}
@@ -1622,6 +1668,10 @@
 \newcommand{\VtwoDeltaBestMoonsN}{\ensuremath{-0.4}}
 \newcommand{\VtwoBestRefMoonsN}{HKNN/LCD}
 \newcommand{\VtwoFracTdMoonsN}{100}
+\newcommand{\VtwoTieCorrectMoonsN}{2485}
+\newcommand{\VtwoNTiedMoonsN}{2}
+\newcommand{\VtwoDeltaLoMoonsN}{\ensuremath{-1.3}}
+\newcommand{\VtwoDeltaHiMoonsN}{\ensuremath{+0.6}}
 \newcommand{\VtwoAblTdSpheres}{\ensuremath{+3.5}}
 \newcommand{\VtwoAblTdLoSpheres}{\ensuremath{+2.2}}
 \newcommand{\VtwoAblTdHiSpheres}{\ensuremath{+4.7}}
@@ -1629,6 +1679,10 @@
 \newcommand{\VtwoDeltaBestSpheres}{\ensuremath{+0.2}}
 \newcommand{\VtwoBestRefSpheres}{HKNN}
 \newcommand{\VtwoFracTdSpheres}{0}
+\newcommand{\VtwoTieCorrectSpheres}{2564}
+\newcommand{\VtwoNTiedSpheres}{1}
+\newcommand{\VtwoDeltaLoSpheres}{\ensuremath{-0.5}}
+\newcommand{\VtwoDeltaHiSpheres}{\ensuremath{+1.0}}
 \newcommand{\VtwoRegAblTdPTwo}{\ensuremath{+2.3}}
 \newcommand{\VtwoRegAblToPTwo}{\ensuremath{+0.9}}
 \newcommand{\VtwoRegAblToLoPTwo}{\ensuremath{+0.3}}
