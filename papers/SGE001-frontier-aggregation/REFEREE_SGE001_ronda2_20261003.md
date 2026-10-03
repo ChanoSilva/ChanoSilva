@@ -1,12 +1,12 @@
-[EN CURSO]
-
 # Informe de arbitraje interno — SGE001 v0.2, ronda 2 (03/10/2026)
 
 Árbitro independiente nuevo (no es el árbitro de la ronda 1 ni el autor). Material: `manuscript/main.tex`, `numbers.tex`, `table_*.tex`, `refs.bib`, `main.pdf`, `experiments/*.py`, `results/results.json`, `results/tables.md`, `README.md`, `FICHA_SGE001_propuesta.md`, `CONTINUIDAD_SGE001_20260930.md`, informe y respuesta de la ronda 1, y v0.1 vía `git show 60a4e29:…` (solo lectura). Trabajo auxiliar en el scratchpad de la sesión, carpeta `referee2_SGE001/`. Nada modificado en la carpeta salvo este informe.
 
 ## Veredicto
 
-(pendiente)
+**Cambios mayores** (acotados, sobre todo de texto): las demostraciones son correctas y la corrida se reproduce bit a bit, pero el "certificado observable" introducido en la ronda 1 se calcula con una cota que exige los microdatos (no "desde los momentos", como dicen resumen, cuerpo y ficha) y se compara con un umbral de otra naturaleza; el resumen y la ficha funden los criterios C1 y C2; la evidencia nueva E1c es demasiado pequeña para sostener la explicación del exponente LN (que, con más réplicas, sí se confirma), y el "1.000" de la razón desplazada es un artefacto de mediana.
+
+Recuento de hallazgos nuevos: 0 bloqueantes, 4 mayores, 13 menores. Ronda 1: 21 de 25 hallazgos bien aplicados, 2 a medias, 2 con error nuevo, 0 sin aplicar. Reproducción: idéntica (8815 valores, diferencia máxima 0).
 
 ## Verificación de la ronda 1
 
@@ -15,7 +15,7 @@ Referencias de línea: `manuscript/main.tex` de v0.2 (370 líneas). Numeración 
 | id | estado | evidencia |
 |---|---|---|
 | B1 (ficha "15 de 23") | aplicado bien | `FICHA_SGE001_propuesta.md`, ES y EN: "15 de las 20 celdas elegibles con capacidad (23 elegibles en total…)"; coincide con `E4.summary` (23/3/20/15). La frase en que está insertado mezcla C1 y C2: véase M2 nuevo. |
-| B2 (certificado observable) | aplicado con error nuevo | Prop. 3.1(e) (l. 119) y su prueba (l. 123) son correctas; el código evalúa `2*B2 < |Q2|` por réplica (`frontier_aggregation.py` l. 349–350) y da 0.056/0.071, reproducido. Pero el `B2` usado es la cota **por segmento**, que exige cada $x_i$ (caja entre $\bar x$ y $x_i$, `aggregate` l. 294–302), no "los momentos": la afirmación "certifiable from moments alone" (l. 245), "from moments and derivative bounds" (resumen), "desde los momentos" (ficha) y el comentario del código "Q2 and B2 are functions of the moments" (l. 348) son falsos para la cota usada. Además la comparación "0.056 frente a mejora observada hasta 0.42" mezcla umbrales distintos. Véase M1 nuevo. |
+| B2 (certificado observable) | aplicado con error nuevo | Prop. 3.1(e) (l. 119) y su prueba (l. 123) son correctas; el código evalúa `2*B2 < abs(Q2)` por réplica (`frontier_aggregation.py` l. 349–350) y da 0.056/0.071, reproducido. Pero el `B2` usado es la cota **por segmento**, que exige cada $x_i$ (caja entre $\bar x$ y $x_i$, `aggregate` l. 294–302), no "los momentos": la afirmación "certifiable from moments alone" (l. 245), "from moments and derivative bounds" (resumen), "desde los momentos" (ficha) y el comentario del código "Q2 and B2 are functions of the moments" (l. 348) son falsos para la cota usada. Además la comparación "0.056 frente a mejora observada hasta 0.42" mezcla umbrales distintos. Véase M1 nuevo. |
 | M1 (exponente LN, N finito) | aplicado a medias | Obs. 3.2 ampliada (l. 127) y E1 (l. 219) con la explicación correcta; E1c añadido (`run_E1c`, l. 445–467). Pero E1c usa 6 réplicas sin error estándar y sus pendientes 3.2/3.3/4.2 no separan N = 200 de N = 2000 ni explican el 4.2 > 4; con 60 réplicas el patrón es nítido (2.96 ± 0.08, 3.54 ± 0.09, 3.97 ± 0.09, 4.02 ± 0.03 para N = 200/2000/20000/200000; `check_e1c.py`). El resumen sigue listando 3.12–3.18 entre los "predicted exponents". Véase M3 nuevo. |
 | M2 ("four digits"; $T_u/(\sigma\tau_z)$) | aplicado bien, con una lectura errónea nueva | "four digits" retirado del resumen y de la tabla de afirmaciones; E2 (l. 273) declara (1) identidad y reduce (2) a $B_1,B_2$; Tabla 2 con $T_u/(\sigma\tau_z)$. Reproducido: SU 0.9973 en σ = 0.01. Pero el "1.000" de la versión desplazada en LN es un artefacto de mediana (véase M4 nuevo). |
 | M3 ("Dynamic" en el título) | aplicado bien | Título sin "Dynamic" (l. 41–42), nota al pie y párrafo "Scope" (l. 62); paso siguiente (d) (l. 361). Coherencia con la ficha: véase m1 nuevo. |
@@ -31,11 +31,11 @@ Referencias de línea: `manuscript/main.tex` de v0.2 (370 líneas). Numeración 
 | m5 (tiempos) | aplicado a medias | PDF: "26 seconds of wall time (26 s of CPU)" (`\MetaSeconds`=26, `meta.seconds`=26.09); README "~30 s", CONTINUIDAD "30 s de pared / 26 s de CPU"; la respuesta afirma que el PDF dice "30 s wall (26 s CPU)", lo que es falso. Mi corrida: 41.3 s de pared, 34.6 s de CPU de usuario. |
 | m6 ("coin toss") | aplicado bien | l. 307: "stays between 31.1 % and 65.7 %". |
 | m7 (umbral C1 LN) | aplicado bien | l. 241: "holds at σ = 0.42 and fails at the next grid point, σ = 0.56". |
-| m8 (un generador por experimento) | aplicado bien | `main` l. 993–995 (`SeedSequence(SEED).spawn(9)`); el generador de bootstrap sigue compartido entre E1, E2 y E3 (los intervalos de E2 dependen de que E1 haya corrido antes); irrelevante para los números puntuales. |
+| m8 (un generador por experimento) | aplicado bien | `main` l. 993–995 (`SeedSequence(SEED).spawn(9)`); el generador de bootstrap sigue compartido entre E1, E2 y E3 (los intervalos de E2 dependen de que E1 haya corrido antes); irrelevante para los números puntuales (m13 nuevo). |
 | m9 (autores NumPy/SciPy) | aplicado bien | `refs.bib`: harris2020 (26 autores, DOI) y virtanen2020 (34 + "SciPy 1.0 Contributors", DOI), coinciden con las fichas oficiales. |
 | m10 (CES–LN en README/resumen) | aplicado bien | Resumen "3.12–3.18"; README "3.12 (0.26) en CD–LN y 3.18 (0.24) en CES–LN". |
 | m11 (Obs. 3.11 "σ³–σ⁴") | aplicado bien | l. 208. |
-| m12 (eje Fig. 2; ceros) | aplicado con error nuevo | Eje y pie correctos (l. 269; figura revisada). Pero el cambio de `sci()` (`make_numbers.py` l. 16–17: todo valor < 10⁻¹⁴ se imprime como 0) hace que el texto diga "Identity (1) holds to a relative 0 in all 168 cells" (l. 273), "holds to a relative 0 (floating point)" (l. 279) y "identity checked to 0" (Tabla 6, l. 344), cuando los valores son 2.2×10⁻¹⁵ y 2.2×10⁻¹⁶ (`E2.summary.identity_rel_gap_max`, `E3.summary.lemma_topdown_equals_pooled_max_rel_gap`). Véase m3 nuevo. |
+| m12 (eje Fig. 2; ceros) | aplicado con error nuevo | Eje y pie correctos (l. 269; figura revisada). Pero el cambio de `sci()` (`make_numbers.py` l. 16–17: todo valor < 10⁻¹⁴ se imprime como 0) hace que el texto diga "Identity (1) holds to a relative 0 in all 168 cells" (l. 273), "holds to a relative 0 (floating point)" (l. 279) y "identity checked to 0" (Tabla 6, l. 344), cuando los valores son 2.2×10⁻¹⁵ y 2.2×10⁻¹⁶ (`E2.summary.identity_rel_gap_max`, `E3.summary.lemma_topdown_equals_pooled_max_rel_gap`). Véase m2 nuevo. |
 | m13 (criterios predefinidos; hash) | aplicado bien (matiz aceptable) | l. 215 (hash \MetaScriptSha y fecha); hash del script en disco = `meta.script_sha256` (comprobado con `sha256sum`). La introducción (l. 60) sigue diciendo "criteria fixed in advance" sin la salvedad; basta remitir a l. 215. |
 | m14 (convención en $f(\bar x)=c$) | aplicado bien | Def. 2.4 (l. 93). |
 | m15 (cota inferior informativa) | aplicado bien | l. 273 ("informative exactly when $NT_u$ exceeds the smooth bounds … σ ≤ 0.15 … 33 of the 168 cells"); `EtwoLowerSigmaLN` toma el máximo σ con cota informativa sin exigir contigüidad (inocuo en esta corrida). |
@@ -72,7 +72,7 @@ Ninguno.
 
 **M4. El "1.000" de la razón desplazada $T_u/(\sigma\tau_z(b))$ en LN es un artefacto de mediana, no una verificación más fina que la del diseño simétrico.**
 - Ubicación: E2 (l. 273: "the unshifted ratio is 0.993 at σ = 0.01 while the shifted ratio … is 1.000"); Tabla 2 (fila LN, σ = 0.01, última columna); README ("con log-normales, la versión con media desplazada … = 1.000 / 0.976 / 0.910"); respuesta a M2 ("1.000 (desviación 3×10⁻⁷) con b … lo que verifica también la Obs. 3.7(i)").
-- Problema: réplica a réplica la razón desplazada en σ = 0.01 vale 1 ± 0.0027–0.0030, con signo + cuando la media muestral queda sobre la capacidad ($T_u=Q_u/N$) y − cuando queda bajo ella ($T_u=P_u/N$); hay 10 de cada en 20 réplicas, y la mediana cae entre los dos grupos. La desviación real es $O(\sigma)$ y del mismo tamaño que en el diseño simétrico (0.0027), como predice la Obs. 3.7(i); la cifra "1.000" sugiere una exactitud que no existe.
+- Problema: réplica a réplica la razón desplazada en σ = 0.01 vale 1 ± 0.0027–0.0030, con un signo que depende de cuál de $P_u$, $Q_u$ es el menor, es decir, del lado de la capacidad en que cae la media muestral (el resto de Taylor, negativo por concavidad, reduce $P_u$ y aumenta $Q_u$); hay 10 réplicas con cada signo y $P_u<Q_u$ en exactamente la mitad, y la mediana cae entre los dos grupos. La desviación real es $O(\sigma)$ y del mismo tamaño que en el diseño simétrico (0.0027), como predice la Obs. 3.7(i); la cifra "1.000" sugiere una exactitud que no existe.
 - Evidencia (`check_tau.py`, sorteos de la referencia): LN, σ = 0.01: mínimo 0.99701, máximo 1.00291, mediana 0.9999997; desviaciones por réplica ±0.0027–0.0030 con 10 positivas y 10 negativas. En σ = 0.0316 y 0.1 la asimetría desaparece (80 % y 100 % de réplicas con $P_u<Q_u$) y la mediana vuelve a reflejar la desviación (0.995, 0.976).
 - Corrección: en `run_E2` guardar además la mediana de $|T_u/(\sigma\tau_z(b))-1|$ y la fracción de réplicas con $P_u<Q_u$; en el texto: "the shifted ratio … is within 0.3 % of 1 in every replication at σ = 0.01 (0.997–1.003, the sign set by the side of the capacity on which the sample mean falls), the same $O(\sigma)$ deviation as on symmetric inputs"; en la Tabla 2 sustituir la columna por $\mathrm{med}|T_u/(\sigma\tau_z(b))-1|$ o dar el rango.
 
@@ -118,7 +118,7 @@ Con 1–4 el PDF baja a ≈ 10 páginas.
 
 ## Bibliografía
 
-Crossref y arXiv no se consultaron directamente (el proxy los bloqueaba en la ronda 1); verificación con WebSearch (Econometric Society, JSTOR, RePEc, Wiley, Springer, Project Euclid, Cambridge Core). Entradas citadas en v0.2: 18.
+No se intentó el acceso directo a Crossref ni a arXiv (el proxy los bloqueó en la ronda 1, 403 / EGRESS_BLOCKED); verificación con WebSearch (Econometric Society, JSTOR, RePEc, Wiley, Springer, Project Euclid, Cambridge Core). Entradas citadas en v0.2: 18.
 
 | Entrada | Estado | Corrección |
 |---|---|---|

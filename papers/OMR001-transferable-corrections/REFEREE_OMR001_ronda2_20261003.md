@@ -1,12 +1,10 @@
-[EN CURSO]
-
 # Informe de árbitro interno — OMR001, ronda 2 (03/10/2026)
 
 Árbitro nuevo, independiente del de la ronda 1. Material revisado: carpeta `papers/OMR001-transferable-corrections/` en su estado actual (v0.2, commit `2040e2b`): `manuscript/main.tex` (381 líneas; las referencias `l.N` son a ese archivo salvo que se indique otro), `numbers.tex`, `table_*.tex`, `refs.bib`, `experiments/*.py`, `results/results.json`, `results/tables.md`, `README.md`, `FICHA_OMR001_propuesta.md`, `CONTINUIDAD_OMR001_20260930.md`, el informe y la respuesta de la ronda 1. Versión anterior: `git show c51bd2e:…` (solo lectura). Trabajo auxiliar en `scratchpad/referee2_OMR001/` (`check_cor43.py`, `check_sharp_cap.py`, `check_kappa_bound.py`, `check_macros.py`, sus salidas `.out`, y `build/` con la copia recompilada y la corrida reproducida). No se modificó nada de la carpeta salvo este informe.
 
 ## Veredicto
 
-(pendiente)
+**Cambios menores.** Las matemáticas son correctas, incluido el Corolario 4.3 nuevo, verificado paso a paso y con un chequeo numérico propio. La corrida se reproduce bit a bit y 44/44 macros coinciden con el JSON. Los tres hallazgos mayores son de texto y no piden corridas nuevas: (M1) el resumen y la tabla de afirmaciones enuncian una tasa absoluta que la Prop. 4.5 no prueba; (M2) las constantes óptimas salen de las mismas líneas de prueba y reducen la cota uniforme 13 veces; (M3) la ficha formula la cota del evento dañino de modo que su lectura natural es falsa. Recuento: 0 bloqueantes, 3 mayores, 13 menores.
 
 ## Verificación de la ronda 1
 
@@ -128,4 +126,15 @@ Uso de las citas: comprobé que cada cita nueva o desplazada en v0.2 (l.117 Blyt
 
 ## Lista final de acciones
 
-(pendiente)
+1. Corrige la paráfrasis de la Prop. 4.5 en el resumen (l.63), en la tabla de afirmaciones (l.342) y en CONTINUIDAD l.29. Lo mejor es añadir a la Prop. 4.5 la construcción con $n_e$ fijo de M1(b), que demuestra la tasa absoluta $m^{-1/2}$; si no, reformula como afirmación sobre el factor de $\E\norm{C-R}/\sqrt m$ (M1).
+2. Reescribe en la ficha (l.13, l.24) y en el README (l.26) la cota del evento dañino como probabilidad conjunta, y añade la cota condicional $\le\alpha$ (M3).
+3. Enuncia el Teorema 4.2(ii) con $\kappa(\alpha)$, que la Prop. 4.5 hace exactamente óptima, y deja $\varphi(z)$ como forma cerrada. Enuncia el Corolario 4.3 con $(\kappa,\kappa_2)$. Añade $\kappa_2$ a la Tabla 5, regenera `\UniformCap*` y actualiza la leyenda de la Fig. 1 (1.38× en lugar de 3.0×), l.317, la tabla de afirmaciones, la ficha ("óptima"), el README y CONTINUIDAD; cierra el punto abierto (e) (M2).
+4. Haz coherente la declaración de procedimiento (l.256, l.364) con CONTINUIDAD l.39: solo U se fijó por escrito antes. Declara los cambios posteriores de v0.2 (barrido en $m$ rehecho, marca "borderline") y suprime "nothing else was changed after seeing results" (m2).
+5. Añade a l.253 el referente del 25 % (m1). Corrige la frase de l.168 sobre el valor condicional exacto (m3).
+6. Sustituye "Theorem B" en `safe_reversion.py` (l.15, 23, 30, 77, 420, 479, 538, 545, 559) y regenera las figuras (m4).
+7. Reformula "nearly identical" en el resumen, en l.326 y en la ficha (m5), y "stay close to the reference" en la leyenda de la Fig. 1 (m6).
+8. Redondea hacia arriba los máximos de "never exceeds" en `make_numbers.py` (m7). Elimina las dobles negaciones de l.320 (m8). Desambigua "the same cap" en l.317 (m9). Usa `\DSixteenAlwaysRatio` en l.323 (m10).
+9. Actualiza README y CONTINUIDAD: 274/71, "2.4 veces mayor", tiempo de la corrida, 0.25 %; quita "de memoria" del capítulo 22 (m11, Bibliografía).
+10. Decide si "en pausa salvo (a)–(b)" significa trabajo activo. Si no, deja "En pausa" con las condiciones de reanudación (m12).
+11. Cita Matplotlib o quita su mención (m13). Opcional: añade los DOI de `virtanen2020` y `harris2020`.
+12. Tras M1(b)+M2, recompila y comprueba que el PDF sigue en 10 páginas; si no, suprime la Obs. 4.7(b).

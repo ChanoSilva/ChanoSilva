@@ -1,12 +1,12 @@
-[EN CURSO]
-
 # Informe de árbitro interno — HQF001, ronda 2 (03/10/2026)
 
 Objeto: borrador v0.2 (manuscript/main.tex, commit 9233b58 y anteriores del 03/10/2026), respuesta del autor `RESPUESTA_HQF001_ronda1_20260930.md`, `CRITERIO_HQF001.md`, código, `results/results.json` (v0.2), `results/results_v01.json`, tablas, README y ficha. Árbitro nuevo, independiente del de la ronda 1. Versión v0.1 de referencia: `git show b632e86:papers/HQF001-resolution-fields-abstention/...`. Trabajo auxiliar en el scratchpad (`referee2_HQF001/`). No se modificó ningún archivo del autor salvo este informe.
 
 ## Veredicto
 
-(pendiente)
+**Cambios mayores, acotados.** El veredicto negativo es correcto, se reproduce bit a bit (585/585 AURC por pliegue en tres datasets, incluido el regenerado) y resiste una rejilla de hiperparámetros ampliada. Pero la afirmación positiva del resumen sobre la anisotropía contradice la regla de casos límite del propio texto y omite la lectura Nadeau–Bengio; el registro de la predefinición omite cambios de protocolo que git documenta (y no cita el commit que sí fecha el criterio antes de la corrida); y la saturación de la rejilla del campo, que mueve el AURC hasta un 25 %, no se declara.
+
+Recuento de hallazgos nuevos: 0 bloqueantes, 5 mayores (R2-M1–M5), 11 menores (R2-m1–m11), más 2 correcciones bibliográficas. Ronda 1: 17 de 20 hallazgos aplicados bien, 2 a medias (M2, m1), 0 no aplicados, 1 aplicado con error nuevo (B1).
 
 ## Verificación de la ronda 1
 
@@ -21,7 +21,7 @@ Líneas de `manuscript/main.tex` según la versión actual (291 líneas). "R2-Mx
 | M3 | aplicado bien | "inconclusive" con V/E/D por macro (main.tex:271); frase de multiplicidad (main.tex:160); p de Wilcoxon en la Tabla 3. Matiz de redacción sobre el optimismo: R2-m2. |
 | M4 | aplicado bien (con un defecto de declaración) | `_calibrate_shift` devuelve `(shift, at_bound)` (`selective_benchmark.py:134–150`); espectro `geomspace(2, 0.25, 6)` (:189); JSON `shift = 1.5436`, `shift_at_bound = false`, error de Bayes 9.92 %; reproducido por mí bit a bit (véase Verificación computacional). Tabla 1 y main.tex:151 declaran el cambio y que se hizo tras ver v0.1. No se declara en el manuscrito que se probaron cuatro espectros antes de elegir uno (RESPUESTA:41): R2-M3. |
 | M5 | aplicado bien | README:5; FICHA:11, :14, :22, :25 ("Cerrada para la formulación no supervisada evaluada", tres vías); main.tex:51 ("in the precise form reconstructed here"), :275. |
-| M6 | aplicado bien | Prop. 3.2(c) (main.tex:127–131) y prueba (:135): verifiqué el álgebra paso a paso (véase R2-m3 para dos imprecisiones de enunciado que no afectan a la identidad). Párrafo reetiquetado "proved here for fixed prototypes / heuristic for local prototypes / design" (:138); Tabla 7 separa la fila demostrada de la heurística (:256–257). |
+| M6 | aplicado bien | Prop. 3.2(c) (main.tex:127–131) y prueba (:135): verifiqué el álgebra paso a paso (véase R2-m3 para dos imprecisiones de enunciado que no afectan a la identidad). Párrafo reetiquetado "proved here for fixed prototypes / heuristic for local prototypes / design" (:138); Tabla 6 separa la fila demostrada de la heurística (:256–257). |
 | m1 | aplicado a medias | 7.1×10⁻¹⁵ y numeración 3.1/3.2 corregidos (CONTINUIDAD:56, `lda_identity.py:2`, `tables_identity.md`). Pero la nota conserva secciones v0.1 sin etiquetar que contradicen el manuscrito v0.2: R2-m8. |
 | m2 | aplicado bien | `wilcoxon1945` (refs.bib:90–98) citado en main.tex:160; Demšar solo para los tests entre datasets no realizados. |
 | m3 | aplicado bien | `kohonen1995` (refs.bib:81–89), citado en main.tex:56 y :98. |
@@ -29,7 +29,7 @@ Líneas de `manuscript/main.tex` según la versión actual (291 líneas). "R2-Mx
 | m5 | aplicado bien (documentado, no corregido) | main.tex:284. |
 | m6 | aplicado bien | `selective_benchmark.py:489–499`; `\DroppedConfigs` = 0 (main.tex:284). |
 | m7 | aplicado bien (figura eliminada) | `figures/` ya no contiene `fig_diff_forest.*`. |
-| m8 | aplicado bien | `\FloatBarrier` en main.tex:243 y :277; tablas de geometría/exactitud y Figura 4 fuera del PDF; "[computationally verified]" solo en la Tabla 7. |
+| m8 | aplicado bien | `\FloatBarrier` en main.tex:243 y :277; tablas de geometría/exactitud y Figura 4 fuera del PDF; "[computationally verified]" solo en la Tabla 6. |
 | m9 | aplicado bien | `table_diff.tex`: wine "[-0.005, +0.10]" con marca ∘. |
 | m10 | aplicado bien | 0 macros `AblAnisoKnn/Lda/Dann` en numbers.tex; `.gitignore` ya no excluye `main.bbl`; parche de `make_numbers.py` eliminado. |
 | m11 | aplicado bien | main.tex:131; comprobado: con el orden invertido, s_A + s = −2(x−m̄)ᵀ(A−Σ⁻¹)δ. |
@@ -39,7 +39,7 @@ Recuento sobre los 20 hallazgos de la ronda 1 (B1, B2, M1–M6, m1–m12): **17 
 
 ## Hallazgos nuevos
 
-Numeración de tablas según el PDF compilado: Tabla 1 datasets, 2 AURC, 3 campo vs mejor referencia, 4 campo vs cada referencia, 5 ablaciones, 6 afirmaciones. (En la tabla de verificación de arriba, "Tabla 7" debe leerse "Tabla 6".)
+Numeración de tablas según el PDF compilado: Tabla 1 datasets, 2 AURC, 3 campo vs mejor referencia, 4 campo vs cada referencia, 5 ablaciones, 6 afirmaciones.
 
 ### Bloqueantes
 
@@ -125,14 +125,59 @@ Lectura: (a) el veredicto del criterio **no cambia** (el campo sigue peor que la
 - **R2-m10. Resumen más largo de lo declarado.** RESPUESTA:75 dice ≈ 240 palabras; el resumen compilado tiene ≈ 300. Sobra la frase de la fórmula de desviación (ya en la Prop. 3.2) y la frase "The formulation is computational…" (ya en §1).
 - **R2-m11. Orden no determinista en macros de texto.** Regenerando con `make_numbers.py` sobre el mismo JSON, `\AblAnisoEuclidWinsText` y `\AblAnisoGprotoWinsText` salen con los empates (15/0/0) en otro orden que el de `numbers.tex` versionado. No se usan en el PDF; ordenar con clave secundaria (nombre del dataset) para que la regeneración sea idéntica byte a byte.
 
+### Extensión y presentación
+
+El PDF recompilado tiene 10 páginas con apéndice y referencias (p. 1–8 cuerpo, p. 9 Tabla 6, apéndice y comienzo de referencias, p. 10 referencias), dentro del límite: no hacen falta recortes. Dos ajustes de presentación: la Tabla 6 flota a la p. 9, después del texto que la comenta (p. 8); con `[t]` o `\FloatBarrier` antes de "Table 6 lists…" quedaría junto a su discusión. El resumen (≈ 300 palabras) puede bajar a ≈ 230 (R2-m10) y ganaría espacio para el párrafo de sensibilidad de R2-M4 sin pasar de 10 páginas.
+
 ## Bibliografía
 
-(pendiente)
+Red: la búsqueda web funcionó; no intenté Crossref ni arXiv directamente (el árbitro de la ronda 1 los encontró bloqueados por el proxy). 26 entradas en `refs.bib`, 26 citadas, ninguna huérfana; BibTeX sin avisos.
+
+| entrada | estado | corrección / nota |
+|---|---|---|
+| kohonen1995 (nueva) | verificada | Springer Series in Information Sciences 30, 1995 (Springer, Berlin/Heidelberg); contiene el capítulo de LVQ, así que respalda el uso. Sin cambios. |
+| wilcoxon1945 (nueva) | verificada | *Biometrics Bulletin* 1(6):80–83, 1945. Sin cambios. |
+| franc2023 (corregida en ronda 1) | correcta | JMLR 24(11):1–49 (verificada por el árbitro 1; la corrección está aplicada). |
+| nadeau2003 | verificada | *Machine Learning* 52(3):239–281, 2003, doi:10.1023/A:1024068626366. **Respaldo parcial:** la corrección (1/J + n_test/n_train) se dedujo para J particiones aleatorias independientes; su uso con validación cruzada repetida (J = r·k = 15) es el "corrected repeated k-fold cv test" de Bouckaert y Frank. Añadir `bouckaert2004` y citarlo en main.tex:160 junto a nadeau2003. |
+| bouckaert2004 (propuesta) | verificada | R. R. Bouckaert y E. Frank, "Evaluating the replicability of significance tests for comparing learning algorithms", en *Advances in Knowledge Discovery and Data Mining (PAKDD 2004)*, LNCS 3056, Springer, pp. 3–12, doi:10.1007/978-3-540-24775-3_3. |
+| geifman2017 | verificada; incompleta | NeurIPS 2017 (NIPS 30), pp. 4878–4887. Añadir `volume = {30}`, `pages = {4878--4887}`. |
+| ledoit2004 | verificada | *J. Multivariate Analysis* 88(2):365–411, 2004. Sin cambios. |
+| street1993, kohonen1990, geifman2019, elyaniv2010, chow1970 | verificadas en la ronda 1 | Sin cambios. |
+| hendrycks2017, hastie1996, fisher1936, cover1967, tibshirani2002, breiman2001, weinberger2009, hastie2009, efron1993, dietterich1998, demsar2006, pedregosa2011, harris2020, virtanen2020, hunter2007 | no verificadas en red en esta sesión | Los datos coinciden con los canónicos que conozco (volumen, número y páginas plausibles para cada una); sin discrepancias detectadas. Siguen pendientes de cotejo en red. |
+
+Uso de las citas: correcto en general. chow1970 respalda además el argumento que propongo en R2-m5 (optimalidad del rechazo por máximo posterior). demsar2006 se cita ahora para lo que no se hace, que es un uso correcto.
 
 ## Verificación computacional
 
-(pendiente)
+Todo desde una copia en el scratchpad (`referee2_HQF001/copy/`); nada se escribió en la carpeta del autor salvo este informe. Entorno: Python 3.11.15, NumPy 2.4.6, SciPy 1.17.1, scikit-learn 1.9.1 (el declarado).
 
-## Lista de acciones
+| qué | CPU | resultado |
+|---|---|---|
+| Recalcular desde `per_fold` todas las estadísticas por par con una implementación propia (media, bootstrap con el mismo generador por par, t, NB, V/E/D, veredictos) para los 336 pares campo–referencia y los 56 de ablación; comprobar que `__best__` = comparación directa y que la mejor referencia es la de menor media | ≈ 1 s | **Desviación máxima 0** en todos los valores; 0 discrepancias de veredicto; `__best__` idéntico a la directa en 48/48 |
+| `results_v01.json` frente a `results.json`, 7 datasets no modificados | < 1 s | 1365/1365 AURC por pliegue y parámetros seleccionados idénticos; `results_v01.json` es byte a byte el `results.json` versionado en `b632e86` |
+| Macros `\VOne…` de synth-classcov (v0.1) | < 1 s | Coinciden (AURC, errores, Δ, IC t, V/E/D) |
+| Reproducción del protocolo **completo** (3×5 pliegues, CV interna, 13 métodos) en synth-classcov (dataset regenerado), synth-lda (comprueba "mismo consumo del RNG") e iris | 98.8 s (generación 3.9; classcov 36.5; lda 39.1; iris 19.3) | **585/585 AURC por pliegue idénticos (diferencia 0.0) y 585/585 configuraciones seleccionadas idénticas**; desplazamientos 1.5436 / 1.2021 y errores de Bayes 9.92 % / 9.84 % idénticos al JSON |
+| Calibración con el espectro v0.1 y con el v0.2 | 3.9 s | v0.1: error 7.8 % con medias coincidentes, `at_bound = True`; v0.2: 20.6 % con medias coincidentes, desplazamiento 1.5436, `at_bound = False` |
+| Sensibilidad a la rejilla del campo (K_m hasta 320, α hasta 0.9) en 6 datasets | 72.3 s | Véase R2-M4: el veredicto no cambia; el AURC baja 25 % (synth-classcov) y 21 % (synth-lda) |
+| `make_numbers.py` sobre el JSON | ≈ 2 s | Las 8 tablas generadas son idénticas byte a byte a las versionadas; `numbers.tex` difiere solo en el orden de los empates de dos macros sin uso (R2-m11) |
+| Compilación (`latexmk -pdf`) de una copia | 2.5 s | 10 páginas; 0 referencias o citas indefinidas; 0 "??" en `pdftotext`; 0 cajas desbordadas; BibTeX sin avisos; el texto del PDF compilado coincide con el `main.pdf` versionado (diff vacío) |
+| Prop. 3.1(iii) (contraejemplo), Prop. 3.2 y 3.2(c), regla del orden invertido | a mano | Álgebra correcta; d² del contraejemplo (0.5625, 1.5625, 4.0625) y (0.8125, 1.8125, 2.3125), m = 0.221/0.189, MSP = 0.562/0.481 recalculados. Error en el enunciado de 3.2(b): R2-m1 |
+| Historial de git (solo lectura: `log`, `show`, `diff`, `ls-tree`) | — | Véase R2-M2 |
+| **Total** | **≈ 185 s** | Dentro del presupuesto de 5 min. No repetí la corrida completa (284.5 s declarados): la reproducción exacta de 3 datasets, incluido el regenerado, más la identidad bit a bit de los otros 7 con v0.1 (ya reproducida por el árbitro 1) es un control más fuerte por segundo de CPU. |
 
-(pendiente)
+## Lista de acciones (por prioridad)
+
+1. Rehaz la afirmación sobre aniso − iso en resumen, §5.2, §6, Tabla 6, FICHA y README con las tres lecturas y aplicando la regla de casos límite: digits es el único caso robusto; iris y wine solo con bootstrap y con IC t límite; ninguno con NB. Cambia `rng_str` en `make_numbers.py` para que use las tres lecturas y excluya o separe los pares límite (R2-M1).
+2. Corrige `CRITERIO_HQF001.md` y main.tex:162: cita el commit `31398e3` como registro fechado anterior a la corrida, declara la prueba rápida previa y los cambios de repeticiones (4→3) y de rejillas de LogReg y QDA, el cambio de B y de sembrado, y da el hash del script que corrió; en el resumen escribe "fixed before the first run" (R2-M2).
+3. Declara en main.tex:151 y en `CRITERIO_HQF001.md` los cuatro espectros candidatos de synth-classcov y la regla con que se eligió uno, y que solo se calibraron (R2-M3).
+4. Reporta la saturación de la rejilla del campo y de las referencias y añade un análisis de sensibilidad, explícitamente no predefinido, con K_m ∈ {…, 160, 320} y α ∈ {…, 0.7, 0.9} para el campo y sus ablaciones; condiciona a la rejilla la frase "on synth-classcov anisotropy is a handicap" y la fila 9 de la Tabla 6; añádelo a Limitations (R2-M4).
+5. Corrige "close to uninformative" (Tabla 6), "al nivel del azar o por debajo" / "at or below chance level" (FICHA) y "no informan" (README): el log-volumen informa en iris, wine y digits (R2-M5).
+6. Corrige el enunciado de la Prop. 3.2(b) ("can change", con la condición si y solo si) (R2-m1).
+7. Reescribe la frase sobre el optimismo de los IC en main.tex:160 y :273 (R2-m2).
+8. Precisa la Prop. 3.2: configuraciones necesarias en (c), condición de núcleo en (a), Σ frente a Σ̂ en :138; usa π_{c_1}, π_{c_2} en la Prop. 3.1(iii) (R2-m3, R2-m4).
+9. Justifica synth-lda como control "sin ganancia posible" por la optimalidad del máximo posterior verdadero, no por la Prop. 3.1(i) (R2-m5).
+10. Corrige "K_m = 80 of 96 inner training points" (son 80, recortado a 79) y extiende la observación a wine; cambia "Every number" por "Every result" en main.tex:60 (R2-m6).
+11. Imprime el contraejemplo con cuatro decimales; añade la lectura NB a la frase "inconclusive only on…" de main.tex:271 (R2-m7, R2-m8).
+12. Etiqueta como v0.1 o actualiza las secciones obsoletas de la nota de continuidad; unifica el tiempo de la ronda (R2-m9).
+13. Recorta el resumen a ≈ 230 palabras; ordena los empates en `make_numbers.py` con clave secundaria (R2-m10, R2-m11).
+14. Añade `bouckaert2004` y cítalo junto a nadeau2003; completa volumen y páginas de geifman2017.

@@ -385,8 +385,11 @@ def main():
     abl = [("u = 1 (violates u^2 > N)", {"u": 1}),
            ("rho = 1 (items with x2 = x1; uniqueness on item-only subsamples lost)", {"rho": F(1)}),
            ("eta = 1, kappa = 2 (violates kappa - rho <= 1/B)", {"eta": F(1)})]
+    # the last two are NO instances built so that a violation creates a spurious witness:
+    # (u = 1) four kept items with sum t + 1 = 8; (kappa = 2) t = 1 small and sum(b) large.
     abl_insts = [([3, 5, 7], 8), ([2, 3, 7], 5), ([1, 1, 20], 2), ([2, 2, 2, 30], 4), ([1, 2, 40], 3),
-                 ([4, 6, 9, 13], 10), ([5, 5, 50], 5)]
+                 ([4, 6, 9, 13], 10), ([5, 5, 50], 5), ([1, 1, 1, 1, 1, 1, 20], 3),
+                 ([2, 2, 2, 2, 2, 2], 7), ([2, 2, 40], 1)]
     for name, ov in abl:
         for rule in ("C", "P"):
             nfail = nund = neq = 0
