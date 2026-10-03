@@ -6,9 +6,8 @@ min|R| with ||X_K^T y_K||_inf > mu' equals f0 in all instances: True
 instances with every subsample certified (no ties): 397; f_signed == f0 there: 397/397
 instances with at least one undetermined (tied) subsample: 3
 [v0.7] instances with f0 = infinity (then f_signed = infinity = f0): 39
-[v0.7] certificate R*_j (a sort-produced removal set of size f0 with a certified unique minimiser): closes f_signed = f0 in 359/361 instances with finite f0 (0 failures); in 1/3 instances with tied subsamples
-  [v0.7] not closed by R*: (trial, p, n, rule, f_signed, f0, tied subsamples) = (284, 3, 5, 'C', 2, 1, 1)
-  [v0.7] not closed by R*: (trial, p, n, rule, f_signed, f0, tied subsamples) = (368, 2, 5, 'P', 1, 1, 1)
+[v0.7] certificate R*_j (a sort-produced removal set of size f0 whose minimiser is certified unique by full rank of X_E): closes f_signed = f0 in 361/361 instances with finite f0, 3/3 of them with tied subsamples; disagreements with exhaustive search: 0
+[v0.7] tied instances searched again with uniqueness certified by full rank of X_E: f_signed = f0 in 3/3
 
 == (B) Cauchy--Binet form of the inactive correlation, p = 2, S = {1} ==
 identity G11 (c2 - mu) = sum_(i<l) m_il m'_il - mu sum_i x_i1 (x_i1 - x_i2): 295/295

@@ -541,7 +541,7 @@ mac("SignedPOneAgree", thousands(pj["agree"]))
 mac("SignedPOneTotal", thousands(pj["instances"]))
 assert pj["agree"] == pj["instances"], "text: sorting rule = brute force on every instance"
 
-# ------------------------------------------------------------------ signed ANY, p >= 2, empty support (v0.6, Prop. 5.12)
+# ------------------------------------------------------------------ signed ANY, p >= 2, empty support (v0.6/v0.7, Prop. 5.12)
 # experiments/check_signed_any.py -> results/signed_any.json, results/check_signed_any_output.txt (+ .sha256).
 gj = json.load(open(os.path.join(RES, "signed_any.json")))
 gsha = open(os.path.join(RES, "check_signed_any_output.sha256")).read().split()[0]
@@ -559,6 +559,16 @@ mac("SignedSha", gsha[:16])
 assert ga["ge_ok"] == ga["total"] and ga["agree"] == ga["clean"] and ga["mismatches"] == 0, \
     "text: lower bound always, equality on every certified instance"
 assert ga["clean"] + ga["tie_instances"] == ga["total"]
+# v0.7 (round 5, m1): the polynomial certificate R*_j of Prop. 5.12 (counters appended to part A; log re-frozen)
+mac("SignedEmptyFinite", ga["f0_finite"])
+mac("SignedEmptyInf", ga["f0_infinite"])
+mac("SignedCertOk", ga["cert_ok"])
+mac("SignedCertTies", ga["cert_ok_ties"])
+mac("SignedTiesEqual", ga["ties_equal_xe"])
+assert ga["f0_finite"] + ga["f0_infinite"] == ga["total"]
+assert ga["cert_ok"] + ga["cert_open"] == ga["f0_finite"] and ga["cert_fail"] == 0, \
+    "text: the certificate never disagrees with exhaustive search"
+assert ga["cert_ok_ties"] <= ga["tie_instances"] and ga["ties_equal_xe"] <= ga["tie_instances"]
 assert gb["cb_ok"] == gb["cb_total"] and gb["var_ok"] == gb["var_total"], "notes: Cauchy-Binet identities"
 assert gc["id_ok"] == gc["res_ok"] == gc["id_total"] and gc["cover_strict_max"] == gc["cover_strict_min"] == 0, \
     "notes: gadget identities; exact covers never strict extremisers of f"

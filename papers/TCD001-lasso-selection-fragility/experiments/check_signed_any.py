@@ -127,6 +127,44 @@ def f0_sorting(X, y, mu, rule):
     return best
 
 
+def status_xe(G, q, mu):
+    """v0.7. Like lasso_status, but ties |c_j| = mu are resolved by the sufficient condition of Tibshirani (2013):
+    find an exact KKT point, form the equicorrelation set E (common to all minimisers, which share the fit) and
+    certify uniqueness iff X_E has full column rank (G_EE nonsingular). Returns 'zero', 'unique' or
+    'undetermined' (X_E rank deficient: the minimiser may or may not be unique)."""
+    p = len(q)
+    if max(abs(v) for v in q) <= mu:
+        return "zero"
+    for size in range(1, p + 1):
+        for S in itertools.combinations(range(p), size):
+            GSS = [[G[a][b] for b in S] for a in S]
+            for s in itertools.product((1, -1), repeat=size):
+                beta = solve(GSS, [q[a] - mu * sg for a, sg in zip(S, s)])
+                if beta is None or any(sg * bv <= 0 for sg, bv in zip(s, beta)):
+                    continue
+                c = [q[j] - sum(G[j][a] * bv for a, bv in zip(S, beta)) for j in range(p)]
+                if any(abs(c[j]) > mu for j in range(p) if j not in S):
+                    continue
+                E = [j for j in range(p) if abs(c[j]) == mu]          # contains S
+                GEE = [[G[a][b] for b in E] for a in E]
+                return "unique" if solve(GEE, [F(0)] * len(E)) is not None else "undetermined"
+    return "undetermined"   # not reached: some minimiser has a support with full-rank Gram (Lemma lem:rank)
+
+
+def exhaustive_signed_xe(X, y, mu, rule):
+    """v0.7. Least |R| whose subsample has ||X_K^T y_K|| > mu' and a minimiser certified unique by status_xe
+    (an upper bound for f^signed, equal to it when every subsample is decided)."""
+    n = len(X)
+    for k in range(1, n):
+        mk = mu_rule(mu, n, k, rule)
+        for R in itertools.combinations(range(n), k):
+            K = [i for i in range(n) if i not in R]
+            G, q = gram(X, y, K)
+            if status_xe(G, q, mk) == "unique":
+                return k
+    return None
+
+
 def rstar_sets(X, y, mu, rule, f0):
     """The removal sets R*_j of size f0 produced by the sort of Theorem thm:hard(b), for every column j with
     f0_j = f0: the f0 smallest a_ij = x_ij y_i (removal raises the sum) and/or the f0 largest (removal lowers
@@ -149,7 +187,7 @@ def rstar_sets(X, y, mu, rule, f0):
                     if hi_ok:
                         out.append(tuple(sorted(order[n - k:])))
                 break
-    return out
+    return sorted(set(out))
 
 
 def exhaustive_signed(X, y, mu, rule):
@@ -180,7 +218,7 @@ def part_a(rng):
     tot = agree = ge_ok = 0
     tie_inst = 0
     rows = []
-    f0_inf = f0_fin = cert_ok = cert_fail = cert_ok_ties = 0
+    f0_inf = f0_fin = cert_ok = cert_fail = cert_ok_ties = ties_eq = 0
     cert_open = []
     for trial in range(400):
         p = rng.choice([2, 3])
@@ -198,7 +236,9 @@ def part_a(rng):
         fe, fnu, und = exhaustive_signed(X, y, mu, rule)
         fs = f0_sorting(X, y, mu, rule)
         tot += 1
-        # v0.7: polynomial certificate R*_j (no random numbers consumed)
+        # v0.7: polynomial certificate R*_j (no random numbers consumed). fx: exhaustive value with uniqueness
+        # certified by full rank of X_E (differs from fe only on tied instances; an upper bound for f^signed)
+        fx = fe if und == 0 else exhaustive_signed_xe(X, y, mu, rule)
         if fs is None:
             f0_inf += 1
         else:
@@ -209,15 +249,17 @@ def part_a(rng):
             for Rs in cands:
                 K = [i for i in range(n) if i not in Rs]
                 G, q = gram(X, y, K)
-                st, _ = lasso_status(G, q, mu_rule(mu, n, len(Rs), rule))
+                st = status_xe(G, q, mu_rule(mu, n, len(Rs), rule))
                 assert st != "zero", "R*_j has ||X_K^T y_K||_inf > mu'"
                 sts.append(st)
             if "unique" in sts:
                 cert_ok += 1
-                cert_fail += fe != fs
+                cert_fail += fx != fs
                 cert_ok_ties += und > 0
             else:
                 cert_open.append((trial, p, n, rule, fe, fs, und))
+        if und > 0:
+            ties_eq += fx == fs
         # f^signed >= f0 always (f = None means infinity)
         if fe is None or (fs is not None and fe >= fs):
             ge_ok += 1
@@ -240,14 +282,16 @@ def part_a(rng):
     for r in rows[:10]:
         log("  " + str(r))
     log(f"[v0.7] instances with f0 = infinity (then f_signed = infinity = f0): {f0_inf}")
-    log(f"[v0.7] certificate R*_j (a sort-produced removal set of size f0 with a certified unique minimiser): "
-        f"closes f_signed = f0 in {cert_ok}/{f0_fin} instances with finite f0 ({cert_fail} failures); "
-        f"in {cert_ok_ties}/{tie_inst} instances with tied subsamples")
+    log(f"[v0.7] certificate R*_j (a sort-produced removal set of size f0 whose minimiser is certified unique by "
+        f"full rank of X_E): closes f_signed = f0 in {cert_ok}/{f0_fin} instances with finite f0, "
+        f"{cert_ok_ties}/{tie_inst} of them with tied subsamples; disagreements with exhaustive search: {cert_fail}")
+    log(f"[v0.7] tied instances searched again with uniqueness certified by full rank of X_E: "
+        f"f_signed = f0 in {ties_eq}/{tie_inst}")
     for r in cert_open[:10]:
         log("  [v0.7] not closed by R*: (trial, p, n, rule, f_signed, f0, tied subsamples) = " + str(r))
     return dict(total=tot, ge_ok=ge_ok, clean=clean, agree=agree, tie_instances=tie_inst,
                 mismatches=len(rows), f0_infinite=f0_inf, f0_finite=f0_fin, cert_ok=cert_ok,
-                cert_fail=cert_fail, cert_ok_ties=cert_ok_ties, cert_open=len(cert_open))
+                cert_fail=cert_fail, cert_ok_ties=cert_ok_ties, cert_open=len(cert_open), ties_equal_xe=ties_eq)
 
 
 # ----------------------------------------------------------------------------- part B
