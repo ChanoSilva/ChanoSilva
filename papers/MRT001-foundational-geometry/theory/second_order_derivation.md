@@ -1,5 +1,10 @@
 # Segundo orden en la ley del realizador (MRT001, Obs. 5.11)
 
+Correspondencia con `second_order.tex`: Teorema 1 y Corolario 1 + §2 = `thm:secondN`; Teorema 2 =
+`thm:bestpois`; Lema 1 = `lem:signs`; Lema 3 = `lem:intref`; Proposición 3 = `prop:sharpC`;
+§5 = `rem:secondopen`. Salida de referencia: `theory/check_second_order_output.txt` (51 s de CPU),
+números en `theory/second_order_results.json`.
+
 Notas de trabajo (español). Notación de `manuscript/main.tex`, Sección 5 y Apéndice B:
 `π` uniforme en `S_n`, `N = N_n` = número de sucesiones descendentes, `R = R_n` = realizadores
 módulo el intercambio, `Z ~ Po(1)`, `p_k = P(N_n = k)`, `π_k = e^{-1}/k!` (`π_k = 0` si `k < 0`),
