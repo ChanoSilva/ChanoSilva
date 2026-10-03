@@ -9,7 +9,7 @@
 | Ruta | Contenido |
 |---|---|
 | `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés) y bibliografía (23 entradas reales). |
-| `manuscript/main.pdf` | PDF compilado (PAGES_PLACEHOLDER páginas; 0 errores, sin referencias ni citas indefinidas). |
+| `manuscript/main.pdf` | PDF compilado (10 páginas; 0 errores, sin referencias ni citas indefinidas). |
 | `manuscript/numbers.tex`, `manuscript/table_*.tex` | Macros y cuerpos de tabla **generados** por `experiments/make_numbers.py` desde `results/*.json`; ningún número del texto está tipeado a mano. |
 | `experiments/lasso_fragility.py` | Biblioteca: solver (homotopía LARS de scikit-learn con verificación KKT y retroceso a descenso por coordenadas), test exacto de eliminación (Prop. 3.1) vectorizado sobre subconjuntos, índice de inestabilidad (Cor. 3.2), certificado para k eliminaciones (Prop. 3.4), búsqueda exhaustiva de testigos mínimos, tres heurísticas, generador de instancias. |
 | `experiments/exact_examples.py` | E0: ejemplos de no monotonía con p=1 (a mano; objetivos "sale" y "entra") y p=2 (búsqueda sembrada, competencia entre variables) verificados en aritmética racional exacta. |

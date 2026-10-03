@@ -15,7 +15,7 @@ Pedido de la sesión (coordinador, Claude Code, 30/09/2026): dar a la línea un 
 5. **"Conexión con problemas combinatorios conocidos".** Se materializó como una reducción directa desde Subset Sum para p = 1 (existencia de testigo de deselección). No se sabe si la conexión que tenía en mente la ficha era esta u otra (p. ej. sistemas máximos factibles de Amaldi–Kann).
 
 ## Qué se produjo (todo en `papers/TCD001-lasso-selection-fragility/`)
-1. Manuscrito LaTeX (`manuscript/main.tex`, inglés; v0.1: 15 páginas, 22 referencias; v0.2: PAGES_PLACEHOLDER páginas, 23 referencias, tablas por celda trasladadas a `results/*.md`), compilado sin errores ni referencias indefinidas.
+1. Manuscrito LaTeX (`manuscript/main.tex`, inglés; v0.1: 15 páginas, 22 referencias; v0.2: 10 páginas, 23 referencias, tablas por celda trasladadas a `results/*.md`), compilado sin errores ni referencias indefinidas.
 2. Biblioteca `experiments/lasso_fragility.py` y cuatro scripts de experimentos con semillas fijas (20260930 para E0–E3/E5, 20260931 para E4), salida JSON + Markdown, `make_numbers.py` (~500 macros en v0.2) y `make_figures.py`; `check_b1_counterexample.py` (v0.2). Ningún número del manuscrito está escrito a mano.
 3. README, esta nota y una propuesta de ficha.
 
@@ -53,7 +53,7 @@ Pedido de la sesión (coordinador, Claude Code, 30/09/2026): dar a la línea un 
 4. Reglas dependientes de los datos (μ por validación cruzada): el testigo debe incluir el cambio de μ.
 5. Extender el test exacto a elastic net y square-root Lasso (KKT lineales sobre soporte con signos fijo).
 6. Buscar un contraejemplo explícito del recíproco de la Observación 3.6 (frecuencia de stability selection 1 con f_leave ≤ ⌈n/2⌉).
-7. Decidir destino (arXiv stat.ME / math.OC); la extensión es ahora PAGES_PLACEHOLDER páginas (ver ronda 1).
+7. Decidir destino (arXiv stat.ME / math.OC); la extensión es ahora 10 páginas (ver ronda 1).
 8. Actualizar la ficha TCD001 del CV web según `FICHA_TCD001_propuesta.md`.
 
 ## Ronda 1 de revisión interna (30/09/2026; respuesta 03/10/2026)
