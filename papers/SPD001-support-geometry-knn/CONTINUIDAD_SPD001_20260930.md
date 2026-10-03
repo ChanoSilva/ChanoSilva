@@ -77,7 +77,7 @@ Lo que queda abierto tras la ronda 1:
 
 ## Ronda 2 de revisión interna (03/10/2026)
 
-Veredicto del árbitro: cambios mayores (0 bloqueantes, 3 mayores, 11 menores; ronda 1: 18 bien aplicados, 2 a medias, 1 con error nuevo). Respuesta completa en `RESPUESTA_SPD001_ronda2_20261003.md`. Recuento: 11 aceptados, 4 aceptados con matiz (M1, m2, m8, m9), 0 rebatidos (ver la respuesta para el detalle por punto). Por indicación del coordinador, M1 se resolvió con un **prerregistro fechado** (`PREREGISTRO_SPD001_ronda2.md`, SHA-256 `901e19ff…`) y una **corrida completa nueva (protocolo v0.3)** con rejillas ampliadas para todos los métodos, en lugar de una sensibilidad aparte; la corrida v0.2 queda en `results/v02/`.
+Veredicto del árbitro: cambios mayores (0 bloqueantes, 3 mayores, 11 menores; ronda 1: 18 bien aplicados, 2 a medias, 1 con error nuevo). Respuesta completa en `RESPUESTA_SPD001_ronda2_20261003.md`. Recuento: 10 aceptados, 4 aceptados con matiz (M1, m2, m8, m9), 0 rebatidos (ver la respuesta para el detalle por punto). Por indicación del coordinador, M1 se resolvió con un **prerregistro fechado** (`PREREGISTRO_SPD001_ronda2.md`, SHA-256 `901e19ff…`) y una **corrida completa nueva (protocolo v0.3)** con rejillas ampliadas para todos los métodos, en lugar de una sensibilidad aparte; la corrida v0.2 queda en `results/v02/`.
 
 | Hallazgo | Acción |
 |---|---|
