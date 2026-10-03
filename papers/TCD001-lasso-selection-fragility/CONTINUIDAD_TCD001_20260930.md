@@ -86,7 +86,7 @@ Informe: `REFEREE_TCD001_ronda2_20261003.md` (veredicto: cambios menores; 0 bloq
 | M3 Obs. 3.5 sin unicidad | Hipótesis "minimizador único en cada submuestra de tamaño ⌊n/2⌋ (c.s. en diseños continuos)" en la Obs. 3.5 y en la tabla de afirmaciones; "en el artículo original … λ fijo, es decir, regla C (μ = λ/2)". |
 | m1 "p ≥ 2 is open" | Introducción: la deselección para p ≥ 2 hereda la dureza; lo abierto es la selección (Conj. 5.3). |
 | m2 "nonempty" en el Teo. 5.1(a) | Enunciado y prueba ("nonempty because … K' ≠ [m], and proper because m+1 ∉ R"). |
-| m3 recuento del Ej. 4.3 | "all 26 removal sets with \|R\| ≤ n − 2 (including R = ∅)"; comentario y `examples.md` corregidos (no se amplió el bucle para no cambiar la búsqueda). |
+| m3 recuento del Ej. 4.3 | "all 26 removal sets with \|R\| ≤ n − 2 (including R = ∅)"; comentario y `examples.md` corregidos. Comprobación aparte: los 5 conjuntos con \|R\| = 4 también son verificables en exacto y elevarían los pares no monótonos de 3 a 9; ampliar el bucle queda para v0.4. |
 | m4 "10⁻¹⁴" tecleado | Macro `\KKTMaxActiveRel` = 3.6·10⁻¹⁴ (relativo a max(1, μ), máximo en E1–E5). |
 | m5 mediana 10.5 | `half()` en `make_numbers.py` para medianas y cuartiles; corrige 4 macros (6.5, 9.5, 10.5, 1.5). |
 | m6 ANY sin signos en E3 | Frase añadida en E3. |
@@ -106,3 +106,4 @@ Queda abierto tras la ronda 2:
 4. Los cocientes de coste dependen de la carga de la máquina (hasta ×2.3 entre corridas); cualquier afirmación sobre coste a n ≥ 22 descansa en 20–40 instancias por celda y tres corridas.
 5. La exactitud del greedy a n = 34 (17/19) no decide la parte de exactitud del criterio; harían falta más instancias a n ≥ 30 para leer E4 contra el criterio.
 6. Integración de `theory/` (complejidad para p ≥ 2, otro agente): pendiente, por separado.
+7. Opcional: ampliar la verificación exacta del Ej. 4.3 a los 31 conjuntos no vacíos propios (|R| = 4 incluido; 9 pares no monótonos en lugar de 3), regenerando `examples.json` y la macro.

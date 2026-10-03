@@ -205,6 +205,8 @@ if cm:
     bp = ag["by_pattern"]
     mac("CmRandIntInst", bp["interior"]["instances"]); mac("CmRandIntRay", bp["interior"]["L1_dim1"])
     mac("CmRandIntWit", bp["interior"]["witness_instances"])
+    zb = [r for r in cm["E5b_rows"] if r["parameters"]["b0"] == 0 and r["parameters"]["b1"] == 0 and r["parameters"]["b_s"] == 0]
+    mac("CmRandZeroB", len(zb)); mac("CmRandZeroBWit", sum(r["witness"] is not None for r in zb))
     mac("HasCommodity", "1")
 else:
     mac("HasCommodity", "0")
@@ -234,6 +236,7 @@ if os.path.exists(_tc_path):
     mac("TcResidual", sci(t7["residual"]))
     mac("TcBoundaryDiff", sci(t7["max_abs_boundary_minus_psi"]))
     mac("TcSlicePts", len(t7["slice_grid"]))
+    mac("TcLow", f"{t7['slice_grid'][0]:g}"); mac("TcHigh", f"{t7['slice_grid'][-1]:g}")
     mac("TcDescTests", t7["description_tests"]); mac("TcDescMism", t7["description_mismatches"])
     mac("TcWitGap", f"{t7['witness_gap']:.10f}")
     mac("MetaSecondsThree", f"{tc['meta']['seconds']:.0f}")
