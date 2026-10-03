@@ -309,7 +309,152 @@ if os.path.exists(chk_path) and os.path.exists(chk_sha_path):
     L.append(rf"\newcommand{{\RlawChkSnRatio}}{{{sn_ratio}}}")
     L.append(rf"\newcommand{{\RlawChkSeconds}}{{{chk_seconds}}}")
     L.append(rf"\newcommand{{\RlawChkSha}}{{{sha[:16]}}}")
+    # v0.7 (round 4, m2): the two brute-force counts cover n <= 6 only; n = 7 has one of them
+    two = [b for b in brute if b[2].isdigit()]
+    one = [b for b in brute if not b[2].isdigit()]
+    L.append(rf"\newcommand{{\RlawChkBruteTwoNmax}}{{{max(int(b[0]) for b in two)}}}")
+    L.append(rf"\newcommand{{\RlawChkBruteTwoPerms}}{{{sum(int(b[1]) for b in two)}}}")
+    L.append(rf"\newcommand{{\RlawChkBruteOneN}}{{{', '.join(b[0] for b in one)}}}")
+    L.append(rf"\newcommand{{\RlawChkBruteOnePerms}}{{{sum(int(b[1]) for b in one)}}}")
+    # v0.7 (round 4, m3): 95% confidence intervals of n P(R_n != 2^N_n)
+    ci_rows = re.findall(r"^(\d+) \| (\d+) \| [\d.]+ \| [\d.]+ \| ([\d.]+) \(([\d.]+), ([\d.]+)\) \|", txt, flags=re.M)
+    cis = [(int(a), int(a) * float(lo), int(a) * float(hi)) for a, _, _, lo, hi in ci_rows]
+    L.append(rf"\newcommand{{\RlawChkCIrows}}{{{len(cis)}}}")
+    L.append(rf"\newcommand{{\RlawChkCIcontainFive}}{{{sum(1 for _, lo, hi in cis if lo <= 5 <= hi)}}}")
+    L.append(rf"\newcommand{{\RlawChkCIfirst}}{{$[{cis[0][1]:.2f},{cis[0][2]:.2f}]$}}")
+    L.append(rf"\newcommand{{\RlawChkCIlast}}{{$[{cis[-1][1]:.1f},{cis[-1][2]:.1f}]$}}")
     L.append(r"\newcommand{\HasRlawChk}{1}")
+
+# v0.7 (round 4): frozen output of theory/check_sharp_rate.py (numerical check of the sharp rates),
+# read only after its SHA-256 matches the recorded one; the frozen copy has no timing lines
+sh_path = os.path.join(ROOT, "results", "check_sharp_rate_output.txt")
+sh_sha_path = os.path.join(ROOT, "results", "check_sharp_rate_output.sha256")
+sh_meta_path = os.path.join(ROOT, "results", "check_sharp_rate_meta.json")
+if os.path.exists(sh_path) and os.path.exists(sh_sha_path) and os.path.exists(sh_meta_path):
+    import hashlib
+    import re
+    raw = open(sh_path, "rb").read()
+    sha = hashlib.sha256(raw).hexdigest()
+    meta = json.load(open(sh_meta_path))
+    recorded = open(sh_sha_path).read().split()[0]
+    if sha != recorded or sha != meta["sha256_frozen_output"]:
+        raise SystemExit(f"check_sharp_rate_output.txt: SHA-256 {sha} != recorded {recorded}")
+    txt = raw.decode()
+
+    def grab(pattern, flags=re.M):
+        m_ = re.search(pattern, txt, flags)
+        if m_ is None:
+            raise SystemExit(f"check_sharp_rate_output.txt: pattern not found: {pattern}")
+        return m_
+
+    def tex_sci(x):
+        mant, ex = f"{abs(x):.1e}".split("e")
+        return rf"\ensuremath{{{mant}\times10^{{{int(ex)}}}}}"
+
+    m_ = grab(r"^n = 1\.\.(\d+): inversion of factorial moments == closed form .*brute force for n <= (\d+)\): (\w+)")
+    if m_.group(3) != "True":
+        raise SystemExit("sharp check: the three laws of N_n disagree")
+    L.append(rf"\newcommand{{\SharpLawNmax}}{{{m_.group(1)}}}")
+    L.append(rf"\newcommand{{\SharpLawBruteNmax}}{{{m_.group(2)}}}")
+    if grab(r"^n = 1\.\.\d+: E\[\(N_n\)_r\] = 1 - r/n .*: (\w+)").group(1) != "True":
+        raise SystemExit("sharp check: factorial moments")
+    m_ = grab(r"^all n in \[(\d+), (\d+)\]: bounds and identities hold: (\w+);  max \|r\| n k!\(n-k\+1\)! = ([\d.]+) .*max \|n!\(n d_TV - 1/e\)\| = ([\d.]+)")
+    if m_.group(3) != "True":
+        raise SystemExit("sharp check: Lemma A / Theorem A bounds fail")
+    L.append(rf"\newcommand{{\SharpAnlo}}{{{m_.group(1)}}}")
+    L.append(rf"\newcommand{{\SharpAnhi}}{{{m_.group(2)}}}")
+    L.append(rf"\newcommand{{\SharpRmax}}{{{float(m_.group(4)):.2f}}}")
+    L.append(rf"\newcommand{{\SharpDevMax}}{{{float(m_.group(5)):.2f}}}")
+    dev_min = float(grab(r'^min over n in .* = ([\d.]+)').group(1))
+    L.append(rf"\newcommand{{\SharpDevMin}}{{{dev_min:.3f}}}")
+    for nn, name in ((10, "Ten"), (20, "Twenty")):
+        v = float(grab(rf"^{nn:2d} \| [\d.]+ \| True \| True \| [\d.]+ \| ([+\-\d.e]+) \|").group(1))
+        L.append(rf"\newcommand{{\SharpDev{name}}}{{{tex_sci(v)}}}")
+    three_four_e = float(grab(r'against 3/\(4e\) = ([\d.]+)').group(1))
+    L.append(rf"\newcommand{{\SharpThreeFourE}}{{{three_four_e:.4f}}}")
+    m_ = grab(r"^  n = +(\d+): n\^2 d_TV\(N_n, Po\(1-1/n\)\) = ([\d.]+)\s*\n(?!  n =)")
+    L.append(rf"\newcommand{{\SharpPoShiftN}}{{{m_.group(1)}}}")
+    L.append(rf"\newcommand{{\SharpPoShift}}{{{float(m_.group(2)):.4f}}}")
+    c2 = float(grab(r"^c_2 = \|mu\|/2 = ([\d.]+);").group(1))
+    L.append(rf"\newcommand{{\SharpCtwo}}{{{c2:.3f}}}")
+    L.append(rf"\newcommand{{\SharpCtwoLong}}{{{c2:.4f}}}")
+    L.append(rf"\newcommand{{\SharpCoupling}}{{{5 + math.exp(-1):.2f}}}")
+    pairs = re.findall(r"^n = (\d+) exhaustive: .*equal: (\w+)", txt, flags=re.M)
+    if not pairs or any(e != "True" for _, e in pairs):
+        raise SystemExit("sharp check: pair moments disagree with enumeration")
+    L.append(rf"\newcommand{{\SharpPairsN}}{{{' and '.join(n_ for n_, _ in pairs)}}}")
+    m_ = grab(r"^  20 <= n <= 3000: max of \[sum_\(k=4\)\^\(n-2\) E I_k\]/\(172/n\^2\) = ([\d.]+), E\[C\(I3,2\)\]/\(23/n\^2\) = ([\d.]+), E\[I3 I_\(n-1\)\]/\(25/n\^2\) = ([\d.]+), E\[C\(I_\(n-1\),2\)\]/\(3/n\^2\) = ([\d.]+)")
+    if max(float(x) for x in m_.groups()) > 1:
+        raise SystemExit("sharp check: a piece of Lemma B(a) exceeds its bound")
+    L.append(rf"\newcommand{{\SharpPieceMax}}{{{max(float(x) for x in m_.groups()):.2f}}}")
+    unrounded = float(grab(r'max over 20 <= n <= 3000 of n\^2 \(bound - 5/n\) = ([\d.]+)').group(1))
+    L.append(rf"\newcommand{{\SharpBoundUnrounded}}{{{unrounded:.1f}}}")
+    # Monte Carlo of d_TV(R_n, 2^Z): table body
+    mc = re.findall(r"^n = (\d+): (\d+) samples, flagged ([\d.]+), missed-interval bound ([\d.e+-]+), P\(R != 2\^N\) = [\d.]+ \(n P = ([\d.]+) \+- ([\d.]+)\)", txt, flags=re.M)
+    dt = re.findall(r"^   n d_TV\(R_n, 2\^Z\): Monte Carlo ([\d.]+) \+- ([\d.]+) .*refined first-order model ([\d.]+);", txt, flags=re.M)
+    zz = re.findall(r"^   max over these atoms of \|MC - model\| / SE = ([\d.]+)", txt, flags=re.M)
+    assert len(mc) == len(dt) == len(zz) >= 1
+    with open(os.path.join(out_dir, "table_sharp.tex"), "w") as fh:
+        body = [f"{a[0]} & {a[1]} & {float(a[4]):.2f} $\\pm$ {float(a[5]):.2f} & {float(b[0]):.3f} $\\pm$ {float(b[1]):.3f} & "
+                f"{float(b[2]):.3f} & {float(z):.1f}" for a, b, z in zip(mc, dt, zz)]
+        fh.write(" \\\\\n".join(body) + "\n")
+    L.append(rf"\newcommand{{\SharpMCnlo}}{{{mc[0][0]}}}")
+    L.append(rf"\newcommand{{\SharpMCnhi}}{{{mc[-1][0]}}}")
+    L.append(rf"\newcommand{{\SharpMCsamplesMin}}{{{min(int(a[1]) for a in mc)}}}")
+    L.append(rf"\newcommand{{\SharpMCsamplesMax}}{{{max(int(a[1]) for a in mc)}}}")
+    L.append(rf"\newcommand{{\SharpMCmissedMax}}{{{tex_sci(max(float(a[3]) for a in mc))}}}")
+    L.append(rf"\newcommand{{\SharpMCzFirst}}{{{float(zz[0]):.1f}}}")
+    L.append(rf"\newcommand{{\SharpMCzRestMax}}{{{max(float(z) for z in zz[1:]):.1f}}}")
+    # atoms 1, 6, 12 at n = 200
+    blk = txt[txt.index("n = 200:"):]
+    for x, name in (("1", "One"), ("6", "Six"), ("12", "Twelve")):
+        m_ = re.search(rf"^ +{x} \| ([+\-][\d.]+) \+- ([\d.]+) \| ([+\-][\d.]+) \|", blk, flags=re.M)
+        L.append(rf"\newcommand{{\SharpAtom{name}}}{{${float(m_.group(1)):.3f}\pm{float(m_.group(2)):.3f}$}}")
+        L.append(rf"\newcommand{{\SharpMu{name}}}{{${float(m_.group(3)):.3f}$}}")
+    L.append(r"\newcommand{\SharpAtomN}{200}")
+    # (E) E5f and frozen realizer-law check
+    m_ = grab(r"pooled z-scores \(obs - pred\)/sd: u: ([+\-][\d.]+), t: ([+\-][\d.]+), l: ([+\-][\d.]+), e: ([+\-][\d.]+)")
+    for v, name in zip(m_.groups(), ("Unique", "Two", "LeEight", "Equal")):
+        L.append(rf"\newcommand{{\SharpZ{name}}}{{${float(v):+.2f}$}}")
+    m_ = grab(r"pooled over n >= 100: 3/2: (\d+), 2: (\d+), share ([\d.]+) \(95% CI \+- ([\d.]+)")
+    L.append(rf"\newcommand{{\SharpShareHalf}}{{{float(m_.group(3)):.3f}}}")
+    L.append(rf"\newcommand{{\SharpShareCI}}{{{float(m_.group(4)):.3f}}}")
+    share20 = float(grab(r'n =   20: n P\(R != 2\^N\) = [\d.]+; 3/2: \d+, 2: \d+, share ([\d.]+)').group(1))
+    L.append(rf"\newcommand{{\SharpShareTwenty}}{{{share20:.3f}}}")
+    # (F) where the exceptions come from
+    fr = re.findall(r"^ +(\d+) \| (\d+) \| ([\d.]+) \(([\d.]+), ([\d.]+)\) \| ([\d.]+) \| (\d+) \| (\d+) \| (\d+) \| ([\d.]+)", txt, flags=re.M)
+    names = {"20": "Twenty", "40": "Forty", "100": "Hundred"}
+    for r_ in fr:
+        nm = names[r_[0]]
+        L.append(rf"\newcommand{{\SharpF{nm}Samples}}{{{r_[1]}}}")
+        L.append(rf"\newcommand{{\SharpF{nm}PE}}{{{float(r_[2]):.3f}}}")
+        L.append(rf"\newcommand{{\SharpF{nm}PEbound}}{{{float(r_[5]):.3f}}}")
+        L.append(rf"\newcommand{{\SharpF{nm}Exc}}{{{r_[6]}}}")
+        L.append(rf"\newcommand{{\SharpF{nm}ExcBad}}{{{r_[8]}}}")
+        L.append(rf"\newcommand{{\SharpF{nm}Share}}{{{float(r_[9]):.2f}}}")
+    L.append(rf"\newcommand{{\SharpSeconds}}{{{int(round(meta['seconds']))}}}")
+    L.append(rf"\newcommand{{\SharpSha}}{{{sha[:16]}}}")
+    L.append(r"\newcommand{\HasSharp}{1}")
+
+# v0.7: first-order predictions of Theorem thm:sharpR against the E5f samples (computed here from
+# results/results_realizer_law.json, independently of the check script)
+if os.path.exists(rl_path):
+    E1_ = math.exp(-1)
+    acc = {k: [0.0, 0.0, 0.0] for k in ("u", "t", "l", "e")}
+    for r in rl["rows"]:
+        n_, S_ = r["n"], r["samples"]
+        pred = {"u": E1_ * (1 - 3 / n_), "t": E1_, "l": 8 / 3 * E1_ - 1.5 * E1_ / n_, "e": 1 - 5 / n_}
+        obs = {"u": r["fraction_unique"], "t": r["fraction_two"], "l": r["fraction_le_eight"],
+               "e": r["equal_to_two_pow_N"] / S_}
+        for k in acc:
+            acc[k][0] += obs[k] * S_
+            acc[k][1] += pred[k] * S_
+            acc[k][2] += pred[k] * (1 - pred[k]) * S_
+    for k, name in (("u", "Unique"), ("t", "Two"), ("l", "LeEight"), ("e", "Equal")):
+        o, pr, v = acc[k]
+        L.append(rf"\newcommand{{\RlawFirstOrderZ{name}}}{{${(o - pr) / math.sqrt(v):+.2f}$}}")
+        L.append(rf"\newcommand{{\RlawFirstOrderObs{name}}}{{{o:.0f}}}")
+        L.append(rf"\newcommand{{\RlawFirstOrderPred{name}}}{{{pr:.1f}}}")
 
 import glob
 for t in glob.glob(os.path.join(out_dir, "table_*.tex")):

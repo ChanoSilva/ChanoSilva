@@ -22,8 +22,16 @@ p_k = P(N_n = k), pi_k = e^{-1}/k!.
     have an interval of length in [3, K] or [n-K, n-1]; R = 2^N on the others by Step 1).
 (E) comparison with results/results_realizer_law.json (E5f) and the frozen output
     results/check_realizer_law_output.txt.
+(F) (added in v0.7, round 4, item m3) where the exceptions come from at moderate n: exact count of the
+    intervals with 3..n-1 elements of every sample (no window cut-off) and classification of the
+    exceptions R != 2^N into the first-order configurations of Proposition 5.7 (exactly one interval
+    with 3..n-1 elements, of size 3 or n-1) and the rest (the event of probability O(n^-2)).
 
-Usage: python3 check_sharp_rate.py      (writes check_sharp_rate_output.txt)
+Usage: python3 check_sharp_rate.py
+  writes theory/check_sharp_rate_output.txt (full log, with timings) and the frozen copy
+  results/check_sharp_rate_output.txt (same lines without the timing lines, so that its SHA-256 is
+  reproducible), results/check_sharp_rate_output.sha256 and results/check_sharp_rate_meta.json
+  (wall-clock seconds and SHA-256), which experiments/make_numbers.py reads.
 """
 import itertools
 import json
@@ -45,10 +53,20 @@ import check_realizer_law as crl  # noqa: E402  (read-only reuse: realizers_form
 
 SEED = 20261004
 OUT = os.path.join(HERE, "check_sharp_rate_output.txt")
-_lines = []
+FROZEN = os.path.join(ROOT, "results", "check_sharp_rate_output.txt")
+_lines = []          # full log
+_frozen = []         # the same lines without timings
 
 
 def say(*args):
+    s = " ".join(str(a) for a in args)
+    print(s, flush=True)
+    _lines.append(s)
+    _frozen.append(s)
+
+
+def tsay(*args):
+    """timing lines: full log only, never in the frozen copy"""
     s = " ".join(str(a) for a in args)
     print(s, flush=True)
     _lines.append(s)
@@ -123,7 +141,7 @@ def part_a():
     say(f"n = 1..60: inversion of factorial moments == closed form C(n-1,k)(D_(n-k)+D_(n-k-1))/n! == insertion "
         f"recurrence (and == brute force for n <= 8): {ok_laws}")
     say(f"n = 1..60: E[(N_n)_r] = 1 - r/n for 0 <= r <= n-1 and 0 for r = n: {ok_moments}")
-    say(f"  ({time.time() - t0:.1f} s)")
+    tsay(f"  ({time.time() - t0:.1f} s)")
     say("")
     say("first-order expansion  p_k = pi_k (1 - (k-1)/n) + r_{n,k},  claimed |r_{n,k}| <= 1/(n k! (n-k+1)!)")
     say("d_TV identity  d_TV(N_n, Po(1)) = (p_0 - pi_0) + (p_1 - pi_1)^+  and  |n d_TV - 1/e| <= 2/n!  (n >= 4)")
@@ -132,6 +150,7 @@ def part_a():
     all_ok = True
     worst_r = Fraction(0)
     worst_dev = Fraction(0)
+    least_dev = None
     for n in range(4, 61):
         p = law_closed(n)
         pis = [EINV / FACT[k] for k in range(n)]
@@ -144,6 +163,7 @@ def part_a():
         dev = n * dtv - EINV
         dev_scaled = dev * FACT[n]
         worst_dev = max(worst_dev, abs(dev_scaled))
+        least_dev = abs(dev_scaled) if least_dev is None else min(least_dev, abs(dev_scaled))
         ok = rr <= 1 and signs and idok and abs(dev_scaled) <= 2
         all_ok &= ok
         if n in (4, 5, 6, 7, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60):
@@ -152,6 +172,7 @@ def part_a():
                 f"{float(dev_scaled):+.4f} | {float(dtv) / old:.4f}")
     say(f"all n in [4, 60]: bounds and identities hold: {all_ok};  max |r| n k!(n-k+1)! = {float(worst_r):.4f} (<= 1);"
         f"  max |n!(n d_TV - 1/e)| = {float(worst_dev):.4f} (<= 2)")
+    say(f"min over n in [4, 60] of |n!(n d_TV - 1/e)| = {float(least_dev):.4f}")
     say(f"1/e = {E1:.15f}")
     say("")
     say("Remark (numerical only): n^2 d_TV(N_n, Po(1 - 1/n)) against 3/(4e) = %.6f" % (3 / (4 * math.e)))
@@ -161,7 +182,7 @@ def part_a():
         q = [math.exp(-lam) * lam ** k / FACT[k] for k in range(len(p))]
         dtv = 0.5 * (sum(abs(a - b) for a, b in zip(p, q)) + max(0.0, 1 - sum(q)))
         say(f"  n = {n:4d}: n^2 d_TV(N_n, Po(1-1/n)) = {n * n * dtv:.6f}")
-    say(f"  ({time.time() - t0:.1f} s)")
+    tsay(f"  ({time.time() - t0:.1f} s)")
 
 
 # --------------------------------------------------------------------------
@@ -303,7 +324,7 @@ def part_c():
         f"{worst['c33']:.4f}, E[I3 I_(n-1)]/(25/n^2) = {worst['c3n']:.4f}, E[C(I_(n-1),2)]/(3/n^2) = {worst['cnn']:.4f}"
         f"  (all must be <= 1)")
     say(f"  max over 20 <= n <= 3000 of n^2 (bound - 5/n) = {worst['total']:.2f} (<= 220)")
-    say(f"  ({time.time() - t0:.1f} s)")
+    tsay(f"  ({time.time() - t0:.1f} s)")
     say("")
     say("exact law of R_n by enumeration (substitution-tree formula), small n -- only a sanity check, the")
     say("O(n^-2) terms dominate here:  n | P(R != 2^N) | d_TV(R_n, 2^Z) | n d_TV | n d_TV(model, 2^Z) | d_TV(R_n, model)")
@@ -320,7 +341,7 @@ def part_c():
         Lm = model_law(n)
         say(f"  {n} | {exc / FACT[n]:.4f} | {dtv(L, PZ):.4f} | {n * dtv(L, PZ):.3f} | {n * dtv(Lm, PZ):.3f} | "
             f"{dtv(L, Lm):.4f}")
-    say(f"  ({time.time() - t0:.1f} s)")
+    tsay(f"  ({time.time() - t0:.1f} s)")
 
 
 # --------------------------------------------------------------------------
@@ -405,7 +426,7 @@ def part_d():
                 f"{n * (Lm.get(x, 0.0) - PZ.get(x, 0.0)):+.3f}")
         say(f"   max over these atoms of |MC - model| / SE = {zmax:.2f}  (the plug-in d_TV above is biased upward by"
             f" the atom-wise noise, of order n*SE)")
-        say(f"   ({time.time() - t0:.1f} s)")
+        tsay(f"   ({time.time() - t0:.1f} s)")
         summary.append((n, n * d_all, 1.96 * n * se, n * d_model))
     say("summary: n | n d_TV MC (95%) | n d_TV model | c_2 | old bound n*[(10+e^2)/n+167/n^2] | new bound n*[(5+1/e)/n+221/n^2]")
     for n, a, b, c in summary:
@@ -467,6 +488,47 @@ def part_e():
         f"(95% CI +- {1.96 * math.sqrt(0.2 * 0.8 / (s32 + s2)):.3f} around 0.2)")
 
 
+def interval_counts(P):
+    """I[b, k] = number of intervals with k elements of P[b], 3 <= k <= n-1 (exact, all windows)."""
+    b, n = P.shape
+    I = np.zeros((b, n + 1), dtype=np.int64)
+    mx = np.maximum(P[:, :-1], P[:, 1:])
+    mn = np.minimum(P[:, :-1], P[:, 1:])
+    for k in range(3, n):
+        mx = np.maximum(mx[:, :-1], P[:, k - 1:])
+        mn = np.minimum(mn[:, :-1], P[:, k - 1:])
+        I[:, k] = ((mx - mn) == k - 1).sum(axis=1)
+    return I
+
+
+def part_f():
+    say("=" * 78)
+    say("(F) where the exceptions come from (exact interval counts, no window cut-off; seed SEED + 1)")
+    say("=" * 78)
+    say("first-order configurations: exactly one interval with 3..n-1 elements, of size 3 or n-1;")
+    say("bad event E: an interval with 4..n-2 elements or I_3 + I_(n-1) >= 2 (Lemma B, P(E) <= 223/n^2 for n >= 20)")
+    say(" n | samples | P(E) obs (95% CI) | 223/n^2 | exceptions | from first-order configurations | from E | share from E")
+    rng = np.random.default_rng(SEED + 1)
+    for n, M in ((20, 20000), (40, 20000), (100, 20000)):
+        t0 = time.time()
+        P = np.argsort(rng.random((M, n)), axis=1).astype(np.int32)
+        I = interval_counts(P)
+        tot = I[:, 3:n].sum(axis=1)
+        bad = (I[:, 4:n - 1].sum(axis=1) > 0) | (I[:, 3] + I[:, n - 1] >= 2)
+        exc = exc_bad = 0
+        for i in np.nonzero(tot > 0)[0]:
+            p = P[i].tolist()
+            if crl.realizers_formula(p) != 2 ** crl.n_desc(p):
+                exc += 1
+                exc_bad += bool(bad[i])
+        pe = bad.mean()
+        ci = 1.96 * math.sqrt(pe * (1 - pe) / M)
+        say(f" {n:3d} | {M} | {pe:.4f} ({pe - ci:.4f}, {pe + ci:.4f}) | {223 / n ** 2:.4f} | {exc} | {exc - exc_bad} | "
+            f"{exc_bad} | {exc_bad / max(1, exc):.3f}")
+        tsay(f"   ({time.time() - t0:.1f} s)")
+    say("(outside E every exception is a first-order configuration, so 'from E' = exceptions on E)")
+
+
 def main():
     t0 = time.time()
     say(f"check_sharp_rate.py  seed={SEED}  python {platform.python_version()}  numpy {np.__version__}")
@@ -475,9 +537,23 @@ def main():
     part_c()
     part_d()
     part_e()
-    say(f"total {time.time() - t0:.1f} s")
+    part_f()
+    seconds = time.time() - t0
+    tsay(f"total {seconds:.1f} s")
     with open(OUT, "w") as fh:
         fh.write("\n".join(_lines) + "\n")
+    raw = ("\n".join(_frozen) + "\n").encode()
+    with open(FROZEN, "wb") as fh:
+        fh.write(raw)
+    import hashlib
+    sha = hashlib.sha256(raw).hexdigest()
+    with open(FROZEN.replace(".txt", ".sha256"), "w") as fh:
+        fh.write(f"{sha}  check_sharp_rate_output.txt\n")
+    with open(os.path.join(ROOT, "results", "check_sharp_rate_meta.json"), "w") as fh:
+        json.dump({"script": "theory/check_sharp_rate.py", "seed": SEED, "seconds": round(seconds, 1),
+                   "sha256_frozen_output": sha, "python": platform.python_version(),
+                   "numpy": np.__version__, "cpu": "one core"}, fh, indent=1)
+        fh.write("\n")
 
 
 if __name__ == "__main__":

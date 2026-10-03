@@ -4,7 +4,6 @@ check_sharp_rate.py  seed=20261004  python 3.11.15  numpy 2.4.6
 ==============================================================================
 n = 1..60: inversion of factorial moments == closed form C(n-1,k)(D_(n-k)+D_(n-k-1))/n! == insertion recurrence (and == brute force for n <= 8): True
 n = 1..60: E[(N_n)_r] = 1 - r/n for 0 <= r <= n-1 and 0 for r = n: True
-  (0.5 s)
 
 first-order expansion  p_k = pi_k (1 - (k-1)/n) + r_{n,k},  claimed |r_{n,k}| <= 1/(n k! (n-k+1)!)
 d_TV identity  d_TV(N_n, Po(1)) = (p_0 - pi_0) + (p_1 - pi_1)^+  and  |n d_TV - 1/e| <= 2/n!  (n >= 4)
@@ -36,7 +35,6 @@ Remark (numerical only): n^2 d_TV(N_n, Po(1 - 1/n)) against 3/(4e) = 0.275910
   n =  200: n^2 d_TV(N_n, Po(1-1/n)) = 0.276370
   n =  500: n^2 d_TV(N_n, Po(1-1/n)) = 0.276094
   n = 1000: n^2 d_TV(N_n, Po(1-1/n)) = 0.276002
-  (0.7 s)
 ==============================================================================
 (B) first-order signed measure mu of R_n:  P(R_n = x) = P(2^Z = x) + mu(x)/n + O(n^-2)
 ==============================================================================
@@ -69,7 +67,6 @@ n = 9 exhaustive: E[C(I3,2)], E[I3 I_(n-1)], E[C(I_(n-1),2)] = 34/189, 19/63, 1/
   n = 1000: 3(n-2)/(n(n-1))+2/n = 0.00500, sum_(k=4)^(n-2) E I_k = 4.22e-05, pairs = 2.20e-05 + 2.40e-05 + 2.00e-06;  bound = 0.00509 = 5/n + 87.2/n^2
   20 <= n <= 3000: max of [sum_(k=4)^(n-2) E I_k]/(172/n^2) = 0.3711, E[C(I3,2)]/(23/n^2) = 0.9559, E[I3 I_(n-1)]/(25/n^2) = 0.9731, E[C(I_(n-1),2)]/(3/n^2) = 0.7018  (all must be <= 1)
   max over 20 <= n <= 3000 of n^2 (bound - 5/n) = 106.38 (<= 220)
-  (3.6 s)
 
 exact law of R_n by enumeration (substitution-tree formula), small n -- only a sanity check, the
 O(n^-2) terms dominate here:  n | P(R != 2^N) | d_TV(R_n, 2^Z) | n d_TV | n d_TV(model, 2^Z) | d_TV(R_n, model)
@@ -77,7 +74,6 @@ O(n^-2) terms dominate here:  n | P(R != 2^N) | d_TV(R_n, 2^Z) | n d_TV | n d_TV
   6 | 0.5069 | 0.2946 | 1.768 | 1.364 | 0.2292
   7 | 0.5462 | 0.2476 | 1.733 | 1.321 | 0.1464
   8 | 0.5473 | 0.2426 | 1.941 | 1.304 | 0.1110
-  (4.7 s)
 ==============================================================================
 (D) Monte Carlo of d_TV(R_n, 2^Z): P(R=x) estimated as P(2^{N_n}=x) [exact] + mean of 1{R=x} - 1{2^N=x}
 ==============================================================================
@@ -96,7 +92,6 @@ n = 50: 300000 samples, flagged 0.1830, missed-interval bound 2.5e-05, P(R != 2^
     48 | +0.067 +- 0.007 | +0.061 | +0.058
      3 | +0.000 +- 0.000 | +0.000 | +0.000
    max over these atoms of |MC - model| / SE = 4.40  (the plug-in d_TV above is biased upward by the atom-wise noise, of order n*SE)
-   (13.4 s)
 n = 100: 300000 samples, flagged 0.0959, missed-interval bound 6.1e-07, P(R != 2^N) = 0.05041 (n P = 5.041 +- 0.078); ratios R/2^N: 3/2: 2794, 2: 11795, 9/4: 11, 3: 250, 4: 196, 9/2: 1, 6: 72, 8: 1, 9: 1, 12: 2
    n d_TV(R_n, 2^Z): Monte Carlo 1.2311 +- 0.0599 (95%, jackknife over 10 groups); refined first-order model 1.1924; c_2 = 1.1839; d_TV(model, MC estimate) * n = 0.0852
    x  | n(P_MC(R=x) - P(2^Z=x)) +- 1.96 SE | mu(x) | n(P_model(x) - P(2^Z=x))
@@ -112,7 +107,6 @@ n = 100: 300000 samples, flagged 0.0959, missed-interval bound 6.1e-07, P(R != 2
     48 | +0.071 +- 0.010 | +0.061 | +0.059
      3 | +0.000 +- 0.000 | +0.000 | +0.000
    max over these atoms of |MC - model| / SE = 2.31  (the plug-in d_TV above is biased upward by the atom-wise noise, of order n*SE)
-   (31.8 s)
 n = 200: 250000 samples, flagged 0.0486, missed-interval bound 1.7e-08, P(R != 2^N) = 0.02458 (n P = 4.915 +- 0.121); ratios R/2^N: 3/2: 1188, 2: 4865, 9/4: 4, 3: 47, 4: 31, 6: 9
    n d_TV(R_n, 2^Z): Monte Carlo 1.1646 +- 0.0784 (95%, jackknife over 10 groups); refined first-order model 1.1882; c_2 = 1.1839; d_TV(model, MC estimate) * n = 0.0910
    x  | n(P_MC(R=x) - P(2^Z=x)) +- 1.96 SE | mu(x) | n(P_model(x) - P(2^Z=x))
@@ -128,7 +122,6 @@ n = 200: 250000 samples, flagged 0.0486, missed-interval bound 1.7e-08, P(R != 2
     48 | +0.058 +- 0.013 | +0.061 | +0.060
      3 | +0.000 +- 0.000 | +0.000 | +0.000
    max over these atoms of |MC - model| / SE = 1.63  (the plug-in d_TV above is biased upward by the atom-wise noise, of order n*SE)
-   (30.4 s)
 n = 400: 200000 samples, flagged 0.0246, missed-interval bound 5.1e-10, P(R != 2^N) = 0.01259 (n P = 5.034 +- 0.195); ratios R/2^N: 3/2: 495, 2: 2001, 3: 10, 4: 10, 6: 1
    n d_TV(R_n, 2^Z): Monte Carlo 1.2061 +- 0.1449 (95%, jackknife over 10 groups); refined first-order model 1.1860; c_2 = 1.1839; d_TV(model, MC estimate) * n = 0.1341
    x  | n(P_MC(R=x) - P(2^Z=x)) +- 1.96 SE | mu(x) | n(P_model(x) - P(2^Z=x))
@@ -144,7 +137,6 @@ n = 400: 200000 samples, flagged 0.0246, missed-interval bound 5.1e-10, P(R != 2
     48 | +0.034 +- 0.016 | +0.061 | +0.061
      3 | +0.000 +- 0.000 | +0.000 | +0.000
    max over these atoms of |MC - model| / SE = 3.26  (the plug-in d_TV above is biased upward by the atom-wise noise, of order n*SE)
-   (31.3 s)
 summary: n | n d_TV MC (95%) | n d_TV model | c_2 | old bound n*[(10+e^2)/n+167/n^2] | new bound n*[(5+1/e)/n+221/n^2]
     50 | 1.261 +- 0.040 | 1.201 | 1.184 | 20.73 | 9.79
    100 | 1.231 +- 0.060 | 1.192 | 1.184 | 19.06 | 7.58
@@ -179,10 +171,6 @@ first-order configurations: exactly one interval with 3..n-1 elements, of size 3
 bad event E: an interval with 4..n-2 elements or I_3 + I_(n-1) >= 2 (Lemma B, P(E) <= 223/n^2 for n >= 20)
  n | samples | P(E) obs (95% CI) | 223/n^2 | exceptions | from first-order configurations | from E | share from E
   20 | 20000 | 0.1558 (0.1508, 0.1609) | 0.5575 | 4921 | 2329 | 2592 | 0.527
-   (0.6 s)
   40 | 20000 | 0.0458 (0.0429, 0.0487) | 0.1394 | 2460 | 1740 | 720 | 0.293
-   (0.8 s)
  100 | 20000 | 0.0084 (0.0072, 0.0097) | 0.0223 | 984 | 850 | 134 | 0.136
-   (2.5 s)
 (outside E every exception is a first-order configuration, so 'from E' = exceptions on E)
-total 116.3 s

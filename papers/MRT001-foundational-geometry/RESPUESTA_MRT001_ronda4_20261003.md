@@ -6,9 +6,23 @@ Manuscrito revisado: v0.6 → **v0.7** (portada "Working draft v0.7 — 3 Octobe
 
 ## Recuento (en curso)
 
-## Hallazgo mayor (en curso)
+## Hallazgo mayor
+
+### M1 — Atribución de los Lemas 5.4 y 5.5 y de la estadística de intervalos. **Aceptado.**
+Tiene razón en los tres puntos, y el (a) es una incoherencia interna que debí ver: la Obs. B.1 llamaba "clásica" a la fórmula de producto de Gallai de la que el Lema 5.5 es el caso de nodo primo.
+- Referencias verificadas por WebSearch (las páginas de los editores y los PDF —dmtcs.episciences.org, cs.uwaterloo.ca, rbrignall.org.uk, arxiv.org— están bloqueados por el proxy; cotejo por resúmenes y fichas): **Corteel, Louchard, Pemantle**, "Common intervals in permutations", *DMTCS* 8 (2006) 189–214 (una ficha da 189–216; uso 189–214, que coincide con el árbitro y con la ficha de episciences); el resumen confirma que el número total de intervalos de una permutación uniforme converge a Poisson(2). **Albert, Atkinson, Klazar**, "The enumeration of simple permutations", *J. Integer Seq.* 6 (2003), art. 03.4.4; la asintótica n!e⁻²(1 − 4/n + 2/(n(n−1)) + O(n⁻³)) está confirmada por OEIS A111111 y por el resultado de búsqueda. **Brignall**, "A survey of simple permutations", en Linton, Ruškuc, Vatter (eds.), *Permutation Patterns*, LMS LNS 376, CUP 2010, pp. 41–65; la correspondencia "intervalos ↔ módulos, simples ↔ grafos primos" aparece en los extractos de búsqueda; **página exacta no cotejada** (queda en pendientes).
+- Cambios: Lema 5.4 `[known, e.g. [Brignall 2010]; proof included for completeness]`; Lema 5.5 `[classical, the prime-node case of Gallai's decomposition [Gallai 1967]; proof included for completeness]`; la frase del árbitro sobre el primer momento (Poisson(2) de CLP; e⁻²(1 − 4/n + O(n⁻²)) de AAK) se añadió en el esbozo de las pruebas y al final del Paso 2 del Apéndice B. En el esbozo se precisa qué es propio: "What we have not found in the literature, and claim as new, is the assembly of these facts in the causal translation, the explicit constants, and the classification of the exceptions in Proposition 5.7". La introducción del Apéndice B dice ahora que el único resultado no reprobado es Gallai y que los dos lemas son conocidos y se reprueban. Teorema 5.6 y Prop. 5.7 conservan "proved here", y en la tabla de afirmaciones su estado pasa a "proved here (uses Gallai and classical interval statistics)". Resumen, README y ficha: "la prueba es autocontenida salvo el teorema de Gallai; los lemas combinatorios son conocidos y se reprueban".
+- De paso apliqué el recorte (1) de la sección "Extensión" del informe: el esbozo de las pruebas se redujo a la forma propuesta (dos frases de lemas + primer momento + inclusión–exclusión).
 
 ## Hallazgos menores (en curso)
+
+### m1 — Observación B.1, lista de fuentes de razones incompleta. **Aceptado.**
+Comprobé los dos contraejemplos con la implementación independiente del árbitro (`bf.py`): una simple de longitud 12 inflada por el bloque interior 563412 = 12⊖12⊖12 da R/2^N = 6 (N = 0), y por 4231 también 6 (no 2·2). Texto sustituido por el del árbitro ("Ratios R/2^N other than 1, 3/2 and 2 require an interval with at least four elements … or two of the configurations of Proposition 5.7; by Step 2 and the proof of Proposition 5.7 these events have probability O(n⁻²)"), con una frase que cita los dos bloques como ejemplo de que la razón no es multiplicativa. Quitado "the skew-sum step is only sketched here" (el árbitro tiene razón en que el argumento está completo) y sustituido por "The formula is not used in the proofs of Theorem 5.6 and Proposition 5.7; it is used to compute R in the numerical checks".
+
+### m7 — Cota 24/n² + 12/(n(n−1)) sin derivar. **Aceptado (con una cota algo mejor).**
+Derivación añadida en la prueba de la Prop. 5.7, en la forma del árbitro: condicionado a π(1) = n (prob. 1/n) el resto es uniforme, los intervalos de 3 que evitan la posición 1 tienen esperanza 6(n−3)/((n−1)(n−2)) ≤ 6/n y [1,3] es intervalo con prob. 2/((n−1)(n−2)); los cuatro eventos dan ≤ 24/n² + 8/(n(n−1)(n−2)). Sustituí la cota del texto por esta, que es la que se deriva.
+
+### m10 — DOI de Gallai. **Aceptado.** `doi = {10.1007/BF02020961}` en `gallai1967`. No añadí la traducción como entrada separada (no se usa su paginación).
 
 ## Integración de las tasas exactas (theory/) (en curso)
 
