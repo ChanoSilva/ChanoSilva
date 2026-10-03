@@ -9,7 +9,7 @@
 % should generate them in make_numbers.py from theory/certify_d2.json and theory/joint_phase_sweep.json
 % (frozen copies + SHA-256 in results/, as for check_H3), rounding in the SAFE direction:
 %   \DtwoCertBound      = ceil_3(B.max_total)                    (1.18616...)   upper bound -> round up
-%   \DtwoCertMinRad     = floor_3(1/B.max_total)                 (0.84305...)   lower bound -> round down
+%   \DtwoCertMinRad     = floor_3(1/\DtwoCertBound)              (0.8424...)    lower bound -> round down
 %   \DtwoCertBoundHalf  = ceil_3(A["0.5"].bound_m2.total)        (1.20161...)
 %   \DtwoCertBoundTF    = ceil_3(A["0.35"].bound_m2.total)       (0.24452...)
 %   \DtwoCertBoundQ     = ceil_4(A["0.25"].bound_m2.total)       (0.08908...)
@@ -35,7 +35,7 @@
 %   (joint sweep: margin stays positive, min 0.23 %, no refutation).
 % =====================================================================================================================
 \providecommand{\DtwoCertBound}{1.187}
-\providecommand{\DtwoCertMinRad}{0.843}
+\providecommand{\DtwoCertMinRad}{0.842}
 \providecommand{\DtwoCertBoundHalf}{1.202}
 \providecommand{\DtwoCertBoundTF}{0.245}
 \providecommand{\DtwoCertBoundQ}{0.0891}
@@ -75,7 +75,7 @@ Consequently, for every $f\le\frac12$, every $r_1\le f$ and every $r_2\le f\,\th
 \end{proof}
 
 \begin{remark}[what is certified, and how]\label{rem:d2method}\status{computer-assisted proof; numbers from \texttt{theory/certify\_d2.py}}
-The certificate covers exactly the inequality $r_2\kappa_{\max}(K_2)\le\DtwoCertBound$ for $r_1\le\frac12$, $r_2\le r_1/2$, all phases and normalisations; with Theorem~\ref{thm:Hc}(c) (proved by hand) this settles $d=2$. For the concrete family at $f=\frac12$ ($r_1=\frac12$, $r_2\le\frac14$), a second computation over the full period ($\DtwoCertNs$ boxes, no symmetry) gives $v_{\min}(K_1)\ge\DtwoCertVmin$, $\kappa_{\max}(K_1)\le\DtwoCertKmax$, $\nu(K_1)\le\DtwoCertNu$, $\mu(K_1)\le\DtwoCertMu$ and $\Phi\le\DtwoCertBoundHalf$; at $f=0.35$ and $0.25$ ($r_2\le f^2$), $\Phi\le\DtwoCertBoundTF$ and $\le\DtwoCertBoundQ$. The trust base is the correctness of IEEE-754 binary64 arithmetic in NumPy, of \texttt{mpmath.iv}, and of about one hundred lines of code that implement the formulas of the proof; it is not a formal verification. The bound is loose by a factor of about three (a smooth, uncertified evaluation gives $r_2\kappa_{\max}(K_2)\approx0.40$ at $r_1=\frac12$, $r_2=\frac14$), because \eqref{eq:kaprec} takes the four suprema separately; this is why $\minRad(K_2)>r_2$ (the curvature part of Conjecture~\ref{conj}) is obtained only for $f\le\DtwoCertFc$, not at $f=\frac12$. The holonomy is not needed; as a check, $\alpha_2\equiv-\int\tau\,d\sigma\pmod{2\pi}$ (the Bishop frame is the Frenet frame rotated by minus the integrated torsion, $\kappa(K_1)>0$) agrees with the integrated frame. Nothing at $d\ge3$, and no polygonal quantity, is certified.
+The certificate covers exactly the inequality $r_2\kappa_{\max}(K_2)\le\DtwoCertBound$ for $r_1\le\frac12$, $r_2\le r_1/2$, all phases and normalisations; with Theorem~\ref{thm:Hc}(c) (proved by hand) this settles $d=2$. For the concrete family at $f=\frac12$ ($r_1=\frac12$, $r_2\le\frac14$), a second computation over the full period ($\DtwoCertNs$ boxes, no symmetry) gives $v_{\min}(K_1)\ge\DtwoCertVmin$, $\kappa_{\max}(K_1)\le\DtwoCertKmax$, $\nu(K_1)\le\DtwoCertNu$, $\mu(K_1)\le\DtwoCertMu$ and $\Phi\le\DtwoCertBoundHalf$; at $f=0.35$ and $0.25$ ($r_2\le f^2$), $\Phi\le\DtwoCertBoundTF$ and $\le\DtwoCertBoundQ$. The trust base is the correctness of IEEE-754 binary64 arithmetic in NumPy, of \texttt{mpmath.iv}, and of about one hundred lines of code that implement the formulas of the proof; it is not a formal verification. The bound is not sharp, because \eqref{eq:kaprec} takes the four suprema separately and $m_2\le2$; this is why $\minRad(K_2)>r_2$ (the curvature part of Conjecture~\ref{conj}) is obtained only for $f\le\DtwoCertFc$, not at $f=\frac12$. The holonomy is not needed; as a check, $\alpha_2\equiv-\int\tau\,d\sigma\pmod{2\pi}$ (the Bishop frame is the Frenet frame rotated by minus the integrated torsion, $\kappa(K_1)>0$) agrees with the integrated frame. Nothing at $d\ge3$, and no polygonal quantity, is certified.
 \end{remark}
 % ------------------------------------------------ end Block A -------------------------------------------------------
 
@@ -140,7 +140,7 @@ The certificate covers exactly the inequality $r_2\kappa_{\max}(K_2)\le\DtwoCert
 %   scan of both normalisations)".
 %
 % (B8) Limitations (1): "... and $d=2$ is open." -> "... ; $d=2$ is settled by a computer-assisted proof
-%   (Proposition~\ref{prop:d2cert}), whose bound is loose by a factor of about three; $d\ge3$ is open."
+%   (Proposition~\ref{prop:d2cert}), whose bound is not sharp; $d\ge3$ is open."
 %   Limitations (4): "... none uses interval arithmetic." -> "... only Proposition~\ref{prop:d2cert} uses interval
 %   arithmetic." and add "$\minRad(K_2)\ge\DtwoCertMinRad\,r_2$" to the list of analytic/certified constants.
 %
