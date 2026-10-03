@@ -121,7 +121,7 @@ exact values (all three checked by exhaustive enumeration at `n = 8, 9`)
   `n(n-3) <= (n-1)(n-2)`; the last term is `<= 8/(n(n-1)(n-2)) <= 1/n^2`);
 * `E[I_3 I_{n-1}] = 4(6n-16)/(n(n-1)(n-2)) <= 25/n^2` (given `pi(1) = 1`, the rest is uniform
   in `S_{n-1}`: `6(n-3)/((n-1)(n-2))` 3-intervals inside, plus `[1,3]` with probability
-  `2/((n-1)(n-2))`; four symmetric cases; `25n(n-1)(n-2) - 4(6n-16)n^2 = n(n^2-11n+50) > 0`);
+  `2/((n-1)(n-2))`; four symmetric cases; `25(n-1)(n-2) - 4(6n-16)n = n^2-11n+50 > 0`);
 * `E[C(I_{n-1},2)] = 2/(n(n-1)) <= 3/n^2`.
 
 Total `23 + 25 + 3 = 51`. ∎
@@ -150,8 +150,8 @@ Same for `pi(n) = 1`. Summing (`sum_{i in {1,n-2}} P(omega) = 6/(n(n-1))` over t
 
 Finally `s_m = O(1/m)` (Step 2: `10/m + O(m^{-2})`) and
 `h_m <= 4/m + 3 E I_3(m)/(m-2) + sum_{l=4}^{m-1} E I_l(m) = 8/m + O(m^{-2})` (the `l = 2` term is
-`2 * 2/m`; for `l >= 4` the factor `min(l, m-l+1)/(m-l+1) <= 1` when `l >= (m+1)/2`, and the other
-`l` contribute `O(m^{-2})`), so the right-hand side is `O(n^{-2})`. ∎
+`2 * 2/m`; for `l >= 4` the factor `min(l, m-l+1)/(m-l+1)` is `<= 1`, and
+`sum_{l=4}^{m-1} E I_l(m) = E I_{m-1}(m) + O(m^{-2}) = 4/m + O(m^{-2})`), so the right-hand side is `O(n^{-2})`. ∎
 
 (For orientation: the leading terms give `E[#omega ; E] ~ (3/n)(10 + 24)/n + 12/n^2 + 28/n^2
 ~ 142/n^2`; this is an estimate, not a proved constant.)
