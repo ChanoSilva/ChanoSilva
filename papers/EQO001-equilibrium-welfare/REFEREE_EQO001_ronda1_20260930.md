@@ -1,31 +1,146 @@
 # Informe de arbitraje interno — EQO001 (ronda 1, 30/09/2026)
 
-Árbitro: agente independiente (Claude Code), sin acceso al autor. Objeto: borrador v0.1 de *Equilibrium Operators, Variational Inequalities and Welfare: What Is and Is Not a Theorem* (manuscript/main.tex, 410 líneas; PDF de 13 páginas). Informe escrito de forma incremental; las secciones marcadas [EN CURSO] no estaban terminadas si la sesión se interrumpió.
+Árbitro: agente independiente (Claude Code), sin acceso al autor. Objeto: borrador v0.1 de *Equilibrium Operators, Variational Inequalities and Welfare: What Is and Is Not a Theorem* (`manuscript/main.tex`, 410 líneas; PDF de 13 páginas A4). Informe escrito de forma incremental y cerrado al final de la sesión. Archivos de trabajo del árbitro: `scratchpad/referee_EQO001/` (notas, reproducción completa, contraejemplo).
 
 ## 0. Veredicto en una línea
-[EN CURSO]
+**Cambios mayores.** Las demostraciones son correctas y las atribuciones esencialmente correctas, pero (i) la segunda mitad de la Pregunta abierta 1 ("¿es $\Lambda(x^*)$ siempre poliédrico?") se responde negativamente con un ejemplo de tres jugadores de diez líneas, y su primera mitad está mal planteada; (ii) la verificación E1c de los peajes es una tautología numérica; (iii) falta la literatura directamente pertinente (Dubey 1986; descomposición del conjunto de pesos en optimización multiobjetivo) para sostener la afirmación de novedad "en el empaquetado"; (iv) el texto se autodenomina "definitivo" siendo un v0.1 sin arbitrar y excede en 3 páginas la extensión objetivo.
 
 ## 1. Hallazgos bloqueantes (B)
-[EN CURSO]
+
+**B1. La Pregunta abierta 1 (main.tex:390–392, `question q:second`) no está abierta en su parte de poliedralidad y está mal formulada en su parte de "descripción finita".**
+- *Problema (poliedralidad).* Existe un juego cuadrático con acciones escalares en $[0,1]$, dentro de la clase exacta de la Definición 2.3 y de la familia de E3–E4, cuyo cono $\Lambda(x^*)$ **no es poliédrico**:
+  $u_1=x_1,\quad u_2=x_2,\quad u_3=x_3-\tfrac12x_1^2+\tfrac14x_1+\tfrac12x_1x_2-\tfrac12x_2$ en $K=[0,1]^3$.
+  Cada $u_i$ es lineal (luego cóncavo) en la variable propia, $x^*=(1,1,1)$ es el único equilibrio de Nash y $N_K(x^*)=\mathbb R^3_+$. Cálculo a mano (verificable en cinco líneas): fijando $\lambda_3=1$ y $x_3=1$, $W_\lambda$ es lineal en $x_2$, así que basta comparar $x_2\in\{0,1\}$. Con $x_2=1$, $W=\tfrac12+\lambda_2+(\lambda_1+\tfrac34)x_1-\tfrac12x_1^2$, maximizada en $x_1=1$ sii $\lambda_1\ge\tfrac14$. Con $x_2=0$, $W=1+(\lambda_1+\tfrac14)x_1-\tfrac12x_1^2$, con máximo $1+\tfrac12(\lambda_1+\tfrac14)^2$ si $\lambda_1<\tfrac34$; exigir $W_\lambda(x^*)=\lambda_1+\lambda_2+\tfrac34\ge 1+\tfrac12(\lambda_1+\tfrac14)^2$ equivale a $\lambda_2\ge\tfrac12(\tfrac34-\lambda_1)^2$. Por tanto
+  $\Lambda(x^*)\cap\{\lambda_3=1\}=\{\lambda_1\ge\tfrac14,\ \lambda_2\ge\tfrac12(\tfrac34-\lambda_1)^2_+\}$,
+  una región con **frontera parabólica**; un cono poliédrico cortado por un hiperplano es un poliedro, luego $\Lambda(x^*)$ no es poliédrico. En cambio $G(x^*)^{\top}\lambda=(\lambda_1-\tfrac14\lambda_3,\lambda_2,\lambda_3)$, así que $\Lambda_1(x^*)=\{\lambda_1\ge\tfrac14\lambda_3,\ \lambda_2,\lambda_3\ge0\}$ y la inclusión $\Lambda\subsetneq\Lambda_1$ es estricta con frontera curva.
+- *Evidencia.* `scratchpad/referee_EQO001/counterexample_q1.py` usa el propio `box_qp_max`/`in_Lambda` del autor: 0 discrepancias en 7 381 puntos de la rebanada; frontera por bisección coincide con la parábola a $10^{-8}$ en $\lambda_1\in\{0.25,\dots,0.75\}$; $(0.3,0,1)\in\Lambda_1\setminus\Lambda$ con testigo $x=(0.55,0,1)$ y brecha $0.10125$. Variante con $F$ fuertemente monótono: véase §5.
+- *Problema (descripción finita).* Para pagos cuadráticos, los datos de segundo orden en $x^*$ (gradientes y hessianos) determinan el juego completo, así que "descripción finita en términos de los datos en $x^*$" equivale a "describir $\Lambda$". Y $\Lambda(x^*)=\{\lambda\ge0:\forall x\in K,\ W_\lambda(x)\le W_\lambda(x^*)\}$ es una fórmula de primer orden sobre los reales, luego **semialgebraico por Tarski–Seidenberg**: una descripción finita por desigualdades polinómicas siempre existe. Más concretamente, $\Lambda=\bigcap_{\text{caras }\Phi}\{\lambda:W_\lambda(x^*)\ge\max_\Phi W_\lambda\}$ con $3^N$ caras y cada término semialgebraico (en el ejemplo, la parábola es exactamente el término de la cara $\{x_2=0,x_3=1\}$). La pregunta, tal como está, es vacua.
+- *Agravante.* "Next steps" (main.tex:398) propone resolver la pregunta "at least for $N=2$"; para $N=2$ la poliedralidad es trivial: todo cono convexo cerrado de $\mathbb R^2$ es poliédrico (es $\{0\}$, un rayo, una recta, una cuña, un semiplano o $\mathbb R^2$).
+- *Corrección propuesta.* Sustituir la Pregunta 8.2 por: (1) un **ejemplo** (el anterior) que muestre que $\Lambda(x^*)$ no es poliédrico en general, con la frontera parabólica calculada; (2) una pregunta reformulada, p. ej.: "¿Cuál es la complejidad de decidir $\lambda\in\Lambda(x^*)$ para pagos cuadráticos en una caja? (Es co-NP-dura en general porque incluye la certificación de optimalidad global de un punto para un QP indefinido en caja, cf. Murty–Kabadi 1987; cotejar.) ¿Existe una descripción de $\Lambda(x^*)$ por un número de desigualdades polinomial en $N$ cuando $F$ es fuertemente monótono?" o bien "Dado el patrón de caras activas de $x^*$, caracterizar cuándo $\Lambda(x^*)=\Lambda_1(x^*)$ sin concavidad conjunta." Actualizar en consecuencia el resumen ("closed by two precise open questions"), la Tabla 3 (fila "Open questions") y la ficha propuesta.
 
 ## 2. Hallazgos mayores (M)
-[EN CURSO]
+
+**M1. E1c ("tolled equilibrium coincides with the optimum to $2.2\times10^{-16}$") es una tautología numérica, no una verificación.** `experiments/traffic_poa.py:82,86–87`: `mcost = 2*a*f + b` y el operador con peaje `cost(f) + a*f = (a*f + b) + a*f` son la **misma función** evaluada con otro orden de asociación; se resuelven con el mismo `x0`, `mu`, `L`, `gamma` y la misma iteración determinista. Comprobado: para la instancia 0, $\max|(af+b)+af-(2af+b)|=0$ exactamente; la "desviación" $2.2\times10^{-16}$ (= 1 ulp) es redondeo. El Corolario 4.3 para costos afines es la identidad algebraica $c+\tau=\nabla C$, que no se verifica computando dos veces lo mismo. *Afecta a:* main.tex:298 (criterio), 300 (resultado), Tabla 3 fila "Marginal-cost tolls… verified (E1c)", README y CONTINUIDAD ("equilibrio con peajes = óptimo a $2\times10^{-16}$"). *Corrección:* comparar `f_toll` con `f_opt_wf` (water-filling independiente con $(2a,b)$, ya calculado en la línea 89; desviación máxima real $8.8\times10^{-11}$), o con un minimizador de $C$ por otro método (p. ej. `scipy.optimize.minimize` sobre el simplex); y reescribir: "el equilibrio del operador con peaje coincide con el óptimo calculado de forma independiente a $10^{-10}$". Si no, eliminar E1c y la mención "verified (E1c)".
+
+**M2. Literatura pertinente ausente; la afirmación de novedad "only in its packaging" (main.tex:64) no está contrastada.**
+- *Dubey (1986), "Inefficiency of Nash equilibria", Math. Oper. Res. 11(1), 1–8* prueba que, genéricamente, los equilibrios de Nash de juegos suaves son Pareto-ineficientes; su mecanismo es exactamente el del Teorema 5.1(d) en coordenadas interiores (externalidades marginales no nulas ⇒ ningún $\lambda\ne0$) y del Ejemplo 5.4(i). Debe citarse en la Sección 5 y en la Tabla 3.
+- *Descomposición del conjunto de pesos (weight set decomposition) en optimización multiobjetivo* (p. ej. Benson–Sun 2000, JOTA 105, 17–36, para MOLP; Przybylski–Gandibleux–Ehrgott 2010, INFORMS J. Comput.; cotejar datos): el conjunto de pesos $\lambda$ para los que un punto dado maximiza $\sum\lambda_iu_i$ es un objeto estándar, poliédrico en el caso lineal; el Teorema 5.1(a) es ese objeto evaluado en $u(x^*)$. Citarlo convierte la frase "we believe is new only in its packaging" en una afirmación verificable; sin la cita, es una conjetura.
+- *Inverse optimization* (Ahuja–Orlin 2001, Oper. Res. 49, 771–783): la "toll set" del Corolario 4.3 es el problema inverso lineal estándar; mencionar junto a Hearn–Ramana.
+- Además, la Prop. 5.2 tiene una lectura que falta y que es la razón profunda del resultado: por el teorema de la envolvente (Danskin), si la mejor respuesta es única entonces $\partial v_i/\partial x_j(x^*_{-i})=\nabla_{x_j}u_i(x^*)$, de modo que el juego modificado tiene **externalidades marginales nulas en $x^*$** y $\Lambda_1'(x^*)=\mathbb R^N_+$ por el Teorema 5.1(d). Añadir una frase; de paso, decir que bajo concavidad propia estricta $v_i\in C^1$ y el juego modificado sí está en la clase de la Def. 2.3 (hoy la Prop. 5.2 lo esquiva con "wherever $\nabla_{x_i}u_i$ exists").
+
+**M3. Sobreafirmación de estatus.** Resumen (main.tex:57: "This note is the definitive version of that assessment") y README ("Este borrador es la versión definitiva de esa evaluación"): un v0.1 sin arbitrar no es definitivo; además, B1 muestra que una de las dos preguntas abiertas no lo era. *Corrección:* "This note records the assessment" / "Esta nota recoge la evaluación". El pendiente 6 de CONTINUIDAD (cambiar la ficha a "Cerrada como nota expositiva") debe esperar a la ronda 2.
+
+**M4. "Criteria were fixed before the runs" (main.tex:294) no tiene respaldo verificable.** Los criterios figuran sólo en los docstrings (`traffic_poa.py:13–17`, `welfare_cone.py:20–24`); ningún script los evalúa (sin `assert`, sin campo pass/fail en los JSON); "All criteria hold" (main.tex:300) lo juzgó el redactor leyendo los números. Todos los archivos tienen marcas de tiempo de la misma sesión (30/09 08:27–08:47), así que no hay evidencia de cambios a posteriori, pero tampoco evidencia positiva de prerregistro. *Corrección:* añadir a cada script una función `check_criteria(out)` que escriba `criteria_pass: true/false` y los márgenes en el JSON, y que `make_numbers.py` genere la frase "All criteria hold" a partir de ese campo; o sustituir la frase por "Criteria are stated in the script docstrings and were checked by hand".
+
+**M5. El porcentaje de inclusión estricta (56 %) es una cota inferior, y así debe decirse.** Los testigos sólo se buscan en $\le13$ puntos por instancia (hasta 12 vértices + baricentro); los puntos de rejilla en $\Lambda_1\setminus\Lambda$ (38 y 72 puntos en $N=3,4$) no se cuentan como testigos. Por tanto "58 instances (56 %) carry a certified witness" es correcto pero "exhibits certified strict inclusions in 56 % of the non-concave instances" (resumen) sugiere una frecuencia; la fracción real de instancias con $\Lambda\subsetneq\Lambda_1$ es $\ge56\%$ y puede ser 100 %. Escribir "at least 56 %". Análogamente, "confirms equality in every concave instance" debe ser "in every tested direction of every concave instance" (en 139 de las 200 instancias cóncavas el cono es trivial y no hay nada que confirmar salvo la exclusión).
 
 ## 3. Hallazgos menores (m)
-[EN CURSO]
+
+- **m1 (main.tex:144, Teorema 3.2, atribución).** Rosen (1965) no trata potenciales; trata existencia/unicidad vía concavidad diagonal estricta. Quitar `rosen1965` de la etiqueta del Teorema 3.2 y de la fila correspondiente de la Tabla 3 (dejarlo en el Lema 2.4, Remark 3.3(b) y Teorema 3.5).
+- **m2 (main.tex:98, Def. 2.5 vs. 151, 221).** Los $c_e$ se definen sólo continuos y no decrecientes, pero el Remark 3.3(a) usa $c_e'$ (Jacobiano $\Delta^\top\mathrm{diag}(c_e')\Delta$ y Prop. 3.1, que exige $C^1$ en un abierto $U\supseteq K$) y el Corolario 4.3 usa $\tau_p=\sum_e f_ec_e'(f_e)$. Añadir "$C^1$" donde se use la derivada, o (mejor, en el Remark) observar que $P(f)=\sum_e\int_0^{f_e}c_e$ existe para $c_e$ continua por el teorema fundamental del cálculo, sin pasar por Poincaré.
+- **m3 (main.tex:181, Ej. 3.7).** "unique edge flow, Remark 3.3a": el remark exige todos los $c_e$ estrictamente crecientes y $c_1\equiv1$ no lo es. La unicidad vale (el potencial $f_1+f_2^{d+1}/(d+1)$ es estrictamente convexo en la variable libre tras eliminar $f_1=1-f_2$); dar esa razón o la directa (todo flujo con $f_1>0$ tiene un usuario en el enlace 1 pagando $1>f_2^d$).
+- **m4 (main.tex:221, Cor. 4.3).** "a singleton when $C$ is strictly convex": si $K$ no es compacto, $\arg\min_KC$ puede ser vacío. Escribir "at most one point" o añadir "$K$ compact".
+- **m5 (main.tex:205, Prop. 4.1(c)).** "they are proportional on the equilibrium face": dos vectores constantes sobre $S$ son paralelos salvo que uno sea cero y el otro no ($F_S=0$, $\nabla_SW\neq0$ no son "proporcionales" en el sentido $\nabla W=\theta F$). Decir "both are constant on $S$ (hence parallel when both are non-zero)".
+- **m6 (main.tex:263–266, Prop. 5.2).** El juego modificado $(u_i')$ puede no ser $C^1$ (si la mejor respuesta no es única, $v_i$ sólo es direccionalmente diferenciable), luego no está en la clase de la Def. 2.3; $\Lambda'$ se usa en el sentido exacto de 5.1(a), que no necesita $G$. Decirlo explícitamente, y añadir la observación de M2 (Danskin ⇒ externalidades nulas en $x^*$). Nótese que en el Ej. 5.3, $v_1(x_2)=\alpha-\tfrac12-\beta_1x_2$ y $u_1'=\alpha x_1-\tfrac12x_1^2-\alpha+\tfrac12$: el juego modificado es $C^1$, no depende de $\beta$ y tiene cono $\mathbb R^2_+$; es una ilustración gratuita de la proposición dentro de la clase.
+- **m7 (main.tex:326 y app., test exacto).** La frase "the maximiser of a quadratic over a box lies in the relative interior of one of the $3^N$ faces and is stationary for the restriction" es correcta, pero el código (`welfare_cone.py:127–133`) trata el caso $H_{ff}$ singular con `lstsq` sin justificación. Argumento de una línea que falta: si el sistema de estacionariedad en una cara es singular y consistente, la cuadrática es constante a lo largo de la dirección nula y el máximo se alcanza también en una cara de dimensión menor; si es inconsistente, no hay punto estacionario en esa cara y el máximo está en el borde. En ambos casos basta la enumeración. (Era el pendiente 1 de CONTINUIDAD; queda resuelto con esa frase.)
+- **m8 (README, CONTINUIDAD).** "75 dentro del cono" es erróneo: `numbers.tex` (`\TwoInCone`), `tables_welfare.md` y el recuento exacto (paso $0.5^\circ$, de $27.0^\circ$ a $63.0^\circ$ inclusive) dan **73**. Corregir ambos archivos.
+- **m9 (numbers.tex).** `\PigouPoASixteen` se imprime con 2 decimales ("4.73") mientras la Tabla 1 da 4.7268 y los demás PoA de Pigou llevan 4–6 decimales; `\WitGap` imprime "$2.15\times10^{-1}$" para 0.215. Unificar formato en `make_numbers.py:49,149`.
+- **m10 (main.tex:300, E1b).** 86 de 200 instancias (43 %) tienen PoA $=1$ exactamente (equilibrio = óptimo; p. ej. todos los $b_e=0$, o un solo enlace usado en ambos). Esto condiciona la media (1.0305) y la mediana (1.0027) y debería decirse; `fraction_eq_equals_opt_flow` (0.43) ya está en el JSON y no se usa.
+- **m11 (welfare_cone.py:340,349).** La "forma cerrada" codificada ($\lambda_1\ge\beta_2\lambda_2$, $\lambda_2\ge\beta_1\lambda_1$) y los ángulos $\arctan\beta_1$, $\arctan(1/\beta_2)$ suponen $\alpha-1=1$; sólo valen para $\alpha=2$ (el caso corrido). Parametrizar con $(\alpha-1)$ para que el test siga siendo válido si se cambia $\alpha$.
+- **m12 (carpeta).** No existe `FICHA_EQO001_propuesta.md`, que el brief del coordinador lista como lectura obligatoria; la ficha propuesta sólo aparece como pendiente 6 de CONTINUIDAD. Crearla (tras aplicar B1) o indicar en README que no existe aún.
+- **m13 (main.tex:175, Remark 3.6).** "a consequence of Brouwer's theorem applied to $T$" — correcto en dimensión finita con $K$ compacto convexo; Hartman–Stampacchia lo prueban así (Lema 3.1 de su artículo). Bien; sólo señalar que la cita es a un lema dentro de un artículo sobre EDP elípticas, lo que al lector puede sorprender: añadir "Lemma 3.1 of".
+- **m14 (main.tex:57, resumen).** El resumen tiene 330 palabras y es un párrafo único; recortar a ≤200 palabras (ver §6).
+- **m15 (README, CONTINUIDAD, numeración).** En el PDF la Sección 5 numera Teorema 5.1, Remark 5.2, **Proposición 5.3**, **Ejemplo 5.4** (cuña), Ejemplo 5.5 (Cournot). README y CONTINUIDAD citan "Prop. 5.2", "Ej. 5.3" (el docstring de `welfare_cone.py` dice correctamente "Prop. 5.3"). Corregir README/CONTINUIDAD o dejar el Remark sin numerar.
+- **m16 (compilación).** Dos cajas desbordadas: 2.4 pt en el Remark 3.6 (main.tex:175–176) y 1.35 pt en la Tabla 3 (main.tex:360–381). La Tabla 3 tiene la columna "Status" demasiado estrecha (0.27\textwidth): "classical (Kinderlehrer– Stampacchia, Facchinei– Pang)" se parte en cuatro líneas. Usar 0.58/0.37 o abreviar los estados.
+- **m17 (Figura 1).** El título interno ("Welfare-weight cone, $\beta_1=\beta_2=1/2$") duplica el pie; los rayos grises rellenan un cuarto de disco que se lee como región sombreada, no como rayos. Quitar el título interno y dibujar sólo cada quinto rayo gris, o sustituir por la cuña rellena con las dos rectas frontera.
+- **m18 (main.tex:395, Pregunta 8.2).** En redes multi-mercancía el equilibrio de Wardrop es único en flujos de arco pero no en flujos de camino, y $C_k$ depende del reparto por mercancía; la pregunta debe decir que el cono depende del representante $f^*$ elegido (o restringirse a redes donde el reparto es único).
 
 ## 4. Bibliografía
-[EN CURSO]
+Método: `api.crossref.org` y `export.arxiv.org` están bloqueados por el proxy de la sesión (403 / fuera de la lista blanca); la verificación se hizo con WebSearch contra páginas de editorial (Springer, INFORMS, ACM DL, JSTOR, Project Euclid, Econometric Society, RePEc) y, para libros, con el conocimiento del árbitro. Resultado: **24 entradas, 23 verificadas, 1 corregida (Wardrop), 0 no verificables** (los ocho libros se verifican por datos de editorial estándar; marcados "verificada (libro)").
+
+| Entrada | Estado | Corrección / comentario |
+|---|---|---|
+| wardrop1952 | **corregida** | *Proc. ICE, Part II*, **1(3)**, pp. **325–362**; la discusión ocupa 362–378. Poner `number={3}, pages={325--362}` (o `325--378` con nota "with discussion"). |
+| beckmann1956 | verificada (libro) | — |
+| rosen1965 | verificada | Econometrica 33(3), 520–534 ✓. Pero no respalda el Teorema 3.2 (potenciales): ver m1. |
+| mondererShapley1996 | verificada | GEB 14(1), 124–143 ✓ |
+| kinderlehrer1980 | verificada (libro) | SIAM Classics 31 (2000) ✓ |
+| facchineiPang2003 | verificada (libro) | — |
+| hartmanStampacchia1966 | verificada | Acta Math. 115, 271–310 ✓ (añadir "Lemma 3.1" en la cita del Remark 3.6) |
+| roughgardenTardos2002 | verificada | J. ACM 49(2), 236–259 ✓ |
+| roughgarden2005 | verificada (libro) | — |
+| correa2004 | verificada | MOR 29(4), 961–976 ✓ (era dudosa en CONTINUIDAD) |
+| pigou1920 | verificada (libro) | — |
+| knight1924 | verificada | QJE 38(4), 582–606 ✓ |
+| dafermos1980 | verificada | Transp. Sci. 14(1), 42–54 ✓ |
+| smith1979 | verificada | Transp. Res. B 13(4), 295–304 ✓ |
+| nash1951 | verificada | Ann. Math. 54(2), 286–295 ✓ |
+| nikaidoIsoda1955 | verificada | Pacific J. Math. 5, 807–815 ✓ (añadir `number={5}`) |
+| harkerPang1990 | verificada | Math. Prog. 48, 161–220 ✓ |
+| rockafellar1970 | verificada (libro) | — |
+| geoffrion1968 | verificada | JMAA 22(3), 618–630 ✓ |
+| ehrgott2005 | verificada (libro) | — |
+| hearnRamana1998 | verificada | pp. 109–124 en Marcotte–Nguyen (eds.), Kluwer ✓ (era dudosa en CONTINUIDAD) |
+| nagurney1993 | verificada (libro) | — |
+| virtanen2020 | verificada | Nature Methods 17, 261–272 ✓ |
+| harris2020 | verificada | Nature 585, 357–362 ✓ |
+
+Citas que no respaldan lo que se les atribuye: `rosen1965` en el Teorema 3.2 y en la Tabla 3 (m1). El resto respalda la afirmación para la que se usa.
+
+Entradas que faltan y conviene añadir (datos verificados por WebSearch salvo indicación):
+- Dubey, P. (1986). Inefficiency of Nash equilibria. *Math. Oper. Res.* 11(1), 1–8. [verificado]
+- Benson, H. P., Sun, E. (2000). Outcome space partition of the weight set in multiobjective linear programming. *J. Optim. Theory Appl.* 105(1), 17–36. [verificado]
+- Ahuja, R. K., Orlin, J. B. (2001). Inverse optimization. *Oper. Res.* 49(5), 771–783. [verificado]
+- Murty, K. G., Kabadi, S. N. (1987). Some NP-complete problems in quadratic and nonlinear programming. *Math. Programming* 39, 117–129. [verificado; sólo si se usa en la Q1 reformulada]
+- Danskin, J. M. (1966). The theory of max-min, with applications. *SIAM J. Appl. Math.* 14(4), 641–664. [de memoria; cotejar] — para la observación de M2/m6.
+
+Sobre las preguntas abiertas: no encontré en la web ningún enunciado que coincida con la Pregunta 8.3 (cono de pesos por mercancía en Wardrop); la literatura más próxima (peajes Pareto-mejorantes: Lawphongpanich–Yin 2010, *Transp. Res. C* 18, 234–246; multiclase) responde otra pregunta. Puede mantenerse como abierta con la salvedad m18 y con la recomendación de intentar antes un contraejemplo pequeño (dos mercancías, dos enlaces afines), porque por analogía con B1 es muy probable que $\Lambda\ne\Lambda_1$ y que $\Lambda$ no sea poliédrico.
 
 ## 5. Verificación computacional
-[EN CURSO]
+- **Reproducción completa** (sesión anterior del árbitro, copia en `scratchpad/referee_EQO001/repro/`, scripts idénticos byte a byte a los de la carpeta): `traffic_poa.py` 8.3 s pared / 6.3 s CPU; `welfare_cone.py` 2 min 23 s pared / 2 min 20 s CPU (sin opción `--fast`; dentro del presupuesto de 5 min). `tables_traffic.md` y `tables_welfare.md` regenerados son **idénticos** a los publicados salvo la línea de tiempo (6.2 s vs 3.9 s; 140.7 s vs 127.9 s). Todas las cifras del texto coinciden.
+- **Trazabilidad número→JSON:** se regeneró `numbers.tex`, `table_pigou.tex` y `table_random.tex` con `make_numbers.py` apuntando a los JSON publicados: **idénticos** a los del manuscrito (106 macros). Sumas cruzadas verificadas: 51 920 QPs; 58/103 = 56 %; 61/200 = 30 %; 103/200 = 52 %; rejillas 91×100 y 165×100 cuadran con in+out.
+- **Tautología E1c** (M1): confirmada numéricamente (diferencia exactamente 0 entre las dos funciones en la instancia 0).
+- **Contraejemplo B1** (`counterexample_q1.py`, 7 s): 0 discrepancias en 7 381 puntos; frontera parabólica confirmada por bisección.
+- **Variante fuertemente monótona del contraejemplo** (`counterexample_q1_sm.py`, 6 s): añadiendo $-\tfrac{\varepsilon}{2}x_i^2$ a cada pago propio con $\varepsilon=0.2$, $F$ es $0.2$-fuertemente monótono, $x^*=(1,1,1)$ (residuo 0) y la frontera de $\Lambda\cap\{\lambda_3=1\}$, obtenida por bisección con el `in_Lambda` del autor en $\lambda_1\in[0.35,0.75]$, tiene segundas diferencias $\approx1.9\times10^{-3}$ constantes en signo (no es lineal a trozos). El fenómeno no depende de la degeneración $F\equiv$ const.
+- Errores en el código que invaliden resultados: **ninguno encontrado**. Revisado: `proj_simplex` (algoritmo sort-based correcto), `solve_vi` (paso $\mu/L^2$, residuo natural), `water_fill` (bisección independiente del solver), `random_game` (desplazamiento diagonal garantiza $\lambda_{\min}(\mathrm{sym}\,M)=1/2$ y por tanto $(H_i)_{ii}\ge1/2>0$: concavidad propia, como afirma el texto), `box_qp_max` (enumeración de caras, correcta con el argumento de m7), `cone_constraints` (signos de $N_{[0,1]}$ correctos), `cone_geometry` (LP de no trivialidad, igualdades implícitas, vértices por 12 objetivos aleatorios: "up to 12" es exacto), `simplex_grid` (91 y 165 puntos). Sin fuga de información ni ajuste con datos de prueba (no aplica: experimentos de verificación, sin aprendizaje). Semilla única `20260930` consumida secuencialmente por un solo `default_rng`: reproducible pero frágil (cambiar el orden de los experimentos cambia todas las instancias); documentarlo.
+- Estadística: no hay intervalos ni tests; las frecuencias se declaran descriptivas (correcto). Única corrección: M5 (cota inferior).
 
 ## 6. Recortes propuestos (≤ 10 páginas)
-[EN CURSO]
+Estado: 13 páginas A4, 11 pt, márgenes 1 in (p. 1 título+resumen+intro; 2 setting; 3–4 clásicos; 5 §4; 6–7 §5; 8 Fig. 1 + inicio §6; 9 Tabla 1 + Fig. 2; 10 Tabla 2 + Fig. 3; 11 Tabla 3 + limitaciones; 12 preguntas + apéndice; 12–13 referencias). Hay que ganar ≈3 páginas sin perder contenido verificable:
+1. **Resumen** 330 → ≤180 palabras: dejar (i)–(iv) en una frase cada uno, el resultado del cono en dos y la cifra de E4 en una (−0.3 p).
+2. **Sección 7 y Tabla 3** (claims): el estado ya figura en línea tras cada enunciado (`\status{}`); sustituir la tabla por los tres renglones del párrafo introductorio y mover la tabla a `results/CLAIMS.md` (−0.8 p).
+3. **Figura 3** (histograma de dimensiones): su información está íntegra en la columna "dim Λ1: games" de la Tabla 2; eliminarla (−0.35 p).
+4. **Protocolos de §6** ("Protocol", "Games", "Exact membership tests", "Geometry of Λ1", "Criteria"): a un Apéndice B "Protocols and criteria", fusionado con los párrafos "Solver/Face enumeration/Boundary detection" del Apéndice A; en el cuerpo quedan sólo los párrafos "Results" (−0.8 p).
+5. **Prop. 3.1 (Poincaré) y Lema 3.4 (proyección)**: demostraciones de libro de texto; dejar enunciado + cita (Kinderlehrer–Stampacchia, Thm. I.2.3; cualquier texto de cálculo) (−0.4 p).
+6. **Remark 3.3**: reducir a cinco líneas (una por instancia) y fusionar su punto (c) con la etiqueta del Teorema 3.2 (−0.2 p).
+7. **Párrafo "Contributions"** de §1: duplica el resumen; dejar cuatro líneas con referencias cruzadas (−0.2 p).
+8. **Figura 1**: ancho 0.32\textwidth y colocarla junto a la Tabla 1 en un mismo `figure` con `minipage`s, o como `wrapfigure` en el Ejemplo 5.4 (−0.2 p).
+Total ≈ −3.2 páginas. Añadidos obligados por B1/M2 (ejemplo no poliédrico, 8–10 líneas; dos citas): +0.3 p. Resultado esperado: 10 páginas.
 
 ## 7. Lista de acciones (prioridad descendente, imperativo)
-[EN CURSO]
+1. Sustituye la Pregunta abierta 8.2 por el ejemplo no poliédrico de B1 (con el cálculo de la parábola) y una pregunta reformulada (complejidad de decidir $\lambda\in\Lambda(x^*)$, o descripción de tamaño polinomial, o igualdad $\Lambda=\Lambda_1$ por patrón de caras); actualiza resumen, §1, Tabla 3 y "Next steps" (quita "at least for $N=2$").
+2. Repara E1c: compara `f_toll` con `f_opt_wf` (water-filling de $(2a,b)$) o con un minimizador de $C$ obtenido por otro método; reescribe main.tex:298,300, la fila de la Tabla 3, README y CONTINUIDAD con la desviación real ($\sim10^{-10}$), o elimina E1c.
+3. Cita Dubey (1986) en §5 (junto al Teorema 5.1(d) interior y al Ejemplo 5.5(i)) y la descomposición del conjunto de pesos (Benson–Sun 2000) junto al Teorema 5.1(a); cita Ahuja–Orlin (2001) junto a la toll set del Corolario 4.3; reescribe "we believe is new only in its packaging" como afirmación contrastada.
+4. Cambia "definitive version" (resumen) y "versión definitiva" (README) por "records the assessment"/"recoge la evaluación"; pospón el pendiente 6 de CONTINUIDAD (cambio de estado de la ficha) a la ronda 2.
+5. Añade a `traffic_poa.py` y `welfare_cone.py` una función `check_criteria` que escriba `criteria_pass` y márgenes en el JSON, y haz que `make_numbers.py` genere la frase "All criteria hold" desde ese campo; si no, sustituye "Criteria were fixed before the runs" por "Criteria are stated in the script docstrings".
+6. Escribe "at least 56 %" y "in every tested direction" en el resumen y en §6.2 (M5); añade que los 38+72 puntos de rejilla en $\Lambda_1\setminus\Lambda$ no se contaron como testigos.
+7. Añade en la Prop. 5.3 la observación de Danskin (externalidades marginales nulas en $x^*$ en el juego modificado, luego $\Lambda_1'=\mathbb R^N_+$) y la frase de que bajo concavidad propia estricta $v_i\in C^1$; cita Danskin (1966) tras cotejar.
+8. Quita `rosen1965` de la etiqueta del Teorema 3.2 y de la fila correspondiente de la Tabla 3.
+9. Añade "$c_e\in C^1$" donde se use $c_e'$ (Remark 3.3(a), Corolario 4.3) o justifica el potencial por el teorema fundamental del cálculo; corrige la razón de unicidad en el Ejemplo 3.7; cambia "a singleton" por "at most one point" en el Corolario 4.3; precisa "proportional" en la Prop. 4.1(c).
+10. Añade al Apéndice A la frase de m7 sobre sistemas singulares en la enumeración de caras.
+11. Corrige "75" → "73" direcciones dentro del cono en README y CONTINUIDAD; corrige la numeración "Prop. 5.2/Ej. 5.3" → "Prop. 5.3/Ej. 5.4" en ambos (o deja el Remark sin numerar).
+12. Corrige `refs.bib`: Wardrop 1952 `number={3}, pages={325--362}` (o nota "with discussion, 362–378"); añade `number={5}` a Nikaidô–Isoda; añade las entradas nuevas de §4.
+13. Aplica los recortes de §6 hasta ≤10 páginas; arregla las dos cajas desbordadas y los anchos de la Tabla 3 (si se conserva).
+14. Unifica formatos en `make_numbers.py` (`\PigouPoASixteen` con 4 decimales; `\WitGap` como 0.215); menciona en §6.1 que 86/200 instancias tienen PoA $=1$; parametriza la forma cerrada de `two_player_example` con $(\alpha-1)$.
+15. Crea `FICHA_EQO001_propuesta.md` (tras aplicar 1–4) o indica en README que no existe aún; añade la salvedad m18 a la Pregunta 8.3 y, si hay tiempo, busca un contraejemplo de dos mercancías antes de declararla abierta.
 
 ---
 ### Bitácora de trabajo del árbitro (orden cronológico)
-- 1. Leídos README, CONTINUIDAD, .gitignore, build.sh, requirements, main.tex completo. Observación: no existe `FICHA_*_propuesta.md` en la carpeta (el brief lo lista como lectura obligatoria); la "ficha propuesta" sólo aparece como pendiente 6 de CONTINUIDAD.
+- Leídos README, CONTINUIDAD, .gitignore, build.sh, requirements, main.tex completo, refs.bib, numbers.tex, tablas, los cuatro scripts. No existe `FICHA_*_propuesta.md`.
+- Recuperadas notas de la sesión anterior interrumpida (`notas_matematicas.md`, `notas_codigo.md`, `counterexample_q1.py`, `repro/`); revalidadas: diff de scripts vacío, tablas idénticas, contraejemplo re-ejecutado y verificado a mano.
+- Red: `api.crossref.org` y `export.arxiv.org` bloqueados por el proxy (403 / no en allowlist). WebSearch operativo; ≈20 búsquedas para bibliografía y literatura relacionada.
+- Verificado a mano el contraejemplo de B1 (cálculo de la parábola) y ejecutada la variante fuertemente monótona.
+- Recompilado el manuscrito en el scratch (`build/`) para leer `main.log`: 2 cajas desbordadas; 13 páginas.
+- Vistas las páginas 8–11 del PDF (Figuras 1–3, Tablas 1–3).
+- Presupuesto de CPU usado por el árbitro en esta sesión: ≈15 s (contraejemplos, regeneración de macros, pdflatex); reproducción completa en la sesión anterior: ≈2 min 27 s.
+- Informe cerrado; sin secciones [EN CURSO].

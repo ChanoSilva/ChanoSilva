@@ -8,9 +8,13 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 130560 local pairs; min dist/bound = 1.0006 (>=1 required) at delta=0.025, u=0.037, dist=0.5005, bound=0.5002; min dist (k=1) = 0.5005
 [c1] c_1(f=0.250, eta_min=2.666, eta_max=2.666) = 1.0000 at (delta,u)=(0.0001, 0.00015001506087958534); measured dcsd/2/r = 1.0000; min(tau-r, c_1 r) = 0.2500 vs measured tau_d = 0.2500 -> ratio tau_d/rho = 1.000
 [K] kappa_d formula vs FD: max rel. diff 3.593e-04 (should be O(1/M)); max kappa_d FD = 1.1623, formula 1.1625, 1/minRad = 1.1623
-[K] base derivative data: |v'|max=0.0000, (|k1'|+|k2'|)max=0.0000, kappa_max=1.0002; bound kappa_d <= 3.6450 (= 1/0.2743);  r*kbar = 0.9112  -> 1/kbar >= rho? True
-[c0] same-strand (conditional on kappa_d <= 3.645): s_0 = pi/(kbar V_d) = 0.5304, u >= 0.7957; c_0 = 0.8544 at (delta,u)=(0.5324142988737874, 0.7987016345871296)
-    time 0.4s
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 9.53e-16 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=0.0000, sup|kappa'|_par=0.0000, kappa_max=1.0002, zeta_min=(1-f)v_min/(rm)=2.000, G=1.0733
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 1.4311 + 0.8001 + 0.0000 = 2.2312; r*kbar = 0.5578; measured r*kappa_d,max = 0.2906; bound valid? True; minRad bound 1/kbar = 0.4482 >= rho_d(c=1/2) = 0.1250? True
+[c1-1D] c_1^(1D)(f=0.250, Theta_min=h_min/tau=0.6666) = 1.0000 at delta=0.0000 (certified >= 0.9996, Lip~2.30); 2-D value c_1 = 1.0000; >= 1/2? True
+[c0] same-strand (conditional on kappa_d <= 2.231): s_0 = pi/(kbar V_d) = 0.8665, u >= 1.2998; c_0 = 1.3281 at (delta,u)=(0.8677303926525511, 1.3017262768083895); >= 1/2? True
+[RESULT] provable constants at this level: c_1=0.9996 (k=1, unconditional), c_0=1.3281 (k=0, needs H_3), c_kappa=1/(r kbar)=1.7927 (needs H_3) -> c = 0.9996; thick >= min(tau-r, c r) = 0.2499; measured tau_d = 0.2500 (ratio 1.000)
+    time 0.5s
 
 === (2,3) f=0.25 N0=256 d=2: M=512, N_d=1024, r=0.06250, tau_base=0.25000, f=0.2500, alpha=+0.7965, m=1.3732, v in [1.6771,2.6095], h in [1.2213,1.9002], eta=h/r in [19.541,30.404], r*kappa_max=0.0727
 [A] Lemma A on base: pairs with chord<2tau: 19618; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.000282 (must be >= 1 - O(1/M^2))
@@ -20,9 +24,13 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 61416 local pairs; min dist/bound = 1.0078 (>=1 required) at delta=0.082, u=0.017, dist=0.1267, bound=0.1257; min dist (k=1) = 0.1267
 [c1] c_1(f=0.250, eta_min=19.541, eta_max=30.404) = 1.0000 at (delta,u)=(0.0001, 2.0469853782190464e-05); measured dcsd/2/r = 1.0000; min(tau-r, c_1 r) = 0.0625 vs measured tau_d = 0.0625 -> ratio tau_d/rho = 1.000
 [K] kappa_d formula vs FD: max rel. diff 6.516e-04 (should be O(1/M)); max kappa_d FD = 1.2226, formula 1.2224, 1/minRad = 1.2226
-[K] base derivative data: |v'|max=1.4038, (|k1'|+|k2'|)max=4.5206, kappa_max=1.1626; bound kappa_d <= 8.1949 (= 1/0.1220);  r*kbar = 0.5122  -> 1/kbar >= rho? True
-[c0] same-strand (conditional on kappa_d <= 8.195): s_0 = pi/(kbar V_d) = 0.1145, u >= 0.1573; c_0 = 1.1256 at (delta,u)=(0.7692312901050393, 0.15725800921270933)
-    time 1.6s
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 1.49e-15 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=1.4038, sup|kappa'|_par=3.3296, kappa_max=1.1626, zeta_min=(1-f)v_min/(rm)=14.656, G=1.0023
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 5.3456 + 0.0741 + 0.0984 = 5.5182; r*kbar = 0.3449; measured r*kappa_d,max = 0.0764; bound valid? True; minRad bound 1/kbar = 0.1812 >= rho_d(c=1/2) = 0.0312? True
+[c1-1D] c_1^(1D)(f=0.250, Theta_min=h_min/tau=4.8852) = 1.0000 at delta=0.0000 (certified >= 0.9997, Lip~2.08); 2-D value c_1 = 1.0000; >= 1/2? True
+[c0] same-strand (conditional on kappa_d <= 5.518): s_0 = pi/(kbar V_d) = 0.1701, u >= 0.2335; c_0 = 1.6218 at (delta,u)=(1.142270444433914, 0.2335387643416149); >= 1/2? True
+[RESULT] provable constants at this level: c_1=0.9997 (k=1, unconditional), c_0=1.6218 (k=0, needs H_3), c_kappa=1/(r kbar)=2.8995 (needs H_3) -> c = 0.9997; thick >= min(tau-r, c r) = 0.0625; measured tau_d = 0.0625 (ratio 1.000)
+    time 1.7s
 
 === (2,3) f=0.25 N0=256 d=3: M=1024, N_d=2048, r=0.01562, tau_base=0.06250, f=0.2500, alpha=+1.5658, m=1.2508, v in [3.2986,5.5167], h in [2.6372,4.4105], eta=h/r in [168.780,282.274], r*kappa_max=0.0191
 [A] Lemma A on base: pairs with chord<2tau: 9012; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.004383 (must be >= 1 - O(1/M^2))
@@ -32,9 +40,13 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 29276 local pairs; min dist/bound = 1.0998 (>=1 required) at delta=0.324, u=0.008, dist=0.0372, bound=0.0338; min dist (k=1) = 0.0372
 [c1] c_1(f=0.250, eta_min=168.780, eta_max=282.274) = 1.0000 at (delta,u)=(0.0001, 2.3699451713157574e-06); measured dcsd/2/r = 1.0000; min(tau-r, c_1 r) = 0.0156 vs measured tau_d = 0.0156 -> ratio tau_d/rho = 1.000
 [K] kappa_d formula vs FD: max rel. diff 6.403e-04 (should be O(1/M)); max kappa_d FD = 1.2370, formula 1.2368, 1/minRad = 1.2370
-[K] base derivative data: |v'|max=6.0845, (|k1'|+|k2'|)max=9.5201, kappa_max=1.2229; bound kappa_d <= 9.0242 (= 1/0.1108);  r*kbar = 0.1410  -> 1/kbar >= rho? True
-[c0] same-strand (conditional on kappa_d <= 9.024): s_0 = pi/(kbar V_d) = 0.0503, u >= 0.0630; c_0 = 2.8834 at (delta,u)=(2.6574800431967027, 0.06296663651434464)
-    time 4.3s
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 1.43e-15 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=6.0845, sup|kappa'|_par=6.8710, kappa_max=1.2229, zeta_min=(1-f)v_min/(rm)=126.585, G=1.0000
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 21.3340 + 0.0040 + 0.0106 = 21.3486; r*kbar = 0.3336; measured r*kappa_d,max = 0.0193; bound valid? True; minRad bound 1/kbar = 0.0468 >= rho_d(c=1/2) = 0.0078? True
+[c1-1D] c_1^(1D)(f=0.250, Theta_min=h_min/tau=42.1951) = 1.0000 at delta=0.0000 (certified >= 0.9997, Lip~2.07); 2-D value c_1 = 1.0000; >= 1/2? True
+[c0] same-strand (conditional on kappa_d <= 21.349): s_0 = pi/(kbar V_d) = 0.0213, u >= 0.0266; c_0 = 1.5979 at (delta,u)=(1.1234089141588586, 0.026616483418679244); >= 1/2? True
+[RESULT] provable constants at this level: c_1=0.9997 (k=1, unconditional), c_0=1.5979 (k=0, needs H_3), c_kappa=1/(r kbar)=2.9979 (needs H_3) -> c = 0.9997; thick >= min(tau-r, c r) = 0.0156; measured tau_d = 0.0156 (ratio 1.000)
+    time 4.1s
 
 === (2,3) f=0.35 N0=256 d=1: M=256, N_d=512, r=0.35000, tau_base=1.00000, f=0.3500, alpha=+0.0000, m=1.5000, v in [0.9999,0.9999], h in [0.6666,0.6666], eta=h/r in [1.905,1.905], r*kappa_max=0.3501
 [A] Lemma A on base: pairs with chord<2tau: 65024; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.000000 (must be >= 1 - O(1/M^2))
@@ -44,9 +56,13 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 130560 local pairs; min dist/bound = 1.0005 (>=1 required) at delta=0.025, u=0.037, dist=0.7003, bound=0.6999; min dist (k=1) = 0.7003
 [c1] c_1(f=0.350, eta_min=1.905, eta_max=1.905) = 0.9661 at (delta,u)=(0.6937851690048175, 1.0407822436561325); measured dcsd/2/r = 1.0000; min(tau-r, c_1 r) = 0.3381 vs measured tau_d = 0.3500 -> ratio tau_d/rho = 1.035
 [K] kappa_d formula vs FD: max rel. diff 5.257e-04 (should be O(1/M)); max kappa_d FD = 1.2552, formula 1.2554, 1/minRad = 1.2552
-[K] base derivative data: |v'|max=0.0000, (|k1'|+|k2'|)max=0.0000, kappa_max=1.0002; bound kappa_d <= 4.5663 (= 1/0.2190);  r*kbar = 1.5982  -> 1/kbar >= rho? True
-[c0] same-strand (conditional on kappa_d <= 4.566): s_0 = pi/(kbar V_d) = 0.3670, u >= 0.5504; c_0 = 0.4201 at (delta,u)=(0.3689477031566401, 0.5534771215042654)
-    time 0.4s
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 1.11e-15 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=0.0000, sup|kappa'|_par=0.0000, kappa_max=1.0002, zeta_min=(1-f)v_min/(rm)=1.238, G=1.0887
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 1.6749 + 1.1282 + 0.0000 = 2.8030; r*kbar = 0.9811; measured r*kappa_d,max = 0.4393; bound valid? True; minRad bound 1/kbar = 0.3568 >= rho_d(c=1/2) = 0.1750? True
+[c1-1D] c_1^(1D)(f=0.350, Theta_min=h_min/tau=0.6666) = 0.9661 at delta=0.6943 (certified >= 0.9659, Lip~1.42); 2-D value c_1 = 0.9661; >= 1/2? True
+[c0] same-strand (conditional on kappa_d <= 2.803): s_0 = pi/(kbar V_d) = 0.5978, u >= 0.8967; c_0 = 0.6528 at (delta,u)=(0.5994775176295402, 0.8993065630313816); >= 1/2? True
+[RESULT] provable constants at this level: c_1=0.9659 (k=1, unconditional), c_0=0.6528 (k=0, needs H_3), c_kappa=1/(r kbar)=1.0193 (needs H_3) -> c = 0.6528; thick >= min(tau-r, c r) = 0.2285; measured tau_d = 0.3500 (ratio 1.532)
+    time 0.3s
 
 === (2,3) f=0.35 N0=256 d=2: M=512, N_d=1024, r=0.12250, tau_base=0.35000, f=0.3500, alpha=+1.6116, m=1.2435, v in [1.6712,2.8962], h in [1.3439,2.3291], eta=h/r in [10.971,19.013], r*kappa_max=0.1538
 [A] Lemma A on base: pairs with chord<2tau: 26652; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.000143 (must be >= 1 - O(1/M^2))
@@ -56,8 +72,12 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 81800 local pairs; min dist/bound = 1.0030 (>=1 required) at delta=0.059, u=0.015, dist=0.2458, bound=0.2451; min dist (k=1) = 0.2458
 [c1] c_1(f=0.350, eta_min=10.971, eta_max=19.013) = 1.0000 at (delta,u)=(0.0001, 2.6042694697203133e-05); measured dcsd/2/r = 1.0000; min(tau-r, c_1 r) = 0.1225 vs measured tau_d = 0.1225 -> ratio tau_d/rho = 1.000
 [K] kappa_d formula vs FD: max rel. diff 9.089e-04 (should be O(1/M)); max kappa_d FD = 1.4174, formula 1.4169, 1/minRad = 1.4174
-[K] base derivative data: |v'|max=1.8626, (|k1'|+|k2'|)max=7.9164, kappa_max=1.2555; bound kappa_d <= 17.3183 (= 1/0.0577);  r*kbar = 2.1215  -> 1/kbar >= rho? False
-[c0] same-strand (conditional on kappa_d <= 17.318): s_0 = pi/(kbar V_d) = 0.0447, u >= 0.0555; c_0 = 0.1992 at (delta,u)=(0.21386400978396186, 0.05552998709319781)
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 1.65e-15 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=1.8626, sup|kappa'|_par=5.7970, kappa_max=1.2555, zeta_min=(1-f)v_min/(rm)=7.131, G=1.0094
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 4.4370 + 0.1574 + 0.5276 = 5.1220; r*kbar = 0.6274; measured r*kappa_d,max = 0.1736; bound valid? True; minRad bound 1/kbar = 0.1952 >= rho_d(c=1/2) = 0.0612? True
+[c1-1D] c_1^(1D)(f=0.350, Theta_min=h_min/tau=3.8398) = 1.0000 at delta=0.0000 (certified >= 0.9998, Lip~1.29); 2-D value c_1 = 1.0000; >= 1/2? True
+[c0] same-strand (conditional on kappa_d <= 5.122): s_0 = pi/(kbar V_d) = 0.1510, u >= 0.1878; c_0 = 0.6551 at (delta,u)=(0.721029601624342, 0.18775640169624827); >= 1/2? True
+[RESULT] provable constants at this level: c_1=0.9998 (k=1, unconditional), c_0=0.6551 (k=0, needs H_3), c_kappa=1/(r kbar)=1.5938 (needs H_3) -> c = 0.6551; thick >= min(tau-r, c r) = 0.0803; measured tau_d = 0.1225 (ratio 1.526)
     time 0.8s
 
 === (2,3) f=0.35 N0=256 d=3: M=1024, N_d=2048, r=0.04287, tau_base=0.12250, f=0.3500, alpha=+3.0888, m=1.0084, v in [3.1859,6.4325], h in [3.1594,6.3790], eta=h/r in [73.688,148.780], r*kappa_max=0.0608
@@ -68,9 +88,13 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 57088 local pairs; min dist/bound = 1.0220 (>=1 required) at delta=0.160, u=0.006, dist=0.0879, bound=0.0861; min dist (k=1) = 0.0879
 [c1] c_1(f=0.350, eta_min=73.688, eta_max=148.780) = 1.0000 at (delta,u)=(0.0001, 3.877356984221303e-06); measured dcsd/2/r = 1.0000; min(tau-r, c_1 r) = 0.0429 vs measured tau_d = 0.0429 -> ratio tau_d/rho = 1.000
 [K] kappa_d formula vs FD: max rel. diff 8.657e-04 (should be O(1/M)); max kappa_d FD = 1.4804, formula 1.4801, 1/minRad = 1.4804
-[K] base derivative data: |v'|max=8.2539, (|k1'|+|k2'|)max=16.7553, kappa_max=1.4177; bound kappa_d <= 22.3277 (= 1/0.0448);  r*kbar = 0.9573  -> 1/kbar >= rho? True
-[c0] same-strand (conditional on kappa_d <= 22.328): s_0 = pi/(kbar V_d) = 0.0161, u >= 0.0163; c_0 = 0.3884 at (delta,u)=(0.4213408428095719, 0.016257978184350607)
-    time 4.5s
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 1.38e-15 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=8.2539, sup|kappa'|_par=12.1021, kappa_max=1.4177, zeta_min=(1-f)v_min/(rm)=47.897, G=1.0002
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 12.5616 + 0.0102 + 0.0705 = 12.6422; r*kbar = 0.5420; measured r*kappa_d,max = 0.0635; bound valid? True; minRad bound 1/kbar = 0.0791 >= rho_d(c=1/2) = 0.0214? True
+[c1-1D] c_1^(1D)(f=0.350, Theta_min=h_min/tau=25.7908) = 1.0000 at delta=0.0000 (certified >= 0.9998, Lip~1.28); 2-D value c_1 = 1.0000; >= 1/2? True
+[c0] same-strand (conditional on kappa_d <= 12.642): s_0 = pi/(kbar V_d) = 0.0285, u >= 0.0287; c_0 = 0.6733 at (delta,u)=(0.7419868574855147, 0.028713513266176455); >= 1/2? True
+[RESULT] provable constants at this level: c_1=0.9998 (k=1, unconditional), c_0=0.6733 (k=0, needs H_3), c_kappa=1/(r kbar)=1.8449 (needs H_3) -> c = 0.6733; thick >= min(tau-r, c r) = 0.0289; measured tau_d = 0.0429 (ratio 1.485)
+    time 4.6s
 
 === (2,3) f=0.50 N0=256 d=1: M=256, N_d=512, r=0.50000, tau_base=1.00000, f=0.5000, alpha=+0.0000, m=1.5000, v in [0.9999,0.9999], h in [0.6666,0.6666], eta=h/r in [1.333,1.333], r*kappa_max=0.5001
 [A] Lemma A on base: pairs with chord<2tau: 65024; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.000000 (must be >= 1 - O(1/M^2))
@@ -80,8 +104,12 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 130560 local pairs; min dist/bound = 1.0003 (>=1 required) at delta=0.025, u=0.037, dist=1.0001, bound=0.9997; min dist (k=1) = 0.8316
 [c1] c_1(f=0.500, eta_min=1.333, eta_max=1.333) = 0.6119 at (delta,u)=(1.2323866446369567, 1.8487655752240477); measured dcsd/2/r = 0.8316; min(tau-r, c_1 r) = 0.3059 vs measured tau_d = 0.4158 -> ratio tau_d/rho = 1.359
 [K] kappa_d formula vs FD: max rel. diff 5.735e-04 (should be O(1/M)); max kappa_d FD = 1.3980, formula 1.3983, 1/minRad = 1.3980
-[K] base derivative data: |v'|max=0.0000, (|k1'|+|k2'|)max=0.0000, kappa_max=1.0002; bound kappa_d <= 5.0772 (= 1/0.1970);  r*kbar = 2.5386  -> 1/kbar >= rho? False
-[c0] same-strand (conditional on kappa_d <= 5.077): s_0 = pi/(kbar V_d) = 0.2750, u >= 0.4125; c_0 = 0.2359 at (delta,u)=(0.27673577736748006, 0.4151453448934189)
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 9.17e-16 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=0.0000, sup|kappa'|_par=0.0000, kappa_max=1.0002, zeta_min=(1-f)v_min/(rm)=0.667, G=1.0887
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 2.1773 + 1.3847 + 0.0000 = 3.5620; r*kbar = 1.7810; measured r*kappa_d,max = 0.6990; bound valid? True; minRad bound 1/kbar = 0.2807 >= rho_d(c=1/2) = 0.2500? True
+[c1-1D] c_1^(1D)(f=0.500, Theta_min=h_min/tau=0.6666) = 0.6119 at delta=1.2331 (certified >= 0.6117, Lip~0.99); 2-D value c_1 = 0.6119; >= 1/2? True
+[c0] same-strand (conditional on kappa_d <= 3.562): s_0 = pi/(kbar V_d) = 0.3920, u >= 0.5880; c_0 = 0.3237 at (delta,u)=(0.3920006846039301, 0.588060065656977); >= 1/2? False
+[RESULT] provable constants at this level: c_1=0.6117 (k=1, unconditional), c_0=0.3237 (k=0, needs H_3), c_kappa=1/(r kbar)=0.5615 (needs H_3) -> c = 0.3237; thick >= min(tau-r, c r) = 0.1618; measured tau_d = 0.4158 (ratio 2.570)
     time 0.4s
 
 === (2,3) f=0.50 N0=256 d=2: M=512, N_d=1024, r=0.20791, tau_base=0.41582, f=0.5000, alpha=-3.0299, m=1.9822, v in [1.8028,3.3531], h in [0.9095,1.6916], eta=h/r in [4.374,8.136], r*kappa_max=0.2908
@@ -92,8 +120,12 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 87436 local pairs; min dist/bound = 1.0018 (>=1 required) at delta=0.053, u=0.024, dist=0.4164, bound=0.4156; min dist (k=1) = 0.4164
 [c1] c_1(f=0.500, eta_min=4.374, eta_max=8.136) = 0.6993 at (delta,u)=(1.4859694405571469, 0.6793880752598336); measured dcsd/2/r = 1.0000; min(tau-r, c_1 r) = 0.1454 vs measured tau_d = 0.2079 -> ratio tau_d/rho = 1.430
 [K] kappa_d formula vs FD: max rel. diff 1.461e-03 (should be O(1/M)); max kappa_d FD = 1.5652, formula 1.5646, 1/minRad = 1.5652
-[K] base derivative data: |v'|max=2.4305, (|k1'|+|k2'|)max=11.0256, kappa_max=1.3985; bound kappa_d <= 40.3091 (= 1/0.0248);  r*kbar = 8.3807  -> 1/kbar >= rho? False
-[c0] same-strand (conditional on kappa_d <= 40.309): s_0 = pi/(kbar V_d) = 0.0143, u >= 0.0284; c_0 = 0.0343 at (delta,u)=(0.0629717675835182, 0.028389785316139764)
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 1.10e-15 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=2.4305, sup|kappa'|_par=8.1706, kappa_max=1.3985, zeta_min=(1-f)v_min/(rm)=2.187, G=1.0667
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 5.1305 + 0.8316 + 3.9540 = 9.9161; r*kbar = 2.0617; measured r*kappa_d,max = 0.3254; bound valid? True; minRad bound 1/kbar = 0.1008 >= rho_d(c=1/2) = 0.1040? False
+[c1-1D] c_1^(1D)(f=0.500, Theta_min=h_min/tau=2.1872) = 0.6993 at delta=1.4862 (certified >= 0.6991, Lip~0.70); 2-D value c_1 = 0.6993; >= 1/2? True
+[c0] same-strand (conditional on kappa_d <= 9.916): s_0 = pi/(kbar V_d) = 0.0582, u >= 0.1154; c_0 = 0.1348 at (delta,u)=(0.25368279592019005, 0.1154043203216955); >= 1/2? False
+[RESULT] provable constants at this level: c_1=0.6991 (k=1, unconditional), c_0=0.1348 (k=0, needs H_3), c_kappa=1/(r kbar)=0.4850 (needs H_3) -> c = 0.1348; thick >= min(tau-r, c r) = 0.0280; measured tau_d = 0.2079 (ratio 7.420)
     time 0.9s
 
 === (2,3) f=0.50 N0=256 d=3: M=1024, N_d=2048, r=0.10396, tau_base=0.20791, f=0.5000, alpha=-0.0767, m=1.5122, v in [3.0164,8.0491], h in [1.9947,5.3228], eta=h/r in [19.188,51.203], r*kappa_max=0.1628
@@ -104,9 +136,13 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 88268 local pairs; min dist/bound = 1.0052 (>=1 required) at delta=0.089, u=0.009, dist=0.2087, bound=0.2076; min dist (k=1) = 0.2087
 [c1] c_1(f=0.500, eta_min=19.188, eta_max=51.203) = 0.7068 at (delta,u)=(1.5153095987627887, 0.15794060251841946); measured dcsd/2/r = 1.0000; min(tau-r, c_1 r) = 0.0735 vs measured tau_d = 0.1040 -> ratio tau_d/rho = 1.415
 [K] kappa_d formula vs FD: max rel. diff 1.051e-03 (should be O(1/M)); max kappa_d FD = 1.8371, formula 1.8364, 1/minRad = 1.8371
-[K] base derivative data: |v'|max=13.2302, (|k1'|+|k2'|)max=22.2630, kappa_max=1.5658; bound kappa_d <= 84.7340 (= 1/0.0118);  r*kbar = 8.8085  -> 1/kbar >= rho? False
-[c0] same-strand (conditional on kappa_d <= 84.734): s_0 = pi/(kbar V_d) = 0.0030, u >= 0.0046; c_0 = 0.0221 at (delta,u)=(0.044110237308462745, 0.004583994138201727)
-    time 5.2s
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 9.32e-16 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=13.2302, sup|kappa'|_par=15.7975, kappa_max=1.5658, zeta_min=(1-f)v_min/(rm)=9.594, G=1.0053
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 9.6705 + 0.1034 + 1.4907 = 11.2646; r*kbar = 1.1710; measured r*kappa_d,max = 0.1910; bound valid? True; minRad bound 1/kbar = 0.0888 >= rho_d(c=1/2) = 0.0520? True
+[c1-1D] c_1^(1D)(f=0.500, Theta_min=h_min/tau=9.5942) = 0.7068 at delta=1.5153 (certified >= 0.7067, Lip~0.69); 2-D value c_1 = 0.7068; >= 1/2? True
+[c0] same-strand (conditional on kappa_d <= 11.265): s_0 = pi/(kbar V_d) = 0.0228, u >= 0.0345; c_0 = 0.1649 at (delta,u)=(0.3312246426065292, 0.03448161774489665); >= 1/2? False
+[RESULT] provable constants at this level: c_1=0.7067 (k=1, unconditional), c_0=0.1649 (k=0, needs H_3), c_kappa=1/(r kbar)=0.8540 (needs H_3) -> c = 0.1649; thick >= min(tau-r, c r) = 0.0171; measured tau_d = 0.1040 (ratio 6.066)
+    time 4.1s
 
 === (2,3) f=0.50 N0=512 d=1: M=512, N_d=1024, r=0.50000, tau_base=1.00000, f=0.5000, alpha=+0.0000, m=1.5000, v in [1.0000,1.0000], h in [0.6666,0.6666], eta=h/r in [1.333,1.333], r*kappa_max=0.5000
 [A] Lemma A on base: pairs with chord<2tau: 261120; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.000000 (must be >= 1 - O(1/M^2))
@@ -116,8 +152,12 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 523264 local pairs; min dist/bound = 1.0001 (>=1 required) at delta=0.012, u=0.018, dist=1.0000, bound=0.9999; min dist (k=1) = 0.8316
 [c1] c_1(f=0.500, eta_min=1.333, eta_max=1.333) = 0.6119 at (delta,u)=(1.2323866446369567, 1.8486263665745042); measured dcsd/2/r = 0.8316; min(tau-r, c_1 r) = 0.3059 vs measured tau_d = 0.4158 -> ratio tau_d/rho = 1.359
 [K] kappa_d formula vs FD: max rel. diff 1.434e-04 (should be O(1/M)); max kappa_d FD = 1.3982, formula 1.3983, 1/minRad = 1.3982
-[K] base derivative data: |v'|max=0.0000, (|k1'|+|k2'|)max=0.0000, kappa_max=1.0000; bound kappa_d <= 5.0770 (= 1/0.1970);  r*kbar = 2.5385  -> 1/kbar >= rho? False
-[c0] same-strand (conditional on kappa_d <= 5.077): s_0 = pi/(kbar V_d) = 0.2750, u >= 0.4125; c_0 = 0.2358 at (delta,u)=(0.27673577736748006, 0.4151140852120295)
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 1.10e-15 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=0.0000, sup|kappa'|_par=0.0000, kappa_max=1.0000, zeta_min=(1-f)v_min/(rm)=0.667, G=1.0887
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 2.1773 + 1.3846 + 0.0000 = 3.5620; r*kbar = 1.7810; measured r*kappa_d,max = 0.6991; bound valid? True; minRad bound 1/kbar = 0.2807 >= rho_d(c=1/2) = 0.2500? True
+[c1-1D] c_1^(1D)(f=0.500, Theta_min=h_min/tau=0.6666) = 0.6119 at delta=1.2331 (certified >= 0.6117, Lip~0.99); 2-D value c_1 = 0.6119; >= 1/2? True
+[c0] same-strand (conditional on kappa_d <= 3.562): s_0 = pi/(kbar V_d) = 0.3920, u >= 0.5880; c_0 = 0.3236 at (delta,u)=(0.3920006846039301, 0.5880157858149496); >= 1/2? False
+[RESULT] provable constants at this level: c_1=0.6117 (k=1, unconditional), c_0=0.3236 (k=0, needs H_3), c_kappa=1/(r kbar)=0.5615 (needs H_3) -> c = 0.3236; thick >= min(tau-r, c r) = 0.1618; measured tau_d = 0.4158 (ratio 2.570)
     time 0.8s
 
 === (2,3) f=0.50 N0=512 d=2: M=1024, N_d=2048, r=0.20791, tau_base=0.41582, f=0.5000, alpha=-3.0277, m=1.9819, v in [1.8028,3.3538], h in [0.9096,1.6923], eta=h/r in [4.375,8.139], r*kappa_max=0.2907
@@ -128,9 +168,13 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 351820 local pairs; min dist/bound = 1.0005 (>=1 required) at delta=0.027, u=0.012, dist=0.4160, bound=0.4158; min dist (k=1) = 0.4160
 [c1] c_1(f=0.500, eta_min=4.375, eta_max=8.139) = 0.6993 at (delta,u)=(1.4859694405571469, 0.6792801021324493); measured dcsd/2/r = 1.0000; min(tau-r, c_1 r) = 0.1454 vs measured tau_d = 0.2079 -> ratio tau_d/rho = 1.430
 [K] kappa_d formula vs FD: max rel. diff 3.658e-04 (should be O(1/M)); max kappa_d FD = 1.5656, formula 1.5654, 1/minRad = 1.5656
-[K] base derivative data: |v'|max=2.4320, (|k1'|+|k2'|)max=11.0536, kappa_max=1.3984; bound kappa_d <= 40.3452 (= 1/0.0248);  r*kbar = 8.3882  -> 1/kbar >= rho? False
-[c0] same-strand (conditional on kappa_d <= 40.345): s_0 = pi/(kbar V_d) = 0.0143, u >= 0.0284; c_0 = 0.0343 at (delta,u)=(0.0629717675835182, 0.02835374448635982)
-    time 4.8s
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 9.44e-16 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=2.4320, sup|kappa'|_par=8.1870, kappa_max=1.3984, zeta_min=(1-f)v_min/(rm)=2.188, G=1.0667
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 5.1305 + 0.8314 + 3.9602 = 9.9221; r*kbar = 2.0629; measured r*kappa_d,max = 0.3255; bound valid? True; minRad bound 1/kbar = 0.1008 >= rho_d(c=1/2) = 0.1040? False
+[c1-1D] c_1^(1D)(f=0.500, Theta_min=h_min/tau=2.1876) = 0.6993 at delta=1.4862 (certified >= 0.6991, Lip~0.70); 2-D value c_1 = 0.6993; >= 1/2? True
+[c0] same-strand (conditional on kappa_d <= 9.922): s_0 = pi/(kbar V_d) = 0.0582, u >= 0.1153; c_0 = 0.1347 at (delta,u)=(0.25368279592019005, 0.1152924743405343); >= 1/2? False
+[RESULT] provable constants at this level: c_1=0.6991 (k=1, unconditional), c_0=0.1347 (k=0, needs H_3), c_kappa=1/(r kbar)=0.4848 (needs H_3) -> c = 0.1347; thick >= min(tau-r, c r) = 0.0280; measured tau_d = 0.2079 (ratio 7.421)
+    time 5.1s
 
 === (2,5) f=0.50 N0=256 d=1: M=256, N_d=512, r=0.50000, tau_base=1.00000, f=0.5000, alpha=+0.0000, m=2.5000, v in [0.9999,0.9999], h in [0.4000,0.4000], eta=h/r in [0.800,0.800], r*kappa_max=0.5001
 [A] Lemma A on base: pairs with chord<2tau: 65024; arcs >= pi*tau among them: 0 (must be 0); min chord/(2 tau sin(sigma/2tau)) = 1.000000 (must be >= 1 - O(1/M^2))
@@ -140,8 +184,12 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 130560 local pairs; min dist/bound = 1.0001 (>=1 required) at delta=1.252, u=3.129, dist=0.5859, bound=0.5858; min dist (k=1) = 0.5646
 [c1] c_1(f=0.500, eta_min=0.800, eta_max=0.800) = 0.4885 at (delta,u)=(0.9725166719584148, 2.4315357958376067); measured dcsd/2/r = 0.5646; min(tau-r, c_1 r) = 0.2442 vs measured tau_d = 0.2823 -> ratio tau_d/rho = 1.156
 [K] kappa_d formula vs FD: max rel. diff 6.743e-04 (should be O(1/M)); max kappa_d FD = 1.6549, formula 1.6556, 1/minRad = 1.6549
-[K] base derivative data: |v'|max=0.0000, (|k1'|+|k2'|)max=0.0000, kappa_max=1.0002; bound kappa_d <= 3.9312 (= 1/0.2544);  r*kbar = 1.9656  -> 1/kbar >= rho? True
-[c0] same-strand (conditional on kappa_d <= 3.931): s_0 = pi/(kbar V_d) = 0.2906, u >= 0.7265; c_0 = 0.3681 at (delta,u)=(0.291405856470301, 0.7285877883176651)
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 8.71e-16 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=0.0000, sup|kappa'|_par=0.0000, kappa_max=1.0002, zeta_min=(1-f)v_min/(rm)=0.400, G=1.0887
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 2.1773 + 1.7242 + 0.0000 = 3.9015; r*kbar = 1.9508; measured r*kappa_d,max = 0.8275; bound valid? True; minRad bound 1/kbar = 0.2563 >= rho_d(c=1/2) = 0.2500? True
+[c1-1D] c_1^(1D)(f=0.500, Theta_min=h_min/tau=0.4000) = 0.4885 at delta=0.9724 (certified >= 0.4882, Lip~1.66); 2-D value c_1 = 0.4885; >= 1/2? False
+[c0] same-strand (conditional on kappa_d <= 3.902): s_0 = pi/(kbar V_d) = 0.2928, u >= 0.7321; c_0 = 0.3705 at (delta,u)=(0.29350158205641824, 0.7338276283408032); >= 1/2? False
+[RESULT] provable constants at this level: c_1=0.4882 (k=1, unconditional), c_0=0.3705 (k=0, needs H_3), c_kappa=1/(r kbar)=0.5126 (needs H_3) -> c = 0.3705; thick >= min(tau-r, c r) = 0.1853; measured tau_d = 0.2823 (ratio 1.524)
     time 0.4s
 
 === (2,5) f=0.50 N0=256 d=2: M=512, N_d=1024, r=0.14115, tau_base=0.28230, f=0.5000, alpha=-0.8435, m=2.6342, v in [2.6918,3.9024], h in [1.0218,1.4814], eta=h/r in [7.239,10.495], r*kappa_max=0.2338
@@ -152,8 +200,12 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 45088 local pairs; min dist/bound = 1.0088 (>=1 required) at delta=0.117, u=0.032, dist=0.2841, bound=0.2816; min dist (k=1) = 0.2841
 [c1] c_1(f=0.500, eta_min=7.239, eta_max=10.495) = 0.7044 at (delta,u)=(1.5048309708322023, 0.4157318665385665); measured dcsd/2/r = 1.0000; min(tau-r, c_1 r) = 0.0994 vs measured tau_d = 0.1412 -> ratio tau_d/rho = 1.420
 [K] kappa_d formula vs FD: max rel. diff 2.582e-03 (should be O(1/M)); max kappa_d FD = 1.9218, formula 1.9189, 1/minRad = 1.9218
-[K] base derivative data: |v'|max=3.2324, (|k1'|+|k2'|)max=17.0413, kappa_max=1.6564; bound kappa_d <= 29.6764 (= 1/0.0337);  r*kbar = 4.1888  -> 1/kbar >= rho? False
-[c0] same-strand (conditional on kappa_d <= 29.676): s_0 = pi/(kbar V_d) = 0.0170, u >= 0.0448; c_0 = 0.0836 at (delta,u)=(0.1635665957171473, 0.0447940700181486)
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 1.52e-15 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=3.2324, sup|kappa'|_par=12.2520, kappa_max=1.6564, zeta_min=(1-f)v_min/(rm)=3.620, G=1.0322
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 7.3131 + 0.5024 + 1.5840 = 9.3994; r*kbar = 1.3267; measured r*kappa_d,max = 0.2713; bound valid? True; minRad bound 1/kbar = 0.1064 >= rho_d(c=1/2) = 0.0706? True
+[c1-1D] c_1^(1D)(f=0.500, Theta_min=h_min/tau=3.6197) = 0.7044 at delta=1.5057 (certified >= 0.7043, Lip~0.69); 2-D value c_1 = 0.7044; >= 1/2? True
+[c0] same-strand (conditional on kappa_d <= 9.399): s_0 = pi/(kbar V_d) = 0.0537, u >= 0.1414; c_0 = 0.2551 at (delta,u)=(0.513552768598732, 0.14142620713637824); >= 1/2? False
+[RESULT] provable constants at this level: c_1=0.7043 (k=1, unconditional), c_0=0.2551 (k=0, needs H_3), c_kappa=1/(r kbar)=0.7537 (needs H_3) -> c = 0.2551; thick >= min(tau-r, c r) = 0.0360; measured tau_d = 0.1412 (ratio 3.920)
     time 0.9s
 
 === (2,5) f=0.50 N0=256 d=3: M=1024, N_d=2048, r=0.07058, tau_base=0.14115, f=0.5000, alpha=-2.1664, m=2.8448, v in [4.3460,9.1699], h in [1.5277,3.2234], eta=h/r in [21.647,45.674], r*kappa_max=0.1357
@@ -164,9 +216,13 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
 [D] strand k=1: 44908 local pairs; min dist/bound = 1.0235 (>=1 required) at delta=0.189, u=0.017, dist=0.1436, bound=0.1403; min dist (k=1) = 0.1436
 [c1] c_1(f=0.500, eta_min=21.647, eta_max=45.674) = 0.7069 at (delta,u)=(1.5153095987627887, 0.14000371211885654); measured dcsd/2/r = 1.0000; min(tau-r, c_1 r) = 0.0499 vs measured tau_d = 0.0706 -> ratio tau_d/rho = 1.415
 [K] kappa_d formula vs FD: max rel. diff 2.126e-03 (should be O(1/M)); max kappa_d FD = 2.1535, formula 2.1518, 1/minRad = 2.1535
-[K] base derivative data: |v'|max=17.1084, (|k1'|+|k2'|)max=39.3205, kappa_max=1.9232; bound kappa_d <= 63.2744 (= 1/0.0158);  r*kbar = 4.4656  -> 1/kbar >= rho? False
-[c0] same-strand (conditional on kappa_d <= 63.274): s_0 = pi/(kbar V_d) = 0.0036, u >= 0.0101; c_0 = 0.0556 at (delta,u)=(0.11117345606421548, 0.01012095418051361)
-    time 5.3s
+[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error 1.13e-15 (algebra check, ~1e-12)
+[K3] (H_3) data: sup|v'|=17.1084, sup|kappa'|_par=29.6499, kappa_max=1.9232, zeta_min=(1-f)v_min/(rm)=10.823, G=1.0042
+[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = 14.2286 + 0.1199 + 0.8665 = 15.2150; r*kbar = 1.0738; measured r*kappa_d,max = 0.1520; bound valid? True; minRad bound 1/kbar = 0.0657 >= rho_d(c=1/2) = 0.0353? True
+[c1-1D] c_1^(1D)(f=0.500, Theta_min=h_min/tau=10.8234) = 0.7069 at delta=1.5156 (certified >= 0.7068, Lip~0.69); 2-D value c_1 = 0.7069; >= 1/2? True
+[c0] same-strand (conditional on kappa_d <= 15.215): s_0 = pi/(kbar V_d) = 0.0148, u >= 0.0421; c_0 = 0.2265 at (delta,u)=(0.4569681777735656, 0.042089805133785727); >= 1/2? False
+[RESULT] provable constants at this level: c_1=0.7068 (k=1, unconditional), c_0=0.2265 (k=0, needs H_3), c_kappa=1/(r kbar)=0.9313 (needs H_3) -> c = 0.2265; thick >= min(tau-r, c r) = 0.0160; measured tau_d = 0.0706 (ratio 4.415)
+    time 4.8s
 
 === c_1 table, depth 1 (v = 1, alpha = 0, eta_min = eta_max = (1/f)(p/q)) ===
   (p,q)=(2,3) f=0.25: eta=2.667  c_1=1.0000  at (delta,u)=(0.0, 0.0)
@@ -191,21 +247,29 @@ check_Hc.py -- numerical checks of theory/Hc_derivation.md on the RTK001 family 
   eta=5.000: c_1=0.7012 at (delta,u)=(1.495, 0.598)
   eta=10.000: c_1=0.7058 at (delta,u)=(1.511, 0.302)
 
-=== SUMMARY ===
-level | f | m | eta_min | eta_max | c_1 (proved, k=1) | measured dcsd/2/r | tau_d/min(tau-r,c_1 r) | min dist/bound k=1 | k=0 | kbar*r (cond.) | c_0 (cond.)
-(2,3) f=0.25 N0=256 d=1 | 0.250 | 1.500 | 2.666 | 2.666 | 1.0000 | 1.0000 | 1.000 | 1.0006 | 1.0012 | 0.911 | 0.8544
-(2,3) f=0.25 N0=256 d=2 | 0.250 | 1.373 | 19.541 | 30.404 | 1.0000 | 1.0000 | 1.000 | 1.0078 | 1.2372 | 0.512 | 1.1256
-(2,3) f=0.25 N0=256 d=3 | 0.250 | 1.251 | 168.780 | 282.274 | 1.0000 | 1.0000 | 1.000 | 1.0998 | 1.3212 | 0.141 | 2.8834
-(2,3) f=0.35 N0=256 d=1 | 0.350 | 1.500 | 1.905 | 1.905 | 0.9661 | 1.0000 | 1.035 | 1.0005 | 1.0023 | 1.598 | 0.4201
-(2,3) f=0.35 N0=256 d=2 | 0.350 | 1.243 | 10.971 | 19.013 | 1.0000 | 1.0000 | 1.000 | 1.0030 | 1.3010 | 2.121 | 0.1992
-(2,3) f=0.35 N0=256 d=3 | 0.350 | 1.008 | 73.688 | 148.780 | 1.0000 | 1.0000 | 1.000 | 1.0220 | 1.4625 | 0.957 | 0.3884
-(2,3) f=0.50 N0=256 d=1 | 0.500 | 1.500 | 1.333 | 1.333 | 0.6119 | 0.8316 | 1.359 | 1.0003 | 1.0039 | 2.539 | 0.2359
-(2,3) f=0.50 N0=256 d=2 | 0.500 | 1.982 | 4.374 | 8.136 | 0.6993 | 1.0000 | 1.430 | 1.0018 | 1.3835 | 8.381 | 0.0343
-(2,3) f=0.50 N0=256 d=3 | 0.500 | 1.512 | 19.188 | 51.203 | 0.7068 | 1.0000 | 1.415 | 1.0052 | 1.6788 | 8.809 | 0.0221
-(2,3) f=0.50 N0=512 d=1 | 0.500 | 1.500 | 1.333 | 1.333 | 0.6119 | 0.8316 | 1.359 | 1.0001 | 1.0019 | 2.539 | 0.2358
-(2,3) f=0.50 N0=512 d=2 | 0.500 | 1.982 | 4.375 | 8.139 | 0.6993 | 1.0000 | 1.430 | 1.0005 | 1.3785 | 8.388 | 0.0343
-(2,5) f=0.50 N0=256 d=1 | 0.500 | 2.500 | 0.800 | 0.800 | 0.4885 | 0.5646 | 1.156 | 1.0001 | 1.0030 | 1.966 | 0.3681
-(2,5) f=0.50 N0=256 d=2 | 0.500 | 2.634 | 7.239 | 10.495 | 0.7044 | 1.0000 | 1.420 | 1.0088 | 1.5212 | 4.189 | 0.0836
-(2,5) f=0.50 N0=256 d=3 | 0.500 | 2.845 | 21.647 | 45.674 | 0.7069 | 1.0000 | 1.415 | 1.0235 | 1.7415 | 4.466 | 0.0556
+=== c_1^(1D)(f, Theta_min), Theta_min = h_min/tau (certified grid value) ===
+  f \ Theta:   0.300   0.400   0.500   0.667   0.800   1.000   1.500   2.000   5.000 100.000
+  f=0.25:     0.9512  0.9990  0.9990  0.9991  0.9991  0.9991  0.9992  0.9992  0.9992  0.9992
+  f=0.35:     0.6966  0.8164  0.8944  0.9656  0.9911  0.9995  0.9995  0.9995  0.9995  0.9995
+  f=0.50:     0.4031  0.4879  0.5486  0.6115  0.6405  0.6653  0.6894  0.6974  0.7055  0.7070
+  min_[pi/3,pi] Lambda(delta)/r at f=1/2: 1.0000 (must be >= 1); at f=0.35: 1.8571; f=0.25: 3.0000
+  max_(0,pi/3] beta(delta)/delta = 0.5236 (<= 0.5236 claimed);  max (l0-2r)/r check irrelevant
 
-total time 40.9s
+=== SUMMARY ===
+level | f | zeta_min | Theta_min | c_1 (2D) | c_1 (1D, cert.) | measured dcsd/2/r | r*kbar (new, H_3) | r*kappa_max (meas) | c_kappa | c_0 (cond.) | c = min | thick bound | tau_d | min dist/bound k=1 | k=0
+(2,3) f=0.25 N0=256 d=1 | 0.250 | 2.000 | 0.667 | 1.0000 | 0.9996 | 1.0000 | 0.558 | 0.291 | 1.7927 | 1.3281 | 0.9996 | 0.2499 | 0.2500 | 1.0006 | 1.0012
+(2,3) f=0.25 N0=256 d=2 | 0.250 | 14.656 | 4.885 | 1.0000 | 0.9997 | 1.0000 | 0.345 | 0.076 | 2.8995 | 1.6218 | 0.9997 | 0.0625 | 0.0625 | 1.0078 | 1.2372
+(2,3) f=0.25 N0=256 d=3 | 0.250 | 126.585 | 42.195 | 1.0000 | 0.9997 | 1.0000 | 0.334 | 0.019 | 2.9979 | 1.5979 | 0.9997 | 0.0156 | 0.0156 | 1.0998 | 1.3212
+(2,3) f=0.35 N0=256 d=1 | 0.350 | 1.238 | 0.667 | 0.9661 | 0.9659 | 1.0000 | 0.981 | 0.439 | 1.0193 | 0.6528 | 0.6528 | 0.2285 | 0.3500 | 1.0005 | 1.0023
+(2,3) f=0.35 N0=256 d=2 | 0.350 | 7.131 | 3.840 | 1.0000 | 0.9998 | 1.0000 | 0.627 | 0.174 | 1.5938 | 0.6551 | 0.6551 | 0.0803 | 0.1225 | 1.0030 | 1.3010
+(2,3) f=0.35 N0=256 d=3 | 0.350 | 47.897 | 25.791 | 1.0000 | 0.9998 | 1.0000 | 0.542 | 0.063 | 1.8449 | 0.6733 | 0.6733 | 0.0289 | 0.0429 | 1.0220 | 1.4625
+(2,3) f=0.50 N0=256 d=1 | 0.500 | 0.667 | 0.667 | 0.6119 | 0.6117 | 0.8316 | 1.781 | 0.699 | 0.5615 | 0.3237 | 0.3237 | 0.1618 | 0.4158 | 1.0003 | 1.0039
+(2,3) f=0.50 N0=256 d=2 | 0.500 | 2.187 | 2.187 | 0.6993 | 0.6991 | 1.0000 | 2.062 | 0.325 | 0.4850 | 0.1348 | 0.1348 | 0.0280 | 0.2079 | 1.0018 | 1.3835
+(2,3) f=0.50 N0=256 d=3 | 0.500 | 9.594 | 9.594 | 0.7068 | 0.7067 | 1.0000 | 1.171 | 0.191 | 0.8540 | 0.1649 | 0.1649 | 0.0171 | 0.1040 | 1.0052 | 1.6788
+(2,3) f=0.50 N0=512 d=1 | 0.500 | 0.667 | 0.667 | 0.6119 | 0.6117 | 0.8316 | 1.781 | 0.699 | 0.5615 | 0.3236 | 0.3236 | 0.1618 | 0.4158 | 1.0001 | 1.0019
+(2,3) f=0.50 N0=512 d=2 | 0.500 | 2.188 | 2.188 | 0.6993 | 0.6991 | 1.0000 | 2.063 | 0.326 | 0.4848 | 0.1347 | 0.1347 | 0.0280 | 0.2079 | 1.0005 | 1.3785
+(2,5) f=0.50 N0=256 d=1 | 0.500 | 0.400 | 0.400 | 0.4885 | 0.4882 | 0.5646 | 1.951 | 0.827 | 0.5126 | 0.3705 | 0.3705 | 0.1853 | 0.2823 | 1.0001 | 1.0030
+(2,5) f=0.50 N0=256 d=2 | 0.500 | 3.620 | 3.620 | 0.7044 | 0.7043 | 1.0000 | 1.327 | 0.271 | 0.7537 | 0.2551 | 0.2551 | 0.0360 | 0.1412 | 1.0088 | 1.5212
+(2,5) f=0.50 N0=256 d=3 | 0.500 | 10.823 | 10.823 | 0.7069 | 0.7068 | 1.0000 | 1.074 | 0.152 | 0.9313 | 0.2265 | 0.2265 | 0.0160 | 0.0706 | 1.0235 | 1.7415
+
+total time 38.6s

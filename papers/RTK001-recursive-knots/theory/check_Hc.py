@@ -73,6 +73,40 @@ def c1_constant(f, eta_min, eta_max, k=1, ngrid=1500, u_lo=0.0):
             best, arg = float(val[i]), (float(d), float(us[i]))
     return best / 2, arg
 
+def c1_1d(f, Theta_min, ngrid=20000):
+    """1-D reduction (Hc_derivation.md Sec. 4.1): only u <= delta/Theta_min is used, Theta_min = h_min/tau.
+    c_1^{1D}(f, Theta_min) := (1/2) inf_{0<delta<pi} max( l0 - 2,  sqrt(Lambda_+^2 + P1(delta)^2) ), r = 1,
+    P1(delta) = [ 2 cos(delta/(2 Theta_min)) sqrt(1-beta^2) - delta^2/3 ]_+  if delta/Theta_min <= pi, else 0.
+    Also returns a certified lower bound: min over grid minus Lip * (grid step)/2 with a numerical Lipschitz
+    estimate (max |finite difference| over the grid, times 2 as safety)."""
+    r, tau = 1.0, 1.0 / f
+    d = np.linspace(1e-6, np.pi, ngrid)
+    cosf = np.where(d / Theta_min <= np.pi, np.cos(np.minimum(d / (2 * Theta_min), np.pi / 2)), 0.0)
+    b2 = np.clip(1 - beta(d) ** 2, 0, None)
+    P1 = np.clip(2 * cosf * np.sqrt(b2) - d ** 2 / 3, 0, None)
+    D = np.sqrt(np.clip(Lambda(d, tau, r), 0, None) ** 2 + P1 ** 2)
+    F = np.maximum(D, l0(d, tau) - 2 * r)
+    i = int(np.argmin(F))
+    step = d[1] - d[0]
+    lip = float(np.abs(np.diff(F)).max() / step)
+    return F[i] / 2, float(d[i]), (F[i] - 2 * lip * step) / 2, lip
+
+def G_of_zeta(z):
+    """g(zeta) = zeta (zeta^2+2)/(zeta^2+1)^{3/2}; G(zeta_min) = sup_{zeta>=zeta_min} g = g(sqrt2)=1.0887 if zeta_min<=sqrt2."""
+    g = lambda x: x * (x ** 2 + 2) / (x ** 2 + 1) ** 1.5
+    return g(np.sqrt(2.0)) if z <= np.sqrt(2.0) else g(z)
+
+def curvature_bound(f, tau, r, m, vmin, vmax, V1, K1par, kmax):
+    """Closed-form a priori bound (Hc_derivation.md Sec. 5.2):
+       kappa_d <= G(zeta_min)/(tau - r) + 1/(r (1+zeta_min^2)) + Gamma_3,
+       zeta_min = (1-f) vmin/(r m),  Gamma_3 = r m [V1 (1+f) + r vmax K1par] / (vmin^2 (1-f)^2 + r^2 m^2)^{3/2}."""
+    zeta = (1 - f) * vmin / (r * m)
+    den = vmin ** 2 * (1 - f) ** 2 + r ** 2 * m ** 2
+    term1 = G_of_zeta(zeta) / (tau - r)
+    term2 = 1.0 / (r * (1 + zeta ** 2))
+    gam3 = r * m * (V1 * (1 + f) + r * vmax * K1par) / den ** 1.5
+    return term1 + term2 + gam3, dict(zeta=zeta, G=G_of_zeta(zeta), term1=term1, term2=term2, gamma3=gam3)
+
 # ----------------------------------------------------------------------------
 # discrete geometry of the base polygon
 # ----------------------------------------------------------------------------
@@ -251,24 +285,53 @@ def check_level(P, tau_base, r, p, q, Q, meas, label):
     kd_fd = 2 * np.linalg.norm(np.cross(b_ - a_, c_ - a_), axis=1) / (ab * bc * ca)
     rel = np.abs(kd_formula - kd_fd) / kd_fd.max()
     kmax_base = float(bd["kap"].max())
-    V1 = float(np.abs(bd["vp"]).max()); K1 = float((np.abs(bd["k1p"]) + np.abs(bd["k2p"])).max())
-    num = V1 * (1 + f) + r * vmax * K1 + 2 * r * vmax * m * kmax_base + vmax ** 2 * (1 + f) * kmax_base + r * m ** 2
-    den = vmin ** 2 * (1 - f) ** 2 + r ** 2 * m ** 2
-    kbar = num / den
     kd_meas = 1 / meas["minRad"]
     log(f"[K] kappa_d formula vs FD: max rel. diff {rel.max():.3e} (should be O(1/M)); max kappa_d FD = {kd_fd.max():.4f}, "
         f"formula {kd_formula.max():.4f}, 1/minRad = {kd_meas:.4f}")
-    log(f"[K] base derivative data: |v'|max={V1:.4f}, (|k1'|+|k2'|)max={K1:.4f}, kappa_max={kmax_base:.4f}; "
-        f"bound kappa_d <= {kbar:.4f} (= 1/{1/kbar:.4f});  r*kbar = {r*kbar:.4f}  -> 1/kbar >= rho? {1/kbar >= min(tau_base-r, 0.5*r)}")
-    # [c0] same strand, conditional on kbar
+    # [K2] decomposition identity (Sec. 5.1): |K_d' x K_d''|^2 = b_U^2 |K_d'|^2 + (c_W a - c_T b_W)^2,
+    #      c_T = v(1-x), c_W = r m, x = r kperp, b_U = v^2(1-x) kperp - r m^2, b_W = v^2 (1-x) kW,
+    #      a = v'(1-x) - r v kperp' - r m v kW   (kperp' in closed frame = k1p cos + k2p sin + (q/p) kW)
+    x = r * kperp
+    cT, cW = vv * (1 - x), r * m
+    bU = vv ** 2 * (1 - x) * kperp - r * m ** 2
+    bW = vv ** 2 * (1 - x) * kW
+    a_tan = vp * (1 - x) - r * vv * kperp_p - r * m * vv * kW
+    lhs = np.linalg.norm(np.cross(Kd1, Kd2), axis=1) ** 2
+    rhs = bU ** 2 * (cT ** 2 + cW ** 2) + (cW * a_tan - cT * bW) ** 2
+    log(f"[K2] identity |K_d' x K_d''|^2 = b_U^2|K_d'|^2 + (c_W a - c_T b_W)^2: max rel. error {np.abs(lhs-rhs).max()/lhs.max():.2e} (algebra check, ~1e-12)")
+    # [K3] closed-form a priori bound (Sec. 5.2). (H_3) data from the polygon: V1 = sup|v'|, K1par = sup|kappa'| in the
+    #      parallel frame <= sup sqrt(k1'^2+k2'^2) (closed frame) + |omega'| kappa, omega' = -alpha/2pi.
+    V1 = float(np.abs(bd["vp"]).max())
+    K1par = float((np.sqrt(bd["k1p"] ** 2 + bd["k2p"] ** 2) + abs(alpha) / (2 * np.pi) * bd["kap"]).max())
+    kbar, info = curvature_bound(f, tau_base, r, m, vmin, vmax, V1, K1par, kmax_base)
+    # pointwise version of the same bound (same algebra, v(t), kappa(t) pointwise, sup over the strand angle via kappa):
+    rho_d_half = min(tau_base - r, 0.5 * r)
+    log(f"[K3] (H_3) data: sup|v'|={V1:.4f}, sup|kappa'|_par={K1par:.4f}, kappa_max={kmax_base:.4f}, zeta_min=(1-f)v_min/(rm)={info['zeta']:.3f}, G={info['G']:.4f}")
+    log(f"[K3] bound kappa_d <= G/(tau-r) + 1/(r(1+zeta^2)) + Gamma_3 = {info['term1']:.4f} + {info['term2']:.4f} + {info['gamma3']:.4f} = {kbar:.4f}; "
+        f"r*kbar = {r*kbar:.4f}; measured r*kappa_d,max = {r*kd_fd.max():.4f}; bound valid? {kbar >= kd_fd.max()*(1-5e-3)}; "
+        f"minRad bound 1/kbar = {1/kbar:.4f} >= rho_d(c=1/2) = {rho_d_half:.4f}? {1/kbar >= rho_d_half}")
+    # [c1-1D] reduction to one variable, Theta_min = h_min/tau = f*eta_min
+    Theta_min = f * eta_min
+    c1d, dstar, c1d_cert, lip = c1_1d(f, Theta_min)
+    log(f"[c1-1D] c_1^(1D)(f={f:.3f}, Theta_min=h_min/tau={Theta_min:.4f}) = {c1d:.4f} at delta={dstar:.4f} (certified >= {c1d_cert:.4f}, Lip~{lip:.2f}); "
+        f"2-D value c_1 = {c1:.4f}; >= 1/2? {c1d_cert >= 0.5}")
+    # [c0] same strand, conditional on kbar: a doubly critical same-strand pair has K_d-arclength >= pi/kbar,
+    #      hence base-parameter separation |s| >= s_0 = pi/(kbar V_d), V_d = sup|K_d'| <= v_max(1+f) + r m.
     Vd = vmax * (1 + f) + r * m
     s0 = np.pi / (kbar * Vd)
     c0, arg0 = c1_constant(f, eta_min, eta_max, k=0, u_lo=m * s0)
     log(f"[c0] same-strand (conditional on kappa_d <= {kbar:.3f}): s_0 = pi/(kbar V_d) = {s0:.4f}, u >= {m*s0:.4f}; "
-        f"c_0 = {c0:.4f} at (delta,u)={arg0}")
+        f"c_0 = {c0:.4f} at (delta,u)={arg0}; >= 1/2? {c0 >= 0.5}")
+    c_kappa = 1 / (kbar * r)   # minRad >= c_kappa r
+    c_level = min(c1d_cert, c0, c_kappa)
+    log(f"[RESULT] provable constants at this level: c_1={c1d_cert:.4f} (k=1, unconditional), c_0={c0:.4f} (k=0, needs H_3), "
+        f"c_kappa=1/(r kbar)={c_kappa:.4f} (needs H_3) -> c = {c_level:.4f}; thick >= min(tau-r, c r) = {min(tau_base-r, c_level*r):.4f}; "
+        f"measured tau_d = {meas['tau']:.4f} (ratio {meas['tau']/min(tau_base-r, c_level*r):.3f})")
     log(f"    time {time.time()-t0:.1f}s")
-    return dict(label=label, f=f, m=m, eta_min=eta_min, eta_max=eta_max, c1=c1, c0=c0, kbar=kbar,
+    return dict(label=label, f=f, m=m, eta_min=eta_min, eta_max=eta_max, c1=c1, c1d=c1d_cert, c0=c0, kbar=kbar,
+                c_kappa=c_kappa, c_level=c_level, zeta=info["zeta"], Theta_min=Theta_min,
                 meas_c=meas_c, tau=meas["tau"], r=r, tau_base=tau_base, minRad=meas["minRad"],
+                kd_max_fd=float(kd_fd.max()), V1=V1, K1par=K1par,
                 lemmaA_ratio=wr, Dmin=res["D"], Cmin=res["Cmin"], Qmin=res["Qmin"])
 
 def run_chain(N0, f, pq, depth, label):
@@ -306,11 +369,24 @@ def main():
     for eta in [0.5, 0.75, 1.0, 1.25, 1.333, 1.5, 2.0, 3.0, 5.0, 10.0]:
         c1, arg = c1_constant(0.5, eta, eta, k=1, ngrid=600)
         log(f"  eta={eta:5.3f}: c_1={c1:.4f} at (delta,u)={tuple(round(x,3) for x in arg)}")
+    log("\n=== c_1^(1D)(f, Theta_min), Theta_min = h_min/tau (certified grid value) ===")
+    log("  f \\ Theta: " + " ".join(f"{T:7.3f}" for T in [0.3, 0.4, 0.5, 2/3, 0.8, 1.0, 1.5, 2.0, 5.0, 100.0]))
+    for f in [0.25, 0.35, 0.5]:
+        row = []
+        for T in [0.3, 0.4, 0.5, 2/3, 0.8, 1.0, 1.5, 2.0, 5.0, 100.0]:
+            row.append(c1_1d(f, T, ngrid=8000)[2])
+        log(f"  f={f:.2f}:    " + " ".join(f"{c:7.4f}" for c in row))
+    # closed-form regime check used in Sec. 4.2: Lambda(delta)/r >= 1 on [pi/3, pi] for f <= 1/2 (worst f = 1/2)
+    dd = np.linspace(np.pi / 3, np.pi, 20001)
+    log(f"  min_[pi/3,pi] Lambda(delta)/r at f=1/2: {Lambda(dd, 2.0, 1.0).min():.4f} (must be >= 1); at f=0.35: {Lambda(dd, 1/0.35, 1.0).min():.4f}; f=0.25: {Lambda(dd, 4.0, 1.0).min():.4f}")
+    dd = np.linspace(1e-6, np.pi / 3, 20001)
+    log(f"  max_(0,pi/3] beta(delta)/delta = {(beta(dd)/dd).max():.4f} (<= 0.5236 claimed);  max (l0-2r)/r check irrelevant")
     log("\n=== SUMMARY ===")
-    log("level | f | m | eta_min | eta_max | c_1 (proved, k=1) | measured dcsd/2/r | tau_d/min(tau-r,c_1 r) | min dist/bound k=1 | k=0 | kbar*r (cond.) | c_0 (cond.)")
+    log("level | f | zeta_min | Theta_min | c_1 (2D) | c_1 (1D, cert.) | measured dcsd/2/r | r*kbar (new, H_3) | r*kappa_max (meas) | c_kappa | c_0 (cond.) | c = min | thick bound | tau_d | min dist/bound k=1 | k=0")
     for s in summary:
-        log(f"{s['label']} | {s['f']:.3f} | {s['m']:.3f} | {s['eta_min']:.3f} | {s['eta_max']:.3f} | {s['c1']:.4f} | {s['meas_c']:.4f} | "
-            f"{s['tau']/min(s['tau_base']-s['r'], s['c1']*s['r']):.3f} | {s['Dmin'][1]:.4f} | {s['Dmin'][0]:.4f} | {s['kbar']*s['r']:.3f} | {s['c0']:.4f}")
+        log(f"{s['label']} | {s['f']:.3f} | {s['zeta']:.3f} | {s['Theta_min']:.3f} | {s['c1']:.4f} | {s['c1d']:.4f} | {s['meas_c']:.4f} | "
+            f"{s['kbar']*s['r']:.3f} | {s['kd_max_fd']*s['r']:.3f} | {s['c_kappa']:.4f} | {s['c0']:.4f} | {s['c_level']:.4f} | "
+            f"{min(s['tau_base']-s['r'], s['c_level']*s['r']):.4f} | {s['tau']:.4f} | {s['Dmin'][1]:.4f} | {s['Dmin'][0]:.4f}")
     log(f"\ntotal time {time.time()-t0:.1f}s")
     with open(os.path.join(HERE, "check_Hc_output.txt"), "w") as fh:
         fh.write("\n".join(OUT) + "\n")
