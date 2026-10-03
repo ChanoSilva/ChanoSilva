@@ -84,7 +84,7 @@ If `k <= n-2` then `|n T_k| <= 1/6 < e^{-1} <= e^{-1}(k-1)`; if `k = n-1 >= 3` t
 
 So the numerical value `n d_TV = 0.368` "at every `n` tested" in v0.6 is not a coincidence:
 `n d_TV(N_n, Po(1)) - e^{-1}` is `+2.2e-2` at `n = 4`, `+2.1e-7` at `n = 10`, `+3.6e-19` at
-`n = 20`, and `n! (n d_TV - e^{-1})` stays in `[MINV, 0.96]` for `4 <= n <= 60`. The v0.6 bound
+`n = 20`, and `n! (n d_TV - e^{-1})` stays in `[0.016, 0.96]` for `4 <= n <= 60`. The v0.6 bound
 `e^2/n + (2^n+1)/(2 n!)` is `e^{2+1} = 20.1` times too large.
 
 ---
@@ -239,7 +239,7 @@ Full output: `theory/check_sharp_rate_output.txt` (seed 20261004, 111 s on one c
   closed form `C(n-1,k)(D_{n-k}+D_{n-k-1})/n!` = insertion recurrence (and = brute force,
   `n <= 8`); `E[(N_n)_r] = 1 - r/n` exactly. For `4 <= n <= 60`: `max |r_{n,k}| n k!(n-k+1)! = 0.9685`
   (bound 1), sign pattern and the identity of Theorem A hold, `n!(n d_TV - e^{-1})` in
-  `[MINV, 0.952]` (bound 2). `n d_TV - e^{-1}` = `2.2e-2` (n=4), `2.1e-7` (n=10), `3.6e-19` (n=20),
+  `[0.016, 0.952]` (bound 2). `n d_TV - e^{-1}` = `2.2e-2` (n=4), `2.1e-7` (n=10), `3.6e-19` (n=20),
   `1.1e-82` (n=60). Remark: `n^2 d_TV(N_n, Po(1-1/n))` = 0.2852, 0.2777, 0.2768, 0.2760 at
   `n` = 10, 60, 100, 1000 vs `3/(4e)` = 0.27591.
 * (B) `mu` from its components equals the closed form (max diff `3e-17`), total mass `4e-17`,
