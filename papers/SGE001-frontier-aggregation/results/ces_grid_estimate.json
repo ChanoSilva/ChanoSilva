@@ -1,0 +1,33 @@
+{
+ "CES-LN": {
+  "fourth_k1": 0.1,
+  "fourth_k5": 0.056234132519034905,
+  "fourth_s_k1": 0.1,
+  "fourth_s_k5": 0.07498942093324558,
+  "third_k1": 0.042169650342858224,
+  "third_k5": 0.01778279410038923,
+  "third_s_k1": 0.056234132519034905,
+  "third_s_k5": 0.03162277660168379
+ },
+ "CES-SU": {
+  "fourth_k1": 0.12365025114423323,
+  "fourth_k5": 0.09350611267692985,
+  "fourth_s_k1": 0.16351214022614596,
+  "fourth_s_k5": 0.12365025114423323,
+  "third_k1": 0.05347244000266965,
+  "third_k5": 0.023124108632046694,
+  "third_s_k1": 0.09350611267692985,
+  "third_s_k5": 0.040436634408188066
+ },
+ "meta": {
+  "N": 2000,
+  "generator": "E1 (child 1 of spawn(12))",
+  "grid": "33 x 33 geometric grid on the coordinate box of each population",
+  "note": "grid maxima are estimates from below of the derivative suprema: NOT a certificate",
+  "numpy": "2.4.6",
+  "python": "3.11.15",
+  "reps": 20,
+  "script": "experiments/ces_grid_estimate.py",
+  "seed": 20260930
+ }
+}

@@ -27,3 +27,31 @@ fdee275aa2a9ef759468a62be28d80634a56386f8b285c3ab27c025073654fd0  theory/check_H
 0b8faf4caaf1c49216e5ccb5d722bb0d3e37c7863e640f6eaecc34e2ca562de8  theory/check_H3_output.txt
 d2af32c50051ed71c96b320e823bbc65cd85fc7cb71a651c33ed6965d2d82503  theory/H3_uniform_lemma.tex
 319f92c4f0c5934488e7daa660c97e3ea98370a5582a2562ae1c2b67133191ee  theory/H3_uniform_derivation.md
+# --- added for v0.5 (review round 4, 03/10/2026): computer-assisted proof of d = 2 and joint scan of the phases ---
+# experiments/certify_d2.py and experiments/joint_phase_sweep.py are copies of the theory/ scripts with ONLY the output path
+# changed to results/; rerun on 03/10/2026: outputs and JSON identical to theory/ except timing lines/meta (no operation of
+# certify_d2.py was found without outward rounding, so nothing was corrected). make_numbers.py reads only the results/ copies.
+87c1eef8242b7cb2fd6238e6308161e1a71c2e1e69ddcd4d0b9d5001ec58617b  experiments/certify_d2.py
+615cc30eb81b8def1c15e2c9a0e9033a2eacd2a75f04c13e72c7d97fa85631b1  experiments/joint_phase_sweep.py
+ae346fe614c6f6da2cfb74832bd8519ebf276fac68ec762f0aa2e72ee443fe79  results/certify_d2.json
+7c180b9935321929834dee41f4fd093afc1764bdd7daa28aa028ae9c608d52da  results/certify_d2_output.txt
+2f21559225b33742740c574bc5f63e2032842cf5704bb38049c23391c2a73ac8  results/joint_phase_sweep.json
+9d1c3bbd6f0e3192b4a49ac746485f3f30064632981cf8ebb8cb6273fd2ba0ce  results/joint_phase_sweep_output.txt
+# author's independent check and smooth evaluations (new in v0.5, not frozen theory):
+d5c64e36c2bd8e39ba6386ae8e9dda1a9b4c1442670437b8740c28790713fdfe  experiments/check_certify_d2.py
+95eabe0400eccb029a802e3619f19385fcd310798cba261ca11aeb86720a17bf  results/check_certify_d2.json
+7c7d7e2c4b77d2ad621c38784fe83050ec2c2244795ac1d3acf1796ae34064a2  experiments/verify_H3.py
+5d3fb97cbc8f7d9d42b442104ebf653d76dee2bcaa4a5c12ee218898ee447f7c  results/verify_H3.json
+7238c702ff4765f2e94278ee4ce960ccafab5d0e9c0a8195556fd16366298a05  experiments/smooth_margin.py
+c291ce95fc408e194617b1233acab231a60dc2306a7df4ca7b97d5f7d0c8e7e4  results/smooth_margin.json
+07249e9cc38590a2b6949e3184e29858d4c496c355c695b8d31d71ac3efd8667  experiments/smooth_H3.py
+4d0746bc6d9929962664c371c90191757f87d9125f409d08a6c9a4a5c3e8144a  results/smooth_H3.json
+# originals in theory/ at freezing time (theory/ was not modified):
+4caf98503d7d7e74b6c72fea02e4b471c917d4359a0a02d6afc33ecfb4e4055a  theory/certify_d2.py
+198affd84563843149d8f64e8e83f95ac4e8f60459c9bdc63f89762e2ccf7edc  theory/certify_d2.json
+082ed47d9d4696421dc3035afd52b9b5e9bb7ab24e93176f243d4da1f6e86339  theory/certify_d2_output.txt
+bc9ea3eb2bd488b645715bdda936fb31b3dda4beaa3278f291196ef89d2ccd2e  theory/joint_phase_sweep.py
+c69e4400068d7b9158fb924d56cfcfd1fd21986eeda0b51be00e035db456f98d  theory/joint_phase_sweep.json
+df38fcefee86644f65c20a63d06a877e22e1eb5834c94bea745c8e2d68aaa3d0  theory/joint_phase_sweep_output.txt
+842093a2b79ba39c0d871a7d41ff5ffbe4bcc08868dd0765b39a09883b478d00  theory/d2_certified.tex
+4dfb96740655fab297187b8729d6277c117d080a824afe37d016892d56fb6fd4  theory/d2_certified_derivation.md

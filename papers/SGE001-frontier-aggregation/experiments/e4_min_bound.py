@@ -11,7 +11,7 @@ the smaller of the two valid bounds of Proposition prop:sharp(b), B = min(B2, |C
 * Consistency: the single-bound shares recomputed here must coincide exactly with the frozen
   theory/sharp_certificate_results.json and, for the Euclidean third-order bounds, with results/results.json.
 * Output: results/e4_min_bound.json, deterministic (no timing field), so that its SHA-256, frozen in
-  results/e4_min_bound.sha256 and checked by make_numbers.py, is reproducible bit for bit.  CPU time goes to stdout.
+  results/round3_checks.sha256 and checked by make_numbers.py, is reproducible bit for bit.  CPU time goes to stdout.
 """
 import hashlib
 import importlib.util

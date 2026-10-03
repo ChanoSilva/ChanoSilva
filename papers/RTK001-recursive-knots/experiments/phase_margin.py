@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """Dependence on the normalisation of the Bishop frame (review round 3, M1).
+Note (review round 4, m7): at d = 2 the scan is not refined around the minimum; by the period pi/3 and the smooth
+evaluation (smooth_margin.py) the minimum is at beta_2 = 0 up to discretisation.  The joint scan of (beta_2, beta_3)
+is experiments/joint_phase_sweep.py; the polygonal values here are biased upwards (see smooth_margin.py).
 
 Rotating the initial normal N_{d-1}(0) of the closed Bishop frame by an angle beta is the same as replacing the phase
 phi_d by phi_d + beta (the transport and the closing twist are linear in the initial normal), and phi_d + pi gives the
@@ -10,7 +13,7 @@ For the default chain (2,3), f = 1/2:
          congruence), and at N0 = 512 for beta = 0 and for the minimising beta;
   d = 3: beta_3 on 12 values in [0, pi) at N0 = 256, with beta_2 = 0, refined by 8 values within pi/12 of the
          minimiser, and at N0 = 512 for beta_3 = 0 and the refined minimiser (a one-parameter scan, not a 2-D one).
-For each: L(K_d), tau(K_d)/r_d, and the margin of Conjecture 3.19 = (smallest vertex doubly critical distance over
+For each: L(K_d), tau(K_d)/r_d, and the margin of Conjecture conj (3.25 in v0.5) = (smallest vertex doubly critical distance over
 pairs that are not antipodal pairs of one normal disc) / (2 r_d) - 1, with the census of classify_pairs.py.
 Output: results/phase_margin.json.  Deterministic; about 2 CPU minutes.
 """
