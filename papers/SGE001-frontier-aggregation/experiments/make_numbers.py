@@ -362,10 +362,9 @@ _grid = {law: [round(r["sigma"], 10) for r in rows if r["frontier"] == "CD" and 
 for law in ("LN", "SU"):
     S = SH["E1"][f"CD-{law}"]["summary"]
     for k in (1, 5):
-        for o in ("B2", "B3"):
-            for sc in ("", "_s"):
-                _i = lambda key: _grid[law].index(round(S[key], 10))
-                assert _i(f"sigma_cert{k}|{o}seg{sc}") - _i(f"sigma_cert{k}|{o}box{sc}") in (1, 2), (law, k, o, sc)
+        for o, sc in (("B3", ""), ("B2", "_s"), ("B3", "_s")):     # the certificates named in that paragraph
+            _i = lambda key: _grid[law].index(round(S[key], 10))
+            assert _i(f"sigma_cert{k}|{o}seg{sc}") - _i(f"sigma_cert{k}|{o}box{sc}") in (1, 2), (law, k, o, sc)
 
 # tables that are no longer used by main.tex (E1b, E3 and E5 per sigma live in results/tables.md)
 for stale in ("table_e1b.tex", "table_e3.tex", "table_e5b.tex"):
