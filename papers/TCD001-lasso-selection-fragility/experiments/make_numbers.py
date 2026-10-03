@@ -448,6 +448,44 @@ assert span(groups["EfourAThirtyfourCost"])[1] <= crit["cost"], "below the cost 
 assert all(span([k])[0] > crit["cost"] for k in runs4[0] if k != "A_34_onestep"), "only at A n=34 below the threshold"
 assert all(span([f"A_{n}_onestep"])[1] >= 1 for n in (22, 26)), "cheaper in all runs only at A n>=30"
 
+# ------------------------------------------------------------------ hardness for p >= 2 (v0.4)
+# experiments/check_hardness.py -> results/hardness.json, results/check_hardness_output.txt (+ .sha256).
+# The frozen log must match its SHA-256; the qualitative statements of Section 5 and Appendix B
+# ("no failure", "unique on every subsample", negative controls) are asserted here.
+import hashlib  # noqa: E402
+
+hj = json.load(open(os.path.join(RES, "hardness.json")))
+hsha = open(os.path.join(RES, "check_hardness_output.sha256")).read().split()[0]
+hlog = open(os.path.join(RES, "check_hardness_output.txt"), "rb").read()
+assert hashlib.sha256(hlog).hexdigest() == hsha == hj["meta"]["log_sha256"], "frozen hardness log != SHA-256"
+hr = hj["reduction"]
+mac("HardSource", hr["n_source"])
+mac("HardYes", hr["n_yes"])
+mac("HardNo", hr["n_no"])
+mac("HardHandInstances", hr["n_hand_instances"])
+mac("HardMaxM", hr["max_m"])
+mac("HardMaxN", hr["max_n"])
+mac("HardPairs", hr["pairs"])
+mac("HardEquivOk", hr["equiv_ok"])
+mac("HardSubsets", thousands(hr["subsets"]))
+mac("HardSolverChecked", thousands(hr["solver_checked"]))
+mac("HardDPAgree", hr["dp_agree"])
+mac("HardDPRandAgree", hj["dp_random"]["agree"])
+mac("HardDPRandTotal", hj["dp_random"]["total"])
+mac("HardAblInstances", hj["ablations"]["u_C"]["n_instances"])
+mac("HardSeconds", int(round(hj["meta"]["seconds"])))
+mac("HardSha", hsha[:16])
+assert hr["equiv_ok"] == hr["pairs"] == 2 * hr["n_source"] and hr["dp_agree"] == hr["pairs"], "312/312"
+assert hr["char_fail"] == hr["undetermined"] == hr["ties"] == 0 and hr["full_data_ok"] == hr["pairs"], \
+    "text: characterisation never fails, uniqueness certified on every subsample, no KKT tie"
+assert hr["closed_form_disagree"] == 0 and hr["solver_disagree"] == 0, "text: no disagreement with the library"
+assert hj["dp_random"]["agree"] == hj["dp_random"]["total"], "text: DP agrees with exhaustive search"
+abl = hj["ablations"]
+assert all(abl[f"{k}_{r}"]["equiv_fail"] >= 1 and abl[f"{k}_{r}"]["char_fail"] >= 1
+           for k in ("u", "eta") for r in "CP"), "text: u = 1 and kappa = 2 break the equivalence"
+assert all(abl[f"rho_{r}"]["undetermined"] >= 1 and abl[f"rho_{r}"]["char_fail"] == 0 for r in "CP"), \
+    "text: rho = 1 only loses certified uniqueness"
+
 # table bodies: drop the trailing row terminator (main.tex supplies it after \input)
 for fn in os.listdir(OUT):
     if fn.startswith("table_") and fn.endswith(".tex"):

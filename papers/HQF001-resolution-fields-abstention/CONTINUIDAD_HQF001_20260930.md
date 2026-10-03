@@ -75,10 +75,10 @@ Corrida de referencia 449 s CPU; verificación ≈ 1 s; figuras ≈ 5 s; prueba 
 - La "ganancia" en synth-classcov sobre k-NN/DANN/RForest no se atribuye a la anisotropía (la ablación euclidiana la obtiene igual o mejor).
 - La observación heurística sobre el sesgo de la covarianza de mezcla a lo largo de δ es una explicación plausible, no un resultado demostrado.
 
-## Bibliografía: notas de verificación
+## Bibliografía: notas de verificación (v0.1; (i), (iii) y (iv) resueltos en la ronda 1; bouckaert2004 y geifman2017 en la ronda 2)
 Todas las entradas de `refs.bib` corresponden a trabajos reales que conozco. Datos a cotejar antes de enviar: (i) Franc, Průša y Voráček, "Optimal strategies for reject option classifiers", JMLR 24 (2023): el número de artículo y las páginas (se puso 1–49) deben verificarse; (ii) Street, Wolberg y Mangasarian (1993): el nombre exacto del volumen de SPIE (se puso "Biomedical Image Processing and Biomedical Visualization", vol. 1905, pp. 861–870); (iii) Kohonen (1990) se cita como fuente de LVQ porque el artículo lo describe, aunque la referencia canónica de LVQ es el libro *Self-Organizing Maps* (1995), no incluido por no tener a mano los datos editoriales exactos; (iv) los nombres de autores acentuados (Průša, Voráček) se escribieron sin diacríticos en el `.bib`.
 
-## Pendientes y próximos pasos concretos
+## Pendientes y próximos pasos concretos (v0.1, 30/09/2026; los vigentes están al final de la sección de la ronda 2)
 1. Confirmar con el autor la reconstrucción de la definición (supuestos 1–3). Si su noción original era supervisada (información de Fisher / intra-clase), correr esa variante con el mismo protocolo y criterio: es la vía por la que la Proposición 3.2 deja abierta una ganancia con prototipos fijos (con prototipos locales entran dos términos más, Prop. 3.2(c)).
 2. Regla bidimensional margen + log-volumen (rechazar si el margen es pequeño **o** el volumen es grande), con el mismo criterio predefinido.
 3. synth-classcov con desplazamiento de medias no nulo, y un benchmark de mayor dimensión con regularización explícita de covarianza.
@@ -125,3 +125,39 @@ Informe: `REFEREE_HQF001_ronda1_20260930.md` (2 bloqueantes, 6 mayores, 12 menor
 3. m5 solo se documenta: ajustar el escalador/PCA dentro de cada pliegue interno cambiaría la selección de hiperparámetros y requeriría otra corrida completa.
 4. Las vías (a)–(c) del §6 (campo supervisado, regla margen + volumen, alta dimensión) no se corrieron.
 5. Tiempo de cómputo de la ronda: corrida completa 284.5 s + pruebas de humo y re-resumen ≈ 15 s + exploración de espectros 4 s + verificación de la proposición < 1 s + figuras 3 s + compilaciones ≈ 30 s ≈ 5.6 min de CPU (cifra unificada con la respuesta de la ronda 1; la versión anterior de esta línea omitía espectros y compilaciones).
+
+## Ronda 2 de revisión interna (03/10/2026)
+
+Informe: `REFEREE_HQF001_ronda2_20261003.md` (0 bloqueantes, 5 mayores, 11 menores, 2 correcciones bibliográficas). Respuesta punto por punto: `RESPUESTA_HQF001_ronda2_20261003.md`. Resultado: borrador **v0.3** (3 October 2026), 10 páginas. Se hizo una **corrida completa nueva (v0.3)** con la rejilla del campo ampliada, preregistrada antes de correr en `PREREGISTRO_HQF001_rejilla_20261003.md` (440 s de CPU; log `results/run_log_v03.txt`); las referencias reproducen v0.2 bit a bit (840/840 AURC y configuraciones por pliegue) y el campo reproduce los seis valores de sensibilidad del árbitro. La corrida v0.2 se conserva en `results/v02/` (`results.json`, `tables.md`, `run_log_v02.txt`).
+
+| hallazgo | decisión | acción |
+|---|---|---|
+| R2-M1 recuento positivo aniso − iso con casos límite y sin NB | aceptar | `make_numbers.py`: rangos sobre las tres lecturas; recuento robusto (bootstrap y t excluyen cero, sin extremo límite) y casos débiles por macro; resumen, §5.2, tabla de afirmaciones, §6, README y ficha reescritos. Con v0.3: robusto en 2 (digits, synth-lda), débil en 3 (iris, wine, moons-aniso), 0 con NB; perjudica solo con bootstrap en breast-cancer (límite). Con v0.2: robusto 1 / 2 |
+| R2-M2 registro de la predefinición | aceptar | `CRITERIO_HQF001.md` reescrito: commit `31398e3` (30/09 08:29 UTC, código del criterio sin resultados) como registro más antiguo; prueba rápida previa; repeticiones 4 → 3 y rejillas de LogReg y QDA reducidas antes de v0.1; B y sembrado cambiados en v0.2; tabla de hashes de cada corrida (v0.2 corrió con `40280a3e…`, no `ad5322…`); manuscrito: "fixed before the first run" y párrafo "Predefined criterion" con todo lo anterior |
+| R2-M3 búsqueda de espectros no declarada | aceptar con matiz | los cuatro candidatos y la regla de la ronda 1 no se anotaron: se dice así en §4 y en `CRITERIO_HQF001.md`; `experiments/spectrum_scan.py` → `results/results_spectrum.json` documenta a posteriori la familia `geomspace(2, λ, 6)` (solución interior desde λ = 0.1; el elegido, λ = 0.25, no es el más dispar con solución) |
+| R2-M4 hiperparámetros en el borde de la rejilla | aceptar | preregistro + corrida completa v0.3 (K_m ∈ {20, 40, 80, 160, 320}, α ∈ {0.05, 0.2, 0.5, 0.7, 0.9}; regla de empate para K_m recortado); saturación calculada, guardada y tabulada (97/120 → 44/120 selecciones en el borde superior; 6 → 2 datasets con ≥ 14/15); criterio igual (0/7/1, 0/6/2, 0/4/4); wine pasa a "peor" (límite); "anisotropy is a handicap on synth-classcov" retirado (efecto del tope K_m ≤ 80); Limitations ampliado |
+| R2-M5 puntuaciones geométricas "casi no informativas" | aceptar | §5.3, tabla de afirmaciones, ficha y README con los cocientes exactos (log-volumen al 26–38 % del nivel aleatorio en iris, wine, digits; peor que el azar en los tres sintéticos gaussianos/`make_classification`; anisotropía peor que el azar en 4 de 8), estimaciones puntuales |
+| R2-m1 Prop. 3.2(b) falsa | aceptar | "can change … iff λ(x)/λ(x') > s(x')/s(x); any λ = f∘s with f > 0 non-decreasing preserves the ordering", con prueba |
+| R2-m2 lógica del optimismo de los IC | aceptar | redacción del árbitro en §4 y Limitations |
+| R2-m3 precisión de la Prop. 3.2 | aceptar | configuraciones necesarias en (c); condición de núcleo en (a) con contraejemplo; Σ verdadera en el párrafo de diseño |
+| R2-m4 notación π_(1) | aceptar | c₁, c₂ y π_{c₁}/π_{c₂} |
+| R2-m5 synth-lda como control | aceptar | optimalidad del rechazo por máximo posterior verdadero (Chow 1970), no la Prop. 3.1(i); también en esta nota |
+| R2-m6 "K_m = 80 of 96" y "Every number" | aceptar | apéndice: 80 puntos internos en iris (tope 79) y ≈ 95 en wine; regla de empate v0.3; §1 "Every result … only design parameters are typed" |
+| R2-m7 contraejemplo con precisión inconsistente | aceptar | cuatro decimales |
+| R2-m8 "inconclusive only on" sin NB | aceptar | §6 con las tres listas |
+| R2-m9 nota con secciones v0.1 sin etiquetar | aceptar | secciones etiquetadas; viñeta refutada marcada; tiempo de la ronda 1 unificado (5.6 min) |
+| R2-m10 resumen largo | aceptar con matiz | ≈ 300 → ≈ 265 palabras (se añadió la información de la rejilla) |
+| R2-m11 orden no determinista | aceptar | clave secundaria por nombre de dataset |
+| Bibliografía | aceptar | `bouckaert2004` añadida y citada con `nadeau2003`; `geifman2017` con volumen 30 y pp. 4878–4887 (27 entradas) |
+
+**Números que cambiaron (v0.2 → v0.3):** criterio 0/6/2 → 0/7/1 (bootstrap), 0/5/3 → 0/6/2 (t), 0/3/5 → 0/4/4 (NB); AURC×100 del campo: wine 0.08 → 0.13, breast-cancer 0.83 → 0.79, synth-informative 4.81 → 4.94, synth-classcov 2.77 → 2.07, synth-lda 2.83 → 2.24 (iris, digits, moons-aniso sin cambio); campo − mejor referencia: synth-classcov +1.08 → +0.38, synth-lda +1.25 → +0.66, synth-informative +1.30 → +1.43; synth-classcov iso / euclid 2.30 / 2.31 → 2.07 / 2.06; ablación aniso − iso robusta 1 mejor / 2 peor → 2 / 0. Detalle en la respuesta.
+
+**Queda abierto tras la ronda 2:**
+1. Confirmar con el autor la reconstrucción (supuestos 1–3) y las decisiones post hoc (synth-classcov regenerado en v0.2; rejilla ampliada en v0.3).
+2. Los cuatro espectros candidatos de la ronda 1 no quedaron registrados.
+3. Saturación residual del campo (synth-classcov α = 0.9; synth-lda K_m = 320) y de varias referencias; no se amplió más ninguna rejilla.
+4. En wine la rejilla ampliada empeora el campo (0.08 → 0.13); el veredicto "peor" es un caso límite.
+5. m5 de la ronda 1 (escalador/PCA antes de la CV interna) solo documentado.
+6. 15 entradas bibliográficas canónicas sin cotejo en red.
+7. Vías (a)–(c) del §6 sin correr.
+8. Tiempo de cómputo de la ronda 2: ≈ 8.5 min de CPU (corrida v0.3 440 s + pruebas, barrido de espectros, macros, figuras y compilaciones ≈ 70 s).

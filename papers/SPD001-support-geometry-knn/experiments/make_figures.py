@@ -128,7 +128,8 @@ def forest():
     comp = res["comparison"]
     data = res["datasets"]
     names = list(data.keys())
-    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.4), sharey=True)
+    # drawn at its printed size (0.7 of the text width, about 4.4 in) so that the fonts stay legible
+    fig, axes = plt.subplots(1, 2, figsize=(4.7, 2.3), sharey=True)
     ypos = np.arange(len(names))[::-1]
     ax = axes[0]
     for yy, nm in zip(ypos, names):
@@ -141,10 +142,11 @@ def forest():
         ax.plot(100 * s["mean"], yy, "o", color=INK if sig else INK2, ms=5, zorder=3)
     ax.axvline(0, color=GRID, lw=1, zorder=0)
     ax.set_yticks(ypos)
-    ax.set_yticklabels([f"{LABEL[n]}\n(vs {comp[n]['best_reference']})" for n in names], fontsize=7.5)
-    ax.set_xlabel("TOD $-$ best reference, accuracy points")
+    ax.set_yticklabels([f"{LABEL[n]} ({'/'.join(comp[n].get('best_reference_tied', [comp[n]['best_reference']]))})" for n in names], fontsize=6.5)
+    ax.set_xlabel("TOD $-$ best ref., points", fontsize=7)
+    ax.tick_params(axis="x", labelsize=6.5)
     ax.grid(axis="x")
-    ax.set_title("primary comparison", fontsize=9.5)
+    ax.set_title("primary comparison", fontsize=8)
     ax = axes[1]
     cols = {"TO": BLUE, "TD": ORANGE, "OD": AQUA}
     lab = {"TO": "TOD $-$ TO (depth removed)", "TD": "TOD $-$ TD (orthogonal removed)",
@@ -161,9 +163,10 @@ def forest():
     ax.plot([], [], "-", color=INK2, lw=0.6, label="thin: Nadeau$-$Bengio interval")
     ax.axvline(0, color=GRID, lw=1, zorder=0)
     ax.grid(axis="x")
-    ax.set_xlabel("TOD $-$ reduced model, accuracy points")
-    ax.set_title("ablations", fontsize=9.5)
-    ax.legend(fontsize=7, loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=1)
+    ax.set_xlabel("TOD $-$ reduced model, points", fontsize=7)
+    ax.tick_params(axis="x", labelsize=6.5)
+    ax.set_title("ablations", fontsize=8)
+    fig.legend(*ax.get_legend_handles_labels(), fontsize=6.5, loc="upper center", bbox_to_anchor=(0.55, 0.0), ncol=2)
     save(fig, "forest")
 
 

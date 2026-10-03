@@ -2,7 +2,15 @@
 
 Objeto: informe `REFEREE_HQF001_ronda2_20261003.md` sobre el borrador v0.2. Resultado: borrador v0.3 (3 October 2026).
 
-Estado de este archivo: en redacción (se escribe de forma incremental; la versión final sustituye esta línea).
+Estado de este archivo: final (escrito de forma incremental durante la ronda; la bitácora conserva el orden de trabajo).
+
+## Resumen
+
+- **Recuento:** 5 mayores (R2-M1–M5): 4 aceptados, 1 aceptado con matiz (R2-M3: los cuatro espectros candidatos y la regla de la ronda 1 no se anotaron; se declara eso y se documenta la familia a posteriori). 11 menores: 10 aceptados, 1 con matiz (R2-m10: resumen ≈ 265 palabras, no 230). 2 correcciones bibliográficas aceptadas. Ninguno rebatido. Puntos de la verificación de la ronda 1 (B1, M2, m1, defecto de declaración de M4): corregidos vía R2-M1, R2-M2, R2-m9 y R2-M3.
+- **Corrida nueva:** R2-M4 se atendió con una corrida **completa** v0.3 (rejilla del campo ampliada, preregistrada antes de correr; 440 s de CPU). Las referencias reproducen v0.2 bit a bit; el campo reproduce los seis valores del árbitro. La v0.2 se conserva en `results/v02/`.
+- **El resultado principal no cambia:** criterio no cumplido en las tres lecturas y con ambas rejillas (v0.3: 0 mejor / 7 / 6 / 4 peor con bootstrap / t / NB; v0.2: 0 / 6 / 5 / 3).
+- **Lo que sí cambia:** (i) la afirmación sobre anisotropía frente a isotropía se rehace con las tres lecturas y la regla de límite (robusta en 2 datasets con la rejilla v0.3, digits y synth-lda; en 1 con la v0.2; en 0 con NB); (ii) "anisotropy is a handicap on synth-classcov" se retira (era un efecto del tope K_m ≤ 80; con la rejilla ampliada campo y ablaciones empatan); (iii) las puntuaciones geométricas se describen con el dato exacto (el log-volumen informa en iris, wine y digits); (iv) el registro del criterio cita el commit `31398e3` y declara los cambios de protocolo; (v) Prop. 3.2(b) corregida (era falsa tal como estaba).
+- **Compilación:** 0 errores, 0 referencias o citas indefinidas, 0 "??", 0 cajas desbordadas; **10 páginas** (v0.2: 10; tras añadir el contenido de esta ronda llegó a 12 y se recortó: la Figura de identidades y la de elipsoides salen del PDF a `figures/`, la tabla campo-vs-cada-referencia a `results/tables.md`, el párrafo de verificación numérica se condensa remitiendo a `results/tables_identity.md`, y varios párrafos se acortan sin perder resultados).
 
 ## Bitácora (orden de trabajo)
 
@@ -10,10 +18,11 @@ Estado de este archivo: en redacción (se escribe de forma incremental; la versi
 2. 10:02 — `selective_benchmark.py` v0.3: rejilla del campo ampliada (K_m ∈ {20, 40, 80, 160, 320}, α ∈ {0.05, 0.2, 0.5, 0.7, 0.9}), regla de empate para K_m recortado, función `grid_saturation` y sección de saturación en `tables.md`. Prueba de humo: 2 pliegues de iris, campo idéntico a v0.2 en ambos (3.4 s de CPU).
 3. 10:03 — `PREREGISTRO_HQF001_rejilla_20261003.md` escrito antes de lanzar la corrida (sha256 del script `35aefc57…`). Corrida completa v0.3 lanzada a las 10:03:18 UTC (log `results/run_log_v03.txt`).
 4. Mientras corre: verificación en git (solo lectura) de R2-M2; `CRITERIO_HQF001.md` reescrito; `experiments/spectrum_scan.py` (R2-M3, 0.3 s de CPU).
+5. Mientras corre: `make_numbers.py` (recuentos robustos, rangos sobre tres lecturas, saturación, macros v0.2, cocientes geométricos, barrido de espectros, empates ordenados, cuatro decimales); cambios de texto independientes de los números (Prop. 3.1–3.2, R2-m2, R2-m5, R2-m6, bibliografía, nota de continuidad).
+6. 10:11 UTC — fin de la corrida v0.3 (440 s de CPU). Comprobación: referencias idénticas a v0.2 en 840/840 AURC y configuraciones; campo igual a los seis valores del árbitro.
+7. Reescritura de resumen, §5, tabla de afirmaciones, §6 y Limitations con macros; compilación (12 páginas) y recortes hasta 10 páginas; README, ficha y nota.
 
 ## Respuesta punto por punto
-
-(se completa abajo)
 
 ### R2-M1 — La afirmación positiva sobre la anisotropía contradecía la regla de casos límite y omitía la lectura NB. **Aceptar.**
 Comprobado en v0.2: iris y wine estaban marcados ° y se contaban como "mejor"; el rango "2–3" omitía la lectura NB (0 mejor / 1 peor). Cambios: (1) `make_numbers.py`: `rng_str` acepta cualquier número de lecturas y los rangos `Abl…FirstRange/SecondRange` y `Crit…WorseRange` corren sobre bootstrap, t y NB (en v0.2 daría "0–3" y "1–2", lo que calculó el árbitro); nuevas macros de recuento **robusto** (`Abl…FirstRobust`, `…SecondRobust` y sus listas: bootstrap y t excluyen cero y el par no es límite) y de los casos débiles (`…FirstWeak`, `…SecondWeak`: solo bootstrap o extremo límite). (2) Resumen, §5.2, Tabla de afirmaciones, §6, README y ficha reescritos con las tres lecturas y la regla de límite. **Matiz:** las cifras finales no son las que proponía el árbitro, porque R2-M4 cambió la rejilla y con ella esta ablación: con la rejilla v0.3, la anisotropía mejora de forma robusta en **2** datasets (digits −0.91, t [−1.39, −0.44], 15/0/0; synth-lda −0.39, t [−0.70, −0.08], 11/0/4), solo con bootstrap o con extremo límite en 3 (iris, wine, moons-aniso), en **0** con NB; perjudica solo con bootstrap y en caso límite en breast-cancer, en ninguno de forma robusta (rangos 0–5 y 0–1). Con la rejilla v0.2 los recuentos robustos eran 1 (digits) y 2 (breast-cancer, synth-classcov), y el manuscrito los da también por macro. El texto dice que la ganancia robusta en synth-lda es la esperable (su covarianza compartida es anisótropa y el ajuste lleva el campo hacia una covarianza casi global, K_m = 320, α = 0.05 en 12/15) y que el campo sigue peor que LDA allí; la conclusión sigue siendo "sugerente, no establecida", ahora además "dependiente de la rejilla".
@@ -44,3 +53,48 @@ El árbitro tiene razón en que la búsqueda no constaba en el manuscrito. **Mat
 - **R2-m10. Resumen largo. Aceptar con matiz.** Eliminada la frase "The formulation is computational…" (ya en §1) y acortada la de la fórmula de desviación; pero el resumen gana la información de la rejilla (v0.2 frente a v0.3) y las tres lecturas de la ablación, de modo que queda en ≈ 265 palabras (antes ≈ 300), no en 230.
 - **R2-m11. Orden no determinista de empates. Aceptar.** `make_numbers.py`: clave secundaria por nombre de dataset en `fav` (las macros `…WinsText`).
 - **Bibliografía. Aceptar.** `bouckaert2004` añadida (PAKDD 2004, LNCS 3056, pp. 3–12, doi 10.1007/978-3-540-24775-3_3) y citada en §4 junto a `nadeau2003` ("applied to repeated cross-validation as in the corrected repeated k-fold test of Bouckaert and Frank"); `geifman2017` con `volume = {30}`, `pages = {4878--4887}`.
+
+### Verificación de la ronda 1 (puntos aplicados a medias o con error nuevo)
+
+| id ronda 1 | estado según el árbitro | corrección en esta ronda |
+|---|---|---|
+| B1 | aplicado con error nuevo (recuento positivo de aniso − iso contaba casos límite; rango sin NB) | R2-M1: recuento robusto sin casos límite, rango sobre las tres lecturas, texto, tabla, ficha y README rehechos |
+| M2 | a medias (hash del script posterior; registro incompleto) | R2-M2: `CRITERIO_HQF001.md` reescrito con el commit `31398e3`, los cambios de protocolo y los hashes de cada corrida |
+| m1 | a medias (secciones v0.1 sin etiquetar en la nota) | R2-m9: secciones etiquetadas como v0.1 y superadas |
+| M4 (defecto de declaración) | búsqueda de espectros no declarada | R2-M3 |
+
+### Extensión y presentación
+El árbitro no pedía recortes (10 páginas en v0.2), pero esta ronda añade contenido (registro del criterio, rejilla v0.3 y saturación, tres lecturas de la ablación, barrido de espectros). Para quedar en 10 páginas: Figura 1 (elipsoides en moons-aniso) y Figura 2 (identidades) fuera del PDF (siguen en `figures/` y el texto remite a ellas); la tabla "campo frente a cada referencia" pasa a `results/tables.md` (el texto conserva los recuentos por referencia, los pares límite y los decididos solo por bootstrap); el párrafo de verificación numérica de §3 se condensa (detalle en `results/tables_identity.md`); el registro v0.1 de synth-classcov y el párrafo de diseño se acortan; tablas de datasets y de afirmaciones en `\footnotesize`; `\bibsep` 0 pt. Ningún resultado ni demostración se pierde. La Tabla de afirmaciones sigue flotando a la página siguiente a su discusión (p. 9).
+
+## Números que cambiaron (v0.2 → v0.3)
+
+Fuente: `results/results.json` (v0.3) frente a `results/v02/results.json`. Referencias: idénticas bit a bit. Cambian todas las variantes del campo por la rejilla ampliada.
+
+| magnitud | v0.2 | v0.3 |
+|---|---|---|
+| Criterio, campo vs mejor referencia (mejor / peor / no concl.) | 0/6/2 bootstrap; 0/5/3 t; 0/3/5 NB | 0/7/1 bootstrap; 0/6/2 t; 0/4/4 NB (wine pasa a peor, caso límite; con NB, synth-informative pasa a peor) |
+| AURC×100 del campo: iris / wine / breast-cancer / digits | 0.37 / 0.08 / 0.83 / 0.26 | 0.37 / 0.13 / 0.79 / 0.26 |
+| AURC×100 del campo: synth-informative / moons-aniso / synth-classcov / synth-lda | 4.81 / 1.19 / 2.77 / 2.83 | 4.94 / 1.19 / 2.07 / 2.24 |
+| Campo − mejor referencia: wine / synth-classcov / synth-lda | +0.05 / +1.08 / +1.25 | +0.10 / +0.38 / +0.66 |
+| Mayor pérdida | synth-informative +1.30 | synth-informative +1.43 |
+| Ablación aniso − iso, robusta (mejor / peor) | 1 (digits) / 2 (breast-cancer, synth-classcov) | 2 (digits, synth-lda) / 0 |
+| Ablación aniso − iso, rango sobre las tres lecturas (mejor; peor) | 0–3; 1–2 | 0–5; 0–1 |
+| synth-classcov: campo / iso / euclid | 2.77 / 2.30 / 2.31 | 2.07 / 2.07 / 2.06 |
+| synth-classcov: campo vs k-NN / DANN / RF | +0.22 (peor, límite) / −0.06 / −0.65 | −0.48 / −0.76 / −1.35 (mejor con ambos IC) |
+| Log-volumen, % del nivel aleatorio: iris / wine / digits | 37 / 25 / 30 | 38 / 26 / 29 |
+| Anisotropía peor que el azar | 5 de 8 | 4 de 8 |
+| Selecciones del campo con un hiperparámetro en el borde superior | 97/120; 6 datasets ≥ 14/15 | 44/120; 2 datasets |
+| Selección dominante: synth-classcov / synth-lda | (0.5, 80) 15/15 / (0.5, 80) 15/15 | (0.9, 160) 15/15 / (0.05, 320) 12/15 |
+| CPU de la corrida | 284.5 s | 440.0 s |
+
+## Qué queda abierto
+1. Confirmar con el autor la reconstrucción de la definición (supuestos 1–3 de la nota) y las decisiones post hoc (regeneración de synth-classcov en v0.2, rejilla ampliada en v0.3).
+2. Los cuatro espectros candidatos de la ronda 1 no se registraron; solo hay el barrido a posteriori.
+3. Saturación residual del campo en synth-classcov (α = 0.9, hacia el límite isótropo) y synth-lda (K_m = 320, hacia una covarianza global); no se amplió más la rejilla (preregistro, punto 6). Las rejillas de las referencias que saturan (k-NN, QDA, LogReg, DANN) no se ampliaron.
+4. En wine la rejilla ampliada empeora el campo (selección interna ruidosa con ≈ 95 puntos de entrenamiento internos); el veredicto "peor" allí es un caso límite.
+5. m5 de la ronda 1 (escalador/PCA ajustados antes de la CV interna) sigue solo documentado.
+6. Bibliografía: las 15 entradas canónicas que el árbitro no pudo cotejar en red siguen sin cotejo en red (sin discrepancias detectadas).
+7. Las vías (a)–(c) del §6 (campo supervisado, regla margen + volumen, alta dimensión) no se corrieron.
+
+## Tiempo de cómputo de la ronda
+Corrida completa v0.3 440.0 s; prueba de humo 3.4 s; barrido de espectros 0.3 s; `make_numbers.py` (≈ 12 ejecuciones, incluidas las de `build.sh`) ≈ 17 s; compilaciones ≈ 11 × 3.6 s ≈ 40 s; figuras 3.9 s; render de páginas y comprobaciones ≈ 3 s. Total ≈ 510 s ≈ 8.5 min de CPU (≤ 10 min).

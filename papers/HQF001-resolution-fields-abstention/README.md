@@ -8,7 +8,7 @@
 
 | Ruta | Contenido |
 |---|---|
-| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés, v0.3) y bibliografía (27 entradas reales). |
+| `manuscript/main.tex`, `manuscript/refs.bib` | Manuscrito en LaTeX (inglés, v0.3, 10 páginas con referencias) y bibliografía (27 entradas reales). |
 | `manuscript/main.pdf` | PDF compilado con pdflatex + bibtex (sin errores ni referencias indefinidas). |
 | `manuscript/numbers.tex`, `manuscript/table_*.tex` | Macros y cuerpos de tabla **generados** desde `results/`; ningún número del texto está tipeado a mano. |
 | `experiments/selective_benchmark.py` | Benchmark de clasificación selectiva (v0.3; rejilla del campo ampliada a K_m ∈ {20, 40, 80, 160, 320}, α ∈ {0.05, 0.2, 0.5, 0.7, 0.9}, con saturación de rejilla tabulada): campo de resolución anisótropo (y 5 variantes/ablaciones) frente a 7 referencias ajustadas por CV interna, en 8 datasets, 15 folds pareados; por cada par: IC bootstrap percentil (B = 20 000, el del criterio), IC t de Student, IC t con corrección de Nadeau–Bengio, victorias/empates/derrotas, p de Wilcoxon, indicador de caso límite. |
@@ -19,7 +19,7 @@
 | `experiments/spectrum_scan.py`, `results/results_spectrum.json` | Barrido a posteriori de espectros de covarianza para synth-classcov (solo calibración del error de Bayes). |
 | `results/results_v01.json`, `results/tables_v01.md` | Corrida v0.1 (synth-classcov con medias coincidentes), conservada para contraste. |
 | `results/results_identity.json`, `results/tables_identity.md` | Resultados de la verificación de las proposiciones. |
-| `figures/` | Figuras en PNG y PDF (incluye `fig_rc_curves`, que ya no va en el PDF). |
+| `figures/` | Figuras en PNG y PDF; desde v0.3 ninguna va en el PDF (elipsoides en moons-aniso, identidades de la Prop. 3.1, curvas riesgo–cobertura); el texto remite a ellas. |
 | `CRITERIO_HQF001.md` | Registro del criterio predefinido: commit que lo fecha antes de la primera corrida, cambios de protocolo posteriores y hashes de cada corrida. |
 | `PREREGISTRO_HQF001_rejilla_20261003.md` | Preregistro de la corrida v0.3 (rejilla ampliada), escrito antes de lanzarla. |
 | `CONTINUIDAD_HQF001_20260930.md` | Nota de continuidad interna: supuestos reconstruidos, decisiones, resultados de referencia, limitaciones, rondas 1 y 2 de revisión, pendientes. |

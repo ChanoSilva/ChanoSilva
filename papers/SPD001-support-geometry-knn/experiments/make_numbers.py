@@ -267,9 +267,9 @@ for n in D:
         mac(f"AblNbLo{tag}{ME[me]}", signed(NBABL[n][me]["lo"]))
         mac(f"AblNbHi{tag}{ME[me]}", signed(NBABL[n][me]["hi"]))
     w = c["weights_mean"]["TOD"]
-    mac(f"WT{tag}", f"{w['T']:.2f}")
-    mac(f"WO{tag}", f"{w['O']:.2f}")
-    mac(f"WD{tag}", f"{w['D']:.2f}")
+    mac(f"WT{tag}", rf"\ensuremath{{{w['T']:.2f}}}")
+    mac(f"WO{tag}", rf"\ensuremath{{{w['O']:.2f}}}")
+    mac(f"WD{tag}", rf"\ensuremath{{{w['D']:.2f}}}")
     ss = c["sel_vs_best"]
     mac(f"SelDeltaBest{tag}", signed(ss["mean"]))
     mac(f"SelCiLo{tag}", signed(ss["ci_low"]))
@@ -360,12 +360,17 @@ mac("SelBySelAboveList", ", ".join(DSNAME[n] for n in D if C[n]["sel_vs_best_by_
 wd = [C[n]["weights_mean"]["TOD"]["D"] for n in D]
 wo = [C[n]["weights_mean"]["TOD"]["O"] for n in D]
 wt = [C[n]["weights_mean"]["TOD"]["T"] for n in D]
-mac("WDMin", f"{min(wd):.2f}")
-mac("WDMax", f"{max(wd):.2f}")
-mac("WOMin", f"{min(wo):.2f}")
-mac("WOMax", f"{max(wo):.2f}")
-mac("WTMin", f"{min(wt):.2f}")
-mac("WTMax", f"{max(wt):.2f}")
+def plain(x, nd=2):
+    """Unsigned-style number with a typographic minus when negative."""
+    return rf"\ensuremath{{-{abs(x):.{nd}f}}}" if x < 0 else f"{x:.{nd}f}"
+
+
+mac("WDMin", plain(min(wd)))
+mac("WDMax", plain(max(wd)))
+mac("WOMin", plain(min(wo)))
+mac("WOMax", plain(max(wo)))
+mac("WTMin", plain(min(wt)))
+mac("WTMax", plain(max(wt)))
 # how many datasets have a local-support method (hull or feature line) as best reference
 mac("NBestRefHull", sum(all(r in ("HKNN", "LPH", "NFL") for r in tied_of(C[n])) for n in D))
 mac("NBestRefHullAny", sum(any(r in ("HKNN", "LPH", "NFL") for r in tied_of(C[n])) for n in D))
