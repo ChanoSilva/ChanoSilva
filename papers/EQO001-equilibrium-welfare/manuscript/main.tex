@@ -326,12 +326,8 @@ Throughout this subsection the network is as in Definition~\ref{def:wardrop}, wi
 \end{equation}
 
 \begin{lemma}[Zero-weight commodities enter affinely]\label{lem:concave}
-Let $Q=\{k:\lambda_k>0\}$ and $R$ its complement. For fixed flows of the commodities in $Q$, $\Phi_\lambda$ is affine in the flows of the commodities in $R$, jointly; hence $f^R\mapsto\min_{f^Q}\Phi_\lambda(f^Q,f^R)$ is concave and $\Phi_\lambda$ has a minimiser over $K$ in which every commodity of $R$ uses a single path. If moreover $\lambda=\mu\mathbf 1_Q$ for some $\mu>0$, then $\Phi_\lambda$ is convex in $f^Q$ for fixed $f^R$, so $\min_K\Phi_\lambda$ is the minimum, over the pure profiles of the commodities of $R$ that share an edge with a path of $Q$, of a convex quadratic programme. \status{proved here; elementary}
+Let $Q=\{k:\lambda_k>0\}$ and $R$ its complement. For fixed flows of the commodities in $Q$, $\Phi_\lambda$ is affine in the flows of the commodities in $R$, jointly; hence $f^R\mapsto\min_{f^Q}\Phi_\lambda(f^Q,f^R)$ is concave and $\Phi_\lambda$ has a minimiser over $K$ in which every commodity of $R$ uses a single path. If moreover $\lambda=\mu\mathbf 1_Q$ for some $\mu>0$, then $\Phi_\lambda$ is convex in $f^Q$ for fixed $f^R$, so $\min_K\Phi_\lambda$ is the minimum, over the pure profiles of the commodities of $R$ that share an edge with a path of $Q$, of a convex quadratic programme. \status{proved here, Appendix~\ref{app:routing}; elementary}
 \end{lemma}
-\begin{proof}
-In \eqref{eq:phiroute}, $g_e$ involves only $f^Q$, and $f_e=\sum_kf^k_e$ is linear in the path flows; so for fixed $f^Q$ the expression is affine in $f^R$. A pointwise infimum of affine functions is concave, and a concave function on the polytope $\prod_{k\in R}\{f^k\ge0,\ \sum_pf^k_p=d_k\}$ attains its minimum at a vertex, i.e.\ at a pure profile; a minimiser of $\Phi_\lambda$ over $K$ is obtained by adding a minimising $f^Q$ for that profile (the minimum over the compact $K$ exists). If $\lambda=\mu\mathbf 1_Q$, then $g_e=\mu f^Q_e$ and, with $r_e=f_e-f^Q_e$ fixed, $\Phi_\lambda=\mu\sum_e\big(a_e(f^Q_e)^2+(a_er_e+b_e)f^Q_e\big)$ is convex in $f^Q$; commodities of $R$ that use no edge of a path of $Q$ do not appear in it.
-\end{proof}
-
 The lemma says where non-convexity can come from: a commodity of weight zero is never penalised for the congestion it causes, and its route choice is a vertex choice. The reduction below exploits exactly this, with one weighted commodity and many weightless ones.
 
 \begin{theorem}[Membership in the commodity cone is co-NP-complete]\label{thm:routinghard}
@@ -354,12 +350,8 @@ When the input is a directed acyclic graph with origin--destination pairs and $P
 \item If, on every edge $e$ with $a_e>0$, $\lambda$ takes one value $\mu_e$ on all commodities having a path through $e$, then $\Phi_\lambda$ is convex on $K$ and $\lambda\in\Lam(f^*)$ iff $\lambda\in\Lone(f^*)$, a linear feasibility test. This covers $\lambda=\mathbf 1$ (the system optimum) and networks in which no edge with $a_e>0$ is shared.
 \item (Explicit path sets.) If $\lambda=\mu\mathbf 1_Q$ and at most $r$ commodities outside $Q$ use an edge of a path of $Q$, then $\lambda\in\Lam(f^*)$ can be decided by solving at most $\prod|P_k|\le(\max_k|P_k|)^r$ convex quadratic programmes over a simplex product, hence in polynomial time for fixed $r$ \citep{kozlovTarasovKhachiyan1980}. In particular membership of a unit vector is polynomial when the number of commodities is fixed.
 \end{enumerate}
-\status{proved here; elementary}
+\status{proved here, Appendix~\ref{app:routing}; elementary}
 \end{proposition}
-\begin{proof}
-(a) Edges with $a_e=0$ contribute $b_eg_e$, which is linear; on the others $g_e=\mu_ef_e$, so \eqref{eq:phiroute} is $\sum_e\mu_e(a_ef_e^2+b_ef_e)$ plus a linear function, convex since $\mu_e\ge0$; apply Proposition~\ref{prop:nec}(a). (b) Lemma~\ref{lem:concave}: enumerate the pure profiles of the $r$ commodities, and for each decide whether the convex quadratic programme in $f^Q$ has value $<\Phi_\lambda(f^*)$.
-\end{proof}
-
 Theorem~\ref{thm:routinghard} uses one weighted commodity and unboundedly many weightless ones sharing edges with the weighted paths, which, with explicit path sets, is unavoidable, unless P $=$ NP, for weights of the form $\mu\mathbf 1_Q$ (Proposition~\ref{prop:routingeasy}(b)); Example~\ref{ex:routing} ($\lambda=(0,1)$) and Example~\ref{ex:three} are instances with few commodities. With all paths of an acyclic network, the case of few commodities is open (Question~\ref{q:multi}(iii)).
 
 
@@ -430,6 +422,10 @@ Write $y=(u,w,t)$, $\Phi_\lambda=\sum_k\lambda_kC_k$ and $c=(\lambda_1+\lambda_3
 \end{proof}
 
 
+\begin{proof}[Proof of Lemma~\ref{lem:concave}]
+In \eqref{eq:phiroute}, $g_e$ involves only $f^Q$, and $f_e=\sum_kf^k_e$ is linear in the path flows; so for fixed $f^Q$ the expression is affine in $f^R$. A pointwise infimum of affine functions is concave, and a concave function on the polytope $\prod_{k\in R}\{f^k\ge0,\ \sum_pf^k_p=d_k\}$ attains its minimum at a vertex, i.e.\ at a pure profile; a minimiser of $\Phi_\lambda$ over $K$ is obtained by adding a minimising $f^Q$ for that profile (the minimum over the compact $K$ exists). If $\lambda=\mu\mathbf 1_Q$, then $g_e=\mu f^Q_e$ and, with $r_e=f_e-f^Q_e$ fixed, $\Phi_\lambda=\mu\sum_e\big(a_e(f^Q_e)^2+(a_er_e+b_e)f^Q_e\big)$ is convex in $f^Q$; commodities of $R$ that use no edge of a path of $Q$ do not appear in it.
+\end{proof}
+
 \begin{proof}[Proof of Theorem~\ref{thm:routinghard} and Remark~\ref{rem:interior}]
 \emph{Membership in co-NP.} $K$ is a product of simplices given by explicit linear constraints (the paths are listed in the input) and $\Phi_\lambda$ is a quadratic polynomial with rational coefficients, so the certificate argument in the proof of Proposition~\ref{prop:hard} applies \citep{vavasis1990}. For $\Lam\ne\Lone$: $\lambda\in\Lone(f^*)$ is a linear feasibility test by Lemma~\ref{lem:simplex} (eliminate $\gamma_k$, the value on a used path), and $\Lone(f^*)$ is a pointed rational polyhedral cone whose extreme rays have generators of polynomial size \citep[Section~10.2]{schrijver1986}, and a certificate is such a generator together with a point of $K$ that beats $f^*$ for it.
 
@@ -476,6 +472,10 @@ and $e_W\in\Lam(f^*)$ iff $\mathrm{maxcut}_w\le k-\tfrac12$, i.e.\ iff every cut
 \emph{$F$ is not strongly monotone.} Let $h$ move a unit of the switch from $Z_0$ to the path $\mathsf o_z\to q_0\to dz\to p_M\to e^1_M\to e^2_M\to e^z_M\to\mathsf d_z$ of type (iii) and a unit of $W$ from $T_M$ to $O$. Then $dz$ and $q_0$ keep their flow, the arcs of $T_M$ gain the switch and lose $W$, and otherwise only $e^o$ and connectors change, so $(\Delta h)_e=0$ on every arc with $a_e>0$; hence $DF\,h=0$ and $F(f+\tau h)=F(f)$ whenever $f$ and $f+\tau h$ are feasible: $F$ is not even strictly monotone.
 
 \emph{Membership.} $C_k$ depends only on the arc flows $(f^k_e)_{e}$ of the commodities; on an acyclic graph every origin--destination flow of value $d_k$ decomposes into path flows, so $\lambda\in\Lam(f^*)$ iff the arc flows of $f^*$ minimise $\Phi_\lambda$ over the multicommodity flow polytope, which has a polynomial description, and the argument of Proposition~\ref{prop:hard} applies (that $f^*$ is a Wardrop equilibrium is checked by shortest paths). The first-order condition defining $\Lone(f^*)$ is equivalent to the same condition on that polytope (a linear function of path flows is minimised at $f^*$ iff every used path is shortest for it). By linear-programming duality, $\lambda\in\Lone(f^*)$ iff there are node potentials $\pi_k$ with nonnegative reduced arc costs for the linearised $\Phi_\lambda$ of each commodity $k$, zero on the arcs used by $k$; so $\Lone(f^*)$ is the projection of a rational polyhedral cone in $(\lambda,\pi)$ of polynomial description and has extreme-ray generators of polynomial size \citep[Section~10.2]{schrijver1986}.
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:routingeasy}]
+(a) Edges with $a_e=0$ contribute $b_eg_e$, which is linear; on the others $g_e=\mu_ef_e$, so \eqref{eq:phiroute} is $\sum_e\mu_e(a_ef_e^2+b_ef_e)$ plus a linear function, convex since $\mu_e\ge0$; apply Proposition~\ref{prop:nec}(a). (b) Lemma~\ref{lem:concave}: enumerate the pure profiles of the $r$ commodities, and for each decide whether the convex quadratic programme in $f^Q$ has value $<\Phi_\lambda(f^*)$.
 \end{proof}
 
 \renewcommand{\bibfont}{\footnotesize}\setlength{\bibsep}{0.5pt plus 0.5pt}
