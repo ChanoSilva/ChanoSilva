@@ -372,6 +372,28 @@ def main():
         print(f"    r_1 in [{rw['r1_lo']:.6f}, {rw['r1_hi']:.6f}]: bound {rw['total']:.4f}")
     res["B"] = dict(Ns=Ns_B, nr=nr_B, s_domain="[0, 2pi/3]", worst=worst, all_below_2=all(rw["total"] < 2 for rw in rows),
                     max_total=max(rw["total"] for rw in rows), samples=sel)
+    # bonus: the part 'minRad(K_d) > r_d' of Conjecture conj at d = 2, along the family r_1 = f, r_2 <= f r_1 = f^2:
+    # on the box r_1 = f in [a, b] use r_2 = b^2 (non-decreasing in r_2) -> largest f_c with r_2 kappa_max(K_2) < 1 for all f <= f_c
+    fc = 0.0
+    for rw in rows:
+        bb = rw["r1_hi"]
+        rr = kaprec_times_r(rw["kappa_max_hi"], rw["v_min_lo"], rw["nu_hi"], rw["mu_hi"], float(UP(bb * bb)), 2.0)
+        rw["total_family"] = rr["total"]
+        if rr["total"] < 1:
+            fc = bb
+        else:
+            break
+    res["B"]["f_c_minrad_gt_r"] = fc
+    print(f"    family r_1 = f, r_2 <= f^2: r_2 kappa_max(K_2) < 1 (i.e. minRad(K_2) > r_2) certified for every f <= {fc}")
+    # and the same with r_2 <= r_1/2 (every f <= 1/2 with r_1 <= f): largest r_1 with bound < 1
+    rc = 0.0
+    for rw in rows:
+        if rw["total"] < 1:
+            rc = rw["r1_hi"]
+        else:
+            break
+    res["B"]["r1_c_minrad_gt_r_any_r2_le_r1_half"] = rc
+    print(f"    any r_2 <= r_1/2: minRad(K_2) > r_2 certified for every r_1 <= {rc}")
 
     # ---- (C) for reference: the a priori d = 2 analogue (Remark rem:H3status) with the certified data ----
     a = res["A"]["0.5"]

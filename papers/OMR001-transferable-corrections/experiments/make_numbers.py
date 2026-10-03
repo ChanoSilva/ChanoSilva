@@ -331,11 +331,19 @@ for a in cfg["alpha_grid"]:
     mac(f"RfCap{w}", f"{c['cap_exact']:.4f}"); mac(f"RfLower{w}", f"{c['lower']:.4f}")
     mac(f"RfFourAlphaSplit{w}", f"{4 * a * c['split']:.4f}")
     mac(f"RfSplitLo{w}", f"{c['split_lo']:.4f}"); mac(f"RfSplitHi{w}", f"{c['split_hi']:.4f}")
-mac("RfClosedMin", f"{rf['closed_over_exact'][0]:.2f}"); mac("RfClosedMax", f"{rf['closed_over_exact'][1]:.1f}")
+mac("RfClosedMin", f"{rf['closed_over_exact'][0]:.2f}"); mac("RfClosedMax", up(rf['closed_over_exact'][1], 1))
 _v1 = [c["v1_limit"] / c["split"] for c in rf["constants"]]
 mac("RfVOneTen", f"{RC[(0.1, m0)]['v1_limit'] / RC[(0.1, m0)]['split']:.2f}")
-mac("RfVOneMin", f"{min(_v1):.2f}"); mac("RfVOneMax", f"{max(_v1):.2f}")
-# worst-case comparison (Table tab:worstrefit): better / worse / inconclusive
+mac("RfVOneMin", f"{min(_v1):.2f}"); mac("RfVOneMax", up(max(_v1)))
+# v0.5 (round 3, m1): the split estimator's worst case is now EXACT, split + (sigma^2/m) E[M_0(alpha; xi)]
+# (Proposition prop:sharp(c)); Table tab:worstrefit compares it with the refit's exact worst case.
+MT = {3: "Three", 6: "Six", 12: "Twelve", 24: "TwentyFour"}
+for c in rf["constants"]:
+    t = word(str(c["alpha"])) + MT[c["m"]]
+    mac(f"RfSplitEx{t}", f4(c["split_exact"])); mac(f"RfSplitExR{t}", f4(c["split_exact_over_R"]))
+    mac(f"RfCapEx{t}", f4(c["cap_exact"]))
+    mac(f"RfOraRf{t}", f"{c['oracle_refit']:+.4f}"); mac(f"RfOraSp{t}", f"{c['oracle_split']:+.4f}")
+mac("WorstExactTen", f4(RC[(0.1, m0)]["split_exact_over_R"]))
 _cls = {}
 with open(os.path.join(out_dir, "table_worst_refit.tex"), "w") as fh:
     for a in cfg["alpha_grid"]:
@@ -343,17 +351,59 @@ with open(os.path.join(out_dir, "table_worst_refit.tex"), "w") as fh:
         for m in cfg["m_grid"]:
             c = RC[(a, m)]
             v = f"{c['cap_exact']:.4f}"
-            if c["cap_exact"] < c["split_lo"]:
+            if c["cap_exact"] < c["split_exact"]:
                 v, k = r"\textbf{" + v + "}", "better"
-            elif c["cap_exact"] > c["split_hi"]:
-                v, k = r"\textit{" + v + "}", "worse"
             else:
-                k = "unclear"
+                v, k = r"\textit{" + v + "}", "worse"
             _cls.setdefault(k, []).append((a, m))
-            cells.append(f"{v} [{c['split_lo']:.4f}, {c['split_hi']:.4f}]")
+            # the exact split value must lie in the bracket of Proposition prop:sharp(b)
+            assert c["split_lo"] - 1e-6 <= c["split_exact"] <= c["split_hi"] + 1e-6, (a, m)
+            cells += [v, f"{c['split_exact']:.4f}"]
         fh.write(" & ".join(cells) + " \\\\\n")
 with open(os.path.join(out_dir, "table_worst_split.tex"), "w") as fh:
-    fh.write(" & ".join(f"{RC[(0.1, m)]['split']:.4f}" for m in cfg["m_grid"]) + "\n")
+    fh.write(" & ".join(r"\multicolumn{2}{c}{" + f"{RC[(0.1, m)]['split']:.4f}" + "}" for m in cfg["m_grid"]) + "\n")
+# oracle correction C = theta (round 3, M1): exact excess over Xbar_n, refit vs split (bold: refit better)
+_ora_harm, _ora_split_better = [], []
+with open(os.path.join(out_dir, "table_oracle.tex"), "w") as fh:
+    for a in cfg["alpha_grid"]:
+        cells = [f"{a:g}"]
+        for m in cfg["m_grid"]:
+            c = RC[(a, m)]
+            v = f"{c['oracle_refit']:+.4f}"
+            if c["oracle_refit"] > 0:
+                _ora_harm.append((a, m)); v += r"$^{\mathrm H}$"
+            if c["oracle_split"] < c["oracle_refit"]:
+                _ora_split_better.append((a, m)); v = r"\textit{" + v + "}"
+            else:
+                v = r"\textbf{" + v + "}"
+            cells += [v, f"{c['oracle_split']:+.4f}"]
+        fh.write(" & ".join(cells) + " \\\\\n")
+mac("RfOraRfTenTwentyFourPct", pct(RC[(0.1, 24)]["oracle_refit"] / (cfg["d"] * cfg["sigma"] ** 2 / cfg["n"]), signed=False))
+# reduction check (round 3, m2) and adversarial families without held-out noise (m4)
+red = rf["reduction"]
+mac("RfRedCapRelDiff", f"{red['max_cap_rel_diff']:.0e}".replace("e-0", r"\times10^{-").replace("e-", r"\times10^{-") + "}")
+assert red["min_abs_c_at_2d_argmax"] > 0.9999 and red["max_cap_rel_diff"] < 1e-5
+_ef = rf["adversarial"]["exact_families"]
+_wx = [r["over_cap"] for r in _ef if r["family"] == "worst(M_rho)"]
+_px = [r["over_cap"] for r in _ef if r["family"] == "Prop4.5b"]
+_rx = [r["over_lower"] for r in _ef if r["family"] == "reflect t=2.0"]
+mac("RfAdvWorstExMin", f"{min(_wx):.4f}"); mac("RfAdvWorstExMax", up(max(_wx), 4))
+mac("RfAdvPropExMin", f"{min(_px):.2f}"); mac("RfAdvPropExMax", up(max(_px), 3))
+assert max(abs(x - 1) for x in _rx) < 1e-5 and max(r["over_cap"] for r in _ef) <= 1 + 1e-6
+mac("RfAdvRbNcMax", up(rf["adversarial"]["rb_max_over_cap_noncollinear"]))
+mac("RfAdvIdExpected", f"{rf['adversarial']['identity_expected_above3']:.1f}")
+_ptail = math.erfc(3 / math.sqrt(2))                       # P(|Z| > 3)
+mac("RfIdExpected", f"{rf['design']['identity_n_z'] * _ptail:.2f}")
+# the refit's Poisson failure is the acceptance-count test of Section 6 on the same replicates (round 3, m3)
+_fa = rf["design"]["identity_fail_at"]
+_wr = summ["identity_recheck"]["worst_rare_config"]
+assert len(_fa) == 1 and _fa[0]["op"] == _wr["operator"] and _fa[0]["alpha"] == _wr["alpha"] \
+    and _fa[0]["m"] == _wr["m"] and _fa[0]["dep"] == _wr["dep_over_tau"], "refit identity failure is not the Section 6 one"
+# alpha = 0.5 in 36 other designs (round 3, m6)
+_gen = rf["general_alpha_half"]
+mac("RfGenN", len(_gen)); mac("RfGenWorse", sum(r["ratio"] > 1 for r in _gen))
+mac("RfGenRatioMin", f"{min(r['ratio'] for r in _gen):.3f}"); mac("RfGenRatioMax", up(max(r["ratio"] for r in _gen)))
+assert all(r["ratio"] > 1 for r in _gen), "text says the refit is worse at alpha = 0.5 in every design tried"
 
 
 def _cls_text(pairs):
