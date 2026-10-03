@@ -1,0 +1,94 @@
+% =====================================================================================================
+% TCD001 -- strong NP-hardness of Selection-Witness with growing p (rule C).        theory/strong_hardness.tex
+% Ready to paste into manuscript/main.tex; uses only the macros of main.tex (\R, \Dm, \supp, \sgn,
+% \status, \tsc) and existing bibliography keys (garey1979, tibshirani2013).
+% Derivation: theory/strong_hardness_derivation.md.  Check: theory/check_strong.py -> check_strong_output.txt.
+%
+% Suggested placement (NOT applied; main.tex was not modified):
+%   * replace Conjecture~\ref{conj:strong} and the sentence after it ("A route not carried out ...") by
+%     Part 1 below (Lemma lem:entry-any, Theorem thm:strong, Corollary cor:strong-f, Remark
+%     rem:verify-strong, Conjecture conj:strong-rest);
+%   * put Part 2 (proofs) at the end of Appendix~\ref{app:proofs};
+%   * in the introduction, "only strong hardness with unbounded $p$ remains open
+%     (Conjecture~\ref{conj:strong})" would become "with unbounded $p$, selection witnesses are NP-hard in
+%     the strong sense under rule C (Theorem~\ref{thm:strong}); deselection, unsigned \tsc{any} and rule P
+%     remain open (Conjecture~\ref{conj:strong-rest})";
+%   * Corollary~\ref{cor:weak} stays true as stated (it is about fixed $p$).
+% =====================================================================================================
+
+% ------------------------------------------------ Part 1: statements (Section 5) ---------------------
+
+\paragraph{Strong hardness with growing $p$.} By Corollary~\ref{cor:weak}, strong NP-hardness needs $p$ to grow with the input. For selection witnesses under rule C it holds: the inactive variable is $\rho$ times the average of $3q$ \emph{absorbing} variables, one per element of an \tsc{Exact Cover by 3-Sets} instance, plus a small deviation carried by one heavy \emph{anchor} row per absorber. It can only exceed the penalty if every absorber sits exactly at it, which happens iff the kept triples cover every element exactly once; an active absorber, a missing anchor or an uncovered element costs more than the margin. The anchors dominate the Gram matrix, which makes every absorber coefficient nonnegative and readable from integers, and their offset keeps an absorber whose anchor was removed inactive; this is what the route sketched after Conjecture~\ref{conj:strong} lacked. The first statement is Lemma~\ref{lem:entry} for arbitrary $p$.
+
+\begin{lemma}[Entry criterion, any $p$]\label{lem:entry-any}\status{proved here}
+Let $R\subsetneq[n]$, $K=[n]\setminus R$, $\mu'=\mu_{|R|}$, $j\in[p]$, and let $r_{-j}$ be the residual $y_K-X_{K,-j}b$ of any minimiser $b$ of the Lasso on $(X_{K,-j},y_K)$ with penalty $\mu'$ (the same for all minimisers). (a)~If $\lvert X_{K,j}^{\top}r_{-j}\rvert\le\mu'$, some minimiser on $\Dm$ has $\beta_j=0$, and $R$ is not a witness for \tsc{enter}$(j)$. (b)~If $\lvert X_{K,j}^{\top}r_{-j}\rvert>\mu'$, no minimiser on $\Dm$ has $\beta_j=0$; if the minimiser is unique, $j\in S(\Dm)$.
+\end{lemma}
+
+\begin{theorem}[Selection witnesses are strongly NP-complete, rule C]\label{thm:strong}\status{proved here}
+Under the constant rule, \tsc{Selection-Witness} with $p$ part of the input (given $(X,y,\mu)$, a unique minimiser on $D$ and $j\notin S(D)$, decide whether some nonempty proper $R\subsetneq[n]$ is a witness for \tsc{enter}$(j)$) is NP-complete in the strong sense. It is NP-hard already for integer data with $y_i\in\{1,3\}$ and $\lvert x_{ij}\rvert\le\mu\le 72n^4$.
+\end{theorem}
+
+\noindent\emph{Construction.} From \tsc{Exact Cover by 3-Sets} (\tsc{X3C}: a universe $U$ with $|U|=3q$ and 3-element sets $C_1,\dots,C_m\subseteq U$; is there a subfamily partitioning $U$?), which is NP-complete in the strong sense since it has no numbers~\citep{garey1979}. Columns: the target $0$ and one absorber per $e\in U$, so $p=3q+1$. Rows ($n=m+3q$): for each $i\in[m]$ a \emph{triple row} with $x_{i0}=\rho/q$, $x_{ie}=\mathbf 1[e\in C_i]$, $y_i=1$; for each $e\in U$ an \emph{anchor row} $a_e$ with $x_{a_e,0}=\kappa u/(3q)$, $x_{a_e,e}=u$, all other entries $0$, $y_{a_e}=S/u$. Parameters: $u=3m$, $S=m$, $\mu=S+1$, $\eta=\tfrac12$, $\theta=1/(24q)$, $\rho=1-(\eta S-\theta)/\mu\in(\tfrac12,1)$, $\kappa=\rho+\eta$. Variable $0$ enters on $\Dm$ iff all anchors are kept and the kept triples partition $U$.
+
+\begin{corollary}[Fragility numbers with growing $p$]\label{cor:strong-f}\status{proved here}
+Under rule C, computing $f_{\tsc{enter}(j)}(D)$ is NP-hard in the strong sense when $p$ is part of the input; unless P${}={}$NP there is no algorithm polynomial in $n$, $p$ and $M=\max_{i,j}(\lvert x_{ij}\rvert,\lvert y_i\rvert)$ for it, so the exponential dependence on $p$ in Proposition~\ref{prop:pseudo} cannot be removed. On the instances of Theorem~\ref{thm:strong}, $f_{\tsc{enter}(0)}=m-q$ if the answer is yes and $\infty$ otherwise.
+\end{corollary}
+
+\begin{remark}[Exhaustive check]\label{rem:verify-strong}\status{computationally verified (exact arithmetic)}
+For 40 \tsc{X3C} instances (20 yes, 20 no; $q\in\{2,3\}$, $n\le13$, $p\le10$), the integer-scaled instance of Theorem~\ref{thm:strong} was solved in rational arithmetic on all 81\,840 subsamples (\texttt{theory/check\_strong.py}). A witness exists iff the answer is yes in 40/40 instances; the set-by-set characterisation never fails; uniqueness is certified on every subsample by full rank of $X_E$~\citep{tibshirani2013}; on the problem without the target column the minimiser is nonnegative with support $\{e:\ a_e\text{ kept},\ \mathrm{cov}_e\ge2\}$ on every subsample, as Lemma~\ref{lem:absorb} below states. Negative controls that violate the margin ($\theta=1/q$ or $\theta<0$), the offset ($S=0$) or the anchor dominance ($u=1$) are detected; for $u=1$ only through the intermediate claims, not through the equivalence.
+\end{remark}
+
+\begin{conjecture}[What remains of Conjecture~\ref{conj:strong}]\label{conj:strong-rest}\status{conjectural}
+With $p$ part of the input, \tsc{Deselection-Witness} and the existence of an unsigned \tsc{any} witness are NP-hard in the strong sense under either rule, and so is \tsc{Selection-Witness} under rule P; all of them already for data in $\{-1,0,1\}$ up to a common scale.
+\end{conjecture}
+\noindent The construction of Theorem~\ref{thm:strong} does not settle these cases. Removing triples changes the support in many ways, so \tsc{any} witnesses are easy to find in it. For \tsc{leave}, entry of the target would still have to be turned into the exit of another variable while keeping uniqueness. Under rule P, $\mu'$ depends on $|K|$ and breaks the exact equalities $q_e=\mu'$ at a cover, and the shift $y_i=b_i+\lambda$ used for $p=2$ does not extend, because a triple row meets only three absorbers. The anchors of size $u=3m$ are essential to the proof. Parameterised hardness in $p$ (for instance W[1]) is not addressed.
+
+% ------------------------------------------------ Part 2: proofs (Appendix B) ------------------------
+
+\begin{proof}[Proof of Lemma~\ref{lem:entry-any}]
+All minimisers of a Lasso problem share the fit~\citep{tibshirani2013}, so $r_{-j}$ is well defined. Write $F$ for the objective on $\Dm$ and $F_{-j}(b)=F(b,0)$. (a)~If $b$ minimises $F_{-j}$ and $\lvert X_{K,j}^{\top}r_{-j}\rvert\le\mu'$, then $(b,0)$ satisfies the KKT conditions of $F$, which are sufficient. Hence $(b,0)$ is a minimiser. If the minimiser is unique, it is $(b,0)$ and $j\notin S(\Dm)$; otherwise $R$ is not a witness by definition. (b)~If a minimiser $(b,0)$ of $F$ existed, then $F_{-j}(b)=\min F\le\min F_{-j}$, so $b$ minimises $F_{-j}$ and the residual is $r_{-j}$. The KKT condition of $F$ at coordinate $j$ would then give $\lvert X_{K,j}^{\top}r_{-j}\rvert\le\mu'$.
+\end{proof}
+
+\noindent\emph{Notation for the proof of Theorem~\ref{thm:strong}.} Fix $R\subsetneq[n]$ and $K=[n]\setminus R$; under rule C, $\mu'=\mu$. Write $T\subseteq[m]$ for the kept triples, $N=|T|$, $\mathrm{cov}_e=\lvert\{i\in T:e\in C_i\}\rvert$ (so $\sum_e\mathrm{cov}_e=3N$), $P=\{e:a_e\in K\}$ for the anchored elements, $B=U\setminus P$, $P_2=\{e\in P:\mathrm{cov}_e\ge2\}$ and $w=1/(3q)$. On $K$ the absorber columns have Gram matrix $G$ with
+\[
+G_{ee}=u^2\,\mathbf 1[e\in P]+\mathrm{cov}_e,\qquad G_{ee'}=\lvert\{i\in T:e,e'\in C_i\}\rvert\ge0,\qquad \textstyle\sum_{e'\ne e}G_{ee'}=2\,\mathrm{cov}_e,
+\]
+and correlations $q_e=X_{K,e}^{\top}y_K=S\,\mathbf 1[e\in P]+\mathrm{cov}_e\ge0$. The choice of $\rho$ gives
+\begin{equation}\label{eq:theta}
+\theta=\eta S-(1-\rho)\mu=\tfrac1{24q},\qquad \rho\mu+\eta S=\mu+\theta=\kappa S+\rho .
+\end{equation}
+
+\begin{lemma}[The absorbers]\label{lem:absorb}\status{proved here}
+For every $K$, the Lasso on $K$ restricted to the absorbers (column $0$ removed) has a minimiser $\beta$ with $\beta_B=0$, $\beta\ge0$ and support exactly $P_2$. It satisfies $\tfrac12\le u^2\beta_e\le\mathrm{cov}_e-1$ on $P_2$, and its correlations $c_e=q_e-(G\beta)_e$ lie in $[0,\mu]$ for all $e\in U$.
+\end{lemma}
+\begin{proof}
+Let $b^\ast$ minimise $\frac12b^{\top}G_{PP}b-(q_P-\mu\mathbf 1)^{\top}b$ over $b\ge0$; the minimiser exists and is unique because $G_{PP}\succeq u^2I$. Put $\beta=(b^\ast,0_B)$ and $c=q-G\beta$. The optimality conditions of this nonnegative problem say $c_e\le\mu$ for $e\in P$, with equality where $\beta_e>0$. If $\beta_e>0$, then $G_{ee}\beta_e=q_e-\mu-\sum_{e'\ne e}G_{ee'}\beta_{e'}\le q_e-\mu=\mathrm{cov}_e-1$, because $G_{ee'}\ge0$ and $\beta\ge0$. Hence $\mathrm{cov}_e\ge2$, $u^2\beta_e\le\mathrm{cov}_e-1$ and $\beta_e\le(m-1)/u^2$ for all $e$. Therefore, for every $e$, with $u=3m$,
+\[
+0\le\textstyle\sum_{e'\ne e}G_{ee'}\beta_{e'}\le 2\,\mathrm{cov}_e(m-1)/u^2\le 2\,\mathrm{cov}_e/(9m).
+\]
+It follows that every $e\in B$ has $c_e\in[0,\mathrm{cov}_e]\subseteq[0,m]$, which lies inside $[-\mu,\mu)$ as $\mu=m+1$; every $e\in P$ with $\beta_e=0$ has $c_e\ge S-\tfrac29>0$; and every $e$ with $\beta_e>0$ has $c_e=\mu$. Thus $\beta$ satisfies the KKT conditions of the Lasso (with signs) and is a minimiser, and $c_e\in[0,\mu]$ for all $e$. If $e\in P$ had $\mathrm{cov}_e\ge2$ and $\beta_e=0$, then $c_e\ge S+\mathrm{cov}_e-2\,\mathrm{cov}_e/(9m)>S+1=\mu$, a contradiction; so the support is exactly $P_2$. On $P_2$, $G_{ee}\beta_e\ge\mathrm{cov}_e-1-2\,\mathrm{cov}_e/(9m)\ge\frac5{18}\mathrm{cov}_e\ge\frac59$ and $G_{ee}\le u^2+m$, hence $u^2\beta_e\ge\frac59\cdot\frac{9m^2}{9m^2+m}\ge\frac12$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:strong}]
+\emph{Trivial cases.} If $C_1,\dots,C_m$ is itself a partition of $U$, output a fixed yes-instance. From now on it is not, so in a yes-instance $m>q$.
+
+\emph{The target correlation.} On the triple rows $\rho w\sum_ex_{ie}=\rho/q=x_{i0}$, and on the anchor rows $\rho wu+\eta wu=\kappa u/(3q)=x_{a_e,0}$. Hence, on $K$, $X_{K,0}=\rho w\sum_{e\in U}X_{K,e}+\eta wu\sum_{e\in P}\delta_{a_e}$. Let $r$ be the residual of the minimiser of Lemma~\ref{lem:absorb}, so $r=r_{-0}$ in the notation of Lemma~\ref{lem:entry-any}, and $u\,r_{a_e}=u(S/u-u\beta_e)=S-u^2\beta_e$. Then
+\[
+c_0:=X_{K,0}^{\top}r=\rho w\sum_{e\in U}c_e+\eta w\sum_{e\in P}\bigl(S-u^2\beta_e\bigr).
+\]
+By Lemma~\ref{lem:absorb}, $c_e\ge0$ and $S-u^2\beta_e\ge S-m+1>0$, so $c_0>0>-\mu$. Since $c_e\le\mu$ and $\sum_ew=1$, \eqref{eq:theta} gives $c_0\le\mu+\theta-\eta w\sum_{e\in P}u^2\beta_e-\eta wS\,|B|$. Three cases follow.
+(i)~If $B\ne\emptyset$, then $c_0\le\mu+\frac1{24q}-\frac{m}{6q}<\mu$.
+(ii)~If $B=\emptyset$ and $P_2\ne\emptyset$, then $c_0\le\mu+\frac1{24q}-\frac1{12q}<\mu$ by Lemma~\ref{lem:absorb}.
+(iii)~If $B=\emptyset$ and $P_2=\emptyset$, then $\mathrm{cov}_e\le1$ for all $e$, so $N\le q$, $\beta=0$, $r=y_K$ and $c_e=S+\mathrm{cov}_e$. By~\eqref{eq:theta}, $c_0=\rho S+\rho N/q+\eta S=\mu+\theta-\rho(q-N)/q$. If $N=q$, every element is covered exactly once and $c_0=\mu+\theta>\mu$. If $N\le q-1$, then $c_0\le\mu+\frac1{24q}-\frac\rho q<\mu$, as $\rho>\frac12$.
+By Lemma~\ref{lem:entry-any}, $R$ is not a witness unless all anchors are kept and the kept triples partition $U$.
+
+\emph{Uniqueness and the witness.} Suppose all anchors are kept and $N\ge1$. The anchor rows restrict the absorber columns to $u\,I$, so these columns are independent. If $X_{K,0}=\sum_e\vartheta_eX_{K,e}$, the anchor rows force $\vartheta_e=\kappa w$, and a kept triple row would then give $3\kappa w=\kappa/q\ne\rho/q$. Hence $X_K$ has full column rank, the objective is strictly convex and the minimiser is unique. When the kept triples partition $U$, Lemma~\ref{lem:entry-any}(b) puts $0$ in $S(\Dm)$. If $I$ is an exact cover, $R=[m]\setminus I$ (triple rows only) is nonempty because $m>q$, proper because the anchors are kept, and a witness; conversely every witness is of this form. On $D$ ($K=[n]$) the family is not a partition, so case (ii) or case (iii) with $N<q$ applies: $\lvert c_0\rvert<\mu$, $X$ has full column rank, and the unique minimiser has $0\notin S(D)$.
+
+\emph{Integer data and size.} With $\alpha=24q^2(m+1)$ and $\alpha'=3$, $(\alpha X,\alpha'y,\alpha\alpha'\mu)$ is integral: $y_i\in\{1,3\}$, $\lvert x_{ij}\rvert\le72q^2m(m+1)$ and $\mu=72q^2(m+1)^2\le72n^4$. By the rescaling argument in the proof of Theorem~\ref{thm:enter2}, supports, uniqueness and witnesses are unchanged. The numbers are bounded by a polynomial in the length of the instance, and \tsc{X3C} is NP-complete in the strong sense, so \tsc{Selection-Witness} is NP-hard in the strong sense.
+
+\emph{Membership in NP ($p$ in the input, either rule).} The certificate is $R$, the signed support $(S',s')$ of the minimiser $\hat\beta$ on $\Dm$ and $2p$ dual vectors. The verifier solves the KKT system on $S'$ exactly by Gaussian elimination, in polynomial bit length, and checks the KKT conditions; this certifies that $\hat\beta$ is a minimiser. All minimisers share the fit and the $\ell_1$ norm~\citep{tibshirani2013}, so the set of minimisers is the polytope $\mathcal M=\{\beta:\ X_K^{\top}X_K(\beta-\hat\beta)=0,\ \lVert\beta\rVert_1\le\lVert\hat\beta\rVert_1\}$, and $\hat\beta$ is unique iff $\max_{\mathcal M}\beta_k=\hat\beta_k=\min_{\mathcal M}\beta_k$ for every $k$. Written with auxiliary variables $t$ ($-t\le\beta\le t$, $\mathbf 1^{\top}t\le\lVert\hat\beta\rVert_1$), these are $2p$ feasible and bounded linear programmes. By strong duality each has an optimal basic dual solution. Such a solution solves a nonsingular square subsystem, so by Cramer's rule its encoding is polynomial. The verifier checks dual feasibility and that each dual value equals $\hat\beta_k$; weak duality then certifies the optimum, and no polynomial-time linear-programming algorithm is needed. Finally it checks $\hat\beta_j\ne0$.
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{cor:strong-f}]
+A witness for \tsc{enter}$(j)$ exists iff $f_{\tsc{enter}(j)}(D)<\infty$, so Theorem~\ref{thm:strong} applies. A pseudo-polynomial algorithm for a problem that is NP-hard in the strong sense gives P${}={}$NP~\citep{garey1979}. On the instances of the theorem the witnesses are exactly the sets of non-cover triples, all of size $m-q$.
+\end{proof}

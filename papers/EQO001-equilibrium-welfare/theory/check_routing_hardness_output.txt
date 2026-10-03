@@ -6,17 +6,18 @@ seed 20261003; Python 3.11.15, NumPy 2.4.6
   (X1) f* Wardrop, exact: 381/381; unused paths strictly costlier: 381/381
   (X1) e_W in Lambda_1(f*), exact KKT: 381/381; C_W(f*) = C*: 381/381
   (X1) witness from a maximum cut, C_W(f*)-C_W(wit) = maxcut-k+1/2 exactly: 251/251
+  (X1) the same witness beats f* exactly for the interior weight e_W + eps*1 (eps of Remark rem:interior): 251/251
   (X2) strong monotonicity: min eigenvalue of DF on the tangent space, min over instances = 1
   (A) e_W in Lambda(f*) by generic minimisation  <=>  maxcut<k : mismatches 0 / 381, undecided 0
       max Frank-Wolfe gap 9.64e-11; profiles per instance <= 128; min |min C_W - C_W(f*)| over non-members 0.5000
   (A') per-vertex QP value vs closed form h(x,z): max |diff| = 2.73e-12
   (U) every other unit vector e_h in Lambda(f*) (so Lambda_1 = orthant): 381/381 (max FW gap 6.8e-13)
       hence Lambda(f*) = Lambda_1(f*) iff maxcut<k on all 381 pairs: True
-  CPU time so far 7.9 s
+  CPU time so far 8.9 s
 
 [face enumeration, no use of the concavity lemma] 14 pairs on 7 small graphs (P2, P3, K3, 2K2, P4, K1,3, weighted P3)
   faces enumerated per pair <= 30861; agreement of (B) with maxcut<k: 14/14; |min_B - min_A| <= 5.68e-14
-  CPU time so far 21.1 s
+  CPU time so far 21.4 s
 
 [DAG realisation, P_k = all s_k-t_k paths] 16 pairs on 8 graphs (P2, P3, K3, P4, K1,3, C4, 2K2, weighted K3)
   paths of W / of z per instance: 4/4, 14/8, 37/15, 33/13, 35/14, 66/20, 11/6, 37/15
@@ -25,4 +26,4 @@ seed 20261003; Python 3.11.15, NumPy 2.4.6
   (A) with all paths: e_W in Lambda iff maxcut<k: 16/16 (max FW gap 4.9e-11); other e_h in Lambda: 16/16
 
 ALL CHECKS PASS: True
-total CPU time 46.1 s
+total CPU time 27.0 s

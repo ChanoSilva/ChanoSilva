@@ -84,7 +84,7 @@ If `k <= n-2` then `|n T_k| <= 1/6 < e^{-1} <= e^{-1}(k-1)`; if `k = n-1 >= 3` t
 
 So the numerical value `n d_TV = 0.368` "at every `n` tested" in v0.6 is not a coincidence:
 `n d_TV(N_n, Po(1)) - e^{-1}` is `+2.2e-2` at `n = 4`, `+2.1e-7` at `n = 10`, `+3.6e-19` at
-`n = 20`, and `n! (n d_TV - e^{-1})` stays in `[0.03, 0.96]` for `4 <= n <= 60`. The v0.6 bound
+`n = 20`, and `n! (n d_TV - e^{-1})` stays in `[MINV, 0.96]` for `4 <= n <= 60`. The v0.6 bound
 `e^2/n + (2^n+1)/(2 n!)` is `e^{2+1} = 20.1` times too large.
 
 ---
@@ -233,4 +233,53 @@ follow by bounding `s_m, h_m, g_m` explicitly in Lemma B(b) (rough size `C ~ 400
 
 ## 4. Numerical verification (`check_sharp_rate.py`)
 
-See `theory/check_sharp_rate_output.txt` for the numbers quoted here (filled in after the run).
+Full output: `theory/check_sharp_rate_output.txt` (seed 20261004, 111 s on one core).
+
+* (A) Law of `N_n`, `1 <= n <= 60`, rational arithmetic: inversion of the factorial moments =
+  closed form `C(n-1,k)(D_{n-k}+D_{n-k-1})/n!` = insertion recurrence (and = brute force,
+  `n <= 8`); `E[(N_n)_r] = 1 - r/n` exactly. For `4 <= n <= 60`: `max |r_{n,k}| n k!(n-k+1)! = 0.9685`
+  (bound 1), sign pattern and the identity of Theorem A hold, `n!(n d_TV - e^{-1})` in
+  `[MINV, 0.952]` (bound 2). `n d_TV - e^{-1}` = `2.2e-2` (n=4), `2.1e-7` (n=10), `3.6e-19` (n=20),
+  `1.1e-82` (n=60). Remark: `n^2 d_TV(N_n, Po(1-1/n))` = 0.2852, 0.2777, 0.2768, 0.2760 at
+  `n` = 10, 60, 100, 1000 vs `3/(4e)` = 0.27591.
+* (B) `mu` from its components equals the closed form (max diff `3e-17`), total mass `4e-17`,
+  `|mu|/2 = 1.183939720585721 = 1 + 1/(2e)`.
+* (C) Pair moments of Lemma B(a) = exhaustive enumeration at `n = 8, 9` (exact fractions). On
+  `20 <= n <= 3000`: `sum_{4}^{n-2} E I_k <= 0.371 * 172/n^2`, `E C(I_3,2) <= 0.956 * 23/n^2`,
+  `E[I_3 I_{n-1}] <= 0.973 * 25/n^2`, `E C(I_{n-1},2) <= 0.702 * 3/n^2`; unrounded bound
+  `<= 5/n + 106.4/n^2`. Exact law of `R_n`, `n = 5..8` (sanity only): `n d_TV(R_n, 2^Z)` =
+  1.45, 1.77, 1.73, 1.94 (second-order terms dominate at these `n`).
+* (D) Monte Carlo with control variate (exact law of `2^{N_n}`; `R` by the substitution-tree
+  formula on samples with an interval of length in `[3,6]` or `[n-6, n-1]`, missed-interval
+  probability `<= 2.5e-5` at `n = 50`):
+
+  | n | samples | n P(R != 2^N) | n d_TV MC (95%) | n d_TV refined model | c_2 |
+  |---|---|---|---|---|---|
+  | 50 | 300000 | 5.01 | 1.261 +- 0.040 | 1.201 | 1.184 |
+  | 100 | 300000 | 5.04 | 1.231 +- 0.060 | 1.192 | 1.184 |
+  | 200 | 250000 | 4.92 | 1.165 +- 0.078 | 1.188 | 1.184 |
+  | 400 | 200000 | 5.03 | 1.206 +- 0.145 | 1.186 | 1.184 |
+
+  (refined model = first-order model with the exact weights `(n-2)/(n(n-1))`, `1/n` and the exact
+  laws of `N_{n-2}`, `N_{n-1}`). Atom by atom, `n(P(R=x) - P(2^Z=x))` for
+  `x in {1,2,4,8,16,32,6,12,24,48}` matches `mu(x)`: e.g. at `n = 200`, `x = 1`: `-1.104 +- 0.067`
+  vs `-1.104`; `x = 6`: `0.379 +- 0.034` vs `0.368`; `x = 12`: `0.365 +- 0.033` vs `0.368`. Largest
+  standardized deviation from the refined model: 4.4 (n=50), 2.3 (n=100), 1.6 (n=200),
+  3.3 (n=400, atom 48, 17 events observed vs about 31 expected; plug-in SE from observed counts).
+  At `n = 50, 100` the deviations (about 0.035 and 0.018 in units of `1/n`) halve when `n`
+  doubles, as an `O(n^{-2})` remainder of size about `1.8/n^2` should. The plug-in TV estimate is
+  biased upwards by the atom-wise noise.
+* (E) E5f (`results/results_realizer_law.json`, 850 samples): pooled z-scores of the observed
+  fractions against the first-order predictions `P(R=1) = e^{-1}(1-3/n)`, `P(R=2) = e^{-1}`,
+  `P(R<=8) = (8/3)e^{-1} - (3/2)e^{-1}/n`, `P(R = 2^N) = 1 - 5/n`: +0.65, +1.94, +0.10, +0.20.
+  Frozen `results/check_realizer_law_output.txt`: `n P(R != 2^N)` between 4.83 and 5.40; share of
+  ratio 3/2 among the ratios {3/2, 2}, pooled over `n >= 100`: 0.192 +- 0.019 vs the first-order
+  value 1/5 (at `n = 20` it is 0.152: other ratios take a large share there).
+
+## 5. Status
+
+* Proved here: Lemma A, Theorem A (`c_1 = e^{-1}`, error `< 2/(n n!)`), Lemma B, Lemma C,
+  Theorem B (`c_2 = 1 + 1/(2e)`, error `O(n^{-2})`), explicit bounds of Section 3. All rely on
+  Steps 2-3 of Appendix B and on the proof of Proposition 5.7 (hence on Gallai's theorem).
+* Not proved: explicit `C` in `|d_TV(R_n, 2^Z) - c_2/n| <= C/n^2`; the `3/(4e n^2)` rate for
+  `Po(1 - 1/n)` (numerical only).
