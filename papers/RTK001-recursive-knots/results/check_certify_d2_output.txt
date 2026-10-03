@@ -1,3 +1,8 @@
 2. per r_1-box containment, 512 boxes x 3 r_1 values x 6000 s on [0,2pi): violations 0; min slack {'v': 0.00019630814270032992, 'kap': 0.007859424164202489, 'nu': 0.003539972521845373, 'mu': 0.005828747261721834}
    symmetry: |sup over [0,2pi) - sup over [0,2pi/3)| at r_1 = 1/2: {'v': 0.0, 'kap': 2.220446049250313e-16, 'nu': 1.1102230246251565e-16, 'mu': 0.0}
 3. per (r_1, s)-box containment: 368640 point-quantity tests, violations 0, min slack 0.000e+00
+4. max_box Phi in mpmath = 1.186164302669; certify_d2 (outward rounded) = 1.186164302669; min zeta' = 2.323 (> sqrt 2: G = g(zeta'))
+   monotonicity of Phi: 24000 finite-difference tests, violations 0
+5. Iv unit test against exact rationals: 14229 tests, violations 0
+   mpmath.iv cos(3[1, 1.1]) lower end -1.0 (must be <= -1)
+wall 15.5 s, CPU 12.7 s
