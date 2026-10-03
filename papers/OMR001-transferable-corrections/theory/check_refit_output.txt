@@ -112,4 +112,30 @@ EB operator, alpha = 0.1: cross-fit excess over Xbar_n vs split cost (what the s
 == (c) Route 'C if the check passes, else Xbar_n': exact limit of the excess for a vanishing correction ==
   limit / split cost:  a=0.5, m=3: 1.987; a=0.5, m=6: 1.539; a=0.5, m=12: 1.234; a=0.5, m=24: 1.056; a=0.2, m=3: 1.739; a=0.2, m=6: 1.436; a=0.2, m=12: 1.221; a=0.2, m=24: 1.071; a=0.1, m=3: 1.292; a=0.1, m=6: 1.142; a=0.1, m=12: 1.060; a=0.1, m=24: 1.020; a=0.05, m=3: 0.889; a=0.05, m=6: 0.841; a=0.05, m=12: 0.858; a=0.05, m=24: 0.932; a=0.01, m=3: 0.317; a=0.01, m=6: 0.349; a=0.01, m=12: 0.446; a=0.01, m=24: 0.668
 
-done in 88.6 s wall, 85.3 s CPU
+== (d) Collinear reduction of M_eta (1-D sup over c = +-1) vs the 2-D search ==
+  max over grid of [M_2D - M_1D] = 1.05e-05; max [M_1D - M_2D] = 1.70e-07; max relative difference of the exact cap = 7.3e-07; min |c| at the 2-D maximiser = 1.0000
+
+== (e) Exact worst case of the split estimator over theta and C (excess over Xbar_n; Prop. 4.5(c)) ==
+  a=0.5: m=3: split 0.3210 (over R 0.3167 in [0.2810, 0.3316]) vs refit 0.3479; m=6: split 0.1904 (over R 0.1812 in [0.1656, 0.1908]) vs refit 0.2225; m=12: split 0.1302 (over R 0.1094 in [0.1029, 0.1155]) vs refit 0.1720; m=24: split 0.1285 (over R 0.0730 in [0.0705, 0.0768]) vs refit 0.1994
+  a=0.2: m=3: split 0.0737 (over R 0.0693 in [0.0620, 0.0735]) vs refit 0.0808; m=6: split 0.0500 (over R 0.0407 in [0.0377, 0.0434]) vs refit 0.0567; m=12: split 0.0462 (over R 0.0254 in [0.0242, 0.0270]) vs refit 0.0516; m=24: split 0.0731 (over R 0.0176 in [0.0171, 0.0186]) vs refit 0.0792
+  a=0.1: m=3: split 0.0308 (over R 0.0264 in [0.0238, 0.0282]) vs refit 0.0322; m=6: split 0.0250 (over R 0.0158 in [0.0147, 0.0169]) vs refit 0.0241; m=12: split 0.0308 (over R 0.0100 in [0.0096, 0.0106]) vs refit 0.0244; m=24: split 0.0626 (over R 0.0070 in [0.0069, 0.0074]) vs refit 0.0450
+  a=0.05: m=3: split 0.0152 (over R 0.0108 in [0.0098, 0.0116]) vs refit 0.0138; m=6: split 0.0158 (over R 0.0065 in [0.0061, 0.0070]) vs refit 0.0109; m=12: split 0.0250 (over R 0.0042 in [0.0040, 0.0045]) vs refit 0.0123; m=24: split 0.0585 (over R 0.0030 in [0.0029, 0.0031]) vs refit 0.0269
+  a=0.01: m=3: split 0.0059 (over R 0.0016 in [0.0014, 0.0017]) vs refit 0.0022; m=6: split 0.0102 (over R 0.0010 in [0.0009, 0.0010]) vs refit 0.0020; m=12: split 0.0215 (over R 0.0006 in [0.0006, 0.0007]) vs refit 0.0028; m=24: split 0.0560 (over R 0.0005 in [0.0005, 0.0005]) vs refit 0.0090
+
+== (f) Oracle correction C = theta: exact excess over Xbar_n (quadrature) ==
+  a=0.5: m=3: refit -0.0423, split -0.0495; m=6: refit -0.0405, split -0.0522; m=12: refit -0.0342, split -0.0558; m=24: refit -0.0088, split -0.0614
+  a=0.2: m=3: refit -0.0176, split -0.0212; m=6: refit -0.0167, split -0.0222; m=12: refit -0.0128, split -0.0230; m=24: refit +0.0061, split -0.0245
+  a=0.1: m=3: refit -0.0089, split -0.0098; m=6: refit -0.0083, split -0.0090; m=12: refit -0.0054, split -0.0066; m=24: refit +0.0098, split -0.0012
+  a=0.05: m=3: refit -0.0045, split -0.0034; m=6: refit -0.0040, split -0.0012; m=12: refit -0.0019, split +0.0041; m=24: refit +0.0101, split +0.0166
+  a=0.01: m=3: refit -0.0009, split +0.0025; m=6: refit -0.0007, split +0.0065; m=12: refit +0.0002, split +0.0158; m=24: refit +0.0063, split +0.0405
+  (risk of Xbar_n = 0.0833; accepting the oracle always: excess d sigma^2 (m - n_e)/(n n_e))
+
+== (g) Adversarial families without held-out noise ==
+  exact (quadrature): worst(M_eta)/cap in [0.9996, 1.0000]; Prop4.5b/cap in [0.3377, 0.9929]; reflection t=2 / closed-form value of (iv) in [1.000000, 1.000000]; largest ratio to the cap over these families 1.0000
+  Rao-Blackwellised MC (held-out sample integrated out): max rb/cap = 1.0043 (worst(M_rho), m=12, alpha=0.01); over the families that are not functions of xi: 0.6988 (shrink lam=0.0 |mu-theta|=8sig_e, m=3, alpha=0.2)
+  expected number of |z| > 3 among 440 paired tests if identity (I) holds exactly: 1.19; observed 1
+
+== (h) alpha = 0.5: worst case of the transported refit vs exact worst case of the split, other designs ==
+  36 designs (d in 1,2,5,50; n_e in 2,10,1000; m in 1,3,30): refit worse in 36; ratio refit/split in [1.001, 3.276]
+
+done in 82.0 s wall, 86.4 s CPU

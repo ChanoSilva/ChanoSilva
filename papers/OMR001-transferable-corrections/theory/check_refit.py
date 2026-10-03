@@ -21,6 +21,10 @@ identity: paired |z| <= 3 where the acceptance frequency is >= 1%, Poisson 99% i
 Output: theory/check_refit_output.txt (this script's printout) and, since v0.4, results/refit_check.json
 (read by experiments/make_numbers.py after checking its SHA-256 against results/refit_check.json.sha256).
 Notation: rho in this script is eta = m/n in the manuscript (rho there is the Hoeffding radius).
+v0.5 (internal referee, round 3): sections (d)-(h) added -- collinear 1-D reduction of M_eta, exact worst case
+of the split estimator, oracle correction C = theta, adversarial families without held-out noise (quadrature /
+Rao-Blackwell), alpha = 0.5 in 36 other designs.  They use quadrature and deterministic grids only (no new random
+draws), so the Monte Carlo numbers of (a)-(b') are unchanged; results/refit_check.json gains new keys only.
 """
 import json
 import os
@@ -641,8 +645,8 @@ for dd in (1, 2, 5, 50):
         for mm in (1, 3, 30):
             nn = ne + mm
             x, wts, q = chi_grid(mm, ne, npts=2001, d=dd)
-            xg = np.linspace(0.0, q * x[-1], 61)
-            rf_ = SIG ** 2 / mm * float(np.trapezoid(wts * np.interp(q * x, xg, M_1d(0.5, mm / nn, xg, du=0.004)), x))
+            xg = np.linspace(0.0, q * x[-1], 121)
+            rf_ = SIG ** 2 / mm * float(np.trapezoid(wts * np.interp(q * x, xg, M_1d(0.5, mm / nn, xg, du=0.003)), x))
             sc_ = dd * SIG ** 2 * mm / (nn * ne)
             sp_ = sc_ + SIG ** 2 / mm * float(np.trapezoid(wts * np.interp(q * x, xg, M0_split(0.5, xg)), x))
             GEN.append(dict(d=dd, n_e=ne, m=mm, refit=rf_, split=sp_, ratio=rf_ / sp_))
@@ -674,8 +678,18 @@ summary = dict(
     constants=[dict(alpha=float(al), m=int(m), eta=float(c.rho), z=float(c.z), kappa=float(c.k), kappa2=float(c.k2),
                     kappa_phi=float(c.lam1), kbar=float(c.kbar), psi0=float(c.psi0), split=float(c.split),
                     cap_exact=float(c.cap_exact), cap_closed=float(c.cap_closed), lower=float(c.lower),
-                    split_lo=float(c.split_lo), split_hi=float(c.split_hi), v1_limit=float(V1[(al, m)]))
+                    split_lo=float(c.split_lo), split_hi=float(c.split_hi), v1_limit=float(V1[(al, m)]),
+                    # v0.5 (round 3): exact split worst case (m1), oracle C = theta (M1), 1-D reduction (m2)
+                    split_exact=float(SPX[(al, m)]["total"]), split_exact_over_R=float(SPX[(al, m)]["over_R"]),
+                    oracle_refit=float(ORA[(al, m)]["refit"]), oracle_split=float(ORA[(al, m)]["split"]),
+                    cap_1d=float(RED[(al, m)]["cap_1d"]))
                for (al, m), c in CONST.items()],
+    reduction=dict(max_M2d_minus_M1d=float(max(r["d2_minus_d1"] for r in RED.values())),
+                   max_M1d_minus_M2d=float(max(r["d1_minus_d2"] for r in RED.values())),
+                   max_cap_rel_diff=float(max(r["cap_rel_diff"] for r in RED.values())),
+                   min_abs_c_at_2d_argmax=float(min(r["min_abs_c"] for r in RED.values()))),
+    general_alpha_half=[dict(d=int(r["d"]), n_e=int(r["n_e"]), m=int(r["m"]), refit=float(r["refit"]),
+                             split=float(r["split"]), ratio=float(r["ratio"])) for r in GEN],
     closed_gap_M=float(gapB), closed_gap_Psi=float(gapP),
     closed_over_exact=[float(min(c.cap_closed / c.cap_exact for c in CONST.values())),
                        float(max(c.cap_closed / c.cap_exact for c in CONST.values()))],
@@ -684,6 +698,8 @@ summary = dict(
                 max_ratio={k: _maxr(rows, k) for k in ("b2", "b2c", "cap", "capc")},
                 identity_n_z=int(len(zs)), identity_max_z=float(max(zs)), identity_n_poisson=int(nrow - len(zs)),
                 identity_fail=int(sum(not r["idok"] for r in rows)),
+                identity_fail_at=[dict(sweep=r["sweep"], snr=float(r["snr"]), dep=float(r["dep"]), m=int(r["m"]),
+                                       op=r["op"], alpha=float(r["alpha"])) for r in rows if not r["idok"]],
                 simrefit_hold={k: _hold(rows, k, "simrf") for k in ("b2", "cap")},
                 simrefit_max_ratio={k: _maxr(rows, k, "simrf") for k in ("b2", "cap")},
                 eb10=[dict(sweep=r["sweep"], snr=float(r["snr"]), dep=float(r["dep"]), m=int(r["m"]),
@@ -702,7 +718,15 @@ summary = dict(
                      identity_n=int(len(zz)), identity_max_z=float(max(zz)),
                      identity_n_above3=int(sum(x > 3 for x in zz)),
                      worst_over_cap=[float(r["ex"][0] / r["cap"]) for r in adv if r["fam"] == "worst(M_rho)"],
-                     reflect_over_lower=[float(r["ex"][0] / r["lower"]) for r in adv if r["fam"] == "reflect t=2.0"]),
+                     reflect_over_lower=[float(r["ex"][0] / r["lower"]) for r in adv if r["fam"] == "reflect t=2.0"],
+                     # v0.5 (round 3, m3/m4): expected exceedances, Rao-Blackwellised and exact ratios
+                     identity_expected_above3=float(len(zz) * 2 * norm.sf(3)),
+                     rb_max_over_cap=float(rbmax["rb"] / rbmax["cap"]),
+                     rb_max_over_cap_at=dict(m=int(rbmax["m"]), alpha=float(rbmax["alpha"]), family=rbmax["fam"]),
+                     rb_max_over_cap_noncollinear=float(rbnc["rb"] / rbnc["cap"]),
+                     rb_max_over_cap_noncollinear_at=dict(m=int(rbnc["m"]), alpha=float(rbnc["alpha"]), family=rbnc["fam"]),
+                     exact_families=[dict(m=int(r["m"]), alpha=float(r["alpha"]), family=r["fam"], ex=float(r["ex"]),
+                                          over_cap=float(r["over_cap"]), over_lower=float(r["over_lower"])) for r in FAMX]),
     adversarial_crossfit=dict(n=int(nacf), hold={k: _hold(advcf, k) for k in ("b2", "cap", "capc")},
                               max_ratio={k: _maxr(advcf, k) for k in ("b2", "cap", "capc")},
                               max_over_split=float(mxs["ex"][0] / mxs["split"]),

@@ -123,3 +123,115 @@ casos `n² d_TV ≥ e^{−1} − o(1) > 1/(2e)`. ∎
 Lectura: `Po(1 − 1/n)` (la Poisson con la media exacta) no es la mejor Poisson a segundo orden; la
 óptima tiene `λ = 1 − 1/n + 1/(2n²) + o(n^{−2})` (que coincide a ese orden con `e^{−1/n}`) y
 constante `1/(2e) = 0.18394…` en lugar de `3/(4e) = 0.27591…`.
+
+## 4. Constante explícita en el Teorema 5.9
+
+Notación: `(m)_j = m(m−1)⋯(m−j+1)`, `E I_k(m) = (m−k+1)²/C(m,k)` (Paso 2 del Apéndice B),
+`s_m`, `h_m` como en la prueba del Lema B.2(b), `E` el evento malo del Lema B.2.
+
+**Lema 3 (intervalos, versión afinada del Lema B.2(a)).** Sea
+`F̄(m) = 42/(m)_2 + 936/(m)_3 + 600/(m)_4 + 4320/(m)_5`. Para `m ≥ 12`:
+
+(a) `Σ_{k=4}^{m−2} E I_k(m) ≤ F̄(m)`;
+(b) `P(E) ≤ P̄_E(n) := 90/(n)_2 + 944/(n)_3 + 600/(n)_4 + 4320/(n)_5` (con `n = m`);
+(c) `s_m ≤ 10/m + F̄(m)` y `h_m ≤ 8/m + 18/(m)_2 + F̄(m)`.
+
+*Prueba.* (a) Valores exactos: `E I_4 = 24(m−3)/(m)_3 ≤ 24/(m)_2`, `E I_{m−2} = 18/(m)_2`,
+`E I_{m−3} = 96/(m)_3`, `E I_{m−4} = 600/(m)_4`, `E I_5 = 120(m−4)/(m)_4 ≤ 120/(m)_3`,
+`E I_{m−5} = 4320/(m)_5`; los seis índices son distintos si `m ≥ 12`. Para `6 ≤ k ≤ m−6`
+(`m − 11` términos), `C(m,k) ≥ C(m,6)` y `(m−k+1)² ≤ (m−5)²`, así que su suma es
+`≤ 720(m−11)(m−5)/(m)_5 ≤ 720/(m)_3` (porque `(m−11)(m−5) ≤ (m−3)(m−4)`). Total:
+`(24+18)/(m)_2 + (96+120+720)/(m)_3 + 600/(m)_4 + 4320/(m)_5`.
+(b) La prueba del Lema B.2(a) da `P(E) ≤ Σ_{k=4}^{n−2} E I_k + E C(I_3,2) + E[I_3 I_{n−1}] +
+E C(I_{n−1},2)` con los momentos de pares exactos
+`E C(I_3,2) = 18(n−4)(n−5)/(n)_4 + 4(n−3)/(n)_3 + 8(n−4)/(n)_4 ≤ 18/(n)_2 + 4/(n)_2 + 8/(n)_3`,
+`E[I_3 I_{n−1}] = 4(6n−16)/(n)_3 ≤ 24/(n)_2`, `E C(I_{n−1},2) = 2/(n)_2`. Sumando con (a):
+`(42+18+4+24+2)/(n)_2 + (936+8)/(n)_3 + …`.
+(c) `s_m = E I_3(m) + Σ_{k=4}^{m−2} E I_k(m) + E I_{m−1}(m)` con `E I_3 = 6(m−2)/(m)_2 ≤ 6/m` y
+`E I_{m−1} = 4/m`. Para `h_m`, la prueba del Lema B.2(b) da
+`h_m ≤ 4/m + 18/(m)_2 + Σ_{l=4}^{m−1} E I_l(m)`. ∎
+
+(Asintóticamente `n² P̄_E(n) → 90` frente a `223` del Lema B.2(a): el término `120/n²` de
+`5 ≤ k ≤ n−5` es en realidad `O(n^{−3})`.)
+
+**Proposición 3 (constante explícita).** Sea, para `n ≥ 22`,
+
+    B(n) = ρ̄_1(n) + P̄_E(n) + Ē(n) + Ō(n) + 3/(n)_2,
+    ρ̄_1(n) = 2^{n+1}/(n (n+1)!) + 1/n!,
+    Ē(n) = (3(n−2)/(n)_2)(s̄_{n−2} + 3 h̄_{n−2}) + 12/(n)_2 + (2/n)(s̄_{n−1} + h̄_{n−1}),
+    Ō(n) = (3(n−2)/(n)_2)(4/(n−2) + 2 d̄_{n−2}) + (2/n)(2/(n−1) + 2 d̄_{n−1}),
+
+con `s̄_m`, `h̄_m` las cotas del Lema 3(c) y `d̄_m = e^{−1}/m + 2/(m·m!)`. Entonces, para todo
+conjunto `A` y todo `n ≥ 22`,
+
+    |P(R_n ∈ A) − P(2^Z ∈ A) − μ(A)/n| ≤ B(n),
+
+`n² B(n)` es no creciente, y por tanto `|d_TV(R_n, 2^Z) − c_2/n| ≤ C(n_0)/n²` para `n ≥ n_0` con
+`C(22) = 421.5`, `C(30) = 363.2`, `C(50) = 314.4`, `C(100) = 285.8`, `C(1000) = 264.8`
+(valores de `n_0² B(n_0)` redondeados hacia arriba) y `lim n² B(n) = 252 + 10/e = 262.68`.
+En particular: **para todo `n ≥ 22`, `|d_TV(R_n, 2^Z) − c_2/n| ≤ 422/n²`.**
+
+*Prueba.* Se siguen los pasos de la prueba del Teorema 5.9 y se acota cada error:
+
+1. Primer corchete: `|ρ_1| ≤ ρ̄_1(n)` (Teorema 5.8(i), como en la prueba del Teorema 5.9).
+2. Fuera de `E` la diferencia `1{R∈A} − 1{2^N∈A}` es `Σ_ω 1_ω g_ω(N)`; el error por usar esta
+   suma en todo el espacio es `≤ P(E) + E[#ω; E] ≤ P̄_E(n) + Ē(n)`: la cota de `E[#ω; E]` es la
+   de la prueba del Lema B.2(b) con `s_m`, `h_m` acotados por el Lema 3(c) (`m = n−2 ≥ 20`).
+3. Para una ocurrencia de tres elementos, `|E[g_ω(N) | ω] − E g_ω(N(p) + Z)| ≤ 2P(δ ≠ 0 | ω) +
+   2 d_TV(N_{n−2}, Z) ≤ 4/(n−2) + 2 d̄_{n−2}` (`g_ω` toma valores en `{−1, 0, 1}`, `δ ≠ 0` exige una
+   sucesión descendente de `σ` en una de las dos posiciones vecinas de `j*`, cada una con
+   probabilidad `1/(n−2)`, y el Teorema 5.8(ii) con `n − 2 ≥ 4`); para las dos ocurrencias de
+   borde, `2/(n−1) + 2 d̄_{n−1}`. Multiplicando por los pesos `3(n−2)/(n)_2` y `2/n` se obtiene
+   `Ō(n)`.
+4. Sustituir los pesos exactos `(n−2)/(n(n−1))` por `1/n` cuesta `1/(n(n−1))` por patrón, es decir
+   `3/(n)_2` en total (`|E g| ≤ 1`).
+
+Como `d_TV(R_n, 2^Z) = sup_A |P(R_n∈A) − P(2^Z∈A)|` y `c_2/n = sup_A |μ(A)|/n`, la diferencia de
+los supremos está acotada por el supremo de las diferencias. Monotonía: tras las sustituciones,
+cada sumando de `n² B(n)` es de la forma `c · n² / (n^a (n−1)^b (n−2)^c ⋯)` con `c > 0` y grado
+del denominador `≥ 2`, o `n² ρ̄_1(n)`; todos son no crecientes en `n ≥ 22` (se comprobó además
+numéricamente para `22 ≤ n ≤ 5000`). El límite: `90 + (3·34 + 12 + 2·18) + (12 + 6/e + 4 + 4/e)
++ 3 = 262 + 10/e − 10`… es decir `90 + 150 + 16 + 10/e + 3 = 259 + 10/e = 262.68`. ∎
+
+Comparación numérica (sección D de la salida): con la ley exacta de `R_n` para `n ≤ 600`,
+`n² |d_TV(R_n, 2^Z) − c_2/n| ≤ 5.72` para `22 ≤ n ≤ 600` (máximo `8.00` en `n = 12` sobre
+`4 ≤ n ≤ 600`); la cota es unas 70 veces holgada, sobre todo por `P(E)` y `E[#ω; E]`, que cuentan
+todos los intervalos largos aunque casi nunca cambien `R_n`.
+
+## 5. La ley exacta de `R_n` y el término `n^{−2}` (numérico)
+
+**Método (exacto).** Por la Observación B.1 (fórmula de Gallai), `t(G_π)` es el producto sobre los
+nodos del árbol de descomposición por sustitución de `1` (suma directa), `k!` (suma sesgada con `k`
+hijos) y `2` (nodo simple), y `R = t/2` salvo para la identidad. Un producto es de la forma
+`2^a 3^b` con `b ≤ 1` sii los nodos sesgados tienen `k ∈ {2,3,4}` (`2! = 2`, `3! = 2·3`,
+`4! = 2³·3`) y a lo sumo uno con `k ∈ {3,4}`. Con `z` = tamaño, `y` = exponente de 2, `w` = factor
+3 (truncando `w² = 0`, `y^{20} = 0`), la serie `A` de las permutaciones no vacías con
+`t = 2^a 3^b`, `b ≤ 1`, satisface
+
+    A = z + D + K + S,   D = Σ_{k≥2} I_⊕^k,   I_⊕ = z + K + S,
+    K = y I_⊖² + y w I_⊖³ + y³ w I_⊖⁴,   I_⊖ = z + D + S,   S = y Σ_{m≥4} s_m A^m,
+
+con `s_m` el número de permutaciones simples de longitud `m` (unicidad de la descomposición:
+Albert–Atkinson 2005). Los `s_m` salen de `Σ_{m≥4} s_m u^m = u − g(u) − 2u²/(1+u)`, `g` la inversa
+composicional de `Σ n! z^n`, que cumple `(1+u) g g' − u g' + g² = 0` (porque
+`f = Σ n! z^n` cumple `z² f' + (z−1) f + z = 0`), lo que da una recurrencia `O(M²)` exacta. Así
+`P(R_n = 2^k) = [z^n y^{k+1} w^0] A / n!` (más `1/n!` si `k = 0`, la identidad) y
+`P(R_n = 3·2^k) = [z^n y^{k+1} w] A / n!`. La masa restante (otros valores de `R_n`) se obtiene
+por diferencia, y `d_TV(R_n, 2^Z)` es exacta salvo `P(Z ≥ 19) < 10^{−17}` y el redondeo.
+
+**Comprobaciones.** Ley GF = fórmula de Gallai en todas las permutaciones `n ≤ 8`; = fuerza bruta
+sobre pares de extensiones lineales `n ≤ 6`; aritmética entera exacta (`n ≤ 30`) = coma flotante
+escalada (error relativo `1.1·10^{−15}`); `s_4..s_10` = valores conocidos y fuerza bruta `m ≤ 8`.
+
+**Resultados (numéricos; no demostrados).** Con la ley exacta para `n ≤ 600`:
+
+* átomo a átomo, `n(P(R_n = x) − P(2^Z = x)) → μ(x)` (Teorema 5.9 confirmado sin Monte Carlo;
+  `n² |P − P_Z − μ/n| ≤ 3.15` para `100 ≤ n ≤ 600` en todos los átomos seguidos);
+* `n · d_TV(R_n, 2^Z)` decrece hacia `c_2 = 1.18394` (`1.19262` en `n = 500`);
+* `κ := lim n² (d_TV(R_n, 2^Z) − c_2/n) ≈ 4.29707` (ajustes polinómicos en `1/n` de grado 2, 3 y
+  4 sobre `200 ≤ n ≤ 600` coinciden en 6 cifras);
+* coeficientes de segundo orden `μ_2(x) = lim n²(P(R_n = x) − P(2^Z = x) − μ(x)/n)` en la salida
+  (sección D3), con `n² P(R_n ∉ {2^k, 3·2^k}) → 1/2`.
+
+Lo que **no** se afirma: ni la existencia de un desarrollo `c_2/n + κ/n² + O(n^{−3})` ni el valor
+de `κ` están demostrados; son extrapolaciones de valores exactos.

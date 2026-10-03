@@ -30,6 +30,12 @@ def pct_up(g):
     return f"{math.ceil(10000 * g - 1e-6) / 100:.2f}" + r"\%"
 
 
+def up(x, nd=2, signed=False):
+    """Maxima quoted as upper bounds ('largest ratio', 'at most'): round UP (referee round 3, m5; as r2-m7)."""
+    v = math.ceil(x * 10 ** nd - 1e-9) / 10 ** nd
+    return f"{v:+.{nd}f}" if signed else f"{v:.{nd}f}"
+
+
 def f4(x):
     return f"{x:.4f}"
 
