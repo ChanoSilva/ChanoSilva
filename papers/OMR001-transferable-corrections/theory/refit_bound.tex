@@ -1,0 +1,94 @@
+% ---------------------------------------------------------------------------------------------
+% OMR001 -- refit and cross-fitted reversion (open problem (a) of Section 7).  Ready to paste
+% after Corollary~\ref{cor:split} (or as a new subsection of Section~\ref{sec:can}).  Uses only the
+% macros of main.tex (\risk, \E, \Prob, \Dh, \Ybar, \norm, \ip, \status) and its labels.
+% Notation chosen to avoid clashes with main.tex: eta = m/n (rho is the Hoeffding radius of
+% Theorem 4.2(iii)), xi = sqrt(m)||R - theta||/sigma, J = indicator that the check passes.
+% Numbers quoted below are typed from theory/check_refit_output.txt (d = 5, n = 60, seed 20260930);
+% if this is merged, they should become macros generated from that script, as elsewhere in main.tex.
+% ---------------------------------------------------------------------------------------------
+
+\subsection*{Refitting after the check, and cross-fitting}
+
+Corollary~\ref{cor:split} charges the split cost $d\sigma^2m/(nn_e)$ to every correction, including $C=R$. The obvious repair, deciding on the held-out sample and then refitting on all $n$ observations, reuses the held-out sample, so the decision and the final estimate are dependent. In the Gaussian model this dependence is one-dimensional and can be computed exactly. Write $\eta=m/n$, $w=C-R$, $s=2\sigma\norm w/\sqrt m$, $z=z_{1-\alpha}$, $u=\Delta/s$, $\pi=\Phi(-(z+u))$, $\xi=\sqrt m\,\norm{R-\theta}/\sigma$, and $J=\mathbf 1\{\Dh\le-zs\}$ for the level-$\alpha$ check of Definition~\ref{def:main}(c). The \emph{refit with transported correction} adds to the full-data mean the correction vector proposed on the estimation sample:
+\[
+\hat\theta_{\rm rf}\ =\ \bar X_n+J\,(C-R).
+\]
+For an additive correction $C=R+v$ it is $J(\bar X_n+v)+(1-J)\bar X_n$, so the correction is applied to $\bar X_n$ itself. Define, for $x\ge0$ and $\xi\ge0$,
+\[
+\Psi_\eta(\alpha;x)=\sup_{u\in\R}\big\{(u+x)\Phi(-(z+u))+\eta\,\varphi(z+u)\big\},\qquad
+M_\eta(\alpha;\xi)=\sup_{\omega\ge0,\ |\delta-\omega^2|\le2\xi\omega} f_\eta(\omega,\delta),
+\]
+\[
+f_\eta(\omega,\delta)=\big((1-\eta)\delta+\eta\omega^2\big)\Phi\Big(-\Big(z+\frac{\delta}{2\omega}\Big)\Big)+2\eta\,\omega\,\varphi\Big(z+\frac{\delta}{2\omega}\Big),
+\]
+and $\bar\kappa_\eta(\alpha)=\max\{\kappa(\alpha)+\eta\varphi(z),\ \eta\varphi(0)\}$, $\kappa_\varphi(\alpha)=\sup_{u\ge0}u\,\varphi(z+u)\le\varphi(1)$, $c_d=\E\norm Z$, $\mu_{3,d}=\E\norm Z^3$ for $Z\sim N(0,I_d)$.
+
+\begin{theorem}[Refit with transported correction]\label{thm:refit}
+Let $R=\bar X_e$, let $C$ be $\mathcal F$-measurable, let the held-out observations be Gaussian and $\alpha\in(0,\tfrac12]$. Then, for every $\theta$:
+\begin{enumerate}[leftmargin=2em,label=(\roman*)]
+\item \textup{(Identity.)}
+$\displaystyle \risk(\hat\theta_{\rm rf})-\risk(\bar X_n)=\E\Big[\big((1-\eta)\Delta+\eta\norm w^2\big)\pi+\eta\,s\,\varphi(z+u)\Big]
+=\E[\Delta\pi]+\eta\,\E\big[s\,\varphi(z+u)-2\ip{w,R-\theta}\pi\big].$
+\item \textup{(Bound proportional to the correction.)}
+\[
+\risk(\hat\theta_{\rm rf})-\risk(\bar X_n)\ \le\ \E\big[s\,\Psi_\eta(\alpha;\eta\xi)\big]
+\ \le\ \Psi_\eta(\alpha;0)\,\frac{2\sigma}{\sqrt m}\,\E\norm{C-R}+2\eta\,\E\big[\norm{C-R}\,\norm{R-\theta}\big],
+\]
+and $\Psi_\eta(\alpha;x)\le\bar\kappa_\eta(\alpha)+x\,\Phi(x-z)$.
+\item \textup{(Cap uniform in $\theta$ and $C$.)} $\risk(\hat\theta_{\rm rf})-\risk(\bar X_n)\le(\sigma^2/m)\,\E\big[M_\eta(\alpha;\xi)\big]$, where $M_\eta(\alpha;\xi)\le4\xi\bar\kappa_\eta+4\eta\xi^2\Phi(\eta\xi-z)+4\kappa_2+4\eta(\xi\kappa+\kappa_\varphi)$. Hence
+\[
+\risk(\hat\theta_{\rm rf})-\risk(\bar X_n)\ \le\ \frac{4\sigma^2(\bar\kappa_\eta+\eta\kappa)\,c_d}{\sqrt{n_e m}}
++4\alpha\,\frac{d\sigma^2 m}{n\,n_e}
++\frac{4\eta^2\varphi(0)\,\mu_{3,d}\,\sigma^2\sqrt m}{n_e^{3/2}}
++\frac{4\sigma^2(\kappa_2+\eta\kappa_\varphi)}{m}.
+\]
+\item \textup{(Exactness.)} For $d\ge2$, every $\theta$ and every $\varepsilon>0$ there is an $\mathcal F$-measurable $C$ with $\risk(\hat\theta_{\rm rf})-\risk(\bar X_n)\ge(\sigma^2/m)\E[M_\eta(\alpha;\xi)]-\varepsilon$. For every $d$, $C=2\theta_0-R$ gives at $\theta=\theta_0$ exactly $4\alpha\,d\sigma^2m/(nn_e)+4\eta\varphi(z)\sigma^2c_d/\sqrt{n_em}$: the coefficient $4\alpha$ of the split cost in (iii) cannot be improved for this estimator.
+\end{enumerate}
+\status{proved here; $\Psi_\eta$, $M_\eta$ computed numerically; checked by Monte Carlo, \path{theory/check_refit.py}}
+\end{theorem}
+
+\begin{proof}
+Write $e=R-\theta$ and $h=\Ybar-\theta$, so that $\bar X_n-\theta=(1-\eta)e+\eta h$ and $\ell(\hat\theta_{\rm rf})-\ell(\bar X_n)=J(\norm w^2+2\ip{w,\bar X_n-\theta})=J\big((1-\eta)\Delta+\eta\norm w^2+2\eta\ip{w,h}\big)$, because $\Delta=\norm w^2+2\ip{w,e}$.
+(i) By Lemma~\ref{lem:unbiased}, given $(\mathcal F,\theta)$ we have $\ip{w,h}=(s/2)Z$ with $Z\sim N(0,1)$ and $J=\mathbf 1\{Z\ge z+u\}$. Hence $\E[J\mid\mathcal F,\theta]=\pi$, and $\E[J\ip{w,h}\mid\mathcal F,\theta]=(s/2)\E[Z\mathbf 1\{Z\ge z+u\}]=(s/2)\varphi(z+u)$. Take expectations. The second form uses $(1-\eta)\Delta+\eta\norm w^2=\Delta-2\eta\ip{w,e}$. If $s=0$, then $w=0$ and both sides vanish.
+(ii) Since $\norm w^2-\Delta=-2\ip{w,e}\le2\norm w\norm e=s\xi$, we have $(1-\eta)\Delta+\eta\norm w^2\le s(u+\eta\xi)$, so the conditional excess is at most $s\,g(u)$ with $g(u)=(u+x)\Phi(-(z+u))+\eta\varphi(z+u)$ and $x=\eta\xi$, which gives the first inequality. The second follows from $\Psi_\eta(\alpha;x)\le\Psi_\eta(\alpha;0)+x$ and $s\xi=2\norm w\norm e$. For the closed form, if $u\ge0$ then $g(u)\le\kappa(\alpha)+\eta\varphi(z)+x\alpha$. If $-x\le u<0$ then $g(u)\le\eta\varphi(0)+x\Phi(x-z)$. If $u<-x$, the first term of $g$ is negative and $g(u)\le\eta\varphi(0)$. In all three cases $g(u)\le\bar\kappa_\eta+x\Phi(x-z)$, because $\alpha\le\Phi(x-z)$.
+(iii) Put $\norm w=\sigma\omega/\sqrt m$ and $\Delta=\sigma^2\delta/m$. Then $s=2\sigma^2\omega/m$, $u=\delta/(2\omega)$, the conditional excess in (i) equals $(\sigma^2/m)f_\eta(\omega,\delta)$, and $\Delta=\norm w^2+2\ip{w,e}$ forces $|\delta-\omega^2|\le2\xi\omega$. This proves the first claim. For the closed form, $f_\eta\le2\omega\,g(u)$ with $x=\eta\xi$ as in (ii). If $\omega\le2\xi$, then $f_\eta\le4\xi\,g(u)^+\le4\xi(\bar\kappa_\eta+\eta\xi\Phi(\eta\xi-z))$. If $\omega>2\xi$, then $u\ge\omega/2-\xi>0$, so $2\omega\le4\xi+4u$ and $g(u)\ge0$. Hence $f_\eta\le4\xi g(u)+4u\,g(u)\le4\xi(\bar\kappa_\eta+\eta\xi\alpha)+4\big(\kappa_2+\eta\xi\kappa+\eta\kappa_\varphi\big)$, using $u^2\Phi(-(z+u))\le\kappa_2$, $u\Phi(-(z+u))\le\kappa$ and $u\varphi(z+u)\le\kappa_\varphi$, with $\kappa_\varphi\le\sup_t t\varphi(t)=\varphi(1)$ since $z\ge0$. The larger of the two case bounds is at most their sum. Finally, with $R=\bar X_e$, $\xi\sim\sqrt{m/n_e}\,\norm Z$, so $\E\xi=c_d\sqrt{m/n_e}$, $\E\xi^2=dm/n_e$ and $\E\xi^3=\mu_{3,d}(m/n_e)^{3/2}$. Also $\Phi(\eta\xi-z)\le\alpha+\eta\xi\varphi(0)$. Multiply by $\sigma^2/m$; the term $(\sigma^2/m)\,4\eta\alpha\,dm/n_e$ equals $4\alpha\,d\sigma^2m/(nn_e)$.
+(iv) Parametrise $\delta=\omega^2+2\xi\omega c$ with $c\in[-1,1]$. Then $f_\eta$ is jointly continuous in $(\xi,\omega,c)$ and tends to $0$ as $\omega\to0$ and as $\omega\to\infty$, locally uniformly in $\xi$, so $M_\eta(\alpha;\cdot)$ is continuous. On a fine partition of $[0,\infty)$ choose $(\omega,c)$ piecewise constant in $\xi$ within $\varepsilon$ of the supremum. For $d\ge2$, the vector $w=(\sigma/\sqrt m)\,\omega\,(c\,\hat e+\sqrt{1-c^2}\,\hat e_\perp)$, with $\hat e=e/\norm e$ and $\hat e_\perp$ a measurable unit vector orthogonal to $e$, realises $(\omega,\delta)$ at $\theta=\theta_0$, and $C=R+w$ is $\mathcal F$-measurable. For the explicit pair, $C=2\theta_0-R$ gives $w=-2e$, $\Delta=0$, $\pi=\alpha$ and $(1-\eta)\Delta+\eta\norm w^2=4\eta\norm e^2$; then apply (i).
+\end{proof}
+
+\begin{corollary}[Cross-fitted reversion]\label{cor:crossfit}
+Let $n=Km$ and split the target sample into folds $I_1,\dots,I_K$ of size $m$. Let $R_k$ be the mean outside $I_k$ (so $n_e=n-m$), let $C_k$ be measurable with respect to the sources and the data outside $I_k$, and let $J_k$ be the level-$\alpha$ check of $(R_k,C_k)$ on $I_k$. Then
+\[
+\hat\theta_{\rm cf}=\frac1K\sum_{k=1}^K\big(J_kC_k+(1-J_k)R_k\big)=\bar X_n+\frac1K\sum_{k=1}^KJ_k\,(C_k-R_k),
+\]
+so $\hat\theta_{\rm cf}=\bar X_n$ whenever no check passes, and $\risk(\hat\theta_{\rm cf})-\risk(\bar X_n)$ is at most the average over $k$ of the bounds of Theorem~\ref{thm:refit}(ii)--(iii) with $\eta=1/K$. In particular it is at most the cap $(\sigma^2/m)\E[M_{1/K}(\alpha;\xi)]$, uniformly in $\theta$ and in the $C_k$. \status{proved here}
+\end{corollary}
+\begin{proof}
+Each observation lies outside exactly $K-1$ folds, so $\frac1K\sum_kR_k=\bar X_n$. By convexity of the squared loss, $\ell(\hat\theta_{\rm cf})\le\frac1K\sum_k\ell(\bar X_n+J_k(C_k-R_k))$. The $k$-th term is the refit of Theorem~\ref{thm:refit} with estimation sample outside $I_k$, held-out sample $I_k$ and $m/n=1/K$.
+\end{proof}
+
+\begin{remark}[What happens to the split cost]\label{rem:refitcost}
+(a) \emph{For a given correction} the split cost is gone. The bound of Theorem~\ref{thm:refit}(ii) has no term independent of $C$ and vanishes with $\E\norm{C-R}$. The split estimator pays $d\sigma^2m/(nn_e)$ even for $C=R$ (Corollary~\ref{cor:split}). The price is a larger slope: $\Psi_\eta(\alpha;0)$ against $\kappa(\alpha)$ (0.0405 against 0.0188 at $\alpha=0.1$, $\eta=0.2$), plus the term $2\eta\E[\norm{C-R}\norm{R-\theta}]$.
+(b) \emph{Uniformly in $\theta$ and $C$} the split cost is only reduced, to the fraction $4\alpha$, and part (iv) shows that this fraction is exact for $\hat\theta_{\rm rf}$. In the design of Section~\ref{sec:sim} ($d=5$, $n=60$), the exact worst-case excess over $\bar X_n$ against that of the split estimator (Corollary~\ref{cor:split} with Proposition~\ref{prop:sharp}(b)) is: at $\alpha=0.1$, $0.0244$ against $[0.0304,0.0315]$ for $m=12$ and $0.0450$ against $[0.0624,0.0630]$ for $m=24$, but $0.0322$ against $[0.0282,0.0326]$ for $m=3$; at $\alpha=0.01$, $0.0028$ against $[0.0214,0.0215]$ ($m=12$); at $\alpha=0.5$, $0.172$ against $[0.124,0.136]$ ($m=12$), so with plain hold-out the refit is \emph{worse} in the worst case. The closed form in (iii) is valid but loose, between $1.08$ and $13.6$ times the exact cap on the grid $\alpha\in\{0.5,\dots,0.01\}$, $m\in\{3,\dots,24\}$.
+(c) The variant ``use $C$ if the check passes, otherwise $\bar X_n$'' does \emph{not} remove the split cost. For $C=R-t(R-\theta_0)$ with $t\to0$, the check detects that $C$ beats $R$, not that it beats $\bar X_n$. The exact limit of its excess is $1.06$ times the split cost at $m=12$, $\alpha=0.1$ (by quadrature). The correction has to be transported to $\bar X_n$.
+(d) The refit of the simulation, which re-applies the operator to $\bar X_n$ with $\lambda_n\ne\lambda_e$, is not covered by Theorem~\ref{thm:refit}. In all $345$ combinations its excess stays below the bounds of Theorem~\ref{thm:refit}(ii)--(iii) (largest ratios $0.85$ and $0.65$), but this is empirical only.
+\end{remark}
+
+% Monte Carlo summary (theory/check_refit_output.txt; 20 000 replicates per point; a bound "holds"
+% if MC <= bound + 2 SE, threshold fixed before running):
+%  * design, transported refit, 345 combinations: (ii) exact 345/345 (max MC/bound 0.925), (ii) closed
+%    345/345 (0.862), (iii) exact 345/345 (0.707), (iii) closed 345/345 (0.655); identity (i): paired
+%    |z| <= 2.90 in 274 combinations, Poisson 99% in 71 (1 outside, rare-acceptance regime);
+%  * design, cross-fitted (K = n/m, m in {3,6,12}), 285 combinations: all bounds hold, max MC/bound
+%    0.155 (ii) and 0.091 (cap); Jensen step 285/285;
+%  * adversarial grid (theta, C), 560 points (refit) and 420 (cross-fit): all bounds hold; the family
+%    built from the maximiser of M_eta attains the exact cap (MC/cap 0.985--1.073), C = 2 theta_0 - R
+%    attains the lower bound of (iv) (0.990--1.084); identity max |z| 3.09 over 440 points.
+%
+% Suggested rows for Table~\ref{tab:claims}:
+%  Refit with transported correction: exact identity; bound vanishing with E||C-R|| (no split cost);
+%  cap uniform in theta and C with the split cost reduced to the exact fraction 4 alpha
+%  (Thm.~\ref{thm:refit}) & proved here; constants numerical; checked by Monte Carlo
+%  Cross-fitted reversion: same bounds with eta = 1/K (Cor.~\ref{cor:crossfit}) & proved here (Jensen);
+%  loose by a factor >= 6 in the design
+%  Refit as simulated (operator re-applied, lambda_n) & empirical; no guarantee

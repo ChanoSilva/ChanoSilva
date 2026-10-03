@@ -11,7 +11,7 @@ What is checked, per instance (G,k):
   (X1) exact (Fraction) : f* is a Wardrop equilibrium, every unused path strictly
        costlier;  e_W in Lambda_1(f*) (KKT of min C_W on the product of simplices);
        C_W(f*) = C* ; if maxcut>=k, the explicit witness has C_W(f*)-C_W(wit) =
-       maxcut-k+1/2 exactly.
+       maxcut-k+1/2 exactly, and it also beats f* for lambda = e_W + eps*1 (all weights > 0).
   (X2) strong monotonicity of F on K (explicit model): min eigenvalue of the
        Jacobian on the tangent space > 0.
   (A)  INDEPENDENT minimisation of C_W over K: enumerate the pure profiles of the
@@ -369,6 +369,10 @@ def check_instance(n, wedges, k, mc, cutx, dag=False, faces=False):
     if mc >= k:
         wf = witness(net, comms, info, cutx, dag)
         r['wit_exact'] = (Cstar - C_of(net, comms, wf, 0)) == Fr(2 * (mc - k) + 1, 2)
+        # interior weights lambda_eps = e_W + eps*(0,1,...,1), eps = 1/(4(n+1)Gamma), Gamma = 2B_z+2k+1
+        eps = Fr(1, 4 * (n + 1) * (2 * info['Bz'] + 2 * k + 1))
+        phi = lambda fl: C_of(net, comms, fl, 0) + eps * sum(C_of(net, comms, fl, h) for h in range(1, len(comms)))
+        r['wit_eps'] = phi(wf) < phi(fs)
     resA = min_C_generic(net, comms, 0, keep_profiles=not dag)
     C0 = float(Cstar)
     if resA['lower'] >= C0 - TOL_DEC:
@@ -478,6 +482,8 @@ def main():
     W_ = [r for r in R if 'wit_exact' in r]
     log("  (X1) witness from a maximum cut, C_W(f*)-C_W(wit) = maxcut-k+1/2 exactly: %d/%d"
         % (sum(r['wit_exact'] for r in W_), len(W_)))
+    log("  (X1) the same witness beats f* exactly for the interior weight e_W + eps*1 (eps of Remark rem:interior): %d/%d"
+        % (sum(r['wit_eps'] for r in W_), len(W_)))
     log("  (X2) strong monotonicity: min eigenvalue of DF on the tangent space, min over instances = %.4g"
         % min(r['mu'] for r in R))
     mism = [r for r in R if r['A'] != r['expected']]
@@ -534,7 +540,7 @@ def main():
     log("")
     allok = (not mism and all(r['wardrop'] and r['strict'] and r['lone_W'] and r['Cstar_ok'] and r['others_in_Lam']
                               for r in R + RD)
-             and all(r['wit_exact'] for r in R + RD if 'wit_exact' in r)
+             and all(r['wit_exact'] and r['wit_eps'] for r in R + RD if 'wit_exact' in r)
              and all(r['B'] == r['expected'] for r in RB)
              and all(r['A'] == r['expected'] and r['dag_struct'] for r in RD)
              and max(r['closed_diff'] for r in R) < 1e-7 and min(r['mu'] for r in R) > 0)
