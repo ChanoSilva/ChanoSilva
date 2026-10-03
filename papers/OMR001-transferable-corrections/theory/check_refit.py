@@ -509,6 +509,147 @@ for (al, m), c in CONST.items():
 out("  limit / split cost:  " + "; ".join(f"a={al}, m={m}: {V1[(al, m)] / CONST[(al, m)].split:.3f}"
                                          for (al, m) in CONST))
 out("")
+
+
+# ----------------------------------------------------------------------------------------------
+# v0.5 additions (internal referee, round 3).  Quadrature / deterministic grids only: no new random
+# draws, so every Monte Carlo number of sections (a)-(b') is unchanged.
+#  (d) collinear reduction of M_eta (Theorem thm:refit(iv), referee m2): for fixed u = delta/(2 omega),
+#      f_eta is a convex quadratic in omega on (2(u-xi)^+, 2(u+xi)], so the sup is at c = -1 or c = +1;
+#      M_eta is recomputed as a one-dimensional sup and compared with the 2-D search of Const.
+#  (e) exact worst case of the split estimator (Proposition prop:sharp(c), referee m1):
+#      sup_{theta, C} risk(rev) - risk(Xbar_n) = split + (sigma^2/m) E[M_0(alpha; xi)],
+#      M_0(alpha; xi) = 4 sup_{u>=0} (u^2 + xi u) Phi(-(z+u)).
+#  (f) oracle correction C = theta (referee M1): exact excess over Xbar_n of the transported refit,
+#      (sigma^2/m) E[-(1-2 eta) xi^2 Phi(xi/2 - z) + 2 eta xi phi(z - xi/2)], and of the split estimator,
+#      split + (sigma^2/m) E[-xi^2 Phi(xi/2 - z)].
+#  (g) adversarial families without held-out noise (referee m4): exact quadrature for the families that
+#      depend on R only through xi (reflections, Prop. 4.5(b), worst(M_eta)); Rao-Blackwellised MC
+#      (variance from e only; the 'rb' column of section (b)) for all families.
+#  (h) alpha = 0.5 in other designs (referee m6): worst case of the refit vs exact worst case of the split.
+# ----------------------------------------------------------------------------------------------
+UG = np.linspace(0.0, 40.0, 40001)
+
+
+def M0_split(al, xis):
+    """M_0(alpha; xi) = 4 sup_{u >= 0} (u^2 + xi u) Phi(-(z+u))  (split estimator, eta = 0)."""
+    z = float(norm.ppf(1 - al))
+    P = ndtr(-(z + UG))
+    A_, B_ = UG ** 2 * P, UG * P
+    return np.array([4.0 * float((A_ + x * B_).max()) for x in np.atleast_1d(xis)])
+
+
+def M_1d(al, eta, xis, du=0.002):
+    """M_eta(alpha; xi) through the collinear reduction: endpoints omega = 2(u + xi) (c = -1, u > -xi)
+    and omega = 2(u - xi) (c = +1, u > xi); the value 0 (omega -> 0) is included."""
+    z = float(norm.ppf(1 - al))
+    res = []
+    for x in np.atleast_1d(xis):
+        u = np.arange(-x, x + z + 40.0, du)
+        P, F = ndtr(-(z + u)), phi(z + u)
+        om = 2 * (u + x)
+        a = eta * P * om ** 2 + 2 * om * ((1 - eta) * u * P + eta * F)
+        k = u > x
+        omb = 2 * (u[k] - x)
+        b = eta * P[k] * omb ** 2 + 2 * omb * ((1 - eta) * u[k] * P[k] + eta * F[k])
+        res.append(max(0.0, float(a.max()), float(b.max()) if b.size else 0.0))
+    return np.array(res)
+
+
+def chi_grid(m, n_e, npts=6001, d=D):
+    """grid and normalised chi_d weights used for E over xi = sqrt(m/n_e) chi_d (same rule as Const._caps)."""
+    x = np.linspace(1e-6, float(chi.ppf(1 - 1e-9, d)), npts)
+    w = chi.pdf(x, d)
+    return x, w / np.trapezoid(w, x), np.sqrt(m / n_e)
+
+
+out("== (d) Collinear reduction of M_eta (1-D sup over c = +-1) vs the 2-D search ==")
+RED = {}
+for (al, m), c in CONST.items():
+    M1 = M_1d(al, c.rho, c.ag)
+    x, wts, q = chi_grid(m, c.n_e)
+    cap1 = SIG ** 2 / m * float(np.trapezoid(wts * np.interp(q * x, c.ag, M1), x))
+    big = c.M > 1e-12
+    RED[(al, m)] = dict(d2_minus_d1=float((c.M - M1).max()), d1_minus_d2=float((M1 - c.M).max()),
+                        cap_1d=cap1, cap_rel_diff=float(abs(cap1 - c.cap_exact) / c.cap_exact),
+                        min_abs_c=float(np.abs(c.c_star[big]).min()))
+out(f"  max over grid of [M_2D - M_1D] = {max(r['d2_minus_d1'] for r in RED.values()):.2e}; "
+    f"max [M_1D - M_2D] = {max(r['d1_minus_d2'] for r in RED.values()):.2e}; "
+    f"max relative difference of the exact cap = {max(r['cap_rel_diff'] for r in RED.values()):.1e}; "
+    f"min |c| at the 2-D maximiser = {min(r['min_abs_c'] for r in RED.values()):.4f}")
+out("")
+
+out("== (e) Exact worst case of the split estimator over theta and C (excess over Xbar_n; Prop. 4.5(c)) ==")
+SPX = {}
+for (al, m), c in CONST.items():
+    x, wts, q = chi_grid(m, c.n_e)
+    xg = np.linspace(0.0, q * x[-1], 401)
+    over_R = SIG ** 2 / m * float(np.trapezoid(wts * np.interp(q * x, xg, M0_split(al, xg)), x))
+    SPX[(al, m)] = dict(over_R=over_R, total=c.split + over_R)
+for al in ALPHAS:
+    out(f"  a={al}: " + "; ".join(f"m={m}: split {SPX[(al, m)]['total']:.4f} (over R {SPX[(al, m)]['over_R']:.4f} in "
+                                  f"[{CONST[(al, m)].split_lo - CONST[(al, m)].split:.4f}, "
+                                  f"{CONST[(al, m)].split_hi - CONST[(al, m)].split:.4f}]) vs refit {CONST[(al, m)].cap_exact:.4f}"
+                                  for m in MGRID))
+out("")
+
+out("== (f) Oracle correction C = theta: exact excess over Xbar_n (quadrature) ==")
+ORA = {}
+for (al, m), c in CONST.items():
+    q, eta, z = np.sqrt(m / c.n_e), c.rho, c.z
+    g_rf = lambda r: (-(1 - 2 * eta) * (q * r) ** 2 * ndtr(q * r / 2 - z) + 2 * eta * q * r * phi(z - q * r / 2)) * chi.pdf(r, D)
+    g_sp = lambda r: (-(q * r) ** 2 * ndtr(q * r / 2 - z)) * chi.pdf(r, D)
+    ORA[(al, m)] = dict(refit=SIG ** 2 / m * quad(g_rf, 0.0, 60.0, limit=200)[0],
+                        split=c.split + SIG ** 2 / m * quad(g_sp, 0.0, 60.0, limit=200)[0])
+for al in ALPHAS:
+    out(f"  a={al}: " + "; ".join(f"m={m}: refit {ORA[(al, m)]['refit']:+.4f}, split {ORA[(al, m)]['split']:+.4f}"
+                                  for m in MGRID))
+out(f"  (risk of Xbar_n = {D * SIG ** 2 / N:.4f}; accepting the oracle always: excess d sigma^2 (m - n_e)/(n n_e))")
+out("")
+
+out("== (g) Adversarial families without held-out noise ==")
+FAMX = []
+for (al, m), c in CONST.items():
+    x, wts, q = chi_grid(m, c.n_e)
+    a = q * x
+    fams = {f"reflect t={t}": (t * a, -np.ones_like(a)) for t in (0.1, 0.5, 1.0, 1.5, 1.8, 2.0, 2.2, 3.0)}
+    fams["Prop4.5b"] = (2 * a + 2 * c.us, -np.ones_like(a))
+    fams["worst(M_rho)"] = (np.interp(a, c.ag, c.om_star), np.clip(np.interp(a, c.ag, c.c_star), -1, 1))
+    for fam, (om, cc) in fams.items():
+        ex = SIG ** 2 / m * float(np.trapezoid(wts * c.f(om, cc, a), x))
+        FAMX.append(dict(m=m, alpha=al, fam=fam, ex=ex, over_cap=ex / c.cap_exact, over_lower=ex / c.lower))
+fx = lambda fam: [r for r in FAMX if r["fam"] == fam]
+out(f"  exact (quadrature): worst(M_eta)/cap in [{min(r['over_cap'] for r in fx('worst(M_rho)')):.4f}, "
+    f"{max(r['over_cap'] for r in fx('worst(M_rho)')):.4f}]; Prop4.5b/cap in [{min(r['over_cap'] for r in fx('Prop4.5b')):.4f}, "
+    f"{max(r['over_cap'] for r in fx('Prop4.5b')):.4f}]; reflection t=2 / closed-form value of (iv) in "
+    f"[{min(r['over_lower'] for r in fx('reflect t=2.0')):.6f}, {max(r['over_lower'] for r in fx('reflect t=2.0')):.6f}]; "
+    f"largest ratio to the cap over these families {max(r['over_cap'] for r in FAMX):.4f}")
+rbmax = max(adv, key=lambda r: r["rb"] / r["cap"])
+COLL = {"Prop4.5b", "worst(M_rho)"} | {f for f in (r["fam"] for r in adv) if f.startswith("reflect")}
+rbnc = max((r for r in adv if r["fam"] not in COLL), key=lambda r: r["rb"] / r["cap"])
+out(f"  Rao-Blackwellised MC (held-out sample integrated out): max rb/cap = {rbmax['rb'] / rbmax['cap']:.4f} "
+    f"({rbmax['fam']}, m={rbmax['m']}, alpha={rbmax['alpha']}); over the families that are not functions of xi: "
+    f"{rbnc['rb'] / rbnc['cap']:.4f} ({rbnc['fam']}, m={rbnc['m']}, alpha={rbnc['alpha']})")
+out(f"  expected number of |z| > 3 among {len(zz)} paired tests if identity (I) holds exactly: "
+    f"{len(zz) * 2 * norm.sf(3):.2f}; observed {sum(x > 3 for x in zz)}")
+out("")
+
+out("== (h) alpha = 0.5: worst case of the transported refit vs exact worst case of the split, other designs ==")
+GEN = []
+for dd in (1, 2, 5, 50):
+    for ne in (2, 10, 1000):
+        for mm in (1, 3, 30):
+            nn = ne + mm
+            x, wts, q = chi_grid(mm, ne, npts=2001, d=dd)
+            xg = np.linspace(0.0, q * x[-1], 61)
+            rf_ = SIG ** 2 / mm * float(np.trapezoid(wts * np.interp(q * x, xg, M_1d(0.5, mm / nn, xg, du=0.004)), x))
+            sc_ = dd * SIG ** 2 * mm / (nn * ne)
+            sp_ = sc_ + SIG ** 2 / mm * float(np.trapezoid(wts * np.interp(q * x, xg, M0_split(0.5, xg)), x))
+            GEN.append(dict(d=dd, n_e=ne, m=mm, refit=rf_, split=sp_, ratio=rf_ / sp_))
+out(f"  {len(GEN)} designs (d in 1,2,5,50; n_e in 2,10,1000; m in 1,3,30): refit worse in "
+    f"{sum(r['ratio'] > 1 for r in GEN)}; ratio refit/split in [{min(r['ratio'] for r in GEN):.3f}, "
+    f"{max(r['ratio'] for r in GEN):.3f}]")
+out("")
 out(f"done in {time.time() - T0:.1f} s wall, {time.process_time() - C0:.1f} s CPU")
 
 with open(os.path.join(HERE, "check_refit_output.txt"), "w") as fh:
