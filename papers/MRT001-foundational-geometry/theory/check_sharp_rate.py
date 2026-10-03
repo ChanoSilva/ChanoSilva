@@ -335,7 +335,7 @@ def part_d():
     mu = mu_closed()
     c2 = 1 + 1 / (2 * math.e)
     K = 6
-    plan = [(50, 300000), (100, 200000), (200, 150000), (400, 150000), (1000, 60000)]
+    plan = [(50, 300000), (100, 300000), (200, 250000), (400, 200000)]
     G = 10
     summary = []
     for n, M in plan:
@@ -392,13 +392,19 @@ def part_d():
             f"refined first-order model {n * d_model:.4f}; c_2 = {c2:.4f}; d_TV(model, MC estimate) * n = "
             f"{n * dtv(Lm, Lall):.4f}")
         say("   x  | n(P_MC(R=x) - P(2^Z=x)) +- 1.96 SE | mu(x) | n(P_model(x) - P(2^Z=x))")
+        zmax = 0.0
         for x in [Fraction(v) for v in (1, 2, 4, 8, 16, 32, 6, 12, 24, 48, 3)]:
             npos = sum(dpos[j][x] for j in range(G))
             nneg = sum(dneg[j][x] for j in range(G))
             var = (npos + nneg) / M - ((npos - nneg) / M) ** 2
             val = n * (Lall.get(x, 0.0) - PZ.get(x, 0.0))
+            mval = n * (Lm.get(x, 0.0) - PZ.get(x, 0.0))
+            if var > 0:
+                zmax = max(zmax, abs(val - mval) / (n * math.sqrt(var / M)))
             say(f"   {str(x):>3} | {val:+.3f} +- {1.96 * n * math.sqrt(var / M):.3f} | {mu.get(x, 0.0):+.3f} | "
                 f"{n * (Lm.get(x, 0.0) - PZ.get(x, 0.0)):+.3f}")
+        say(f"   max over these atoms of |MC - model| / SE = {zmax:.2f}  (the plug-in d_TV above is biased upward by"
+            f" the atom-wise noise, of order n*SE)")
         say(f"   ({time.time() - t0:.1f} s)")
         summary.append((n, n * d_all, 1.96 * n * se, n * d_model))
     say("summary: n | n d_TV MC (95%) | n d_TV model | c_2 | old bound n*[(10+e^2)/n+167/n^2] | new bound n*[(5+1/e)/n+221/n^2]")
@@ -452,11 +458,12 @@ def part_e():
                 rat = dict((a.split(":")[0].strip(), int(a.split(":")[1].split()[0]))
                            for a in parts[-1].split(",") if ":" in a)
                 a, b = rat.get("3/2", 0), rat.get("2", 0)
-                s32 += a
-                s2 += b
+                if n >= 100:
+                    s32 += a
+                    s2 += b
                 say(f"   n = {n:4d}: n P(R != 2^N) = {parts[cols.index('n*P obs')]}; 3/2: {a}, 2: {b}, "
                     f"share {a / max(1, a + b):.3f}")
-    say(f"   pooled: 3/2: {s32}, 2: {s2}, share {s32 / (s32 + s2):.3f} "
+    say(f"   pooled over n >= 100: 3/2: {s32}, 2: {s2}, share {s32 / (s32 + s2):.3f} "
         f"(95% CI +- {1.96 * math.sqrt(0.2 * 0.8 / (s32 + s2)):.3f} around 0.2)")
 
 

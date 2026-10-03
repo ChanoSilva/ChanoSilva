@@ -1,0 +1,111 @@
+% ============================================================================
+% theory/sharp_rate.tex -- sharp first-order rates for Theorem~\ref{thm:realizers}
+% and Proposition~\ref{prop:exceptions} (MRT001 v0.6).
+%
+% Ready to paste into manuscript/main.tex; uses only its macros (\status, \R, ...),
+% theorem environments and labels (thm:realizers, prop:exceptions, thm:gallai,
+% app:realizers) and the existing bibliography keys (kaplansky1945).
+%   * Block 1 (statements) goes in Section 5 right after Proposition~\ref{prop:exceptions};
+%     it can replace the sentence "The bound in~(b) is also far from sharp ..." of the
+%     paragraph "Sharpness and data".
+%   * Block 2 (proofs) goes at the end of Appendix~\ref{app:realizers}, before the
+%     Remark "Exact count".
+%   * Block 3 (numerical check) can follow the paragraph "Numerical check" of the appendix.
+% Derivation: theory/sharp_rate_derivation.md; check: theory/check_sharp_rate.py, output
+% theory/check_sharp_rate_output.txt (the numbers in Block 3 are typed from that output;
+% make_numbers.py does not read it).
+% New labels: thm:sharpN, thm:sharpR, lem:sharpbad, prop:sharpexplicit, rem:sharpopen.
+% ============================================================================
+
+% ---------------------------------------------------------------- Block 1 ---
+\paragraph{Sharp rates.}
+Write $p_k=\Pr(N_n=k)$ and $\pi_k=e^{-1}/k!$ for $k\ge0$, $\pi_k=0$ for $k<0$, and $Z\sim\mathrm{Po}(1)$. The constants in Theorem~\ref{thm:realizers}(b)--(c) are not sharp; the exact first-order terms are as follows.
+
+\begin{theorem}[Sharp Poisson rate for $N_n$]\label{thm:sharpN}
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+\item For $n\ge1$ and $0\le k\le n-1$,
+\[
+p_k=\pi_k\Bigl(1-\frac{k-1}{n}\Bigr)+r_{n,k},\qquad |r_{n,k}|\le\frac{1}{n\,k!\,(n-k+1)!}.
+\]
+Equivalently $p_k=\pi_k+\nu(k)/n+r_{n,k}$ with $\nu(k)=\pi_k-\pi_{k-1}=-(k-1)\pi_k$; in particular the coefficient of $n^{-2}$ vanishes for every $k$.
+\item For $n\ge4$, $d_{\mathrm{TV}}(N_n,\mathrm{Po}(1))=(p_0-\pi_0)+(p_1-\pi_1)^+$, and
+\[
+\Bigl|\,d_{\mathrm{TV}}(N_n,\mathrm{Po}(1))-\frac{e^{-1}}{n}\Bigr|<\frac{2}{n\cdot n!}.
+\]
+Hence $n\,d_{\mathrm{TV}}(N_n,\mathrm{Po}(1))\to c_1=\tfrac{e^{-1}}2\sum_{k\ge0}|k-1|/k!=e^{-1}$.
+\end{enumerate}
+\status{proved here}
+\end{theorem}
+
+\begin{theorem}[First-order law of the realizer count]\label{thm:sharpR}
+Let $\mu$ be the signed measure on $\{2^k\}_{k\ge0}\cup\{3\cdot2^k\}_{k\ge1}$ given by
+\[
+\mu(\{2^k\})=-3\pi_k+3\pi_{k-1}-\pi_{k-2}=-\frac{e^{-1}}{k!}(k-1)(k-3),\qquad
+\mu(\{3\cdot2^k\})=\pi_{k-1}=\frac{e^{-1}}{(k-1)!}.
+\]
+Then $\mu$ has total mass $0$, and uniformly over sets $A$ of positive reals,
+\[
+\Pr(R_n\in A)=\Pr(2^Z\in A)+\frac{\mu(A)}{n}+O(n^{-2}).
+\]
+Consequently
+\[
+d_{\mathrm{TV}}(R_n,2^Z)=\frac{c_2}{n}+O(n^{-2}),\qquad c_2=\tfrac12\lVert\mu\rVert=1+\frac1{2e}=1.1839\ldots
+\]
+In particular, with errors $O(n^{-2})$: $\Pr(R_n=1)=e^{-1}(1-3/n)$, $\Pr(R_n=2)=e^{-1}$, $\Pr(R_n=4)=\tfrac12e^{-1}(1+1/n)$, $\Pr(R_n\le8)=\tfrac83e^{-1}-\tfrac32e^{-1}/n$, and $\Pr(R_n\text{ is not a power of }2)=1/n$. \status{proved here, using Theorem~\ref{thm:gallai}}
+\end{theorem}
+
+\begin{proposition}[Explicit bounds]\label{prop:sharpexplicit}
+For $n\ge20$,
+\[
+\Pr(R_n\ne2^{N_n})\le\frac5n+\frac{220}{n^2},\qquad
+d_{\mathrm{TV}}(R_n,2^Z)\le\frac{5+e^{-1}}{n}+\frac{221}{n^2}.
+\]
+\status{proved here, using Theorem~\ref{thm:gallai}}
+\end{proposition}
+
+\noindent The measure $\mu$ is the sum of three contributions: the first-order term $\nu$ of the law of $N_n$ (a mean shift, $\mathbb E N_n=1-1/n$), the configurations with a three-element interval of pattern $321$, which have probability $1/n+O(n^{-2})$ and $R_n=6\cdot2^{N_n-2}$, and the four configurations with $R_n=2\cdot2^{N_n}$ (patterns $231$, $312$, $\pi(1)=n$, $\pi(n)=1$), of total probability $4/n+O(n^{-2})$. The latter move mass from $2^{j}$ to $2^{j+1}$, atoms that $2^Z$ charges anyway, so they largely cancel in the total variation distance: the coupling bound $\Pr(R_n\ne2^{N_n})+d_{\mathrm{TV}}(N_n,Z)$ has first-order constant $5+e^{-1}$, the true one is $1+1/(2e)$. The positive part of $\mu$ consists of the atoms $3\cdot2^k$ (mass $1$) and the atom $4$ (mass $e^{-1}/2$).
+
+\begin{remark}[What remains open]\label{rem:sharpopen}
+The proof of Theorem~\ref{thm:sharpR} gives every error term in closed form, but the constant in $|d_{\mathrm{TV}}(R_n,2^Z)-c_2/n|\le C/n^2$ was not made explicit (the leading contributions suggest $C$ of a few hundred). Numerically, $n^2d_{\mathrm{TV}}(N_n,\mathrm{Po}(1-1/n))$ approaches $3/(4e)=0.2759$ ($0.2760$ at $n=1000$), as the second-order term $-\pi_k(k^2-3k+1)/(2n^2)$ of $p_k-\Pr(\mathrm{Po}(1-1/n)=k)$ predicts; this is not proved here. \status{open; numerical observation}
+\end{remark}
+
+% ---------------------------------------------------------------- Block 2 ---
+\begin{proof}[Proof of Theorem~\ref{thm:sharpN}]
+By Step~3 of the proof of Theorem~\ref{thm:realizers}, $p_k=\frac1{k!}\sum_{s=0}^{n-1-k}\frac{(-1)^s}{s!}\bigl(1-\frac{k+s}n\bigr)$. Since $\sum_{s\ge0}(-1)^s/s!=e^{-1}$ and $\sum_{s\ge0}(-1)^ss/s!=-e^{-1}$, the full series equals $e^{-1}(1-(k-1)/n)$, so $p_k=\pi_k(1-(k-1)/n)-T_k/k!$ with $T_k=\sum_{s\ge n-k}\frac{(-1)^s}{s!}(1-\frac{k+s}n)$. The term $s=n-k$ vanishes and, with $s=n-k+m$, $T_k=-\frac1n\sum_{m\ge1}(-1)^{n-k+m}\frac{m}{(n-k+m)!}$; the moduli decrease in $m$ (their ratio is $\frac{m+1}{m(n-k+m+1)}\le\frac2{n-k+2}\le1$), so $|T_k|\le1/(n\,(n-k+1)!)$, which is~(i); $k\pi_k=\pi_{k-1}$ gives the second form.
+
+(ii) $d_{\mathrm{TV}}(N_n,\mathrm{Po}(1))=\sum_{k\ge0}(p_k-\pi_k)^+$. For $k\ge n$, $p_k=0<\pi_k$. For $2\le k\le n-1$, $p_k-\pi_k=-\frac1{n\,k!}\bigl(e^{-1}(k-1)+nT_k\bigr)$ with $|nT_k|\le1/(n-k+1)!$, which is at most $\frac16<e^{-1}$ if $k\le n-2$ and at most $\frac12<2e^{-1}\le e^{-1}(k-1)$ if $k=n-1\ge3$; so $p_k<\pi_k$. Moreover $p_0-\pi_0=e^{-1}/n-T_0>0$ and $p_1-\pi_1=-T_1$, so $d_{\mathrm{TV}}=e^{-1}/n-T_0+(-T_1)^+$, and $|T_0|+|T_1|\le\frac1{n(n+1)!}+\frac1{n\cdot n!}<\frac2{n\cdot n!}$. Finally $\sum_k(k-1)/k!=0$ and the only negative term is $k=0$, so $\sum_k|k-1|/k!=2$.
+\end{proof}
+
+\noindent For the next proofs call an \emph{occurrence} either a three-element interval $J=[i,i+2]$ of $\pi$ with a given set of values and pattern $p\in\{321,231,312\}$, with factor $c=\tfrac32$ for $321$ and $c=2$ otherwise, or one of the events $\pi(1)=n$, $\pi(n)=1$, with factor $c=2$. A given three-element occurrence has probability $(n-3)!/n!$, so each pattern has total weight $(n-2)/(n(n-1))$. Let $\mathcal E$ be the event that $\pi$ has an interval with between $4$ and $n-2$ elements or $I_3+I_{n-1}\ge2$, where $I_k$ is the number of intervals with $k$ elements. The proof of Proposition~\ref{prop:exceptions} shows that outside $\mathcal E$ at most one occurrence happens, $R_n=c\,2^{N_n}$ if one does and $R_n=2^{N_n}$ otherwise.
+
+\begin{lemma}[The bad event]\label{lem:sharpbad}
+(a) For $n\ge20$, $\Pr(\mathcal E)\le223/n^2$. (b) If $\#\omega$ is the number of occurrences that happen, $\mathbb E[\#\omega\,;\mathcal E]=O(n^{-2})$. \status{proved here}
+\end{lemma}
+
+\begin{proof}
+(a) By Step~2 of the proof of Theorem~\ref{thm:realizers}, $\sum_{k=4}^{n-2}\mathbb EI_k\le(24+19+6+3+120)/n^2=172/n^2$. Next, $\Pr(I_3+I_{n-1}\ge2)\le\mathbb E\binom{I_3}2+\mathbb E[I_3I_{n-1}]+\mathbb E\binom{I_{n-1}}2$. Pairs of three-element intervals are disjoint, overlap in two points (the union then has one of the patterns $1234$, $1324$, $4231$, $4321$) or in one point (eight patterns of length five), so $\mathbb E\binom{I_3}2=\frac{18(n-4)(n-5)}{n(n-1)(n-2)(n-3)}+\frac{4(n-3)}{n(n-1)(n-2)}+\frac{8(n-4)}{n(n-1)(n-2)(n-3)}\le\frac{18+4+1}{n^2}$. Given $\pi(1)=1$ the rest of $\pi$ is uniform, with $6(n-3)/((n-1)(n-2))$ expected three-element intervals, and $[1,3]$ is an interval with probability $2/((n-1)(n-2))$; with the three symmetric cases, $\mathbb E[I_3I_{n-1}]=4(6n-16)/(n(n-1)(n-2))\le25/n^2$ (the difference is $n(n^2-11n+50)/(n^3(n-1)(n-2))>0$ after multiplying out). Finally $\mathbb E\binom{I_{n-1}}2=\Pr(\{\pi(1),\pi(n)\}=\{1,n\})=2/(n(n-1))\le3/n^2$. The total is $(172+23+25+3)/n^2$.
+
+(b) Fix a three-element occurrence $\omega$ and contract $J$ to a point $j^*$: the result $\sigma$ is uniform on $S_m$, $m=n-2$, whatever $\omega$ is. On $\omega\cap\mathcal E$ there is an interval $K\ne J$ with $3\le|K|\le n-1$. Either $K\cap J=\emptyset$, and $K$ is an interval of $\sigma$ with $3$ to $m-1$ elements; or $K\supsetneq J$, and $K$ is an interval of $\sigma$ with $2$ to $m-1$ elements containing $j^*$; or $K$ overlaps $J$, and then $U=J\cup K$ is an interval with $J$ at one end and $K$ is $U$ minus one or two points of $J$, so there are at most two such $K$ for each $U$; $U$ is an interval of $\sigma$ with $2$ to $m-1$ elements containing $j^*$, unless $U=[1,n]$, which requires $i\in\{1,n-2\}$. Hence $\Pr(\omega\cap\mathcal E)\le\Pr(\omega)\,(s_m+3h_m+2\cdot\mathbf 1\{i\in\{1,n-2\}\})$, where $s_m=\sum_{l=3}^{m-1}\mathbb EI_l(m)$ and $h_m=\sum_{l=2}^{m-1}\min(l,m-l+1)\,\mathbb EI_l(m)/(m-l+1)$ bound the expected numbers of such intervals of $\sigma$ ($\mathbb EI_l(m)$ refers to a uniform permutation of length $m$). For $\omega=\{\pi(1)=n\}$ the rest $\pi'$ is uniform on $S_{n-1}$ and another interval is either an interval of $\pi'$ with $3$ to $n-2$ elements or $[1,k]$ with $[2,k]$ an initial interval of $\pi'$ with $2$ to $n-2$ elements, whose expected number is at most $h_{n-1}$; the same holds for $\pi(n)=1$. Summing,
+\[
+\mathbb E[\#\omega\,;\mathcal E]\le\frac{3(n-2)}{n(n-1)}\bigl(s_{n-2}+3h_{n-2}\bigr)+\frac{12}{n(n-1)}+\frac2n\bigl(s_{n-1}+h_{n-1}\bigr).
+\]
+By Step~2, $s_m=10/m+O(m^{-2})$, and $h_m\le4/m+3\,\mathbb EI_3(m)/(m-2)+\sum_{l=4}^{m-1}\mathbb EI_l(m)=8/m+O(m^{-2})$ (the term $l=2$ is $4/m$, the factor $\min(l,m-l+1)/(m-l+1)$ is at most $1$, and $\mathbb EI_{m-1}(m)=4/m$). So the bound is $O(n^{-2})$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:sharpR}]
+For a set $A$ write $\Pr(R_n\in A)-\Pr(2^Z\in A)=[\Pr(2^{N_n}\in A)-\Pr(2^Z\in A)]+\mathbb E[\mathbf 1\{R_n\in A\}-\mathbf 1\{2^{N_n}\in A\}]$. By Theorem~\ref{thm:sharpN}(i) the first bracket is $\nu(\{k:2^k\in A\})/n+\rho_1$ with $|\rho_1|\le\sum_{k<n}|r_{n,k}|+\sum_{k\ge n}\pi_kk/n\le2^{n+1}/(n\,(n+1)!)+1/n!$. Outside $\mathcal E$, $\mathbf 1\{R_n\in A\}-\mathbf 1\{2^{N_n}\in A\}=\sum_\omega\mathbf 1_\omega\,g_\omega(N_n)$ with $g_\omega(j)=\mathbf 1\{c_\omega2^j\in A\}-\mathbf 1\{2^j\in A\}$, the sum running over occurrences; so the second term is $\sum_\omega\mathbb E[\mathbf 1_\omega g_\omega(N_n)]+\rho_2$ with $|\rho_2|\le\Pr(\mathcal E)+\mathbb E[\#\omega\,;\mathcal E]=O(n^{-2})$ by Lemma~\ref{lem:sharpbad}.
+
+Given a three-element occurrence with pattern $p$, contract $J$ to $j^*$ as above: then $N_n=N(p)+N(\sigma)+\delta$, where $N(\sigma)$ has the law of $N_{n-2}$ and $\delta\ne0$ only if $\sigma$ has a descending succession involving $j^*$ (a descending succession of $\pi$ with one point in $J$ gives one of $\sigma$ at $j^*$, and one of $\sigma$ not involving $j^*$ is one of $\pi$, because two consecutive values cannot lie on both sides of the values of $J$), which has probability at most $2/(n-2)$. Given $\pi(1)=n$, $N_n=N(\pi')+\mathbf 1\{\pi(2)=n-1\}$ with $N(\pi')\sim N_{n-1}$ and $\Pr(\pi(2)=n-1\mid\pi(1)=n)=1/(n-1)$; similarly for $\pi(n)=1$. Since $|g_\omega|\le1$, $\mathbb E[g_\omega(N_n)\mid\omega]$ differs from $\mathbb E\,g_\omega(N(p)+Z)$ by at most $2\Pr(\delta\ne0\mid\omega)+2d_{\mathrm{TV}}(N_{n-2},Z)$ (or the analogue with $n-1$), which is $O(1/n)$ by Theorem~\ref{thm:sharpN}(ii). Multiplying by $\Pr(\omega)$ and summing, with total weights $3(n-2)/(n(n-1))=3/n+O(n^{-2})$ for the three patterns and $2/n$ for the two boundary events, the second term equals
+\[
+\frac1n\Bigl(\bigl[\Pr(6\cdot2^Z\in A)-\Pr(4\cdot2^Z\in A)\bigr]+4\bigl[\Pr(2^{Z+1}\in A)-\Pr(2^Z\in A)\bigr]\Bigr)+O(n^{-2}),
+\]
+since the pattern $321$ has $N(p)=2$ and $c=\tfrac32$, and the other four kinds have $N(p)=0$ and $c=2$. All errors are uniform in $A$, and adding $\nu/n$ gives $\mu/n$: at $2^k$, $(\pi_k-\pi_{k-1})-\pi_{k-2}+4(\pi_{k-1}-\pi_k)$, and at $3\cdot2^k$ (which is $6\cdot2^{k-1}$), $\pi_{k-1}$. As $\mu$ has total mass $0$, $\sup_A|\mu(A)|=\tfrac12\lVert\mu\rVert$. For the constant, $3\pi_{k-1}-3\pi_k-\pi_{k-2}=\frac{e^{-1}}{k!}(3k-3-k(k-1))=-\frac{e^{-1}}{k!}(k-1)(k-3)$; $\sum_k(k-1)(k-3)/k!=2e-4e+3e=e$ and the only negative term is $k=2$, equal to $-\tfrac12$, so $\sum_k|(k-1)(k-3)|/k!=e+1$; the atoms $3\cdot2^k$ carry mass $\sum_{k\ge1}\pi_{k-1}=1$. Hence $\lVert\mu\rVert=e^{-1}(e+1)+1=2+e^{-1}$. The particular values follow by evaluating $\mu$ at $1$, $2$, $4$, $\{1,2,4,6,8\}$ and $\{3\cdot2^k\}_{k\ge1}$.
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:sharpexplicit}]
+Outside $\mathcal E$, $R_n\ne2^{N_n}$ requires an occurrence, whose expected number is $3(n-2)/(n(n-1))+2/n\le5/n-3/n^2$; with Lemma~\ref{lem:sharpbad}(a), $\Pr(R_n\ne2^{N_n})\le5/n+220/n^2$. Then $d_{\mathrm{TV}}(R_n,2^Z)\le\Pr(R_n\ne2^{N_n})+d_{\mathrm{TV}}(N_n,Z)$ as in Step~4, and Theorem~\ref{thm:sharpN}(ii) with $2/(n\cdot n!)\le1/n^2$ gives the second bound.
+\end{proof}
+
+% ---------------------------------------------------------------- Block 3 ---
+\paragraph{Numerical check of the sharp rates.}
+\path{theory/check_sharp_rate.py} computes the law of $N_n$ for $n\le60$ in rational arithmetic in three independent ways (inversion of the factorial moments, the closed form $\binom{n-1}{k}(D_{n-k}+D_{n-k-1})/n!$ with $D_m$ the derangement numbers~\citep{kaplansky1945}, and the recurrence obtained by inserting the largest element), all equal, and equal to brute force for $n\le8$. On $4\le n\le60$ the largest value of $|r_{n,k}|\,n\,k!\,(n-k+1)!$ is $0.97$, the identity of Theorem~\ref{thm:sharpN}(ii) holds, and $n!\,(n\,d_{\mathrm{TV}}(N_n,\mathrm{Po}(1))-e^{-1})$ lies between $0.03$ and $0.96$ (for instance $n\,d_{\mathrm{TV}}-e^{-1}=2.1\times10^{-7}$ at $n=10$ and $3.6\times10^{-19}$ at $n=20$). The pair moments in Lemma~\ref{lem:sharpbad}(a) agree with exhaustive enumeration at $n=8,9$, and for $20\le n\le3000$ the pieces of the bound of Proposition~\ref{prop:sharpexplicit} add up to at most $5/n+107/n^2$. Finally, the law of $R_n$ is estimated on $3\times10^5$ (n = 50, 100), $2.5\times10^5$ ($n=200$) and $2\times10^5$ ($n=400$) uniform permutations, with $R_n$ computed by the formula of Remark~\ref{rem:exact} on the permutations that have an interval with $3$ to $6$ or $n-6$ to $n-1$ elements and the exact law of $2^{N_n}$ as control variate; the estimated atoms $n(\Pr(R_n=x)-\Pr(2^Z=x))$, $x\in\{1,2,4,8,16,32,6,12,24,48\}$, agree with those of $\mu$ and of its finite-$n$ refinement within sampling error, and the estimated $n\,d_{\mathrm{TV}}(R_n,2^Z)$ is close to $c_2=1.184$ (see the output file; the plug-in estimate is biased upwards by the sampling noise of the atoms).
