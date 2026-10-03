@@ -33,7 +33,7 @@ Línea RTK001, "Geometría de nudos recursivos" / "Geometry of recursive knots",
 - (2,3), f = 1/2: L = 15.949 / 32.349 / 64.730, τ = 0.4158 / 0.2079 / 0.1040, L/τ = 38.4 / 155.6 / 622.7 en d = 1 / 2 / 3; cociente por nivel 4.06 y 4.00.
 - (2,3), f = 0.25: L/τ = 53.8 / 430.6 / 3444.6; f = 0.35: 40.8 / 233.5 / 1334.6; f = 0.6 (fuera de la hipótesis r ≤ τ/2): 50.9 / 255.6 / 852.1.
 - (3,2), f = 1/2: 47.7 / 331.4 / 2296.5; (2,5), f = 1/2: 72.4 / 291.4 / 1166.2.
-- Constantes teóricas (c = 1/2, (2,3)): γ = min(1 − f, f/2), A = 2(1 + f) + 4f; f = 1/2: γ = 0.25, A = 5, Λ = 20; cotas condicionales 2πΛ^d = 126 / 2513 / 50265 frente a los valores medidos 38.4 / 155.6 / 622.7 (cadenas con r_d distintos: comparación solo indicativa).
+- Constantes teóricas (c = 1/2, (2,3)): γ = min(1 − f, f/2), A = 2(1 + f) + 4f; f = 1/2: γ = 0.25, A = 5, Λ = 20; cotas condicionales 2πΛ^d = 126 / 2513 / 50265; en la cadena del propio Corolario (r_d = fρ_{d−1}, `experiments/corollary_chain.py`, ronda 2) los polígonos dan L/τ = 38.4 / 256.5 / 2051.9 y τ_d/ρ_d ≥ 1.66 (f = 0.25, 0.35, 0.5).
 - Writhe de K_1: 3.127 / 3.257 / 3.518 / 3.710 (f = 0.25 / 0.35 / 0.5 / 0.6) → número de enlace del marco 3 / 3 / 4 / 4 → K_2 = cable (2, 9) / (2, 9) / (2, 11) / (2, 11) del trébol; K_3 = cable (2, 33) / (2, 33) / (2, 39) / (2, 39) de K_2. El caso f = 0.5 se decide por un margen de 0.02 en el writhe (estable al duplicar N, pero estrecho).
 
 ## Lo que NO se afirma
@@ -74,3 +74,30 @@ Informe: `REFEREE_RTK001_ronda1_20260930.md` (cambios mayores; 2 bloqueantes, 6 
 Cómputo de la ronda: corrida de referencia completa relanzada tras el cambio de código (3 min 06 s de pared, 3 min 05 s de CPU; todos los campos previos idénticos a v0.1), `aux_checks.py` 33 s, `check_Hc.py` 36 s, compilaciones ≈ 1 min. Total ≈ 5 min de CPU.
 
 **Qué quedaba abierto tras la ronda 1** (superado en parte en la ronda 2, véase abajo): (i) caso misma hebra de (H_c) en f = 1/2 (constantes evaluadas en malla 0.32/0.13/0.16; v0.2 las llamaba "demostradas", corregido en la ronda 2) y constante de curvatura a priori en f = 1/2, d = 2 (0.48); (ii) uniformidad en d de (H_3); (iii) p ≥ 3 no tratado en la parte demostrada; (iv) las constantes del Teorema 3.10 distintas de c_1(1/2, 2/3) ≥ 1/2 son ínfimos en malla con corrección Lipschitz estimada, no aritmética de intervalos; (v) writhe poligonal exacto no implementado; (vi) certificación del grosor poligonal; (vii) bibliografía: 7 entradas coherentes pero no verificadas en línea (listadas arriba).
+
+## Ronda 2 de revisión interna (03/10/2026)
+
+Informe: `REFEREE_RTK001_ronda2_20261003.md` (cambios menores; 0 bloqueantes, 4 mayores, 13 menores; ronda 1: 23 puntos bien aplicados, 2 con error nuevo). Respuesta punto por punto: `RESPUESTA_RTK001_ronda2_20261003.md`. En la misma pasada se integró el trabajo terminado de `theory/` sobre el caso "misma hebra" (`same_strand_lemma.tex`, `same_strand_derivation.md`, `check_same_strand.py`), verificado por el autor antes de pegarlo (lectura de cada paso, re-ejecución con salida idéntica byte a byte, formas cerradas recomputadas, censo independiente de pares críticos). Manuscrito → v0.3 (12 páginas a 10 pt; antes 11).
+
+| Hallazgo | Decisión | Acción en v0.3 |
+|---|---|---|
+| M1 estado de las constantes | aceptar | "demostrado" solo para lo analítico (c_1 ≥ 1/2, c_0′ ≥ 1/2, 1/(rκ̄_1) > 0.561); 0.6117 y demás = "grid value"/"grid evaluation, not certified"; en d = 2, 3 "evaluación en malla con entradas medidas en los polígonos"; resumen, Lema 3.7, Teorema 3.13, Hip. 3.15, tabla de afirmaciones, Limitaciones (4), README, FICHA y esta nota. Además d = 1 queda demostrado analíticamente para todo f ≤ 1/2 (mejor que la opción f ≤ 0.35 que sugería el árbitro) |
+| M2 conjetura tautológica | aceptar | Conj. 3.19 con umbrales f_*(d) y condición sobre los demás pares doblemente críticos; márgenes 1.4 % / 2.1 % (f = 1/2, d = 2, 3) generados por macro desde `classify_pairs.py` (1.4 % / 2.0 % con N_0 = 512) |
+| M3 lo abierto desfasado | aceptar | lo abierto ya no es "misma hebra" (demostrado) sino (H_3) uniforme en d y la certificación; censo de pares en §4 con el dato reconciliado (véase abajo); Next steps (1) reescrito |
+| M4 dependencia de `theory/` | aceptar | `experiments/check_Hc.py`, `experiments/check_same_strand.py` (copias, solo rutas) → `results/check_*_summary.json` (idénticos byte a byte a los de `theory/`); SHA-256 en `results/FROZEN_THEORY_SHA256.txt`; `make_numbers.py` lee solo `results/` y falla si falta un insumo |
+| B2/m3 doble listado de (3,2) d = 2 | aceptar | tolerancia única 5·10⁻⁴ (> cambio de τ por resolución, 0.03 %); 0.9989 es estable al duplicar N (0.99889 → 0.99886), así que es fallo, no igualdad; aserción de disjunción en `make_numbers.py` |
+| m1 redondeos del Paso 4 | aceptar | β(π/3) < 0.5484, √(1−β²) > 0.8362, P₁ > 0.8169, P₁² > 0.667, suma > 1.01; igualdad Λ = 1 en δ = π/3 señalada |
+| m2 citas del Teorema | aceptar | prueba del Teorema 3.13 cita Prop. 3.6(a)/(b), Paso 1 del Lema 3.7, Lema 3.7, Prop. 3.10, Props. 3.8/3.12 |
+| m4–m7 | aceptar | resumen precisado ((H_3) con torsión; κ_max(K_{d−1}); hebras relativas al arco); M_v, M_κ y c_BS; cuantificador de (H_c); cadena del Corolario medida (`corollary_chain.py`) |
+| m8 números de cruce | aceptar con matiz | Obs. 3.18: Cr(K_2) ≥ 13 (Kalfagianni–McConkey, Teor. 1.1) y que ellos determinan Cr de 2-cables de nudos adecuados, sin dar el valor exacto (convenciones no cotejadas; texto completo inaccesible); Lackenby 2014 para d ≥ 3; FICHA |
+| m9–m13 | aceptar | bibliografía unificada (arriba); RESPUESTA ronda 1 §5 corregida ("11 páginas", con nota de corrección); constantes en tabla (Tabla 1); fuente 10 pt mantenida |
+| Bibliografía | aceptar | DOIs de Fenchel, White, Fuller, Călugăreanu (y número 4); dos referencias nuevas verificadas |
+| Recortes | aplicados en parte | Fig. 1 retirada (queda en `figures/`); estado detallado solo en Tabla 1 y tabla de afirmaciones; "On the constant" condensado; Obs. 3.14 abreviada; sonda de acortamiento a una frase; observaciones de crecimiento y escritura de writhe condensadas; Prop. 3.9 de v0.2 (misma hebra bajo (H_3), c_0) **retirada por superada** (queda en v0.2 y en `theory/Hc_lemma.tex`) |
+
+**Dato reconciliado (pares críticos de la misma hebra).** El árbitro ("ningún par crítico de la misma hebra en d = 1–3") y el agente teórico ("pares de misma hebra con δ < π solo en d = 1, δ ≥ 1.96, distancia ≥ 3.70 r") tenían ambos razón con detectores distintos: con el test de mínimo local de vértices (el del proxy τ) no hay ninguno en los 18 niveles; con un test de cambio de signo que detecta también sillas y máximos, los hay solo en d = 1 (f = 1/2: δ ≥ 1.96 > δ_turn = 1.068, distancia ≥ 3.70 r) y ninguno en d = 2, 3 (`experiments/classify_pairs.py`, cómputo propio).
+
+**Números que cambiaron en el texto:** ninguno de los experimentos (no se tocó `recursive_knots.py`; `results.json` intacto). Cambian: lista de igualdades con c = 1 ("(3,2), d = 3; (2,5), d = 2,3"; antes incluía por error (3,2) d = 2); constantes ahora redondeadas hacia abajo (p. ej. 1/(rκ̄) en f = 1/2, d = 2: 0.48, antes 0.49); constantes nuevas (c_0′, 1/(rκ̂), márgenes, censo, cadena del Corolario).
+
+**Cómputo de la ronda 2:** `check_Hc.py` 57 s y `check_same_strand.py` 25 s (pared), `classify_pairs.py` 49 s de CPU, `corollary_chain.py` 26 s de CPU, formas cerradas < 1 s, compilaciones ≈ 1.5 min. Total ≈ 4 min de CPU.
+
+**Qué queda abierto tras la ronda 2:** (i) (H_3) uniforme en d, que con el Teorema 3.13 cerraría (H_c) con c = 1/2 para (2,3) en toda profundidad (en d = 2, 3 solo hay evaluación en malla con entradas medidas); (ii) certificación por intervalos de c_1, c_0′, κ̂_d y del grosor poligonal; (iii) p ≥ 3 y otros patrones; (iv) Conjetura 3.19 (umbral f_*(d)); (v) writhe poligonal exacto; (vi) Cr(K_2) exacto vía Kalfagianni–McConkey con convenciones cotejadas; (vii) bibliografía: Lickorish 1997 coherente pero no buscada.

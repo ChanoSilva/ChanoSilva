@@ -1,4 +1,4 @@
-# TCD001 — Continuidad interna, 30/09/2026 (actualizada 03/10/2026, v0.3)
+# TCD001 — Continuidad interna, 30/09/2026 (actualizada 03/10/2026, v0.4)
 
 Documento de trabajo interno. No incorporar al manuscrito ni a entregas institucionales.
 
@@ -15,7 +15,7 @@ Pedido de la sesión (coordinador, Claude Code, 30/09/2026): dar a la línea un 
 5. **"Conexión con problemas combinatorios conocidos".** Se materializó como una reducción directa desde Subset Sum para p = 1 (existencia de testigo de deselección). No se sabe si la conexión que tenía en mente la ficha era esta u otra (p. ej. sistemas máximos factibles de Amaldi–Kann).
 
 ## Qué se produjo (todo en `papers/TCD001-lasso-selection-fragility/`)
-1. Manuscrito LaTeX (`manuscript/main.tex`, inglés; v0.1: 15 páginas, 22 referencias; v0.2: 10 páginas, 23 referencias, tablas por celda trasladadas a `results/*.md`; v0.3: 10 páginas, 25 referencias), compilado sin errores ni referencias indefinidas.
+1. Manuscrito LaTeX (`manuscript/main.tex`, inglés; v0.1: 15 páginas, 22 referencias; v0.2: 10 páginas, 23 referencias, tablas por celda trasladadas a `results/*.md`; v0.3: 10 páginas, 25 referencias; v0.4: 12 páginas —cuerpo hasta la p. 11—, 25 referencias), compilado sin errores ni referencias indefinidas.
 2. Biblioteca `experiments/lasso_fragility.py` y cuatro scripts de experimentos con semillas fijas (20260930 para E0–E3/E5, 20260931 para E4), salida JSON + Markdown, `make_numbers.py` (~500 macros en v0.2, 528 en v0.3, con aserciones que atan las frases cualitativas del texto a los datos) y `make_figures.py`; `check_b1_counterexample.py` (v0.2); `snapshot_cost_ratios.py` (v0.3). Ningún número del manuscrito está escrito a mano.
 3. README, esta nota y una propuesta de ficha.
 
@@ -24,7 +24,7 @@ Pedido de la sesión (coordinador, Claude Code, 30/09/2026): dar a la línea un 
 - **Cor. 3.2 (una eliminación) — demostrado, enunciado corregido en v0.2.** Con la hipótesis h_i < 1 (rango completo de X_{S,−i}): fórmula DFBETA con el residuo del Lasso bajo la regla C; índice de inestabilidad ι_i (ι_i := +∞ si h_i = 1, caso de rango deficiente en el que el soporte no se conserva); certificado O(np) de f ≥ 2. El v0.1 enunciaba h_i < 1 como incondicional (falso: X = I₂, y = (3,3), μ = 1 da h₁ = h₂ = 1). La condición suficiente cubre el 58% de las eliminaciones individuales realmente estables.
 - **Prop. 3.4 (certificado para k eliminaciones) — demostrada, holgada.** Coste O(nps₀ + pn log n). Requiere T_k(h) < 1; certifica k* ≥ 1 solo en el 30% de las instancias de la familia A con f ≥ 2 (n ≤ 14), brecha media 1.2; a n = 400 la horquilla [k*+1, greedy] tiene razón media 0.57 (A).
 - **Ejemplos de no monotonía.** p = 1: x = (1,1,1), y = (2,−2,2), μ = 3/2, R = {1}, R' = {1,2}, ambas reglas (demostrado a mano). p = 2: X = [[2,−1],[0,2],[1,1],[2,−2],[−1,1]], y = (2,−2,3,−1,0), μ = 7/2, R = {3,4}, R' = {2,3,4}: la variable 1 sale por competencia con la 2 (su correlación marginal en D∖R es 4 > 7/2 pero la residual es 11/4 < 7/2) y vuelve en D∖R'. Los 26 subconjuntos propios se verifican en aritmética racional exacta; 3 pares no monótonos.
-- **Teorema 5.1 — demostrado.** (a) Existencia de testigo de deselección NP-completa para p = 1 (reducción desde Subset Sum con x_i = 1, y = (b_1,…,b_m, −t), μ = 1/2; funciona con ambas reglas). (b) Testigo mínimo de selección para p = 1 en O(n log n). Observaciones: dureza débil (DP pseudo-polinomial); para p ≥ 2 solo se hereda la dureza de "sale"/"cualquiera" y no hay nada para "entra" (Conjetura 5.3).
+- **Teorema 5.1 — demostrado.** (a) Existencia de testigo de deselección NP-completa para p = 1 (reducción desde Subset Sum con x_i = 1, y = (b_1,…,b_m, −t), μ = 1/2; funciona con ambas reglas). (b) Testigo mínimo de selección para p = 1 en O(n log n). Observaciones: dureza débil (DP pseudo-polinomial); para p ≥ 2 se hereda la dureza de "sale"/"cualquiera", y desde v0.4 "entra" es NP-completo para p fijo ≥ 2 (Teorema 5.4; ver la sección final).
 - **Observación 3.5 (stability selection) — demostrada, trivial.** Si el minimizador del Lasso es único en cada submuestra de tamaño ⌊n/2⌋ (c.s. en diseños continuos), f_leave(j) > ⌈n/2⌉ ⇒ frecuencia de selección 1 bajo la regla que use stability selection (hipótesis de unicidad añadida en v0.3, ronda 2 M3). El artículo original usa ‖Y − Xβ‖²₂ + λ‖β‖₁ con λ fijo en las submuestras, es decir, la regla C (μ = λ/2); las implementaciones con factor 1/n usan la P. Esa forma se verificó con fragmentos de búsqueda (árbitro de la ronda 2); el PDF no se pudo abrir (stat.ethz.ch y wiley bloqueados por el proxy). El recíproco no se sigue de las definiciones por la no monotonía. No se buscó un contraejemplo explícito del recíproco.
 - **Experimentos (verificados, solo en dos familias sintéticas).** Ver README para las cifras. Lo esencial: a n ≤ 14 el soporte cambia con una sola eliminación en el 92% (familia ruidosa) y el 52% (familia con señal fuerte) de las instancias; los testigos mínimos son mayoritariamente eventos simples; 0 de 18 combinaciones heurística×objetivo×familia cumplen el criterio predefinido de ventaja computacional (el greedy de un paso cumple la parte de exactitud para "cualquiera" y "sale", pero nunca la de costo, porque la búsqueda exhaustiva con el test cerrado es barata a estos tamaños; en E4, familia A, el cociente de coste baja del 10% solo a n = 34 —0.062 en la corrida v0.3, 0.055–0.070 en tres corridas— con 17 de 19 instancias exactas, y en la familia B el greedy es 8–11 veces más caro a todos los tamaños); pares no monótonos en el 51–72% de las instancias.
 
@@ -48,12 +48,12 @@ Pedido de la sesión (coordinador, Claude Code, 30/09/2026): dar a la línea un 
 
 ## Pendientes y próximos pasos concretos
 1. Confirmar con el autor que la interpretación de la ficha (testigos, no monotonía, reducción) coincide con la idea original; integrar notas previas si existen.
-2. Conjetura 5.3: NP-completitud del testigo de selección para p ≥ 2; y dureza fuerte de "sale" con p fijo ≥ 2 (la reducción actual solo da dureza débil).
+2. Conjetura 5.8 (v0.4): dureza fuerte con p como parte de la entrada (ruta: varios absorbedores; `theory/hardness_derivation.md` §4). La Conjetura 5.3 de v0.3 quedó demostrada (Teorema 5.4) y la dureza fuerte con p fijo queda excluida salvo P = NP (Cor. 5.6).
 3. Apretar la Prop. 3.4 (estructura de signos del término de interacción; relajación SDP pequeña) y medir la brecha con f en E4.
 4. Reglas dependientes de los datos (μ por validación cruzada): el testigo debe incluir el cambio de μ.
 5. Extender el test exacto a elastic net y square-root Lasso (KKT lineales sobre soporte con signos fijo).
 6. Buscar un contraejemplo explícito del recíproco de la Observación 3.5 (frecuencia de stability selection 1 con f_leave ≤ ⌈n/2⌉).
-7. Decidir destino (arXiv stat.ME / math.OC); la extensión es ahora 10 páginas (ver ronda 1).
+7. Decidir destino (arXiv stat.ME / math.OC); la extensión es ahora 12 páginas con apéndices (ver ronda 1 y la sección final).
 8. Actualizar la ficha TCD001 del CV web según `FICHA_TCD001_propuesta.md`.
 
 ## Ronda 1 de revisión interna (30/09/2026; respuesta 03/10/2026)
@@ -105,5 +105,29 @@ Queda abierto tras la ronda 2:
 3. Las 16 entradas clásicas siguen sin verificación en red.
 4. Los cocientes de coste dependen de la carga de la máquina (hasta ×2.3 entre corridas); cualquier afirmación sobre coste a n ≥ 22 descansa en 20–40 instancias por celda y tres corridas.
 5. La exactitud del greedy a n = 34 (17/19) no decide la parte de exactitud del criterio; harían falta más instancias a n ≥ 30 para leer E4 contra el criterio.
-6. Integración de `theory/` (complejidad para p ≥ 2, otro agente): pendiente, por separado.
+6. Integración de `theory/` (complejidad para p ≥ 2, otro agente): hecha en v0.4 (sección siguiente).
 7. Opcional: ampliar la verificación exacta del Ej. 4.3 a los 30 conjuntos no vacíos propios (31 con R = ∅; |R| = 4 incluido; 9 pares no monótonos en lugar de 3), regenerando `examples.json` y la macro.
+
+## Integración de la dureza para p ≥ 2 (03/10/2026)
+
+Origen: `theory/` (otro agente): `hardness_p2.tex`, `hardness_derivation.md`, `check_hardness.py`, `check_hardness_output.txt`. `theory/` queda como estaba; su salida se volvió a generar para verificar (idéntica salvo la línea del tiempo) y se restauró la original.
+
+**Verificación propia (antes de integrar).** Revisé paso a paso: el criterio de entrada (Lema 5.3: problema restringido estrictamente convexo, KKT suficiente/necesario); las identidades q₂ − μ' = ½(κ−ρ) + ρΔ − (1−ρ)μ' y G₁₂/G₁₁ − ρ = (κ−ρ)u²/(u²+N); los tres casos Δ ≤ −1, Δ = 0, Δ ≥ 1 (la «ventana» de ancho < 1: con Δ entero solo Δ = 0 deja entrar a la variable 2; para Δ ≥ 1 la variable 1 la absorbe porque u² > m ≥ N y κ − ρ ≤ 1/B); el caso sin gadget (|γ| = ρ·min(|W|, μ') < μ'); la cancelación de la regla P (μ' = λ|K|, W = σ + λN ⇒ Δ = σ − t); la unicidad en todas las submuestras (rango 2, o filas proporcionales con κ > 1 / ρ < 1); la pertenencia a NP para p fijo (3^p soportes con signo + vértices del politopo de minimizadores por ortantes); el recuento de estados del programa dinámico ((n+1)(2nM²+1)^{p(p+3)/2}, coste O(n²(2nM²+1)^{p(p+3)/2})) y el corolario. Volví a correr `check_hardness.py` (38.9 s): 312/312, 0 fallos; comprobé además que en los controles negativos la equivalencia se rompe exactamente en las instancias NO construidas a propósito ([2,2,2,2,2,2], t = 7 con u = 1; [2,2,40], t = 1 con κ = 2), con testigos espurios.
+
+**Las pruebas son correctas.** Correcciones de enunciado y redacción respecto de `hardness_p2.tex`:
+1. Corolario (cor:weak): decía que Selection-Witness es NP-completo «para todo p fijo»; con p = 1 es O(n log n) (Teorema 5.1(b)). Ahora: «para p fijo ≥ 2».
+2. Corolario: «la dureza fuerte requiere p creciente» se restringe a datos enteros (el algoritmo pseudo-polinómico es para datos enteros; con racionales de numeradores/denominadores pequeños pero distintos, llevar a enteros puede inflar exponencialmente los módulos).
+3. Conjetura de dureza fuerte (conj:strong): «NP-completo en sentido fuerte» → «NP-duro en sentido fuerte», porque la pertenencia a NP con p como parte de la entrada (programación lineal) no se demuestra en el texto. No se cita Khachiyan (1979) y esa observación se dejó fuera.
+4. Se añadió a la prueba del Teorema 5.4 el reescalado (X, y, μ) → (αX, α'y, αα'μ), que conserva soportes, unicidad y testigos bajo ambas reglas: la dureza vale también con datos enteros (lo que usa el Corolario).
+5. Observación de la comprobación: el solver con guarda KKT se comparó en 33 172 submuestras (todas para n ≤ 9, una muestra para las mayores), no en todas; ahora se dice.
+6. Notación: P, Q, a, c del lema → G₁₁, G₁₂, q₁, q₂ (choque con la regla P, el vector de correlaciones c y los a_i del Teorema 5.1); g_K → q_K (choque con la fila gadget g).
+
+**Qué se integró y dónde (`manuscript/main.tex`).** Sección 5: Obs. 5.2(ii) reescrita (deselección y ANY sin signo heredan la dureza; Teorema 5.4 añade «entra»; Prop. 5.5 extiende el algoritmo pseudo-polinómico); párrafo «Selection witnesses for p ≥ 2»; Lema 5.3 (lem:entry); Teorema 5.4 (thm:enter2, [proved here], sustituye a la Conjetura 5.3 de v0.3) con la construcción; Prop. 5.5 (prop:pseudo); Cor. 5.6 (cor:weak); Obs. 5.7 (rem:verify2, [computationally verified]); Conjetura 5.8 (conj:strong, [conjectural]) con la ruta no ejecutada. Apéndice B (app:proofs): pruebas completas del Lema 5.3, el Teorema 5.4 y la Prop. 5.5. Apéndice A: párrafo de la verificación exhaustiva. Resumen (iii), introducción (solo queda abierta la dureza fuerte con p no acotado), tabla de afirmaciones (la fila de dureza se divide en tres: p = 1; p fijo ≥ 2 + pseudo-polinómico + 312/312; conjetura fuerte), limitaciones y próximos pasos (a). Portada: v0.4, 3 October 2026. Los apéndices van en `\small`.
+
+**Reproducibilidad.** `experiments/check_hardness.py` (copia con la misma lógica que además escribe `results/hardness.json`, `results/check_hardness_output.txt` y `results/check_hardness_output.sha256`, SHA-256 2049f31ebeec189b…; tiempo en `results/time_check_hardness.txt`, 38.9 s). `make_numbers.py` comprueba el SHA-256 y genera 17 macros `\Hard*` (156 fuentes, 78/78, 312/312, 137 328 submuestras, 33 172 ajustes, 145/145, semilla, segundos, prefijo del hash); además afirma con assert todo lo que el texto dice cualitativamente (0 fallos de caracterización, unicidad en todas las submuestras, 0 empates, 0 desacuerdos, controles negativos detectados). Ningún número de la Sección 5 está tecleado.
+
+**Compilación.** 0 errores, 0 referencias o citas indefinidas, sin «??», sin cajas desbordadas. Páginas: 10 (v0.3) → 12 (v0.4); el cuerpo termina en la p. 11 y los apéndices A–B y las referencias ocupan pp. 11–12. El objetivo de ≤ 11 páginas en total no se alcanzó: haría falta recortar material de v0.3 o cambiar márgenes, lo que no hice; queda a decisión del autor. Referencias: 25 (sin entradas nuevas en refs.bib).
+
+**Lo que NO se afirma.** Novedad de las reducciones; dureza fuerte (con p fijo está excluida salvo P = NP, con p creciente es conjetural); pertenencia a NP con p como parte de la entrada; nada sobre instancias típicas (las reducciones usan datos con estructura especial).
+
+**Pendiente.** (i) Conjetura 5.8. (ii) Si se quiere la observación de pertenencia a NP con p en la entrada, verificar la referencia de Khachiyan (1979) y añadirla a `refs.bib`. (iii) Decidir si recortar a 11 páginas en total.
