@@ -29,7 +29,8 @@ def data(X):
 def main():
     t0 = time.process_time()
     res = json.load(open(os.path.join(ROOT, "results", "results.json")))
-    tau1 = [c for c in res["chains"] if c["pattern"] == "(2,3)" and c["f"] == 0.5 and c["N0"] == 512][0]["levels"][0]["tau"]
+    ch = [c for c in res["chains"] if c["pattern"] == "(2,3)" and c["f"] == 0.5 and c["N0"] == 512][0]
+    tau1 = [lv for lv in ch["levels"] if lv["d"] == 1][0]["tau"]
     RS = [0.5, 0.5 * tau1, 0.25 * tau1, 0.125 * tau1]
     M0 = 1024
     s = 2 * np.pi * np.arange(M0) / M0

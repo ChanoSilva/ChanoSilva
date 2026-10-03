@@ -15,6 +15,8 @@ Objeto: borrador v0.3 → v0.4 (fecha fija 3 October 2026). Atiende (A) el infor
 
 ## 1. Verificación independiente del teorema de ruteo
 
+> **[Nota de corrección, ronda 4 (03/10/2026), hallazgo m6]** Lo que esta sección llama "verificación independiente" y "chequeo propio independiente" lo hizo quien integró el resultado en el manuscrito; no es independiente en el sentido de un árbitro. La verificación independiente es la del árbitro de la ronda 4 (`REFEREE_EQO001_ronda4_20261003.md`, §1 y §5). El script de §1.3 (`scratchpad/eqo_r3/indep_check.py`) está ahora en el repositorio como `experiments/routing_integrator_check.py`, con su salida en `results/routing_integrator_check_output.txt` (re-ejecutado en la ronda 4: idéntica salvo el tiempo de CPU).
+
 Material verificado: `theory/routing_hardness.tex` (Lema `lem:concave`, Teorema `thm:routinghard`, Observación `rem:interior`, Corolario `cor:routingdag`, Proposición `prop:routingeasy`, Pregunta `q:multi` nueva), su derivación `theory/routing_hardness_derivation.md` y el script `theory/check_routing_hardness.py`. Los archivos de `theory/` no se modificaron: el script se copió al scratchpad y se ejecutó allí (escribe su salida junto a sí mismo).
 
 ### 1.1 Verificación a mano, paso a paso
@@ -64,6 +66,8 @@ Los cinco enunciados son correctos. No se degrada ninguno. Correcciones aplicada
 3. `rem:interior`: cota explícita de $c_{S_i}$.
 4. `q:multi`: se añade la variante "DAG con $F$ fuertemente monótono" y se retira la referencia a la v0.3.
 5. Estado: "proved here (independently re-derived by the author, §1 of this response); checked in E8". Los números de E8 son literales de `theory/check_routing_hardness_output.txt`, reproducida idéntica. No se generan macros, porque `make_numbers.py` no lee esa salida y `theory/` no se toca. En el texto se dice que se copian de esa salida.
+
+   > **[Nota de corrección, ronda 4 (03/10/2026), hallazgo m5]** Este punto 5 describe un plan descartado y contradice §0, §2-m4 y §3 de esta misma respuesta y los archivos de la v0.4. Lo correcto es: (a) los números de E8 **sí** se generan como macros: `make_numbers.py` (líneas 251–285 de la v0.4) lee `theory/check_routing_hardness_output.txt` en modo sólo lectura y escribe los macros `\Rt*` en `numbers.tex` (líneas 182–203 de la v0.4); el manuscrito dice "numbers parsed from its saved output", no que se copien. (b) El estado aplicado en el manuscrito v0.4 fue "proved here, Appendix B; checked in E8", no "independently re-derived by the author". En la v0.5, tras la verificación independiente de la ronda 4, es "proved here, Appendix B; checked by an independent internal referee (round 4) and in E8". Véase `RESPUESTA_EQO001_ronda4_20261003.md`, m5.
 
 ## 2. Respuesta punto por punto al informe de ronda 3
 

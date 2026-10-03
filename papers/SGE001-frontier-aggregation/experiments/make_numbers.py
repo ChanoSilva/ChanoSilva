@@ -329,6 +329,28 @@ _T = SH["CES_enclosure_tightness"]
 M("SharpCESTightSmall", g2(max(_T["LN_sigma0.01_k3"], _T["LN_sigma0.01_k4"])))
 M("SharpCESTightLarge", g2(max(_T["LN_sigma0.1_k3"], _T["LN_sigma0.1_k4"])))
 
+# ---------------------------------------------------------------- E4 with the smaller bound (v0.5, round 3, m4)
+# results/e4_min_bound.json is written by experiments/e4_min_bound.py (deterministic output, no timing field); its
+# SHA-256 and the script's are frozen in results/e4_min_bound.sha256 and checked here, as for the theory JSON.
+_frozen_min = {}
+for _line in open(os.path.join(ROOT, "results", "e4_min_bound.sha256")):
+    if _line.strip():
+        _h, _p = _line.split()
+        _frozen_min[_p] = _h
+for _p, _h in _frozen_min.items():
+    _got = hashlib.sha256(open(os.path.join(ROOT, _p), "rb").read()).hexdigest()
+    if _got != _h:
+        raise SystemExit(f"make_numbers: {_p} has SHA-256 {_got[:12]}..., but the frozen value in "
+                         f"results/e4_min_bound.sha256 is {_h[:12]}...; refusing to generate the E4 minimum macros")
+MB = {r["sigma"]: r for r in json.load(open(os.path.join(ROOT, "results", "e4_min_bound.json")))["rows"]}
+M("MinEfourJsonSha", _frozen_min["results/e4_min_bound.json"][:12]); M("MinEfourScriptSha", _frozen_min["experiments/e4_min_bound.py"][:12])
+for s, tag in ((0.1, "PointOne"), (0.2, "PointTwo"), (0.4, "PointFour")):
+    M(f"MinEfourScFrac{tag}", pct(MB[s]["min_seg_s"], 1)); M(f"MinEfourBoxScFrac{tag}", pct(MB[s]["min_box_s"], 1))
+    M(f"MinEfourBestMicroFrac{tag}", pct(MB[s]["best_micro"], 1)); M(f"MinEfourBestMomFrac{tag}", pct(MB[s]["best_moments"], 1))
+    # the single-bound shares of this script must be those of the frozen theory JSON (same draws, same code)
+    assert (pct(MB[s]["third_seg_s"], 1), pct(MB[s]["fourth_seg_s"], 1)) == (pct(_F[s]["old_seg_s"], 1), pct(_F[s]["new_B3seg_s"], 1)), s
+M("MinEfourCertReversals", sum(r["certified_reversals"] for r in MB.values()))
+
 # tables that are no longer used by main.tex (E1b, E3 and E5 per sigma live in results/tables.md)
 for stale in ("table_e1b.tex", "table_e3.tex", "table_e5b.tex"):
     p = os.path.join(OUT, stale)

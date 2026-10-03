@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Turn results/results.json into LaTeX macros and table bodies for main.tex."""
 import json
+import math
 import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -17,6 +18,16 @@ def sci(x, digits=1):
     if digits == 0:
         return rf"\ensuremath{{10^{{{e}}}}}"
     return rf"\ensuremath{{{m:.{digits}f}\times 10^{{{e}}}}}"
+
+
+def up(x, d):
+    """Round upwards to d decimals (for quantities presented as upper bounds; round 5, m4)."""
+    return f"{math.ceil(x * 10 ** d - 1e-9) / 10 ** d:.{d}f}"
+
+
+def down(x, d):
+    """Round downwards to d decimals (for quantities presented as lower bounds)."""
+    return f"{math.floor(x * 10 ** d + 1e-9) / 10 ** d:.{d}f}"
 
 
 def word(n):
@@ -237,8 +248,7 @@ if os.path.exists(rl_path):
         body = []
         for r in rr:
             body.append(f"{r['n']} & {r['samples']} & {r['equal_to_two_pow_N']}/{r['samples']} & {r['mean_N']:.2f} & "
-                        f"{r['fraction_unique']:.2f} & {r['fraction_two']:.2f} & {r['fraction_le_eight']:.2f} & "
-                        f"{exc_frac(r):.3f} & {5 / r['n']:.3f}")
+                        f"{r['fraction_unique']:.2f} & {r['fraction_two']:.2f} & {r['fraction_le_eight']:.2f}")
         fh.write(" \\\\\n".join(body) + "\n")
     from fractions import Fraction as _Fr
 
@@ -325,6 +335,108 @@ if os.path.exists(chk_path) and os.path.exists(chk_sha_path):
     L.append(rf"\newcommand{{\RlawChkCIlast}}{{$[{cis[-1][1]:.1f},{cis[-1][2]:.1f}]$}}")
     L.append(r"\newcommand{\HasRlawChk}{1}")
 
+# v0.8 (round 5): frozen output of theory/check_second_order.py (second-order results), written by
+# experiments/freeze_second_order.py without timing lines; both SHA-256 are verified before reading
+so_exact = {}
+so_path = os.path.join(ROOT, "results", "check_second_order_output.txt")
+so_json_path = os.path.join(ROOT, "results", "second_order_results.json")
+so_meta_path = os.path.join(ROOT, "results", "check_second_order_meta.json")
+if os.path.exists(so_path) and os.path.exists(so_json_path) and os.path.exists(so_meta_path):
+    import hashlib
+    import re
+    so_raw = open(so_path, "rb").read()
+    so_jraw = open(so_json_path, "rb").read()
+    so_meta = json.load(open(so_meta_path))
+    so_sha = hashlib.sha256(so_raw).hexdigest()
+    so_rec = open(os.path.join(ROOT, "results", "check_second_order_output.sha256")).read().split()[0]
+    if so_sha != so_rec or so_sha != so_meta["sha256_frozen_output"]:
+        raise SystemExit(f"check_second_order_output.txt: SHA-256 {so_sha} != recorded {so_rec}")
+    if hashlib.sha256(so_jraw).hexdigest() != so_meta["sha256_frozen_json"]:
+        raise SystemExit("second_order_results.json: SHA-256 does not match the meta file")
+    so_txt = so_raw.decode()
+    sj = json.loads(so_jraw)
+
+    def so_grab(pattern):
+        m_ = re.search(pattern, so_txt, re.M)
+        if m_ is None:
+            raise SystemExit(f"check_second_order_output.txt: pattern not found: {pattern}")
+        return m_
+
+    for pat in (r"^A1 .*: OK$", r"^A2 E\[\(N_n\)_r\] .*: mismatches = 0$", r"^A3 sign lemma .*violations = 0$",
+                r"^B1 .*: True$", r"^B2 .*agree: True$", r"^B3 .*agree: True$", r"^C2 .*n<=(\d+): True$",
+                r"^C3 .*n<=(\d+): True$", r"^E3 n\^2 B\(n\) non-increasing on 22<=n<=(\d+): True$"):
+        so_grab(pat)
+    if not (sj["S1_maxratio"] <= 1 and 0 < sj["theta_lo"] and sj["theta_hi"] <= 1 and max(sj["E1"]) <= 1
+            and sj["E2"] <= 1 and sj["dtvR_ratio_to_bound"] <= 1):
+        raise SystemExit("second-order check: a bound of Theorem S1, Lemma intref or Proposition S3 fails")
+
+    def macro(name, val):
+        L.append(rf"\newcommand{{\{name}}}{{{val}}}")
+
+    def sci_up(x, sig=2):
+        e_ = math.floor(math.log10(abs(x)))
+        mant = math.ceil(x / 10 ** e_ * 10 ** (sig - 1) - 1e-9) / 10 ** (sig - 1)
+        return rf"\ensuremath{{{mant:.{sig - 1}f}\cdot10^{{{e_}}}}}"
+
+    macro("SecDigits", so_grab(r"computed with (\d+) digits").group(1))
+    nl = sj["N_list"]
+    run_end = max(i for i in range(len(nl)) if nl[i] == nl[0] + i)
+    macro("SecNrange", rf"$\,{nl[0]}\le n\le{nl[run_end]}$ and $n\in\{{{','.join(str(v) for v in nl[run_end + 1:])}\}}$")
+    macro("SecLawBruteN", so_grab(r"^A1 closed form = factorial-moment inversion for n<=\d+, = brute force for n<=(\d+)").group(1))
+    macro("SecLawNmax", so_grab(r"^A1 closed form = factorial-moment inversion for n<=(\d+)").group(1))
+    macro("SecSOneRatio", up(sj["S1_maxratio"], 3))
+    macro("SecThetaLo", down(sj["theta_lo"], 3))
+    macro("SecThetaHi", up(sj["theta_hi"], 4))
+    macro("SecNthousand", str(sj["N1000"]))
+    macro("SecNthousandVal", f"{sj['N1000_n2dtv']:.7f}")
+    macro("SecNthousandPred", f"{sj['three_over_4e'] + sj['one_over_4e'] / sj['N1000']:.7f}")
+    macro("SecThreeFourE", f"{sj['three_over_4e']:.5f}")
+    macro("SecOneTwoE", f"{sj['one_over_2e']:.5f}")
+    macro("SecBestN", str(sj["best_n"]))
+    macro("SecBestA", f"{sj['best_amin']:.4f}")
+    macro("SecBestMin", f"{sj['best_min']:.5f}")
+    macro("SecExactNmax", so_grab(r"^C1 exact integer generating function up to n=(\d+)").group(1))
+    macro("SecGallaiN", so_grab(r"^C2 .*n<=(\d+): True$").group(1))
+    macro("SecBruteN", so_grab(r"^C3 .*n<=(\d+): True$").group(1))
+    macro("SecFloatNmax", str(sj["NFLOAT"]))
+    macro("SecFloatErr", sci_up(sj["gf_float_relerr"]))
+    macro("SecRatioB", up(sj["dtvR_ratio_to_bound"], 4))
+    macro("SecAtomsMax", up(sj["atoms_max_n2dev"], 2))
+    m_ = so_grab(r"^E1 max sum_\{k=4\}\^\{m-2\} E I_k / Fbar\(m\) over (\d+)<=m<=(\d+)")
+    macro("SecIntrefMlo", m_.group(1))
+    macro("SecIntrefMhi", m_.group(2))
+    macro("SecIntrefA", up(sj["E1"][0], 4))
+    macro("SecIntrefS", up(sj["E1"][1], 4))
+    macro("SecIntrefH", up(sj["E1"][2], 4))
+    macro("SecIntrefP", up(sj["E2"], 4))
+    macro("SecMonoNhi", so_grab(r"^E3 n\^2 B\(n\) non-increasing on 22<=n<=(\d+): True$").group(1))
+    ct = sj["C_table"]
+    macro("SecBtwentytwo", f"{ct['22']:.2f}")
+    macro("SecBhundred", f"{ct['100']:.2f}")
+    macro("SecCtwentytwo", str(math.ceil(ct["22"])))
+    macro("SecChundred", str(math.ceil(ct["100"])))
+    macro("SecClimit", f"{sj['C_limit']:.2f}")
+    macro("SecDtvMaxTT", up(sj["dtvR_max_e2_22"], 2))
+    macro("SecDtvMaxAll", up(sj["dtvR_max_e2_all"], 2))
+    ke = sj["kappa_est"]
+    macro("SecKappa", f"{ke[2]:.5f}")
+    macro("SecKappaTwo", f"{ke[0]:.6f}")
+    macro("SecKappaThree", f"{ke[1]:.6f}")
+    macro("SecKappaFour", f"{ke[2]:.6f}")
+    macro("SecKappaConj", f"{sj['kappa_conjecture']:.6f}")
+    macro("SecMuTwoDev", sci_up(max(sj["mu2_conj_maxdev"])))
+    natoms = len(sj["mu2_est"])
+    macro("SecAtomsN", str(natoms))
+    macro("SecAtomsK", str(sum(1 for x_ in sj["mu2_est"] if int(x_) & (int(x_) - 1) == 0)))
+    macro("SecUntracked", f"{sj['untracked_n2_est']:.6f}")
+    macro("SecSeconds", str(int(round(so_meta["seconds"]))))
+    macro("SecSha", so_sha[:16])
+    # exact n d_TV(R_n, 2^Z) from part (D), used in Table tab:sharp and in the text (round 5, m2)
+    for nn_, v_ in re.findall(r"^ +(\d+) +[\d.]+ +([\d.]+) +[+\-][\d.]+ +[\d.]+ +[\d.na]+$", so_txt, flags=re.M):
+        so_exact[int(nn_)] = float(v_)
+    macro("SecExactFifty", f"{so_exact[50]:.3f}")
+    L.append(r"\newcommand{\HasSecond}{1}")
+
 # v0.7 (round 4): frozen output of theory/check_sharp_rate.py (numerical check of the sharp rates),
 # read only after its SHA-256 matches the recorded one; the frozen copy has no timing lines
 sh_path = os.path.join(ROOT, "results", "check_sharp_rate_output.txt")
@@ -363,10 +475,10 @@ if os.path.exists(sh_path) and os.path.exists(sh_sha_path) and os.path.exists(sh
         raise SystemExit("sharp check: Lemma A / Theorem A bounds fail")
     L.append(rf"\newcommand{{\SharpAnlo}}{{{m_.group(1)}}}")
     L.append(rf"\newcommand{{\SharpAnhi}}{{{m_.group(2)}}}")
-    L.append(rf"\newcommand{{\SharpRmax}}{{{float(m_.group(4)):.2f}}}")
-    L.append(rf"\newcommand{{\SharpDevMax}}{{{float(m_.group(5)):.2f}}}")
+    L.append(rf"\newcommand{{\SharpRmax}}{{{up(float(m_.group(4)), 2)}}}")
+    L.append(rf"\newcommand{{\SharpDevMax}}{{{up(float(m_.group(5)), 2)}}}")
     dev_min = float(grab(r'^min over n in .* = ([\d.]+)').group(1))
-    L.append(rf"\newcommand{{\SharpDevMin}}{{{dev_min:.3f}}}")
+    L.append(rf"\newcommand{{\SharpDevMin}}{{{down(dev_min, 3)}}}")
     for nn, name in ((10, "Ten"), (20, "Twenty")):
         v = float(grab(rf"^{nn:2d} \| [\d.]+ \| True \| True \| [\d.]+ \| ([+\-\d.e]+) \|").group(1))
         L.append(rf"\newcommand{{\SharpDev{name}}}{{{tex_sci(v)}}}")
@@ -386,7 +498,7 @@ if os.path.exists(sh_path) and os.path.exists(sh_sha_path) and os.path.exists(sh
     m_ = grab(r"^  20 <= n <= 3000: max of \[sum_\(k=4\)\^\(n-2\) E I_k\]/\(172/n\^2\) = ([\d.]+), E\[C\(I3,2\)\]/\(23/n\^2\) = ([\d.]+), E\[I3 I_\(n-1\)\]/\(25/n\^2\) = ([\d.]+), E\[C\(I_\(n-1\),2\)\]/\(3/n\^2\) = ([\d.]+)")
     if max(float(x) for x in m_.groups()) > 1:
         raise SystemExit("sharp check: a piece of Lemma B(a) exceeds its bound")
-    L.append(rf"\newcommand{{\SharpPieceMax}}{{{max(float(x) for x in m_.groups()):.2f}}}")
+    L.append(rf"\newcommand{{\SharpPieceMax}}{{{up(max(float(x) for x in m_.groups()), 2)}}}")
     unrounded = float(grab(r'max over 20 <= n <= 3000 of n\^2 \(bound - 5/n\) = ([\d.]+)').group(1))
     L.append(rf"\newcommand{{\SharpBoundUnrounded}}{{{unrounded:.1f}}}")
     # Monte Carlo of d_TV(R_n, 2^Z): table body
@@ -396,7 +508,15 @@ if os.path.exists(sh_path) and os.path.exists(sh_sha_path) and os.path.exists(sh
     assert len(mc) == len(dt) == len(zz) >= 1
     with open(os.path.join(out_dir, "table_sharp.tex"), "w") as fh:
         body = [f"{a[0]} & {a[1]} & {float(a[4]):.2f} $\\pm$ {float(a[5]):.2f} & {float(b[0]):.3f} $\\pm$ {float(b[1]):.3f} & "
-                f"{float(b[2]):.3f} & {float(z):.1f}" for a, b, z in zip(mc, dt, zz)]
+                f"{so_exact[int(a[0])]:.3f} & {float(b[2]):.3f} & {float(z):.1f}" for a, b, z in zip(mc, dt, zz)]
+    # round 5, m2: at n = 50 the estimate exceeds the first-order value; macros for the text
+    i50 = [int(a[0]) for a in mc].index(50)
+    mc50, ci50, fo50 = float(dt[i50][0]), float(dt[i50][1]), float(dt[i50][2])
+    L.append(rf"\newcommand{{\SharpFiftyMC}}{{{mc50:.3f}}}")
+    L.append(rf"\newcommand{{\SharpFiftyCI}}{{{ci50:.3f}}}")
+    L.append(rf"\newcommand{{\SharpFiftyFirst}}{{{fo50:.3f}}}")
+    L.append(rf"\newcommand{{\SharpFiftyExcess}}{{{mc50 - fo50:.2f}}}")
+    L.append(rf"\newcommand{{\SharpFiftyZ}}{{{(mc50 - fo50) / (ci50 / 1.96):.1f}}}")
         fh.write(" \\\\\n".join(body) + "\n")
     L.append(rf"\newcommand{{\SharpMCnlo}}{{{mc[0][0]}}}")
     L.append(rf"\newcommand{{\SharpMCnhi}}{{{mc[-1][0]}}}")

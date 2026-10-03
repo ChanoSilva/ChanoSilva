@@ -162,7 +162,7 @@ def main():
     t0 = time.process_time()
     res = json.load(open(os.path.join(ROOT, "results", "results.json")))
     ch = [c for c in res["chains"] if c["pattern"] == "(2,3)" and c["f"] == 0.5 and c["N0"] == 512][0]
-    tau1 = ch["levels"][0]["tau"]
+    tau1 = [lv for lv in ch["levels"] if lv["d"] == 1][0]["tau"]
     RS = [0.5, 0.5 * tau1, 0.25 * tau1]
     joint = json.load(open(os.path.join(ROOT, "results", "joint_phase_sweep.json")))["summary"]["argmin_256"]
     configs = [("d2_default", [0, 0]), ("d3_default", [0, 0, 0]), ("d3_1d_min", [0, 0, 0.4654211338651545]),

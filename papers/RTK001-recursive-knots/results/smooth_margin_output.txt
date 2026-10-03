@@ -1,0 +1,6 @@
+{'margin_pct': 1.3691803284990867, 'pair_type': 'min-min', 'n_candidates': 1, 'label': 'd2_default', 'betas': [0.0, 0.0], 'spectral_tail': 1.144659984929995e-16}
+{'margin_pct': 2.016182402670741, 'pair_type': 'min-min', 'n_candidates': 2, 'label': 'd3_default', 'betas': [0.0, 0.0, 0.0], 'spectral_tail': 1.1308303490504866e-16}
+{'margin_pct': 0.2162106470618541, 'pair_type': 'min-min', 'n_candidates': 1, 'label': 'd3_1d_min', 'betas': [0.0, 0.0, 0.4654211338651545], 'spectral_tail': 1.1352599510875268e-16}
+{'margin_pct': 0.21457951223269323, 'pair_type': 'min-min', 'n_candidates': 1, 'label': 'd3_0_049', 'betas': [0.0, 0.0, 0.49], 'spectral_tail': 1.133137168365046e-16}
+{'margin_pct': 0.21443057989471992, 'pair_type': 'min-min', 'n_candidates': 1, 'label': 'd3_joint_min', 'betas': [0.0, 1.0581058590215622, 0.6708609312353204], 'spectral_tail': 1.140646057760189e-16}
+CPU 7.9 s

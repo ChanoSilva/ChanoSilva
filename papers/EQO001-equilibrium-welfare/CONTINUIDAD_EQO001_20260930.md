@@ -1,4 +1,4 @@
-# EQO001 — Continuidad interna, 30/09/2026 (actualizada el 03/10/2026 tras las rondas 1, 2 y 3 de revisión interna; v0.4)
+# EQO001 — Continuidad interna, 30/09/2026 (actualizada el 03/10/2026 tras las rondas 1, 2, 3 y 4 de revisión interna; v0.5)
 
 Documento de trabajo interno. No incorporar al manuscrito ni a entregas institucionales. Las secciones originales (v0.1) se conservan con correcciones marcadas **[corregido 03/10]**; la sección final recoge la ronda 1.
 
@@ -157,3 +157,36 @@ Informe: `REFEREE_EQO001_ronda3_20261003.md` (cambios menores; 0 bloqueantes, 1 
 4. Bibliografía: Schrijver Teorema 10.2 y la página editorial de KTK no verificables desde la sesión.
 5. Pendientes antiguos: E4 con $N=5,6$ y un solver global; prerregistro externo inexistente; confirmar con el autor qué era la "formulación revisada"; decisión del autor sobre la ficha propuesta (estado condicional, ahora v0.4).
 6. Una cuarta ronda de arbitraje debería centrarse en el Apéndice B (Teorema 5.12 y Cor. 5.14), que sólo verificó su autor y el autor de esta respuesta.
+
+
+## Ronda 4 de revisión interna (03/10/2026) — v0.5
+
+Informe: `REFEREE_EQO001_ronda4_20261003.md` (cambios menores; 0 bloqueantes, 2 mayores, 12 menores). Es la primera verificación **independiente** del material de ruteo: el árbitro comprobó a mano cada paso del Teorema 5.12, la Obs. 5.13 y el Cor. 5.14 y los contrastó con código propio (208/208 instancias explícitas, 14/14 DAG, 0 discrepancias). Respuesta punto por punto: `RESPUESTA_EQO001_ronda4_20261003.md`. Recuento: 12 aceptados, 2 con matiz (m1, recortes de extensión), 0 rebatidos. Numeración del PDF v0.5 igual a la v0.4; el Apéndice B pasa a llamarse "Deferred proofs".
+
+| Hallazgo | Acción |
+|---|---|
+| M1 Cor. 5.14 hereda condiciones falsas | Enunciado reescrito: co-NP-completo en DAG con todas las rutas; difícil con $\lambda=e_W$, $f^*$ único y vértice, $\Lambda_1$ = ortante, demandas enteras, cada arco en rutas de ≤ 3 mercancías, todas salvo dos ($W$ y el interruptor, ≥ $M+2$ rutas) con 2 rutas; $F$ no fuertemente monótono. Prueba: (iv) ≤ 3 mercancías por arco, cota $M+2$ de rutas del interruptor y dirección explícita con $DF\,h=0$ (ni siquiera estrictamente monótono). "Used by" → "lies on paths of" también en el Teorema 5.12. CLAIMS, README, ficha. |
+| M2 "pocas mercancías" sin "rutas explícitas" | "with explicit path sets" en la Pregunta 7.1 y en la frase tras la Prop. 5.15; Pregunta 7.1(iii) nueva (DAG, número fijo de mercancías, ya dos con $\lambda=e_W$: cuadrática convexa + $d_R\cdot$camino más corto, cóncava). README y ficha (ES/EN). |
+| m1 Notación | Pares orientados $m\to\ell$ ($T_\ell,\alpha_\ell,t_\ell,w_\ell,p_\ell,e^{1,2,z}_\ell$); ruta $P_i\to U_i$; arista $o\to e^o$; cara $\Phi\to\mathcal F$ (Prop. 5.9); "the whole orthant" en los enunciados y $\mathbb R^{n+2}_+$ en las pruebas. No se usó $a\in A$ (choca con las pendientes $a_e$, $a_D$). |
+| m2, m3 | Tipo (iii) descrito con conectores de cadena y la cola de $Z_1$ (prueba y Pregunta 7.1(ii)); en el DAG, $c_{T_\ell}-c_O\ge2\alpha_\ell>0$ para todo flujo de $W$. |
+| m4 E8 | Texto: 70 etiquetados + 30 + 30 aleatorios, 20 con pesos. `make_numbers.py` reproduce el generador de `theory/check_routing_hardness.py` (misma semilla y orden de sorteos) y coteja grafos/pares/miembros/no miembros con la salida antes de escribir macros. |
+| m5 | Nota de corrección en `RESPUESTA_EQO001_ronda3_20261003.md`, §1.4 punto 5 (y en §1, por m6). |
+| m6 CLAIMS | Sin "independiente" para el integrador; el chequeo de 54 pares está ahora en `experiments/routing_integrator_check.py` con salida en `results/routing_integrator_check_output.txt` (re-ejecutado: idéntico salvo CPU, 141 s). |
+| m7 | "macros used here"; README: `table_random.tex` ya no se incluye. |
+| m8 | Cláusula de dualidad de PL (potenciales de nodo) para $\Lambda_1$ en el DAG. |
+| m9, m10, m11, m12 | Resumen con "explicit path sets or all paths of an acyclic network"; comprobación polinómica de Wardrop en el enunciado del Teorema 5.12 (y por caminos más cortos en el DAG); esbozo "the route $Z_1$ of a switch commodity, which meets every $T_\ell$"; Remark 5.2 nombra lo consultado (complejidad de equilibrios multiclase y multimercancía, diseño de peajes, ruteo de Stackelberg), sin nuevas citas. |
+| Estado | Teorema 5.12, Obs. 5.13 y Cor. 5.14: "proved here, Appendix B; checked by an independent internal referee (round 4) and in E8" (texto, CLAIMS, README, ficha); agradecimientos: cuatro rondas. |
+| Bibliografía | Schrijver citado como "Section 10.2" (3 apariciones), no "Theorem 10.2"; DOI de KTK (10.1016/0041-5553(80)90098-1, verificado por el árbitro). 36 entradas, todas citadas. |
+| Extensión | Recortes 1–6 del árbitro aplicados (variante del Ej. 5.6, cálculo de $\Lambda$ del Ej. 5.7 y cotas de la Obs. 5.13 al Apéndice B; Remark 5.2 a la mitad; párrafo tras la Prop. 5.9 fundido; E8 a pocas líneas) y, además, pruebas de la descripción del Ej. 5.8, del Lema 5.11 y de la Prop. 5.15 al Apéndice B. Texto principal ≈ 11.5 pp (antes ≈ 12.4); total 18 (antes 17). |
+
+### Números que cambiaron en la v0.5
+- `\RtRandFive` y `\RtRandSix`: 40 → 30 (el 40 salía de una frase fija del log; el generador hace 20 + 10 grafos por $n$). Nuevos: `\RtAllLabelled` = 70, `\RtRandWeighted` = 20, `\RtDagMinPathsZ` = 4, `\RtDagMaxPathsZ` = 20. Los otros 200 macros de la v0.4, idénticos (comprobado por programa contra la copia de la v0.4). E1–E8 no se re-ejecutaron (no cambió su código).
+
+### Lo que queda abierto tras la ronda 4
+1. **Pregunta 7.1 (v0.5):** (i) número fijo de mercancías (ya dos) con pesos positivos distintos; (ii) Cor. 5.14 con $F$ fuertemente monótono; (iii) DAG con todas las rutas y número fijo de mercancías, ya con dos y $\lambda=e_W$.
+2. Extensión: total 18 páginas (texto principal ≈ 11.5). Bajar a 10–11 en total exigiría separar el material de ruteo (Lema 5.11–Prop. 5.15, Apéndice B salvo la Prop. 5.9, E8) en una nota propia; el árbitro lo deja a decisión del autor.
+3. Ej. 5.8: frontera lineal fuera de $(\frac23,\frac32)$ sólo comprobada numéricamente.
+4. Bibliografía: el número de teorema de Schrijver en la §10.2 no se pudo cotejar (por eso se cita la sección); la entrada relacionada arXiv 1811.08354 (PPAD-dificultad del equilibrio multiclase) que sugirió el árbitro no se cita por no haber podido cotejar sus datos.
+5. `theory/check_routing_hardness.py` conserva la frase fija errónea "40 random … half with weights" en su salida; no se toca `theory/` (lo corrige su autor o la integración posterior).
+6. Pendientes antiguos: E4 con $N=5,6$ y solver global; prerregistro externo inexistente; confirmar qué era la "formulación revisada"; decisión del autor sobre la ficha propuesta (condicional, ahora v0.5).
+

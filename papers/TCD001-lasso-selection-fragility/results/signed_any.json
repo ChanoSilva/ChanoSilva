@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "script": "experiments/check_signed_any.py",
+    "original": "theory/check_signed_any.py",
+    "seed": 20261003,
+    "python": "3.11.15",
+    "cpu_seconds": 3.6,
+    "log_sha256": "c3e7244d5c447f901d8f8aa47bd98c7676d30347e9ec0403cd803549f2a9b101",
+    "log_has_timing": false
+  },
+  "seed": 20261003,
+  "A_empty_support": {
+    "total": 400,
+    "ge_ok": 400,
+    "clean": 397,
+    "agree": 397,
+    "tie_instances": 3,
+    "mismatches": 0
+  },
+  "B_cauchy_binet": {
+    "cb_total": 295,
+    "cb_ok": 295,
+    "var_total": 200,
+    "var_ok": 200
+  },
+  "C_x3c_gadget": {
+    "id_total": 344,
+    "id_ok": 344,
+    "res_ok": 344,
+    "cover_instances": 9,
+    "cover_strict_max": 0,
+    "cover_strict_min": 0
+  }
+}
