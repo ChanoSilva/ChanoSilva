@@ -1,5 +1,3 @@
-[EN CURSO]
-
 # Informe de arbitraje interno independiente — MRT001, ronda 4 (verificación de teoremas nuevos)
 
 Fecha: 03/10/2026. Objeto: borrador v0.6 (`manuscript/main.tex`, 563 líneas; PDF de 26 pp.), en particular lo integrado en esta ronda: Sección 5, párrafo "The realizer law" (definiciones; Teorema 5.3 de Gallai como literatura; Lemas 5.4 y 5.5; Teorema 5.6, ley de realizadores; Proposición 5.7, excepciones), Apéndice B (pruebas completas, Observación B.1, comprobación numérica) y la Tabla E5f ampliada. Árbitro nuevo, independiente de los anteriores. No modifiqué nada de la carpeta salvo este informe; trabajo auxiliar en `/tmp/claude-0/-home-user-ChanoSilva/6d28bda3-759e-5faa-92d7-8739680d15c2/scratchpad/referee3_MRT001/` (`bf.py`, `run1.py`–`run4.py` y sus `.out`, copia compilada del manuscrito en `copy/`).
@@ -126,9 +124,9 @@ Todo con código propio (`bf.py`), escrito desde las definiciones, sin importar 
 4. **E5f frente a los JSON**: recalculé la Tabla 9 desde `results/results_realizer_law.json` (`raw`): las seis filas coinciden carácter a carácter con `manuscript/table_e5f.tex`; 13 excepciones frente a 14.7 esperadas para $n\ge100$ ✓; razones {3/2, 2, 3, 4, 6} en total y {3/2, 2} para $n\ge100$ ✓. Macros `\RlawChk*` contrastadas con la salida congelada (4.83/5.40, 0.368, 0.9957, 5913, 3318, 87 s) ✓.
 5. **SHA-256**: `sha256sum results/check_realizer_law_output.txt` = `4e011b1e04312e479b3de9ebeb1d27625d287ec152ddc0cd139e608022e0dc84` = valor de `results/check_realizer_law_output.sha256` y prefijo de `\RlawChkSha` ✓.
 6. **Compilación** en copia: 26 pp., sin "??", sin referencias indefinidas, sin cajas desbordadas; `make_numbers.py` reproduce `numbers.tex` y `table_e5f.tex` idénticos.
-7. **Reproducción de E5f**: (pendiente de completar abajo).
+7. **Reproducción de E5f**: corrida completa de `experiments/realizer_law.py` (semilla 20260933) en una copia en el scratchpad, 154 s de pared (127.6 s en la corrida de referencia): `raw` idéntico y todas las filas idénticas salvo el campo de tiempo; mismas excepciones (49, 21, 8, 2, 2, 1). No relancé E1–E5 (no cambiaron en esta ronda) ni `check_realizer_law.py` (sustituido por mi comprobación independiente).
 
-Tiempo de CPU: fuerza bruta y clasificación ≈ 80 s; compilación ≈ 15 s.
+Tiempo de CPU total del árbitro: ≈ 250 s (fuerza bruta y clasificación ≈ 80 s; E5f ≈ 154 s; `make_numbers.py` y `latexmk` ≈ 15 s).
 
 ## Extensión
 
