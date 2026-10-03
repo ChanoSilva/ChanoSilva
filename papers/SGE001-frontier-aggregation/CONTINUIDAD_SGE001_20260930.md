@@ -129,3 +129,13 @@ Lo que queda abierto tras la ronda 2:
 4. Confirmar con el autor las lecturas de "dinámica", "jerárquica" y "calibración posterior", y si existe material previo.
 5. Estimar $T_u$ dentro de una familia paramétrica y probarlo fuera de familia; eficiencias correlacionadas con los insumos.
 6. Actualizar la ficha del CV web con `FICHA_SGE001_propuesta.md`.
+
+## Integración del certificado de cuarto orden (03/10/2026) [EN CURSO]
+
+Sesión integradora (autor). Material de partida: `theory/sharp_certificate.tex`, `theory/sharp_certificate_derivation.md`, `theory/check_sharp_certificate.py`, `theory/check_sharp_certificate_output.txt`, `theory/sharp_certificate_results.json` (agente de teoría, 03/10/2026). Objetivo: v0.3 → v0.4 (fecha fija 3 October 2026). Nada de `theory/` se modifica (la re-ejecución del script se hace sobre una copia en el scratchpad para no sobrescribir la salida guardada).
+
+Avance:
+- [ ] Verificación independiente (demostración; chequeo propio; re-ejecución del script).
+- [ ] Generador de macros en `experiments/make_numbers.py` con SHA-256 congelado.
+- [ ] Integración en `main.tex`, compilación, páginas.
+- [ ] README, ficha.

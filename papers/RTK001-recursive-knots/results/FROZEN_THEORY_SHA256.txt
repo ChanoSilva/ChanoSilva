@@ -14,3 +14,16 @@ ce5da1dfd00e7faa6d28e08f7078f613ca8265e6e7d5587b6d3bc51480676445  results/check_
 92e4721624af81cadd3614ac68f1157a98e711eb281f3f1c1b44f632cfbf77e2  theory/check_same_strand.py
 dcc6745b40360dc6a9b67a56abd40f19e321b1ee3d74aa847a7f3435343cdcdc  theory/check_Hc_summary.json
 4797be4ef6fd37d1a2e5984d6001ab4c477b38d8568cbc89cdf9d625f7a4eefd  theory/check_same_strand_summary.json
+# --- added for v0.4 (review round 3, 03/10/2026): partial result on the uniformity of (H_3) ---
+# experiments/check_H3.py is a copy of theory/check_H3.py with only (i) the output directory changed to results/ and
+# (ii) a JSON summary added (results/check_H3_summary.json, the numbers of the text output); rerun on 03/10/2026:
+# results/check_H3_output.txt is identical to theory/check_H3_output.txt except for the timing lines.
+# make_numbers.py reads only results/check_H3_summary.json (and results/phase_margin.json, a new scan, not frozen theory).
+56b602b717d204bedf8c8b6e3d9b94e232f44dd52691996805ccde0e4b8a75dd  experiments/check_H3.py
+7fd274d618dca09a2ea835c584711b85d539da49e959776cc1afb6667dc76065  results/check_H3_summary.json
+ce55a2200d9fb7ed56cd8969d9858a9fd8556e57dc38223ce3b95a5b5e210891  results/check_H3_output.txt
+# originals in theory/ at freezing time (03/10/2026; theory/ was not modified):
+fdee275aa2a9ef759468a62be28d80634a56386f8b285c3ab27c025073654fd0  theory/check_H3.py
+0b8faf4caaf1c49216e5ccb5d722bb0d3e37c7863e640f6eaecc34e2ca562de8  theory/check_H3_output.txt
+d2af32c50051ed71c96b320e823bbc65cd85fc7cb71a651c33ed6965d2d82503  theory/H3_uniform_lemma.tex
+319f92c4f0c5934488e7daa660c97e3ea98370a5582a2562ae1c2b67133191ee  theory/H3_uniform_derivation.md
